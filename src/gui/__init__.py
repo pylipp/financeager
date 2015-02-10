@@ -28,6 +28,10 @@ _FONT_.setBold(True)
 from datetime import datetime 
 _CURRENTMONTH_ = datetime.now().month - 1
 
+_MONTHS_ = [ 'January', 'February', 'March', 'April', 
+        'May', 'June', 'July', 'August', 
+        'September', 'October', 'November', 'December' ]
+
 def loadUi(modpath, widget):
     """
     Uses the PyQt4.uic.loadUi method to lead the input ui file associated
