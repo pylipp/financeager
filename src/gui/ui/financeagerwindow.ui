@@ -50,7 +50,7 @@
     <addaction name="action_New_Year"/>
     <addaction name="action_Load_Year"/>
     <addaction name="separator"/>
-    <addaction name="action_New_Category"/>
+    <addaction name="action_Search"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -92,10 +92,10 @@
    <addaction name="action_Remove_Entry"/>
    <addaction name="separator"/>
    <addaction name="action_New_Year"/>
-   <addaction name="action_New_Category"/>
    <addaction name="action_Load_Year"/>
    <addaction name="action_Statistics"/>
    <addaction name="separator"/>
+   <addaction name="action_Search"/>
    <addaction name="action_Settings"/>
    <addaction name="action_About"/>
    <addaction name="action_Quit"/>
@@ -245,6 +245,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="action_Search">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../../../../../../../../../home/philipp/Dropbox/code/financeager/src/resources/img/search.png</normaloff>../../../../../../../../../../../home/philipp/Dropbox/code/financeager/src/resources/img/search.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Search</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>

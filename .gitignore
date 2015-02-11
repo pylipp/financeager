@@ -1,2 +1,6 @@
+# python binary code
 *.pyc
+# vim backup files
+*.swp
+# xml data
 *.xml

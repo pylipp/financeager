@@ -42,6 +42,16 @@ class EntryItem(QtGui.QStandardItem):
     def __init__(self, text=""):
         super(EntryItem, self).__init__(text)
 
+    def sibling(self, row, col):
+        """
+        Workaround to get the sibling of item self at row and col. 
+
+        :param      row, col | int 
+        :return     QStandardItem 
+        """
+        return self.model().itemFromIndex( 
+                self.model().sibling(row, col, self.index()))
+
     def xmlTag(self):
         return 'entry'
 

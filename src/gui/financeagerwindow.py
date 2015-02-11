@@ -23,6 +23,7 @@ from monthtab import MonthTab
 from newentrydialog import NewEntryDialog 
 from statisticswindow import StatisticsWindow 
 from settingsdialog import SettingsDialog 
+from searchdialog import SearchDialog 
 from items import EntryItem, ExpenseItem, DateItem, CategoryItem
 
 class FinanceagerWindow(QtGui.QMainWindow):
@@ -64,6 +65,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.action_Load_Year.triggered.connect(self.loadYearFromUser)
         self.action_Statistics.toggled.connect(self.showStatistics)
         self.action_Settings.triggered.connect(self.showSettings)
+        self.action_Search.triggered.connect(self.showSearchDialog)
         self.action_About.triggered.connect(self.showAbout)
         self.action_Quit.triggered.connect(self.close)
         
@@ -284,6 +286,10 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 (__author__, __email__, __credits__, __copyright__))
         messageBox.setIconPixmap(QtGui.QPixmap(pmpath))
         messageBox.exec_()
+
+    def showSearchDialog(self):
+        dialog = SearchDialog(self)
+        dialog.show()
 
     def showSettings(self):
         """
