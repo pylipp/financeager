@@ -269,6 +269,8 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.fileName = fileName 
         self.action_New_Entry.setEnabled(True)
         self.action_Statistics.setEnabled(True)
+        self.action_Search.setEnabled(True)
+        self.action_Settings.setEnabled(True)
         self.setWindowTitle('Financeager - ' + str(self.__year))
         self.__statWindow = StatisticsWindow(self)
         # put the current month's tab to the front

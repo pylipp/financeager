@@ -15,6 +15,7 @@ __email__       = 'beth.aleph@yahoo.de'
 
 
 from PyQt4 import QtGui 
+from PyQt4.QtCore import QDate 
 from . import _FONT_ 
 
 class CategoryItem(QtGui.QStandardItem):
@@ -72,6 +73,22 @@ class ExpenseItem(QtGui.QStandardItem):
         self.__value = value 
         self.setText(str(value))
         
+
+class ResultItem(QtGui.QStandardItem):
+    """ Represents an item displayed in the SearchDialog. """
+    def __init__(self, data=None):
+        super(ResultItem, self).__init__()
+        self.setEditable(False)
+        self.setData(data)
+        if self.data().toDate().isValid():
+            data = data.toString('MM\'-\'dd')
+        self.setText(unicode(data))
+
+    #def setData(self, data):
+    #    """ Reimplementation. Also handles text displaying. """
+    #    super(ResultItem, self).setData(data)
+    #    self.setText(unicode(data))
+
 
 class SumItem(QtGui.QStandardItem):
     """ Represents a sum item. Set by the system. """

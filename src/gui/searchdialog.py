@@ -16,7 +16,8 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4.QtGui import QDialog, QStandardItem, QStandardItemModel,\
     QHeaderView, QDialogButtonBox 
-from PyQt4.QtCore import Qt 
+from PyQt4.QtCore import Qt, QDate 
+from items import ResultItem
 from . import loadUi
 
 class SearchDialog(QDialog):
@@ -80,14 +81,18 @@ class SearchDialog(QDialog):
                         entry = category.child(e)
                         name = unicode(entry.text())
                         if name.upper().find(pattern) > -1:
-                            nameItem = QStandardItem(name)
+                            nameItem = ResultItem(name)
                             nameItem.setCheckable(True)
-                            value = unicode(category.child(e, 1).value())
-                            date = unicode(category.child(e, 2).text())
-                            date = date + str(m+1) + '.'
-                            self.__model.appendRow([nameItem, QStandardItem(value),
-                                QStandardItem(date),
-                                QStandardItem(category.text())])
+                            value = category.child(e, 1).value()
+                            # drop the trailing dot 
+                            day = unicode(category.child(e, 2).text())[:-1]
+                            date = QDate(self.parent().year(), m+1, int(day))
+                            self.__model.appendRow([nameItem,
+                                ResultItem(value), ResultItem(date),
+                                ResultItem(category.text())])
 
     def sortByColumn(self, col):
-        self.tableView.sortByColumn(col, Qt.AscendingOrder)
+        if col == 1:
+            self.__model.setSortRole(Qt.UserRole + 1)
+        self.__model.sort(col)
+        #self.tableView.sortByColumn(col, Qt.AscendingOrder)

@@ -236,6 +236,9 @@
    </property>
   </action>
   <action name="action_Settings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../../../../../../../../../home/philipp/Dropbox/code/financeager/src/resources/img/settings.png</normaloff>../../../../../../../../../../../home/philipp/Dropbox/code/financeager/src/resources/img/settings.png</iconset>
@@ -248,6 +251,9 @@
    </property>
   </action>
   <action name="action_Search">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../../../../../../../../../home/philipp/Dropbox/code/financeager/src/resources/img/search.png</normaloff>../../../../../../../../../../../home/philipp/Dropbox/code/financeager/src/resources/img/search.png</iconset>
