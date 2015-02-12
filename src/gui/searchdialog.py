@@ -36,9 +36,12 @@ class SearchDialog(QDialog):
         loadUi(__file__, self)
 
         self.__model = QStandardItemModel(self.tableView)
+        # sorts model according to Item.data, Item.text 
+        self.__model.setSortRole(Qt.UserRole + 1) 
         self.__model.setHorizontalHeaderLabels(
                 ['Name', 'Value', 'Date', 'Category'])
         self.tableView.setModel(self.__model)
+        self.__sortOrder = 1 #Descending order
 
         self.tableView.horizontalHeader().setResizeMode(QHeaderView.Stretch)
         self.tableView.adjustSize()
@@ -78,6 +81,7 @@ class SearchDialog(QDialog):
                 for r in range(model.rowCount()):
                     category = model.item(r)
                     for e in range(category.rowCount()):
+                        #TODO implement sortable Item type (needs data attribute)
                         entry = category.child(e)
                         name = unicode(entry.text())
                         if name.upper().find(pattern) > -1:
@@ -92,7 +96,12 @@ class SearchDialog(QDialog):
                                 ResultItem(category.text())])
 
     def sortByColumn(self, col):
-        if col == 1:
-            self.__model.setSortRole(Qt.UserRole + 1)
-        self.__model.sort(col)
-        #self.tableView.sortByColumn(col, Qt.AscendingOrder)
+        """
+        Called when a section of the horizontalHeader of the model is clicked.
+        Toggles the sortOrder from descending to ascending and vice versa. 
+        Finally the respective column is sorted. 
+
+        :param      col | int 
+        """
+        self.__sortOrder = not self.__sortOrder  
+        self.__model.sort(col, self.__sortOrder)

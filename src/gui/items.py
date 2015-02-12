@@ -44,6 +44,7 @@ class EntryItem(QtGui.QStandardItem):
         super(EntryItem, self).__init__(text)
 
     def sibling(self, row, col):
+        # TODO this is deprecated 
         """
         Workaround to get the sibling of item self at row and col. 
 
@@ -83,11 +84,6 @@ class ResultItem(QtGui.QStandardItem):
         if self.data().toDate().isValid():
             data = data.toString('MM\'-\'dd')
         self.setText(unicode(data))
-
-    #def setData(self, data):
-    #    """ Reimplementation. Also handles text displaying. """
-    #    super(ResultItem, self).setData(data)
-    #    self.setText(unicode(data))
 
 
 class SumItem(QtGui.QStandardItem):
