@@ -67,6 +67,10 @@ class SearchDialog(QDialog):
 
     def displaySearchResult(self):
         """
+        Searches for the pattern given by the user in all months of the current
+        year. If specified, only the respective expenditures or receipts are
+        scanned. 
+        If a match is found, new items are cloned and appended to the table.
         """
         pattern = unicode(self.lineEdit.text())
         self.setWindowTitle('Search for \'%s\'' % pattern)
@@ -76,17 +80,23 @@ class SearchDialog(QDialog):
         self.__model.setHorizontalHeaderLabels(
                 ['Name', 'Value', 'Date', 'Category'])
         for m in range(12):
-            for model in [monthsTabWidget.widget(m).expendituresModel(),
-                    monthsTabWidget.widget(m).receiptsModel()]:
+            if self.expendituresButton.isChecked():
+                modelList = [monthsTabWidget.widget(m).expendituresModel()]
+            elif self.receiptsButton.isChecked():
+                modelList = [monthsTabWidget.widget(m).receiptsModel()]
+            elif self.bothButton.isChecked():
+                modelList = [monthsTabWidget.widget(m).expendituresModel(),
+                    monthsTabWidget.widget(m).receiptsModel()]
+            for model in modelList:
                 for r in range(model.rowCount()):
                     category = model.item(r)
                     for e in range(category.rowCount()):
                         #TODO implement sortable Item type (needs data attribute)
+                        #TODO implement this with item cloning
                         entry = category.child(e)
                         name = unicode(entry.text())
                         if name.upper().find(pattern) > -1:
                             nameItem = ResultItem(name)
-                            nameItem.setCheckable(True)
                             value = category.child(e, 1).value()
                             # drop the trailing dot 
                             day = unicode(category.child(e, 2).text())[:-1]
