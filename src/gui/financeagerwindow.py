@@ -16,7 +16,7 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
-from PyQt4.QtCore import pyqtSlot 
+from PyQt4.QtCore import pyqtSlot, QDate
 from . import loadUi, _CURRENTMONTH_ 
 from .. import settings 
 from monthtab import MonthTab 
@@ -151,6 +151,9 @@ class FinanceagerWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.warning(self, 'Error!', 
                     'An unexpected error occured during parsing the xml file: \n%s' % err)
             return 
+        #FIXME just a work around because DateItems need the year
+        # TODO set all month tab already at initialization!
+        self.__year = int(root.get('value'))
         for child in root:
             month = str(child.get('value'))
             monthTab = MonthTab(self, month, False)
@@ -190,7 +193,11 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 catItem = catItem[0]
                 entryItem = EntryItem(unicode(dialog.nameEdit.text()))
                 expenseItem = ExpenseItem(str(dialog.expenseEdit.text()))
-                dateItem = DateItem(unicode(dialog.dateCombo.currentText()))
+                day = unicode(dialog.dateCombo.currentText())
+                dateItem = DateItem(day)
+                date = QDate(self.year(),
+                        self.monthsTabWidget.currentIndex()+1, int(day[:-1]))
+                dateItem.setData(date)
                 catItem.appendRow([entryItem, expenseItem, dateItem])
                 model.setSumItem(expenseItem)
             
@@ -207,6 +214,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
             dialog.setInputMode(QtGui.QInputDialog.IntInput)
             from datetime import date 
             # necessary to set a dateList in a newEntryDialog
+            #TODO use the mightier QDate here
             dialog.setIntMinimum(date.min.year) # 1
             dialog.setIntMaximum(date.max.year) # 9999
             if dialog.exec_():

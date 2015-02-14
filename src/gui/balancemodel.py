@@ -84,6 +84,7 @@ class BalanceModel(QtGui.QStandardItemModel):
         self.__valueItem.setValue(value)
         
     def validateFloat(self, item):
+        #TODO implement analogous function for date input
         """
         Called whenever an item is changed. 
         Prompts the user with a warning if he gives a non-float input. 

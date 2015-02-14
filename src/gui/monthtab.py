@@ -14,7 +14,8 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4 import QtGui 
 from PyQt4.QtGui import QStandardItem 
-from . import loadUi 
+from PyQt4.QtCore import QDate 
+from . import loadUi, _MONTHS_
 from items import CategoryItem, SumItem, EntryItem, ExpenseItem, DateItem 
 from balancemodel import BalanceModel 
 from .. import settings 
@@ -105,9 +106,13 @@ class MonthTab(QtGui.QWidget):
                 appender.appendRow([catItem, SumItem(value), DateItem()])
                 self.parseXMLtoModel(child.getchildren(), catItem)
             else:
-                date = unicode(child.get('date'))
+                day = unicode(child.get('date'))
+                dateItem = DateItem(day)
+                month = _MONTHS_.index(self.month()) + 1
+                date = QDate(self.parent().year(), month, int(day[:-1]))
+                dateItem.setData(date)
                 appender.appendRow(
-                        [EntryItem(name), ExpenseItem(value), DateItem(date)])
+                        [EntryItem(name), ExpenseItem(value), dateItem])
 
     def receiptsModel(self):
         return self.__receiptsModel 

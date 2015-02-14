@@ -76,13 +76,20 @@ class ExpenseItem(QtGui.QStandardItem):
         
 
 class ResultItem(QtGui.QStandardItem):
-    """ Represents an item displayed in the SearchDialog. """
+    """ 
+    Represents an item displayed in the SearchDialog.
+    The text of name, value and category entries is the string representation
+    of their data. The text of the date entry is formatted. 
+    
+    :param      data | str, float, QDate 
+    """
     def __init__(self, data=None):
         super(ResultItem, self).__init__()
         self.setEditable(False)
         self.setData(data)
+        # self.data() required here (returns a QVariant)
         if self.data().toDate().isValid():
-            data = data.toString('MM\'-\'dd')
+            data = data.toDate().toString('dd\'.\'MM\'.\'')
         self.setText(unicode(data))
 
 

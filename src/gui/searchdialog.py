@@ -91,17 +91,12 @@ class SearchDialog(QDialog):
                 for r in range(model.rowCount()):
                     category = model.item(r)
                     for e in range(category.rowCount()):
-                        #TODO implement sortable Item type (needs data attribute)
-                        #TODO implement this with item cloning
                         entry = category.child(e)
                         name = unicode(entry.text())
                         if name.upper().find(pattern) > -1:
-                            nameItem = ResultItem(name)
                             value = category.child(e, 1).value()
-                            # drop the trailing dot 
-                            day = unicode(category.child(e, 2).text())[:-1]
-                            date = QDate(self.parent().year(), m+1, int(day))
-                            self.__model.appendRow([nameItem,
+                            date = category.child(e, 2).data()
+                            self.__model.appendRow([ResultItem(name),
                                 ResultItem(value), ResultItem(date),
                                 ResultItem(category.text())])
 

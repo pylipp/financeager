@@ -13,7 +13,7 @@ __email__       = 'beth.aleph@yahoo.de'
 
 
 from PyQt4.QtGui import QDialog, QRegExpValidator, QDoubleValidator, QDialogButtonBox 
-from PyQt4.QtCore import QRegExp 
+from PyQt4.QtCore import QRegExp, QDate
 from . import loadUi, _CURRENTMONTH_
 from calendar import monthrange
 
