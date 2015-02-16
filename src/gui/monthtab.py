@@ -12,26 +12,31 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4 import QtGui 
-from PyQt4.QtGui import QStandardItem 
+from PyQt4 import QtCore
+from PyQt4.QtGui import QStandardItem, QStandardItemModel, QWidget, QHeaderView
 from PyQt4.QtCore import QDate 
-from . import loadUi, _MONTHS_
+from . import loadUi, _MONTHS_, _HEADERLABELS_
 from items import CategoryItem, SumItem, EntryItem, ExpenseItem, DateItem 
 from balancemodel import BalanceModel 
 from .. import settings 
 
 
-class MonthTab(QtGui.QWidget):
+class MonthTab(QWidget):
     """ MonthTab class for the Financeager application. """
 
     def __init__(self, parent=None, month=None, filled=True):
         super(MonthTab, self).__init__(parent)
         loadUi(__file__, self)
+        # explicit reference required because built-in method 
+        # QWidget.parent() returns QStackWidget for some reason
+        self.__parent = parent
         self.__month = month 
+        self.__monthIndex = _MONTHS_.index(month)
         self.__expendituresModel = None 
         self.__receiptsModel = None 
-        self.__categoriesModel = QtGui.QStandardItemModel()
+        self.__categoriesModel = QStandardItemModel()
         self.setModels(filled)
+        self.setViews()
 
     def categoriesModel(self):
         """
@@ -54,7 +59,8 @@ class MonthTab(QtGui.QWidget):
     def categoriesStringList(self):
         """
         Returns all the names of all the child categories in a string list. 
-        Called from CategoriesTab in SettingsDialog to fill the removeCategoryCombo.
+        Called from CategoriesTab in SettingsDialog to fill the 
+        removeCategoryCombo.
 
         :return     list[str]
         """
@@ -65,25 +71,21 @@ class MonthTab(QtGui.QWidget):
     def expendituresModel(self):
         return self.__expendituresModel 
 
-    def setModels(self, filled):
-        """ 
-        Sets up the models for the expendituresView and receiptsView.
-        Does not set the categoriesModel because expendituresModel and 
-        receiptsModel are not yet filled with data when being loaded from 
-        xml file (flag filled=False).
-        """
-        self.__expendituresModel = BalanceModel(
-                self.expendituresView, settings._EXPCATEGORIES_, filled)
-        self.expendituresView.setModel(self.__expendituresModel)
-        self.__receiptsModel = BalanceModel(
-                self.receiptsView, settings._RECCATEGORIES_, filled)
-        self.receiptsView.setModel(self.__receiptsModel)
-        for view in [self.expendituresView, self.receiptsView]:
-            view.header().setResizeMode(QtGui.QHeaderView.ResizeToContents)
-            view.clicked.connect(self.parentWidget().enableRemoveEntry)
-
     def month(self):
+        """
+        Name of the tab's month.
+
+        :return     str 
+        """
         return self.__month 
+
+    def monthIndex(self):
+        """
+        Index of the tab's month. January has 0, February has 1 etc.
+
+        :return     int 
+        """
+        return self.__monthIndex
 
     def parseXMLtoModel(self, childList, appender):
         """
@@ -95,6 +97,9 @@ class MonthTab(QtGui.QWidget):
         :param      childList | list of xml children 
                     appender | items.Item
         """
+        if issubclass(appender.__class__, QStandardItemModel):
+            appender.clear()
+            appender.setHorizontalHeaderLabels(_HEADERLABELS_)
         for child in childList:
             name = unicode(child.get('name'))
             value = str(child.get('value'))  
@@ -108,14 +113,39 @@ class MonthTab(QtGui.QWidget):
             else:
                 day = unicode(child.get('date'))
                 dateItem = DateItem(day)
-                month = _MONTHS_.index(self.month()) + 1
-                date = QDate(self.parent().year(), month, int(day[:-1]))
+                month = self.__monthIndex + 1
+                #import pdb; QtCore.pyqtRemoveInputHook(); pdb.set_trace()
+                date = QDate(self.__parent.year(), month, int(day[:-1]))
                 dateItem.setData(date)
                 appender.appendRow(
                         [EntryItem(name), ExpenseItem(value), dateItem])
 
     def receiptsModel(self):
         return self.__receiptsModel 
+
+    def setModels(self, filled):
+        """ 
+        Sets up the models for the expendituresView and receiptsView.
+        Does not set the categoriesModel because expendituresModel and 
+        receiptsModel are not yet filled with data when being loaded from 
+        xml file (flag filled=False).
+        """
+        self.__expendituresModel = BalanceModel(
+                self.expendituresView, settings._EXPCATEGORIES_, filled)
+        self.__receiptsModel = BalanceModel(
+                self.receiptsView, settings._RECCATEGORIES_, filled)
+
+    def setViews(self):
+        """
+        Connects the tab's models to the  respective views. 
+        Does some layout adjustments and sets up connections.
+        Only called at initialization of MonthTab. 
+        """
+        self.expendituresView.setModel(self.__expendituresModel)
+        self.receiptsView.setModel(self.__receiptsModel)
+        for view in [self.expendituresView, self.receiptsView]:
+            view.header().setResizeMode(QHeaderView.ResizeToContents)
+            view.clicked.connect(self.parentWidget().enableRemoveEntry)
 
     def writeToXML(self, xmlWriter, name, value, item):
         """

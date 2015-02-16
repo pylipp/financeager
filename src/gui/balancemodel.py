@@ -14,7 +14,7 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4 import QtGui 
 from items import CategoryItem, SumItem, ExpenseItem, DateItem
-from .. import settings 
+from . import _HEADERLABELS_
 
 
 class BalanceModel(QtGui.QStandardItemModel):
@@ -28,7 +28,7 @@ class BalanceModel(QtGui.QStandardItemModel):
     def __init__(self, parent=None, categories=None, filled=True):
         super(BalanceModel, self).__init__(parent)
         self.__valueItem = ExpenseItem('0')
-        self.setHorizontalHeaderLabels(settings._HEADERLABELS_)
+        self.setHorizontalHeaderLabels(_HEADERLABELS_)
         if filled:
             for category in categories:
                 self.appendRow(
@@ -45,9 +45,6 @@ class BalanceModel(QtGui.QStandardItemModel):
         :return     list[str]
         """
         return [unicode(self.item(r).text()) for r in range(self.rowCount())]
-
-    def ctagtest2(self):
-        pass 
 
     def child(self, row, col):
         """

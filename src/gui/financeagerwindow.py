@@ -17,7 +17,7 @@ __email__       = 'beth.aleph@yahoo.de'
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
 from PyQt4.QtCore import pyqtSlot, QDate
-from . import loadUi, _CURRENTMONTH_ 
+from . import loadUi, _CURRENTMONTH_, _MONTHS_
 from .. import settings 
 from monthtab import MonthTab 
 from newentrydialog import NewEntryDialog 
@@ -28,7 +28,6 @@ from items import EntryItem, ExpenseItem, DateItem, CategoryItem
 
 class FinanceagerWindow(QtGui.QMainWindow):
     """ MainWindow class for the Financeager application. """
-    #TODO implement search function that list all entries corresp. to one name?
     
     def __init__(self, parent=None):
         super(FinanceagerWindow, self).__init__(parent)
@@ -46,8 +45,11 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.__autoSave = False 
         self.__fileName = None 
 
-        # adjust layout
-        self.monthsTabWidget.clear()
+        # adjust layout, i.e. set the MonthTabs
+        for month in _MONTHS_:
+            self.monthsTabWidget.addTab(MonthTab(self, month), month)
+        # put the current month's tab to the front
+        self.monthsTabWidget.setCurrentIndex(_CURRENTMONTH_)
         
         # if specified, load xml file from command line argument
         if QtCore.QCoreApplication.instance().argc() > 1:
@@ -152,16 +154,15 @@ class FinanceagerWindow(QtGui.QMainWindow):
                     'An unexpected error occured during parsing the xml file: \n%s' % err)
             return 
         #FIXME just a work around because DateItems need the year
-        # TODO set all month tab already at initialization!
         self.__year = int(root.get('value'))
-        for child in root:
+        for m, child in enumerate(root):
             month = str(child.get('value'))
-            monthTab = MonthTab(self, month, False)
+            assert month == _MONTHS_[m]
+            monthTab = self.monthsTabWidget.widget(m) 
             monthTab.parseXMLtoModel([child.getchildren()[0]], monthTab.expendituresModel())
             monthTab.parseXMLtoModel([child.getchildren()[1]], monthTab.receiptsModel())
             monthTab.expendituresView.expandAll()
             monthTab.receiptsView.expandAll()
-            self.monthsTabWidget.addTab(monthTab, month)
         self.setYear(int(root.get('value')), inputFile)
         self.setAutoSave(root.get('autoSave') == 'True')
     
@@ -218,9 +219,8 @@ class FinanceagerWindow(QtGui.QMainWindow):
             dialog.setIntMinimum(date.min.year) # 1
             dialog.setIntMaximum(date.max.year) # 9999
             if dialog.exec_():
-                self.monthsTabWidget.clear()
-                for month in settings._MONTHS_:
-                    self.monthsTabWidget.addTab(MonthTab(self, month), month)
+                for m in range(12):
+                    self.monthsTabWidget.widget(m).setModels(filled=True)
                 self.setYear(dialog.intValue(), 
                     settings._XMLFILE_ + str(self.__year) + '.xml')
         # override if another year has already been loaded?
@@ -281,7 +281,6 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.action_Settings.setEnabled(True)
         self.setWindowTitle('Financeager - ' + str(self.__year))
         self.__statWindow = StatisticsWindow(self)
-        # put the current month's tab to the front
         self.monthsTabWidget.setCurrentIndex(_CURRENTMONTH_)
 
     def showAbout(self):

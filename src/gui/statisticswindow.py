@@ -55,6 +55,7 @@ class StatisticsWindow(QtGui.QDialog):
         for c in range(3):
             self.__model.setItem(12, c, ExpenseItem('0'))
         self.__totals = [0, 0]
+        #FIXME does not update February etc
         self.updateTotalItems(self.__model.item(0, 0))
         self.updateTotalItems(self.__model.item(0, 1))
         self.tableView.setModel(self.__model)

@@ -32,6 +32,8 @@ _MONTHS_ = [ 'January', 'February', 'March', 'April',
         'May', 'June', 'July', 'August', 
         'September', 'October', 'November', 'December' ]
 
+_HEADERLABELS_ = ['Name', 'Value', 'Date']
+
 def loadUi(modpath, widget):
     """
     Uses the PyQt4.uic.loadUi method to lead the input ui file associated
