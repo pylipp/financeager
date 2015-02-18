@@ -12,32 +12,50 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4.QtGui import QDialog, QRegExpValidator, QDoubleValidator, QDialogButtonBox 
-from PyQt4.QtCore import QRegExp, QDate
-from . import loadUi, _CURRENTMONTH_
-from calendar import monthrange
+from PyQt4.QtGui import (QDialog, QRegExpValidator, QDoubleValidator,
+        QDialogButtonBox, QCompleter)
+from PyQt4.QtCore import QRegExp, QDate, Qt
+from . import loadUi
 
 
 class NewEntryDialog(QDialog):
-    #TODO implement autocomletion for name lineEdit.
-    """ Dialog class for the input of new entry. """
+    """ 
+    Dialog class for the input of new entry.
+    The user has to give four inputs: 
+        - a name via a QLineEdit. It is validated that the input length is
+          non-zero. Also a completion list fed by previous made entries of the
+          same month will pop up. 
+        - a value via a QLineEdit. It is validated that the input is a double
+          larger than 0.
+        - a date via a QComboBox. The box is populated with all days that the
+          current month holds (format: 1., 2., ..., 28., ...)
+        - a category via a QComboBox. The box is populated with the
+          categoriesModel of the current monthTab. 
+    Submitting the entry is only enabled if all entries are valid.
+    The parent passed at initialization is FinanceagerWindow.
+    
+    :param      parent | FinanceagerWindow 
+    """
 
     def __init__(self, parent=None):
         super(NewEntryDialog, self).__init__(parent)
         loadUi(__file__, self)
 
-        month = parent.currentMonthTab().month()
-        self.setWindowTitle('New Entry for \'%s\'' % month)
+        monthTab = parent.currentMonthTab()
+        self.setWindowTitle('New Entry for \'%s\'' % monthTab.month())
         self.setFixedSize(self.size())
         strValidator = QRegExpValidator(QRegExp('.+'))
         self.nameEdit.setValidator(strValidator)
+        completer = QCompleter(monthTab.entriesStringList())
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.nameEdit.setCompleter(completer)
         validator = QDoubleValidator()
         validator.setBottom(0.01)
         self.expenseEdit.setValidator(validator)
-        dateList = [ str(d+1)+'.' for d in range(monthrange(
-            int(parent.year()), _CURRENTMONTH_)[1]) ]
+        date = QDate(parent.year(), monthTab.monthIndex() + 1, 1)
+        dateList = [ str(d+1)+'.' for d in range(date.daysInMonth()) ]
         self.dateCombo.addItems(dateList)
-        self.categoryCombo.setModel(parent.currentMonthTab().categoriesModel())
+        self.categoryCombo.setModel(monthTab.categoriesModel())
         self.okButton = self.buttonBox.button(QDialogButtonBox.Ok)
         self.okButton.setEnabled(False)
         # CONNECTIONS

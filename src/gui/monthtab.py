@@ -68,6 +68,25 @@ class MonthTab(QWidget):
         return [unicode(categoriesModel.item(r).text()) 
                 for r in range(categoriesModel.rowCount())]
 
+    def entriesStringList(self):
+        """
+        Returns names of all entries of the current month in a string list. To
+        avoid duplication, a set is created first and then converted to a list.
+        This is used to feed the QCompleter of NewEntryDialog.
+
+        :return     list[str]
+        """
+        entries = set()
+        for r in range(self.__expendituresModel.rowCount()):
+            category = self.__expendituresModel.item(r, 0)
+            for e in range(category.rowCount()):
+                entries.add(unicode(category.child(e, 0).text()))
+        for r in range(self.__receiptsModel.rowCount()):
+            category = self.__receiptsModel.item(r, 0)
+            for e in range(category.rowCount()):
+                entries.add(unicode(category.child(e, 0).text()))
+        return list(entries)
+
     def expendituresModel(self):
         return self.__expendituresModel 
 
