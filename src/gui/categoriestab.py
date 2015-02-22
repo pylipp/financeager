@@ -12,18 +12,26 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4.QtGui import QWidget, QButtonGroup
+from PyQt4.QtGui import QWidget, QButtonGroup, QMessageBox
 from . import loadUi
 
 
 class CategoriesTab(QWidget):
-    """ Widget for displaying the categories tab in the SettingsDialog. """
+    """ 
+    Widget for displaying the categories tab in the SettingsDialog. 
+    This is embedded into the SettingsDialog. 
+    The user can add or remove a category using several options. 
+    For some reason, PyQt does not recognize QButtonGroup objects, hence they
+    need to be defined explicitely. 
+    Also, a reference to FinanceagerWindow is stored as private attribute
+    self.__parent because later referencing does not work otherwise.
+    """
 
     def __init__(self, parent=None):
         super(CategoriesTab, self).__init__(parent)
         loadUi(__file__, self)
-        # for some reason, PyQt does not recognize QButtonGroup objects
-        # need to be defined explicitely
+        self.__parent = parent 
+
         self.removeFromMonthButtons = QButtonGroup()
         self.removeFromMonthButtons.addButton(self.removeAllMonthsButton)
         self.removeFromMonthButtons.addButton(self.removeAllMonthsFromNowButton)
@@ -43,17 +51,37 @@ class CategoriesTab(QWidget):
         """
         Returns a sorted list of all the categories that occur in the parentwidget's 
         (== FinanceagerWindow's) tabs.
+        Used for both populating the removeCategoryCombo and preventing the
+        user from adding an already existing category. The latter is important
+        in order to avoid ambiguities when removing a category. 
 
         :return     list(str)
         """
         categories = set()
-        tabWidget = self.parentWidget().monthsTabWidget 
+        tabWidget = self.__parent.monthsTabWidget 
         for m in range(12):
             monthTab = tabWidget.widget(m)
             categories = categories.union(monthTab.categoriesStringList())
         categories = list(categories)
         categories.sort()
         return categories
+
+    def checkForUniqueCategory(self, name):
+        """
+        Called from updateChangesToApply() to verify that the given category
+        name is unique. Pops up a warning and resets newCategoryLineEdit if not. 
+
+        :param      name | str 
+        :return     uniqueCategory | bool 
+        """
+        if name in self.categoriesStringList():
+            QMessageBox.warning(self.__parent, 'Name conflict', 
+                    'This category name already exists. Please enter a unique name.')
+            self.newCategoryLineEdit.setText('')
+            self.newCategoryLineEdit.setFocus()
+            return False 
+        else: 
+            return True 
 
     def updateChangesToApply(self, changes):
         """
@@ -72,11 +100,12 @@ class CategoriesTab(QWidget):
         if self.addCategoryGroup.isChecked():
             name = unicode(self.newCategoryLineEdit.text()).strip()
             if len(name):
-                typ = self.expAndRecButtons.buttons().index(
-                        self.expAndRecButtons.checkedButton())
-                option = self.addToMonthButtons.buttons().index(
-                        self.addToMonthButtons.checkedButton())
-                changes.add(('addCategory', (name, typ, option)))
+                if self.checkForUniqueCategory(name):
+                    typ = self.expAndRecButtons.buttons().index(
+                            self.expAndRecButtons.checkedButton())
+                    option = self.addToMonthButtons.buttons().index(
+                            self.addToMonthButtons.checkedButton())
+                    changes.add(('addCategory', (name, typ, option)))
         if self.removeCategoryGroup.isChecked():
             name = unicode(self.removeCategoryCombo.currentText())
             option = self.removeFromMonthButtons.buttons().index(

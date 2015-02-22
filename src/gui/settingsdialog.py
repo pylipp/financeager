@@ -24,24 +24,29 @@ class SettingsDialog(QDialog):
     """ 
     Dialog class to administer the settings of Financeager.
     Parent is the FinanceagerWindow. 
-    Contains several tabs (Categories, File saving)
+    Contains several tabs (Categories, File saving).
+    When the user presses "Apply" or "OK", it's looked for any changes to
+    apply. These changes are stored in a set to guarantee that a unique change
+    is only applied once. The set is updated with tuples consisting of a
+    function string and a tuple holding some parameters. Check the respective
+    methods updateChangesToApply() of FileSavingTab and CategoriesTab for
+    further explanation.
     """
     autoSaveSet = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super(SettingsDialog, self).__init__(parent)
         loadUi(__file__, self)
-        # stores changes when ApplyButton is clicked
         self.__changes = set()
 
         self.buttonBox.button(QDialogButtonBox.Apply).setDefault(True)
-        self.tabWidget.clear()
         self.categoriesTab = CategoriesTab(parent)
         self.fileSavingTab = FileSavingTab(parent)
         self.tabWidget.addTab(self.categoriesTab, 'Categories')
         self.tabWidget.addTab(self.fileSavingTab, 'File saving')
         # CONNECTIONS
         self.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(self.updateChangesToApply)
+        self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.updateChangesToApply)
 
     def addCategory(self, parameters):
         """ 
@@ -85,7 +90,7 @@ class SettingsDialog(QDialog):
         elif option == 1:
             months = range(_CURRENTMONTH_, 12)
         elif option == 2:
-            months = range(_CURRENTMONTH_, _CURRENTMONTH_ + 1)
+            months = [_CURRENTMONTH_]
         return months 
 
     def removeCategory(self, parameters):
@@ -102,7 +107,7 @@ class SettingsDialog(QDialog):
         months = self.monthsRange(option)
         for m in months:
             monthTab = tabWidget.widget(m)
-            # pray that no items with the same name exist!!
+            #FIXME pray that no items with the same name exist!!
             item = monthTab.expendituresModel().findItems(name)
             if item:
                 monthTab.expendituresModel().removeRow(item[0].row())
@@ -112,11 +117,26 @@ class SettingsDialog(QDialog):
                     monthTab.receiptsModel().removeRow(item[0].row())
 
     def setAutoSave(self, value):
-        #self.parent().autoSave = value 
+        """
+        Emits a custom signal that is connected to the FinanceagerWindow's
+        setAutoSave() slot. 
+
+        :param      value | bool 
+        :emit       value | bool
+        """
         self.autoSaveSet.emit(value)
 
     def setFileName(self, fileName):
+        """
+        Sets the filename (attribute of FinanceagerWindow) given by the user. 
+        Passed as string from the FileSavingTab and applied via getattr in
+        applyChanges(). 
+
+        :param      fileName | str 
+        """
         self.parent().fileName = fileName 
+
     def updateChangesToApply(self):
+        """ Calls the respective tabs' function to look for changes. """
         self.categoriesTab.updateChangesToApply(self.__changes)
         self.fileSavingTab.updateChangesToApply(self.__changes)

@@ -21,6 +21,8 @@ class FileSavingTab(QWidget):
     """ 
     Widget for displaying the file saving tab in the SettingsDialog.
     Parent is the FinanceagerWindow. 
+    The user can put a path to save the current file to. Furthermore he can
+    toggle the autosave option. 
     """
 
     def __init__(self, parent=None):
@@ -31,7 +33,6 @@ class FileSavingTab(QWidget):
         self.autoSaveCheckBox.setChecked(parent.autoSave())
         # CONNECTIONS
         self.browseButton.clicked.connect(self.getFileName)
-        
 
     def getFileName(self):
         """
