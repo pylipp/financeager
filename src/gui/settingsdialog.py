@@ -107,7 +107,6 @@ class SettingsDialog(QDialog):
         months = self.monthsRange(option)
         for m in months:
             monthTab = tabWidget.widget(m)
-            #FIXME pray that no items with the same name exist!!
             item = monthTab.expendituresModel().findItems(name)
             if item:
                 monthTab.expendituresModel().removeRow(item[0].row())

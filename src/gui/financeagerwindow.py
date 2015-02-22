@@ -213,11 +213,8 @@ class FinanceagerWindow(QtGui.QMainWindow):
             dialog.setWindowTitle('New Year')
             dialog.setLabelText('Enter a year: ')
             dialog.setInputMode(QtGui.QInputDialog.IntInput)
-            from datetime import date 
-            # necessary to set a dateList in a newEntryDialog
-            #TODO use the mightier QDate here
-            dialog.setIntMinimum(date.min.year) # 1
-            dialog.setIntMaximum(date.max.year) # 9999
+            dialog.setIntMinimum(-4713) # valid QDate ranges
+            dialog.setIntMaximum(11000000) 
             if dialog.exec_():
                 for m in range(12):
                     self.monthsTabWidget.widget(m).setModels(filled=True)
@@ -302,7 +299,9 @@ class FinanceagerWindow(QtGui.QMainWindow):
 
     def showSettings(self):
         """
-        TODO comment this
+        Shows the SettingsDialog and sets up a connection to
+        FinanceagerWindow's setAutoSave() slot. 
+        Applies the requested changes if OK clicked. 
         """
         dialog = SettingsDialog(self)
         dialog.autoSaveSet[bool].connect(self.setAutoSave)
@@ -311,7 +310,8 @@ class FinanceagerWindow(QtGui.QMainWindow):
 
     def showStatistics(self, checked):
         """
-        TODO
+        Shows the StatisticsWindow if it is hidden and hides it if it is
+        currently shown. 
         """
         if self.__statWindow is not None:
             if checked:
@@ -320,4 +320,5 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 self.__statWindow.hide()
 
     def year(self):
+        """ :param  self.__year | int """
         return self.__year 
