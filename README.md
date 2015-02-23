@@ -14,6 +14,7 @@ DISCLAIMER: Defs not BUG-FREE!
 GENERAL USAGE
 -------------
 ### Start
+Install the necessary PyQt package.
 Clone this repo, change directory to `financeager/` and run
 
     python main.py [path/to/file]
@@ -43,6 +44,12 @@ made a change. Otherwise changes will be lost if you click OK.
 Click the "File saving" tab:
 You can specify a file name to save the current sheet to. You can also
 set if you want Financeager to autosave at exit.
+### Search for entry
+Click the "Search" button (magnifying glass icon) in the toolbar or type
+CTRL-F. Enter a word you want to look for. If you click the button to the
+right, the table below will list all entries that match your request. You can
+specify the categories that the pattern is looked up in. Also, clicking on the
+header of the table will sort the entries accordingly. 
 ### Show about
 Click the "About" button (question mark icon) in the toolbar or type
 CTRL-A. A popup glorifying me will be displayed.
@@ -53,12 +60,10 @@ Financeager automatically saves and quits.
 
 KNOWN BUGS
 ----------
-- Category names can be ambiguous. That's an issue if you are about to remove a category. 
 - Report. Them. 
 
 FUTURE FEATURES
 ---------------
-- enable modifying name and date of an entry
-- implement search that displays all entries of the year matching a search pattern
+- enable modifying date of an entry
 - implement undo function (undo removing entries)
-- apply changes in SettingsWindow when OK is clicked
+- enable search in specified months
