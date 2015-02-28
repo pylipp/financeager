@@ -34,6 +34,12 @@ _CURRENTMONTH_ = datetime.now().month - 1
 
 _MONTHS_ = [str(QDate.longMonthName(m)) for m in range(1, 13)]
 
+# default category names used to set up models at start 
+_EXPCATEGORIES_ = ['Bars, Party', 'Groceries', 'Household', 'Restaurants', 
+        'Travelling', 'Clothes', 'Miscellaneous' ]
+
+_RECCATEGORIES_ = [ 'Work', 'Gifts', 'Scholarships' ]
+
 _HEADERLABELS_ = ['Name', 'Value', 'Date']
 
 def loadUi(modpath, widget):

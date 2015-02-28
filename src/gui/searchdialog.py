@@ -51,16 +51,12 @@ class SearchDialog(QDialog):
         self.findButton.clicked.connect(self.displaySearchResult)
         self.tableView.horizontalHeader().sectionClicked.connect(self.sortByColumn)
 
-    def closeEvent(self, event):
-        """ Reimplementation. Unchecks the action_Statistics of the MainWindow. """
-        #self.parentWidget().action_Statistics.setChecked(False)
-        event.accept()
-
     def keyPressEvent(self, event):
-        """ Reimplementation. Unchecks the action_Statistics of the MainWindow. """
-        if event.key() == Qt.Key_Escape:
-            pass
-            #self.parentWidget().action_Statistics.setChecked(False)
+        """
+        Reimplementation. 
+        Avoids triggering the OK button when pressing Enter. Considered a
+        common reaction when searching for stuff.
+        """
         if event.key() == Qt.Key_Enter:
             return 
         super(SearchDialog, self).keyPressEvent(event)
@@ -73,6 +69,9 @@ class SearchDialog(QDialog):
         If a match is found, new items are cloned and appended to the table.
         """
         pattern = unicode(self.lineEdit.text())
+        if not len(pattern):
+            self.__model.setItem(0, 0, ResultItem('No pattern specified.'))
+            return 
         self.setWindowTitle('Search for \'%s\'' % pattern)
         pattern = pattern.upper()
         monthsTabWidget = self.parent().monthsTabWidget 
@@ -99,6 +98,8 @@ class SearchDialog(QDialog):
                             self.__model.appendRow([ResultItem(name),
                                 ResultItem(value), ResultItem(date),
                                 ResultItem(category.text())])
+        if not self.__model.hasChildren():
+            self.__model.setItem(0, 0, ResultItem('No match found.'))
 
     def sortByColumn(self, col):
         """

@@ -12,13 +12,11 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4 import QtCore
 from PyQt4.QtGui import QStandardItem, QStandardItemModel, QWidget, QHeaderView
 from PyQt4.QtCore import QDate 
-from . import loadUi, _MONTHS_, _HEADERLABELS_
+from . import loadUi, _MONTHS_, _HEADERLABELS_, _EXPCATEGORIES_, _RECCATEGORIES_
 from items import CategoryItem, SumItem, EntryItem, ExpenseItem, DateItem 
 from balancemodel import BalanceModel 
-from .. import settings 
 
 
 class MonthTab(QWidget):
@@ -150,9 +148,9 @@ class MonthTab(QWidget):
         xml file (flag filled=False).
         """
         self.__expendituresModel = BalanceModel(
-                self.expendituresView, settings._EXPCATEGORIES_, filled)
+                self.expendituresView, _EXPCATEGORIES_, filled)
         self.__receiptsModel = BalanceModel(
-                self.receiptsView, settings._RECCATEGORIES_, filled)
+                self.receiptsView, _RECCATEGORIES_, filled)
 
     def setViews(self):
         """
