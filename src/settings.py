@@ -14,15 +14,9 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-_MONTHS_ = [ 'January', 'February', 'March', 'April', 
-        'May', 'June', 'July', 'August', 
-        'September', 'October', 'November', 'December' ]
-
 _EXPCATEGORIES_ = ['Bars, Party', 'Groceries', 'Household', 'Restaurants', 
         'Travelling', 'Clothes', 'Miscellaneous' ]
 
 _RECCATEGORIES_ = [ 'Work', 'Gifts', 'Scholarships' ]
-
-_XMLFILE_ = 'financeager_year_'
 
 _HEADERLABELS_ = ['Name', 'Value', 'Date']

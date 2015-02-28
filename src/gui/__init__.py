@@ -20,17 +20,19 @@ import os.path
 
 import PyQt4.uic 
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import QDate
 
 
 _FONT_ = QtGui.QFont('Ubuntu')
 _FONT_.setBold(True)
 
+# default file name prefix 
+_XMLFILE_ = 'financeager_year_'
+
 from datetime import datetime 
 _CURRENTMONTH_ = datetime.now().month - 1
 
-_MONTHS_ = [ 'January', 'February', 'March', 'April', 
-        'May', 'June', 'July', 'August', 
-        'September', 'October', 'November', 'December' ]
+_MONTHS_ = [str(QDate.longMonthName(m)) for m in range(1, 13)]
 
 _HEADERLABELS_ = ['Name', 'Value', 'Date']
 

@@ -17,8 +17,7 @@ __email__       = 'beth.aleph@yahoo.de'
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
 from PyQt4.QtCore import pyqtSlot, QDate
-from . import loadUi, _CURRENTMONTH_, _MONTHS_
-from .. import settings 
+from . import loadUi, _CURRENTMONTH_, _MONTHS_, _XMLFILE_
 from monthtab import MonthTab 
 from newentrydialog import NewEntryDialog 
 from statisticswindow import StatisticsWindow 
@@ -219,7 +218,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 for m in range(12):
                     self.monthsTabWidget.widget(m).setModels(filled=True)
                 self.setYear(dialog.intValue(), 
-                    settings._XMLFILE_ + str(self.__year) + '.xml')
+                    _XMLFILE_ + str(self.__year) + '.xml')
         # override if another year has already been loaded?
         else:
             answer = QtGui.QMessageBox.information(
