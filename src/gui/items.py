@@ -34,7 +34,7 @@ class DateItem(QtGui.QStandardItem):
     """ Represents a date item. """
     def __init__(self, text=""):
         super(DateItem, self).__init__(text)
-        self.setEditable(False)
+        #self.setEditable(False)
 
 
 class EntryItem(QtGui.QStandardItem):

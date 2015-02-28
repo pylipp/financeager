@@ -13,8 +13,9 @@ __email__       = 'beth.aleph@yahoo.de'
 
 
 from PyQt4 import QtGui 
+from PyQt4.QtCore import QDate
 from items import CategoryItem, SumItem, ExpenseItem, DateItem
-from . import _HEADERLABELS_
+from . import _HEADERLABELS_, _DATEVALIDATOR_
 
 
 class BalanceModel(QtGui.QStandardItemModel):
@@ -34,7 +35,7 @@ class BalanceModel(QtGui.QStandardItemModel):
                 self.appendRow(
                         [CategoryItem(category), SumItem(), DateItem()])
         # CONNECTIONS
-        self.itemChanged.connect(self.validateFloat)
+        self.itemChanged.connect(self.validate)
 
     def categoriesStringList(self):
         """
@@ -80,26 +81,62 @@ class BalanceModel(QtGui.QStandardItemModel):
             value += self.child(r, 1).value()
         self.__valueItem.setValue(value)
         
-    def validateFloat(self, item):
-        #TODO implement analogous function for date input
+    def validate(self, item):
         """
         Called whenever an item is changed. 
-        Prompts the user with a warning if he gives a non-float input. 
+        Calls subfunction according to the type of item.
 
-        :param      item | item emitted from itemChanged() signal
+        :param      item | item emitted from itemChanged() signal 
         """
         if isinstance(item, ExpenseItem):
-            try:
-                newValue = float(item.text())
-                oldValue = item.value()
-                item.setValue(newValue)
-                self.setSumItem(item, oldValue)
-            except ValueError:
-                QtGui.QMessageBox.warning(
-                    self.parent().parentWidget(), 'Invalid Input!', 
-                    'Please enter a floating point or integer number.')
-                item.setText(str(item.value()))
-                self.parent().setCurrentIndex(self.indexFromItem(item))
+            self.validateFloat(item)
+        elif isinstance(item, DateItem):
+            self.validateDate(item)
+
+    def validateDate(self, item):
+        """
+        Does a two-stage check if user gives a new date as input. 
+        First, QRegExpValidator checks if the input matches the regular
+        expression '\d{1,2}\.', i.e. a one- or two-digit number followed by a
+        dot. If this is accepted, a QDate with the new day is created. If this
+        is valid (depends on the month, internally handled by QDate), the new
+        date is assigned to the item.
+        If any of those validations fails, the user is prompted with a warning
+        and the date is reset.
+
+        :param      item | DateItem 
+        """
+        state = _DATEVALIDATOR_.validate(item.text(), 0)[0]
+        if state == QtGui.QValidator.Acceptable:
+            newDay = unicode(item.text()) #str 'dd.
+            year, month, _ = item.data().toDate().getDate()
+            date = QDate(year, month, int(newDay[:-1])) #skip trailing . of day
+            if date.isValid():
+                item.setData(date)
+                return 
+        QtGui.QMessageBox.warning(
+                self.parent().parentWidget(), 'Invalid input!', 
+                'Please enter a valid day of the format \'dd.\'')
+        item.setText(str(item.data().toDate().day()) + '.')
+        self.parent().setCurrentIndex(self.indexFromItem(item))
+
+    def validateFloat(self, item):
+        """
+        Prompts the user with a warning if he gives a non-float input. 
+
+        :param      item | ValueItem
+        """
+        try:
+            newValue = float(item.text())
+            oldValue = item.value()
+            item.setValue(newValue)
+            self.setSumItem(item, oldValue)
+        except ValueError:
+            QtGui.QMessageBox.warning(
+                self.parent().parentWidget(), 'Invalid Input!', 
+                'Please enter a floating point or integer number.')
+            item.setText(str(item.value()))
+            self.parent().setCurrentIndex(self.indexFromItem(item))
 
     def value(self):
         return self.__valueItem.value()

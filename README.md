@@ -25,8 +25,7 @@ Click the "New year" button (star icon) in the toolbar or type CTRL-Y. A popup w
 ### Add a new entry
 Click the "New entry" button (pen icon) in the toolbar or type CTRL-N. A popup will ask you to give a name (arbitrary string), a value (floating point number, use '.' for cent fractions), a date and a category. If all fields are valid, click OK. The entry appears in the appropriate category of the current month. 
 ### Modify entry
-Double-click on the value of the entry and type a new value. It is not
-possible (yet) to modify the date of an entry. 
+Double-click on the value, name or the date of the entry and type a new valid value. 
 ### Remove entry
 Select the entry you want to remove. Click the "Remove entry" button (red X icon) in the toolbar or press the "Delete" key. This action cannot be undone!
 ### Show statistics
@@ -65,6 +64,5 @@ KNOWN BUGS
 
 FUTURE FEATURES
 ---------------
-- enable modifying date of an entry
 - implement undo function (undo removing entries)
 - enable search in specified months

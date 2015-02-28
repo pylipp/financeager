@@ -20,7 +20,8 @@ import os.path
 
 import PyQt4.uic 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QDate
+from PyQt4.QtGui import QRegExpValidator
+from PyQt4.QtCore import QDate, QRegExp
 
 
 _FONT_ = QtGui.QFont('Ubuntu')
@@ -41,6 +42,9 @@ _EXPCATEGORIES_ = ['Bars, Party', 'Groceries', 'Household', 'Restaurants',
 _RECCATEGORIES_ = [ 'Work', 'Gifts', 'Scholarships' ]
 
 _HEADERLABELS_ = ['Name', 'Value', 'Date']
+
+# global validator to check user given dates 
+_DATEVALIDATOR_ = QRegExpValidator(QRegExp('\d{1,2}\.'))
 
 def loadUi(modpath, widget):
     """
