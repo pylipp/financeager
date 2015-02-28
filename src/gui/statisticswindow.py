@@ -55,9 +55,7 @@ class StatisticsWindow(QtGui.QDialog):
         for c in range(3):
             self.__model.setItem(12, c, ExpenseItem('0'))
         self.__totals = [0, 0]
-        #FIXME does not update February etc
-        self.updateTotalItems(self.__model.item(0, 0))
-        self.updateTotalItems(self.__model.item(0, 1))
+        self.updateTotalItems(QtGui.QStandardItem())
         self.tableView.setModel(self.__model)
 
         self.tableView.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
@@ -85,20 +83,31 @@ class StatisticsWindow(QtGui.QDialog):
         Also, the corresponding value in third column (difference) is updated.
         This function is ignored if an item in the third column is changed
         (this will happen because Item.setValue() emits itemChanged() signal).
+        At the initialization of StatisticsWindow, this function is called with
+        a generic QStandardItem (default attributes row, column = -1). This is
+        exploited in order to update all cells at initialization but only
+        update the row/column of the changed item at any later point in time.
 
         :param      item | Item emitted from itemChanged() signal
         """
         if item.column() == 2:
             return 
-        total = 0.0
-        c = int(item.column())
+        elif item.column() == -1:
+            cols = [0, 1]
+        else:
+            cols = [int(item.column())]
+        for c in cols:
+            self.__totals[c] = 0
         for r in range(12):
-            total += self.__model.item(r, c).value()
-            if r == item.row():
+            for c in cols:
+                self.__totals[c] += self.__model.item(r, c).value()
+            if item.row() == -1 or item.row() == r:
+                # calculate difference in resp. row and update 3rd column 
                 self.__model.item(r, 2).setValue(
-                        self.__model.item(r, 1).value() - 
-                        self.__model.item(r, 0).value())
-        self.__model.item(12, c).setValue(total)
-        self.__totals[c] = total 
+                        self.__model.item(r, 1).value() - self.__model.item(r, 0).value())
+        for c in cols:
+            # update items in bottom row
+            self.__model.item(12, c).setValue(self.__totals[c])
         difference = self.__totals[1] - self.__totals[0]
+        # update item in bottom right corner (= total balance)
         self.__model.item(12, 2).setValue(difference)
