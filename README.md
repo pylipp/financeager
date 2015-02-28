@@ -14,7 +14,7 @@ DISCLAIMER: Defs not BUG-FREE!
 GENERAL USAGE
 -------------
 ### Start
-Install the necessary PyQt package.
+Install the necessary PyQt and Qt package.
 Clone this repo, change directory to `financeager/` and run
 
     python main.py [path/to/file]
@@ -26,7 +26,7 @@ Click the "New year" button (star icon) in the toolbar or type CTRL-Y. A popup w
 Click the "New entry" button (pen icon) in the toolbar or type CTRL-N. A popup will ask you to give a name (arbitrary string), a value (floating point number, use '.' for cent fractions), a date and a category. If all fields are valid, click OK. The entry appears in the appropriate category of the current month. 
 ### Modify entry
 Double-click on the value of the entry and type a new value. It is not
-possible (yet) to modify the name or the date of an entry. 
+possible (yet) to modify the date of an entry. 
 ### Remove entry
 Select the entry you want to remove. Click the "Remove entry" button (red X icon) in the toolbar or press the "Delete" key. This action cannot be undone!
 ### Show statistics
@@ -39,8 +39,9 @@ window.
 Click the "Show settings" button (gear icon) in the toolbar or type CTRL-E.
 In the popup you can modify category and file saving settings. 
 Click the "Categories" tab: 
-You can organize categories here. Remember to press "Apply" after you
-made a change. Otherwise changes will be lost if you click OK.
+You can organize categories here. If you press "Apply", you can set several
+changes without closing the window. If you click "OK", changes are set. If you
+click "Cancel", changes are discarded.
 Click the "File saving" tab:
 You can specify a file name to save the current sheet to. You can also
 set if you want Financeager to autosave at exit.
