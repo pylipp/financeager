@@ -54,10 +54,13 @@ class FinanceagerWindow(QtGui.QMainWindow):
         if QtCore.QCoreApplication.instance().argc() > 1:
             import os.path 
             inputFile = QtCore.QCoreApplication.instance().argv()[1]
+            #FIXME doesn't find inputFile unless called from same dir or home
+            if not inputFile.startswith('/'):
+                inputFile = os.path.sep.join([str(QtCore.QDir.homePath()), inputFile])
             if os.path.isfile(inputFile):
                 self.loadYear(inputFile)
             else:
-                print 'File does not exist!'
+                print 'File does not exist: ' + inputFile
 
         # create connections
         self.action_New_Year.triggered.connect(self.newYear)
