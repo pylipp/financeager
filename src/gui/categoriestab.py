@@ -74,6 +74,7 @@ class CategoriesTab(QWidget):
         :param      name | str 
         :return     uniqueCategory | bool 
         """
+        #FIXME this also prevents adding a category that exists in any other month!
         if name in self.categoriesStringList():
             QMessageBox.warning(self.__parent, 'Name conflict', 
                     'This category name already exists. Please enter a unique name.')

@@ -33,7 +33,7 @@ _XMLFILE_ = 'financeager_year_'
 from datetime import datetime 
 _CURRENTMONTH_ = datetime.now().month - 1
 
-_MONTHS_ = [str(QDate.longMonthName(m)) for m in range(1, 13)]
+_MONTHS_ = [unicode(QDate.longMonthName(m)) for m in range(1, 13)]
 
 # default category names used to set up models at start 
 _EXPCATEGORIES_ = ['Bars, Party', 'Groceries', 'Household', 'Restaurants', 

@@ -179,7 +179,7 @@ class MonthTab(QWidget):
         """
         xmlWriter.writeStartElement(item.xmlTag())
         xmlWriter.writeAttribute('name', name)
-        xmlWriter.writeAttribute('value', str(value))
+        xmlWriter.writeAttribute('value', unicode(value))
         if isinstance(item, EntryItem):
             xmlWriter.writeAttribute(
                     'date', unicode(item.parent().child(item.row(), 2).text()))

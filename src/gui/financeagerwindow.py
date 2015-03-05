@@ -158,8 +158,9 @@ class FinanceagerWindow(QtGui.QMainWindow):
         #FIXME just a work around because DateItems need the year
         self.__year = int(root.get('value'))
         for m, child in enumerate(root):
-            month = str(child.get('value'))
-            assert month == _MONTHS_[m]
+            #month = str(child.get('value'))
+            # throws assertionerror if QLocale is not set correctly and shit
+            #assert month == _MONTHS_[m]
             monthTab = self.monthsTabWidget.widget(m) 
             monthTab.parseXMLtoModel([child.getchildren()[0]], monthTab.expendituresModel())
             monthTab.parseXMLtoModel([child.getchildren()[1]], monthTab.receiptsModel())

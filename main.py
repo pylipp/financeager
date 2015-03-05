@@ -16,12 +16,14 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4 import QtGui 
 from PyQt4 import QtCore
+from PyQt4.QtCore import QLocale
 
 def main(argv=None):
     """
     Creates the main window for the financeager application and begins
     the QApplication if necessary. 
     """
+    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = None 
 
     if not QtGui.QApplication.instance():
