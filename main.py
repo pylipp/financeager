@@ -23,7 +23,9 @@ def main(argv=None):
     Creates the main window for the financeager application and begins
     the QApplication if necessary. 
     """
+    # locale settings. Default application language is English 
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
+
     app = None 
 
     if not QtGui.QApplication.instance():

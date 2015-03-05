@@ -21,7 +21,7 @@ import os.path
 import PyQt4.uic 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QRegExpValidator
-from PyQt4.QtCore import QDate, QRegExp
+from PyQt4.QtCore import QDate, QRegExp, QLocale
 
 
 _FONT_ = QtGui.QFont('Ubuntu')
@@ -33,7 +33,10 @@ _XMLFILE_ = 'financeager_year_'
 from datetime import datetime 
 _CURRENTMONTH_ = datetime.now().month - 1
 
-_MONTHS_ = [unicode(QDate.longMonthName(m)) for m in range(1, 13)]
+# QDate is not affected by QLocale.setDefault() in main 
+#_MONTHS_ = [unicode(QDate.longMonthName(m)) for m in range(1, 13)]
+locale = QLocale()
+_MONTHS_ = [unicode(locale.monthName(m)) for m in range(1, 13)]
 
 # default category names used to set up models at start 
 _EXPCATEGORIES_ = ['Bars, Party', 'Groceries', 'Household', 'Restaurants', 
