@@ -49,6 +49,9 @@ class SearchDialog(QDialog):
         self.buttonBox.button(QDialogButtonBox.Ok).setDefault(False)
         # CONNECTIONS
         self.lineEdit.textEdited.connect(self.displaySearchResult)
+        self.expendituresButton.clicked.connect(self.displaySearchResult)
+        self.receiptsButton.clicked.connect(self.displaySearchResult)
+        self.bothButton.clicked.connect(self.displaySearchResult)
         self.tableView.horizontalHeader().sectionClicked.connect(self.sortByColumn)
 
     def keyPressEvent(self, event):
@@ -61,7 +64,7 @@ class SearchDialog(QDialog):
             return 
         super(SearchDialog, self).keyPressEvent(event)
 
-    def displaySearchResult(self, pattern):
+    def displaySearchResult(self, pattern=None):
         """
         Searches for the pattern given by the user in all months of the current
         year. If specified, only the respective expenditures or receipts are
@@ -69,7 +72,10 @@ class SearchDialog(QDialog):
         If a match is found, new items are cloned and appended to the table.
 
         :param      pattern | QString emitted by QLineEdit.textChanged signal
+                              or bool emitted by QRadioButton.clicked signal
         """
+        if type(pattern) is bool:
+            pattern = self.lineEdit.text()
         pattern = unicode(pattern)
         self.__model.clear()
         self.__model.setHorizontalHeaderLabels(
