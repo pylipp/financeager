@@ -48,7 +48,7 @@ class SearchDialog(QDialog):
         self.setFixedSize(self.size())
         self.buttonBox.button(QDialogButtonBox.Ok).setDefault(False)
         # CONNECTIONS
-        self.findButton.clicked.connect(self.displaySearchResult)
+        self.lineEdit.textEdited.connect(self.displaySearchResult)
         self.tableView.horizontalHeader().sectionClicked.connect(self.sortByColumn)
 
     def keyPressEvent(self, event):
@@ -61,23 +61,25 @@ class SearchDialog(QDialog):
             return 
         super(SearchDialog, self).keyPressEvent(event)
 
-    def displaySearchResult(self):
+    def displaySearchResult(self, pattern):
         """
         Searches for the pattern given by the user in all months of the current
         year. If specified, only the respective expenditures or receipts are
         scanned. 
         If a match is found, new items are cloned and appended to the table.
+
+        :param      pattern | QString emitted by QLineEdit.textChanged signal
         """
-        pattern = unicode(self.lineEdit.text())
-        if not len(pattern):
-            self.__model.setItem(0, 0, ResultItem('No pattern specified.'))
-            return 
-        self.setWindowTitle('Search for \'%s\'' % pattern)
-        pattern = pattern.upper()
-        monthsTabWidget = self.parent().monthsTabWidget 
+        pattern = unicode(pattern)
         self.__model.clear()
         self.__model.setHorizontalHeaderLabels(
                 ['Name', 'Value', 'Date', 'Category'])
+        self.setWindowTitle('Search for \'%s\'' % pattern)
+        if not len(pattern):
+            self.__model.setItem(0, 0, ResultItem('No pattern specified.'))
+            return 
+        pattern = pattern.upper()
+        monthsTabWidget = self.parent().monthsTabWidget 
         for m in range(12):
             if self.expendituresButton.isChecked():
                 modelList = [monthsTabWidget.widget(m).expendituresModel()]

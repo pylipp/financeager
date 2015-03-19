@@ -26,16 +26,6 @@
      <item>
       <widget class="QLineEdit" name="lineEdit"/>
      </item>
-     <item>
-      <widget class="QPushButton" name="findButton">
-       <property name="text">
-        <string>Find</string>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
