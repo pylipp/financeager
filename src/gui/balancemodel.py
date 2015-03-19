@@ -88,6 +88,8 @@ class BalanceModel(QtGui.QStandardItemModel):
 
         :param      item | item emitted from itemChanged() signal 
         """
+        #FIXME should be moved into Item classes
+        #return a bool and an error code if False
         valid = True
         if isinstance(item, ExpenseItem):
             valid = self.validateFloat(item)
