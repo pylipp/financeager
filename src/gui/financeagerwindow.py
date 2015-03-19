@@ -14,6 +14,7 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
+import os.path 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
 from PyQt4.QtCore import pyqtSlot, QDate
@@ -288,7 +289,6 @@ class FinanceagerWindow(QtGui.QMainWindow):
 
     def showAbout(self):
         """ Information window about the author, credits, etc. """
-        import os.path 
         pmpath = QtCore.QDir.currentPath() + \
                 os.path.sep.join(['', 'src', 'resources', 'img', 'money.png'])
         messageBox = QtGui.QMessageBox(self)
@@ -300,6 +300,10 @@ class FinanceagerWindow(QtGui.QMainWindow):
         messageBox.exec_()
 
     def showSearchDialog(self, checked):
+        """
+        Shows the SearchDialog if it is hidden and hides it if it is
+        currently shown. 
+        """
         if self.__searchWindow is not None:
             if checked:
                 self.__searchWindow.show()
@@ -329,8 +333,13 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 self.__statWindow.hide()
 
     def updateSearchDialog(self, item):
+        """
+        Called from BalanceModel. 
+        Updates SearchDialog. 
+        """
         if isinstance(item, (EntryItem, ExpenseItem)):
             self.__searchWindow.displaySearchResult()
+            
     def year(self):
         """ :param  self.__year | int """
         return self.__year 
