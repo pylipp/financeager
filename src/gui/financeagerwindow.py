@@ -40,6 +40,8 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.__removeableIndex = None 
         # StatisticsWindow singleton
         self.__statWindow = None 
+        # SearchWindow singleton
+        self.__searchWindow = None
         # holds boolean value whether file is automatically saved at exit
         self.__autoSave = False 
         self.__fileName = None 
@@ -69,7 +71,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.action_Load_Year.triggered.connect(self.loadYearFromUser)
         self.action_Statistics.toggled.connect(self.showStatistics)
         self.action_Settings.triggered.connect(self.showSettings)
-        self.action_Search.triggered.connect(self.showSearchDialog)
+        self.action_Search.toggled.connect(self.showSearchDialog)
         self.action_About.triggered.connect(self.showAbout)
         self.action_Quit.triggered.connect(self.close)
         
@@ -281,6 +283,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.action_Settings.setEnabled(True)
         self.setWindowTitle('Financeager - ' + str(self.__year))
         self.__statWindow = StatisticsWindow(self)
+        self.__searchWindow = SearchDialog(self)
         self.monthsTabWidget.setCurrentIndex(_CURRENTMONTH_)
 
     def showAbout(self):
@@ -296,9 +299,12 @@ class FinanceagerWindow(QtGui.QMainWindow):
         messageBox.setIconPixmap(QtGui.QPixmap(pmpath))
         messageBox.exec_()
 
-    def showSearchDialog(self):
-        dialog = SearchDialog(self)
-        dialog.show()
+    def showSearchDialog(self, checked):
+        if self.__searchWindow is not None:
+            if checked:
+                self.__searchWindow.show()
+            else:
+                self.__searchWindow.hide()
 
     def showSettings(self):
         """
@@ -322,6 +328,9 @@ class FinanceagerWindow(QtGui.QMainWindow):
             else:
                 self.__statWindow.hide()
 
+    def updateSearchDialog(self, item):
+        if isinstance(item, (EntryItem, ExpenseItem)):
+            self.__searchWindow.displaySearchResult()
     def year(self):
         """ :param  self.__year | int """
         return self.__year 

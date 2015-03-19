@@ -151,6 +151,7 @@ class MonthTab(QWidget):
                 self.expendituresView, _EXPCATEGORIES_, filled)
         self.__receiptsModel = BalanceModel(
                 self.receiptsView, _RECCATEGORIES_, filled)
+        
 
     def setViews(self):
         """

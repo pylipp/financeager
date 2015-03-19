@@ -73,8 +73,10 @@ class SearchDialog(QDialog):
 
         :param      pattern | QString emitted by QLineEdit.textChanged signal
                               or bool emitted by QRadioButton.clicked signal
+                              or None if called from a BalanceModel (resp.
+                              FinanceagerWindow.updateSearchDialog())
         """
-        if type(pattern) is bool:
+        if type(pattern) is bool or pattern is None:
             pattern = self.lineEdit.text()
         pattern = unicode(pattern)
         self.__model.clear()

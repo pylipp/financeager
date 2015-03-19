@@ -88,10 +88,17 @@ class BalanceModel(QtGui.QStandardItemModel):
 
         :param      item | item emitted from itemChanged() signal 
         """
+        valid = True
         if isinstance(item, ExpenseItem):
-            self.validateFloat(item)
+            valid = self.validateFloat(item)
         elif isinstance(item, DateItem):
-            self.validateDate(item)
+            valid = self.validateDate(item)
+        if valid:
+            #FIXME second parent() reference is not resolved correctly...
+            #self.parent().parent().updateSearchDialog(item)
+            pass
+        else:
+            self.parent().setCurrentIndex(self.indexFromItem(item))
 
     def validateDate(self, item):
         """
@@ -105,6 +112,7 @@ class BalanceModel(QtGui.QStandardItemModel):
         and the date is reset.
 
         :param      item | DateItem 
+        :return     valid | bool
         """
         state = _DATEVALIDATOR_.validate(item.text(), 0)[0]
         if state == QtGui.QValidator.Acceptable:
@@ -113,30 +121,46 @@ class BalanceModel(QtGui.QStandardItemModel):
             date = QDate(year, month, int(newDay[:-1])) #skip trailing . of day
             if date.isValid():
                 item.setData(date)
-                return 
+                return True
         QtGui.QMessageBox.warning(
                 self.parent().parentWidget(), 'Invalid input!', 
                 'Please enter a valid day of the format \'dd.\'')
         item.setText(str(item.data().toDate().day()) + '.')
-        self.parent().setCurrentIndex(self.indexFromItem(item))
 
     def validateFloat(self, item):
         """
         Prompts the user with a warning if he gives a non-float input. 
 
         :param      item | ValueItem
+        :return     valid | bool
         """
         try:
             newValue = float(item.text())
             oldValue = item.value()
             item.setValue(newValue)
             self.setSumItem(item, oldValue)
+            return True
         except ValueError:
             QtGui.QMessageBox.warning(
                 self.parent().parentWidget(), 'Invalid Input!', 
                 'Please enter a floating point or integer number.')
             item.setText(str(item.value()))
-            self.parent().setCurrentIndex(self.indexFromItem(item))
+
+    def validateEntry(self, item):
+        """
+        Prompts the user with a warning if he gives a zero-length input as
+        entry name.
+
+        :param      item | EntryItem 
+        :return     valid | bool 
+        """
+        if item.text().length():
+            return True 
+        else:
+            QtGui.QMessageBox.warning(
+                self.parent().parentWidget(), 'Invalid Input!', 
+                'Please enter a string of non-zero length.')
+            item.setText(str(item.value()))
 
     def value(self):
         return self.__valueItem.value()
