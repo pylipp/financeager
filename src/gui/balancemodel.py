@@ -109,8 +109,6 @@ class BalanceModel(QtGui.QStandardItemModel):
             self.__mainWindow.undoContainer.addAction(replacedRow)
             self.__mainWindow.action_Undo.setEnabled(True)
             self.__mainWindow.updateSearchDialog(item)
-        else:
-            self.parent().setCurrentIndex(self.indexFromItem(item))
 
     def validateDate(self, item):
         """

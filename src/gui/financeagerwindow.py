@@ -259,7 +259,11 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 index.row())
         self.__undoContainer.addAction(removedRow)
         model.removeRow(index.row(), index.parent())
-        self.enableRemoveEntry(model.parent().currentIndex())
+        #well, dirty hack...
+        if self.currentMonthTab().expendituresView.model() == model:
+            self.enableRemoveEntry(self.currentMonthTab().expendituresView.currentIndex())
+        else:
+            self.enableRemoveEntry(self.currentMonthTab().receiptsView.currentIndex())
         self.action_Undo.setEnabled(True)
         
     def saveToXML(self):
