@@ -15,22 +15,53 @@ from items import EntryItem, ExpenseItem, DateItem
 
 class UndoContainer(object):
     """ 
+    Handles undoing and redoing of item related actions in the MainWindow, i.e.
+    modifying entries or removing rows.
     """
-
     def __init__(self, mainWindow=None):
+        """
+        Requires direct reference to MainWindow. 
+        Holds two lists. items contains ItemRows that have been modified and
+        are waiting to be undone. undoneItems contains ItemRows that have been
+        undone and are waiting to be redone. 
+        
+        :param      mainWindow | FinanceagerWindow 
+        :attrib     __mainWindow | FinanceagerWindow 
+                    __items | list[ItemRow]
+                    __undoneItems | list[ItemRow]
+        """
         self.__mainWindow = mainWindow 
         self.__items = [] 
         self.__undoneItems = []
 
     def addAction(self, itemRow):
+        """
+        Append a new ItemRow after an action (modifying, removing) has been
+        performed in the mainwindow.
+
+        :param      itemRow | ItemRow 
+        """
         self.__items.append(itemRow)
 
     def undoAction(self):
-        itemRow = self.__items.pop()
+        """
+        Undo the action performed last. 
+        """
+        self.doAction(self.__items, self.__undoneItems)
+
+    def doAction(self, popList, appendList):
+        """
+        Resets the current state to the state given in popList and appends the
+        current state to the appendList. 
+        Enables the buttons in MainWindow accordingly.
+        
+        :param      popList | list[ItemRow]
+                    appendList | list[ItemRow] 
+        """
+        itemRow = popList.pop()
         category = itemRow.category 
         row = itemRow.row 
         if itemRow.removed:
-            from PyQt4 import QtCore; import pdb; QtCore.pyqtRemoveInputHook(); pdb.set_trace()
             name, expense, date = itemRow.content
             expenseItem = ExpenseItem(expense)
             newRow = [EntryItem(name), expenseItem, DateItem(date)]
@@ -39,25 +70,37 @@ class UndoContainer(object):
         else:
             content = itemRow.content[0]
             child = category.child(row, itemRow.col)
+            replaced = str(child.value())
             if row == 1:
-                replaced = str(child.value())
                 child.setValue(float(content))
             else:
-                replaced = unicode(child.text())
                 child.setText(content)
             replacedRow = ItemRow(category, (replaced,), row, itemRow.col)
-            self.__undoneItems.append(replacedRow)
-        if not self.__items:
-            self.__mainWindow.action_Undo.setEnabled(False)
+            appendList.append(replacedRow)
+        self.__mainWindow.action_Undo.setEnabled(len(self.__items))
+        self.__mainWindow.action_Redo.setEnabled(len(self.__undoneItems))
 
     def redoAction(self):
+        #FIXME does not do stuff
         pass
+        self.doAction(self.__undoneItems, self.__items)
 
 
 class ItemRow(object):
     """
+    Simple class containing all information required to restore a row or an
+    entry. 
     """
     def __init__(self, category=None, content=None, row=None, col=None):
+        """
+        If col is None, the 'removed' flag is set to True, indicating that the
+        current instance represents a deleted row.
+
+        :param      category | QStandardItem 
+                    content | tuple[str] with entry name, value, date 
+                    row | int 
+                    col | int 
+        """
         self.category = category
         self.row = row 
         self.col = col 

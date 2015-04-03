@@ -14,20 +14,26 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4 import QtGui 
 from PyQt4.QtCore import QDate
-from items import CategoryItem, SumItem, ExpenseItem, DateItem
+from items import CategoryItem, SumItem, ExpenseItem, DateItem, EntryItem
 from . import _HEADERLABELS_, _DATEVALIDATOR_
+from undocontainer import ItemRow
 
 
 class BalanceModel(QtGui.QStandardItemModel):
     """ 
     BalanceModel class for the Financeager application.
-    Initialized with filled=False if filled with data from xml file. 
-    IMPORTANT: parent is the corresponding TreeView.
-    Required in the validateFloat() method. 
     """
 
     def __init__(self, parent=None, categories=None, filled=True):
+        """
+        Initialized with filled=False if filled with data from xml file. 
+
+        :param      parent | FinanceagerWindow 
+                    categories | list[str]
+                    filled | bool 
+        """
         super(BalanceModel, self).__init__(parent)
+        self.__mainWindow = parent
         self.__valueItem = ExpenseItem('0')
         self.setHorizontalHeaderLabels(_HEADERLABELS_)
         if filled:
@@ -85,6 +91,7 @@ class BalanceModel(QtGui.QStandardItemModel):
         """
         Called whenever an item is changed. 
         Calls subfunction according to the type of item.
+        Also updates the UndoContainer with a new ItemRow.
 
         :param      item | item emitted from itemChanged() signal 
         """
@@ -95,10 +102,13 @@ class BalanceModel(QtGui.QStandardItemModel):
             valid = self.validateFloat(item)
         elif isinstance(item, DateItem):
             valid = self.validateDate(item)
+        replaced = unicode(item.value())
         if valid:
-            #FIXME second parent() reference is not resolved correctly...
-            #self.parent().parent().updateSearchDialog(item)
-            pass
+            replacedRow = ItemRow(item.parent(), (replaced,), item.row(),
+                    item.column())
+            self.__mainWindow.undoContainer.addAction(replacedRow)
+            self.__mainWindow.action_Undo.setEnabled(True)
+            self.__mainWindow.updateSearchDialog(item)
         else:
             self.parent().setCurrentIndex(self.indexFromItem(item))
 
@@ -124,8 +134,7 @@ class BalanceModel(QtGui.QStandardItemModel):
             if date.isValid():
                 item.setData(date)
                 return True
-        QtGui.QMessageBox.warning(
-                self.parent().parentWidget(), 'Invalid input!', 
+        QtGui.QMessageBox.warning(None, 'Invalid input!', 
                 'Please enter a valid day of the format \'dd.\'')
         item.setText(str(item.data().toDate().day()) + '.')
 
@@ -143,8 +152,7 @@ class BalanceModel(QtGui.QStandardItemModel):
             self.setSumItem(item, oldValue)
             return True
         except ValueError:
-            QtGui.QMessageBox.warning(
-                self.parent().parentWidget(), 'Invalid Input!', 
+            QtGui.QMessageBox.warning(None, 'Invalid Input!', 
                 'Please enter a floating point or integer number.')
             item.setText(str(item.value()))
 
@@ -159,8 +167,7 @@ class BalanceModel(QtGui.QStandardItemModel):
         if item.text().length():
             return True 
         else:
-            QtGui.QMessageBox.warning(
-                self.parent().parentWidget(), 'Invalid Input!', 
+            QtGui.QMessageBox.warning(None, 'Invalid Input!', 
                 'Please enter a string of non-zero length.')
             item.setText(str(item.value()))
 

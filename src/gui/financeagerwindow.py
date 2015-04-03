@@ -73,6 +73,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.action_New_Entry.triggered.connect(self.newEntry)
         self.action_Remove_Entry.triggered.connect(self.removeEntry)
         self.action_Undo.triggered.connect(self.__undoContainer.undoAction)
+        self.action_Redo.triggered.connect(self.__undoContainer.redoAction)
         self.action_Load_Year.triggered.connect(self.loadYearFromUser)
         self.action_Statistics.toggled.connect(self.showStatistics)
         self.action_Settings.triggered.connect(self.showSettings)
@@ -342,6 +343,10 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 self.__statWindow.show()
             else:
                 self.__statWindow.hide()
+
+    @property 
+    def undoContainer(self):
+        return self.__undoContainer
 
     def updateSearchDialog(self, item):
         """

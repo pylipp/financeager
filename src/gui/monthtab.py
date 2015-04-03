@@ -148,9 +148,9 @@ class MonthTab(QWidget):
         xml file (flag filled=False).
         """
         self.__expendituresModel = BalanceModel(
-                self.expendituresView, _EXPCATEGORIES_, filled)
+                self.__parent, _EXPCATEGORIES_, filled)
         self.__receiptsModel = BalanceModel(
-                self.receiptsView, _RECCATEGORIES_, filled)
+                self.__parent, _RECCATEGORIES_, filled)
         
 
     def setViews(self):

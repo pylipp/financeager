@@ -15,7 +15,6 @@ __email__       = 'beth.aleph@yahoo.de'
 
 
 from PyQt4 import QtGui 
-from PyQt4.QtCore import QDate 
 from . import _FONT_ 
 
 class CategoryItem(QtGui.QStandardItem):
@@ -29,12 +28,17 @@ class CategoryItem(QtGui.QStandardItem):
     def xmlTag(self):
         return 'category'
      
+#TODO classes DateItem, EntryItem and ExpenseItem could be nicely derived from
+#     base class ValueItem or something
 
 class DateItem(QtGui.QStandardItem):
     """ Represents a date item. """
     def __init__(self, text=""):
         super(DateItem, self).__init__(text)
-        #self.setEditable(False)
+        self.__value = text
+
+    def value(self):
+        return self.__value
 
 
 class EntryItem(QtGui.QStandardItem):
@@ -42,17 +46,14 @@ class EntryItem(QtGui.QStandardItem):
 
     def __init__(self, text=""):
         super(EntryItem, self).__init__(text)
+        self.__value = text
 
-    def sibling(self, row, col):
-        # TODO this is deprecated 
-        """
-        Workaround to get the sibling of item self at row and col. 
+    def setText(self, text):
+        self.__value = text 
+        super(EntryItem, self).setText(text)
 
-        :param      row, col | int 
-        :return     QStandardItem 
-        """
-        return self.model().itemFromIndex( 
-                self.model().sibling(row, col, self.index()))
+    def value(self):
+        return self.__value 
 
     def xmlTag(self):
         return 'entry'
