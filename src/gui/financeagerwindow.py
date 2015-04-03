@@ -25,6 +25,7 @@ from statisticswindow import StatisticsWindow
 from settingsdialog import SettingsDialog 
 from searchdialog import SearchDialog 
 from items import EntryItem, ExpenseItem, DateItem, CategoryItem
+from undocontainer import UndoContainer, ItemRow
 
 class FinanceagerWindow(QtGui.QMainWindow):
     """ MainWindow class for the Financeager application. """
@@ -43,6 +44,8 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.__statWindow = None 
         # SearchWindow singleton
         self.__searchWindow = None
+        # UndoContainer singleton 
+        self.__undoContainer = UndoContainer(self)
         # holds boolean value whether file is automatically saved at exit
         self.__autoSave = False 
         self.__fileName = None 
@@ -69,6 +72,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         self.action_New_Year.triggered.connect(self.newYear)
         self.action_New_Entry.triggered.connect(self.newEntry)
         self.action_Remove_Entry.triggered.connect(self.removeEntry)
+        self.action_Undo.triggered.connect(self.__undoContainer.undoAction)
         self.action_Load_Year.triggered.connect(self.loadYearFromUser)
         self.action_Statistics.toggled.connect(self.showStatistics)
         self.action_Settings.triggered.connect(self.showSettings)
@@ -245,10 +249,17 @@ class FinanceagerWindow(QtGui.QMainWindow):
         """
         index = self.__removeableIndex 
         model = index.model()
-        item = model.itemFromIndex(index.parent().child(index.row(), 1))
-        model.setSumItem(item, 2*item.value())
+        entry = model.itemFromIndex(index.parent().child(index.row(), 0))
+        expense = model.itemFromIndex(index.parent().child(index.row(), 1))
+        date = model.itemFromIndex(index.parent().child(index.row(), 2))
+        model.setSumItem(expense, 2*expense.value())
+        removedRow = ItemRow(model.itemFromIndex(index.parent()), 
+                (unicode(entry.text()), str(expense.value()), str(date.text())), 
+                index.row())
+        self.__undoContainer.addAction(removedRow)
         model.removeRow(index.row(), index.parent())
         self.enableRemoveEntry(model.parent().currentIndex())
+        self.action_Undo.setEnabled(True)
         
     def saveToXML(self):
         """ Saves all the month tabs to an XML file. """
