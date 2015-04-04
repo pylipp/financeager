@@ -231,6 +231,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 #FIXME year must not be 0, invalid QDate otherwise
                 for m in range(12):
                     self.monthsTabWidget.widget(m).setModels(filled=True)
+                    self.monthsTabWidget.widget(m).setViews()
                 self.setYear(year, _XMLFILE_ + str(year) + '.xml')
         # override if another year has already been loaded?
         else:

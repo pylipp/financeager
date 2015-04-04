@@ -27,6 +27,7 @@ class BalanceModel(QtGui.QStandardItemModel):
     def __init__(self, parent=None, categories=None, filled=True):
         """
         Initialized with filled=False if filled with data from xml file. 
+        filled=True will fill the models with default categories.
 
         :param      parent | FinanceagerWindow 
                     categories | list[str]

@@ -23,11 +23,24 @@ class MonthTab(QWidget):
     """ MonthTab class for the Financeager application. """
 
     def __init__(self, parent=None, month=None, filled=True):
+        """
+        Loads the ui file and sets several attributes.
+        Pass filled=True if you want to load the widget with default
+        categories.
+
+        :param      parent | FinanceagerWindow 
+                    month | str 
+                    filled | bool 
+        :attrib     __mainWindow | FinanceagerWindow 
+                    __month | str 
+                    __monthIndex | int 
+                    __expendituresModel | BalanceModel 
+                    __receiptsModel | BalanceModel 
+                    __categoriesModel | QStandardItemModel 
+        """
         super(MonthTab, self).__init__(parent)
         loadUi(__file__, self)
-        # explicit reference required because built-in method 
-        # QWidget.parent() returns QStackWidget for some reason
-        self.__parent = parent
+        self.__mainWindow = parent
         self.__month = month 
         self.__monthIndex = _MONTHS_.index(month)
         self.__expendituresModel = None 
@@ -131,8 +144,7 @@ class MonthTab(QWidget):
                 day = unicode(child.get('date'))
                 dateItem = DateItem(day)
                 month = self.__monthIndex + 1
-                #import pdb; QtCore.pyqtRemoveInputHook(); pdb.set_trace()
-                date = QDate(self.__parent.year(), month, int(day[:-1]))
+                date = QDate(self.__mainWindow.year(), month, int(day[:-1]))
                 dateItem.setData(date)
                 appender.appendRow(
                         [EntryItem(name), ExpenseItem(value), dateItem])
@@ -148,9 +160,9 @@ class MonthTab(QWidget):
         xml file (flag filled=False).
         """
         self.__expendituresModel = BalanceModel(
-                self.__parent, _EXPCATEGORIES_, filled)
+                self.__mainWindow, _EXPCATEGORIES_, filled)
         self.__receiptsModel = BalanceModel(
-                self.__parent, _RECCATEGORIES_, filled)
+                self.__mainWindow, _RECCATEGORIES_, filled)
         
 
     def setViews(self):
@@ -163,7 +175,7 @@ class MonthTab(QWidget):
         self.receiptsView.setModel(self.__receiptsModel)
         for view in [self.expendituresView, self.receiptsView]:
             view.header().setResizeMode(QHeaderView.ResizeToContents)
-            view.clicked.connect(self.parentWidget().enableRemoveEntry)
+            view.clicked.connect(self.__mainWindow.enableRemoveEntry)
 
     def writeToXML(self, xmlWriter, name, value, item):
         """
