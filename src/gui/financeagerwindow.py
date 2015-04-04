@@ -227,10 +227,11 @@ class FinanceagerWindow(QtGui.QMainWindow):
             dialog.setIntMinimum(-4713) # valid QDate ranges
             dialog.setIntMaximum(11000000) 
             if dialog.exec_():
+                year = dialog.intValue()
+                #FIXME year must not be 0, invalid QDate otherwise
                 for m in range(12):
                     self.monthsTabWidget.widget(m).setModels(filled=True)
-                self.setYear(dialog.intValue(), 
-                    _XMLFILE_ + str(self.__year) + '.xml')
+                self.setYear(year, _XMLFILE_ + str(year) + '.xml')
         # override if another year has already been loaded?
         else:
             answer = QtGui.QMessageBox.information(

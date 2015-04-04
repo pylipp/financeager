@@ -64,6 +64,13 @@ class BalanceModel(QtGui.QStandardItemModel):
         index = self.index(row, col)
         return self.itemFromIndex(index)
     
+    def clear(self):
+        """ 
+        Reimplementation. Also sets the header labels. 
+        """
+        super(BalanceModel, self).clear()
+        self.setHorizontalHeaderLabels(_HEADERLABELS_)
+
     def setSumItem(self, item, oldValue=0):
         """
         Fetches the sumItem corresponding to item and updates it.
@@ -102,6 +109,8 @@ class BalanceModel(QtGui.QStandardItemModel):
             valid = self.validateFloat(item)
         elif isinstance(item, DateItem):
             valid = self.validateDate(item)
+        elif isinstance(item, EntryItem):
+            valid = self.validateEntry(item)
         replaced = unicode(item.value())
         if valid:
             replacedRow = ItemRow(item.parent(), (replaced,), item.row(),
