@@ -41,6 +41,13 @@ class DateItem(QtGui.QStandardItem):
         return self.__value
 
 
+class EmptyItem(QtGui.QStandardItem):
+    """ Represents an empty item in the third column of a category row. """
+    def __init__(self):
+        super(EmptyItem, self).__init__()
+        self.setEditable(False)
+
+
 class EntryItem(QtGui.QStandardItem):
     """ Represents an entry item. """
 

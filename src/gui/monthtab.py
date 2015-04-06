@@ -15,7 +15,8 @@ __email__       = 'beth.aleph@yahoo.de'
 from PyQt4.QtGui import QStandardItem, QStandardItemModel, QWidget, QHeaderView
 from PyQt4.QtCore import QDate 
 from . import loadUi, _MONTHS_, _HEADERLABELS_, _EXPCATEGORIES_, _RECCATEGORIES_
-from items import CategoryItem, SumItem, EntryItem, ExpenseItem, DateItem 
+from items import (CategoryItem, SumItem, EntryItem, ExpenseItem, DateItem,
+    EmptyItem)
 from balancemodel import BalanceModel 
 
 
@@ -138,7 +139,7 @@ class MonthTab(QWidget):
                 self.parseXMLtoModel(child.getchildren(), appender)
             elif child.tag == 'category':
                 catItem = CategoryItem(name)
-                appender.appendRow([catItem, SumItem(value), DateItem()])
+                appender.appendRow([catItem, SumItem(value), EmptyItem()])
                 self.parseXMLtoModel(child.getchildren(), catItem)
             else:
                 day = unicode(child.get('date'))

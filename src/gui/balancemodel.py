@@ -14,7 +14,8 @@ __email__       = 'beth.aleph@yahoo.de'
 
 from PyQt4 import QtGui 
 from PyQt4.QtCore import QDate
-from items import CategoryItem, SumItem, ExpenseItem, DateItem, EntryItem
+from items import (CategoryItem, SumItem, ExpenseItem, DateItem, EntryItem,
+    EmptyItem)
 from . import _HEADERLABELS_, _DATEVALIDATOR_
 from undocontainer import ItemRow
 
@@ -40,7 +41,7 @@ class BalanceModel(QtGui.QStandardItemModel):
         if filled:
             for category in categories:
                 self.appendRow(
-                        [CategoryItem(category), SumItem(), DateItem()])
+                        [CategoryItem(category), SumItem(), EmptyItem()])
         # CONNECTIONS
         self.itemChanged.connect(self.validate)
 
