@@ -60,6 +60,8 @@ class UndoContainer(object):
         """
         itemRow = popList.pop()
         category = itemRow.category 
+        if category is None:
+            return
         row = itemRow.row 
         if itemRow.removed:
             name, expense, date = itemRow.content

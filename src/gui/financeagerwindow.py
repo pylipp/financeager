@@ -17,7 +17,7 @@ __email__       = 'beth.aleph@yahoo.de'
 import os.path 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
-from PyQt4.QtCore import pyqtSlot, QDate
+from PyQt4.QtCore import pyqtSlot
 from . import loadUi, _CURRENTMONTH_, _MONTHS_, _XMLFILE_
 from monthtab import MonthTab 
 from newentrydialog import NewEntryDialog 
@@ -195,7 +195,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         """
         dialog = NewEntryDialog(self)
         if dialog.exec_():
-            category = unicode(dialog.categoryCombo.currentText())
+            category = dialog.categoryString()
             if category in self.currentMonthTab().receiptsModel().categoriesStringList():
                 model = self.currentMonthTab().receiptsModel()
             else:
@@ -203,12 +203,10 @@ class FinanceagerWindow(QtGui.QMainWindow):
             catItem = model.findItems(category)
             if catItem:
                 catItem = catItem[0]
-                entryItem = EntryItem(unicode(dialog.nameEdit.text()))
-                expenseItem = ExpenseItem(str(dialog.expenseEdit.text()))
-                day = unicode(dialog.dateCombo.currentText())
-                dateItem = DateItem(day)
-                date = QDate(self.year(),
-                        self.monthsTabWidget.currentIndex()+1, int(day[:-1]))
+                entryItem = EntryItem(dialog.nameString())
+                expenseItem = ExpenseItem(dialog.valueString())
+                date = dialog.date()
+                dateItem = DateItem(str(date.day()) + '.')
                 dateItem.setData(date)
                 catItem.appendRow([entryItem, expenseItem, dateItem])
                 model.setSumItem(expenseItem)
