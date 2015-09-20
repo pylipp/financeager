@@ -58,11 +58,9 @@ class FinanceagerWindow(QtGui.QMainWindow):
         
         # if specified, load xml file from command line argument
         if QtCore.QCoreApplication.instance().argc() > 1:
-            import os.path 
+            import os
             inputFile = QtCore.QCoreApplication.instance().argv()[1]
-            #FIXME doesn't find inputFile unless called from same dir or home
-            if not inputFile.startswith('/'):
-                inputFile = os.path.sep.join([str(QtCore.QDir.homePath()), inputFile])
+            inputFile = os.path.sep.join([os.getcwd(), inputFile])
             if os.path.isfile(inputFile):
                 self.loadYear(inputFile)
             else:
@@ -159,7 +157,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         try:
             tree = et.parse(inputFile)
             root = tree.getroot()
-        except IOError, err:
+        except (IOError, et.ParseError), err:
             QtGui.QMessageBox.warning(self, 'Error!', 
                     'An unexpected error occured during parsing the xml file: \n%s' % err)
             return 

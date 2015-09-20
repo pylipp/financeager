@@ -15,7 +15,6 @@ __email__       = 'beth.aleph@yahoo.de'
 
 
 from PyQt4 import QtGui 
-from PyQt4 import QtCore
 from PyQt4.QtCore import QLocale
 
 def main(argv=None):
