@@ -14,7 +14,7 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4 import QtGui 
+from PyQt4 import QtGui, QtCore
 from . import _FONT_ 
 
 class CategoryItem(QtGui.QStandardItem):
@@ -32,9 +32,24 @@ class CategoryItem(QtGui.QStandardItem):
 #     base class ValueItem or something
 
 class DateItem(QtGui.QStandardItem):
-    """ Represents a date item. """
-    def __init__(self, text=""):
+    """ 
+    Represents a date item holding a QVariant with data. 
+    Can be constructed from a string ('21.'), an int (21) or a QDate object. 
+    """
+    def __init__(self, day, month=None, year=None):
+        text = None
+        data = None
+        if type(day) is int:
+            text = str(day) + '.'
+            data = QtCore.QDate(year, month, day)
+        elif isinstance(day, QtCore.QDate):
+            text = str(day.day()) + '.'
+            data = day
+        else:
+            text = day
+            data = QtCore.QDate(year, month, int(day[:-1]))
         super(DateItem, self).__init__(text)
+        self.setData(data)
         self.__value = text
 
     def value(self):
