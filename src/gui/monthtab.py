@@ -143,12 +143,8 @@ class MonthTab(QWidget):
                 self.parseXMLtoModel(child.getchildren(), catItem)
             else:
                 day = unicode(child.get('date'))
-                dateItem = DateItem(day)
-                month = self.__monthIndex + 1
-                date = QDate(self.__mainWindow.year(), month, int(day[:-1]))
-                dateItem.setData(date)
-                appender.appendRow(
-                        [EntryItem(name), ExpenseItem(value), dateItem])
+                dateItem = DateItem(day, self.monthIndex()+1, self.__mainWindow.year())
+                appender.appendRow([EntryItem(name), ExpenseItem(value), dateItem])
 
     def receiptsModel(self):
         return self.__receiptsModel 

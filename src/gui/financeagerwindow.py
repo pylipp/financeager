@@ -17,7 +17,7 @@ __email__       = 'beth.aleph@yahoo.de'
 import os.path 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import pyqtSlot, QDate
 from . import loadUi, _CURRENTMONTH_, _MONTHS_, _XMLFILE_
 from monthtab import MonthTab 
 from newentrydialog import NewEntryDialog 
@@ -174,7 +174,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
             monthTab.parseXMLtoModel([child.getchildren()[1]], monthTab.receiptsModel())
             monthTab.expendituresView.expandAll()
             monthTab.receiptsView.expandAll()
-        self.setYear(int(root.get('value')), inputFile)
+        self.setYear(self.__year, inputFile)
         self.setAutoSave(root.get('autoSave') == 'True')
     
     def loadYearFromUser(self):
@@ -205,9 +205,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
                 catItem = catItem[0]
                 entryItem = EntryItem(dialog.nameString())
                 expenseItem = ExpenseItem(dialog.valueString())
-                date = dialog.date()
-                dateItem = DateItem(str(date.day()) + '.')
-                dateItem.setData(date)
+                dateItem = DateItem(dialog.date())
                 catItem.appendRow([entryItem, expenseItem, dateItem])
                 model.setSumItem(expenseItem)
             
@@ -222,6 +220,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
             dialog.setWindowTitle('New Year')
             dialog.setLabelText('Enter a year: ')
             dialog.setInputMode(QtGui.QInputDialog.IntInput)
+            dialog.setIntValue(QDate.currentDate().year())
             dialog.setIntMinimum(-4713) # valid QDate ranges
             dialog.setIntMaximum(11000000) 
             if dialog.exec_():
