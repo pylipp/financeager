@@ -14,8 +14,21 @@ DISCLAIMER: Defs not BUG-FREE!
 GENERAL USAGE
 -------------
 ### Start
-Install the necessary PyQt and Qt package.
-Clone this repo, change directory to `financeager/` and run
+Install the necessary PyQt and Qt package and clone this repo.
+    
+    git clone https://github.com/pylipp/financeager.git
+
+Make main.py executable and add a link to your global executables.
+    
+    cd financeager/
+    chmod 755 main.py
+    sudo ln -s /absolute/path/to/main.py /usr/bin/financeager
+    
+Now you can run Financeager from anywhere by typing
+
+    financeager [path/to/file]
+    
+As an alternative (if you're doing changes of the source code yourself), change directory to `financeager/` and run
 
     python main.py [path/to/file]
     
