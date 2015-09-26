@@ -14,7 +14,7 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-import os.path 
+import os
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QMessageBox, QCheckBox 
 from PyQt4.QtCore import pyqtSlot, QDate
@@ -24,7 +24,7 @@ from newentrydialog import NewEntryDialog
 from statisticswindow import StatisticsWindow 
 from settingsdialog import SettingsDialog 
 from searchdialog import SearchDialog 
-from items import EntryItem, ExpenseItem, DateItem, CategoryItem
+from items import EntryItem, ExpenseItem, CategoryItem
 from undocontainer import UndoContainer, ItemRow
 
 class FinanceagerWindow(QtGui.QMainWindow):
@@ -58,9 +58,9 @@ class FinanceagerWindow(QtGui.QMainWindow):
         
         # if specified, load xml file from command line argument
         if QtCore.QCoreApplication.instance().argc() > 1:
-            import os
             inputFile = QtCore.QCoreApplication.instance().argv()[1]
-            inputFile = os.path.sep.join([os.getcwd(), inputFile])
+            if not os.path.isabs(inputFile):
+                inputFile = os.path.sep.join([os.getcwd(), inputFile])
             if os.path.isfile(inputFile):
                 self.loadYear(inputFile)
             else:
