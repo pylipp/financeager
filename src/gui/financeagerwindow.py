@@ -193,19 +193,7 @@ class FinanceagerWindow(QtGui.QMainWindow):
         """
         dialog = NewEntryDialog(self)
         if dialog.exec_():
-            category = dialog.categoryString()
-            if category in self.currentMonthTab().receiptsModel().categoriesStringList():
-                model = self.currentMonthTab().receiptsModel()
-            else:
-                model = self.currentMonthTab().expendituresModel()
-            catItem = model.findItems(category)
-            if catItem:
-                catItem = catItem[0]
-                entryItem = EntryItem(dialog.nameString())
-                expenseItem = ExpenseItem(dialog.valueString())
-                dateItem = DateItem(dialog.date())
-                catItem.appendRow([entryItem, expenseItem, dateItem])
-                model.setSumItem(expenseItem)
+            dialog.createNewEntry()
             
     def newYear(self):
         """
