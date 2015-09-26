@@ -14,9 +14,9 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4.QtGui import QDialog, QStandardItem, QStandardItemModel,\
-    QHeaderView, QDialogButtonBox 
-from PyQt4.QtCore import Qt, QDate 
+from PyQt4.QtGui import (QDialog, QStandardItemModel, QHeaderView,
+        QDialogButtonBox)
+from PyQt4.QtCore import Qt
 from items import ResultItem
 from . import loadUi
 
@@ -53,16 +53,25 @@ class SearchDialog(QDialog):
         self.receiptsButton.clicked.connect(self.displaySearchResult)
         self.bothButton.clicked.connect(self.displaySearchResult)
         self.tableView.horizontalHeader().sectionClicked.connect(self.sortByColumn)
+        self.buttonBox.button(QDialogButtonBox.Ok).clicked.connect(self.close)
 
     def keyPressEvent(self, event):
         """
         Reimplementation. 
         Avoids triggering the OK button when pressing Enter. Considered a
         common reaction when searching for stuff.
+        Unchecks the action_Search of the MainWindow if Esc pressed.
         """
         if event.key() == Qt.Key_Enter:
             return 
+        elif event.key() == Qt.Key_Escape:
+            self.parentWidget().action_Search.setChecked(False)
         super(SearchDialog, self).keyPressEvent(event)
+
+    def closeEvent(self, event):
+        """ Reimplementation. Unchecks the action_Search of the MainWindow. """
+        self.parentWidget().action_Search.setChecked(False)
+        event.accept()
 
     def displaySearchResult(self, pattern=None):
         """
