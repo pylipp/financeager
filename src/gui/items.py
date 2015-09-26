@@ -97,11 +97,26 @@ class EntryItem(QtGui.QStandardItem):
 class ExpenseItem(QtGui.QStandardItem):
     """ Represents an expense item. Accepts only float as text. """
 
-    def __init__(self, text=""):
+    def __init__(self, data=None):
+        """ 
+        Can be initialized in three ways: With data=None, an ExpenseItem with
+        value zero is created. Otherwise, the value is deducted from an input
+        string or number.
+
+        :param      data | str, int, float or None 
+        """
+        text = ""
+        value = 0.0
+        if data is None:
+            text = "0.0"
+        elif type(data) is int or type(data) is float:
+            text = str(data)
+            value = float(data)
+        elif type(data) is str:
+            text = data 
+            value = float(data)
         super(ExpenseItem, self).__init__(text)
-        if not len(text):
-            text = '0'
-        self.__value = float(text)
+        self.__value = value
 
     def value(self):
         return self.__value 

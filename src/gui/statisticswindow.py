@@ -51,9 +51,9 @@ class StatisticsWindow(QtGui.QDialog):
         for r in range(12):
             self.__model.setItem(r, 0, monthsTabWidget.widget(r).expendituresModel().valueItem())
             self.__model.setItem(r, 1, monthsTabWidget.widget(r).receiptsModel().valueItem())
-            self.__model.setItem(r, 2, ExpenseItem('0'))
+            self.__model.setItem(r, 2, ExpenseItem())
         for c in range(3):
-            self.__model.setItem(12, c, ExpenseItem('0'))
+            self.__model.setItem(12, c, ExpenseItem())
         self.__totals = [0, 0]
         self.updateTotalItems(QtGui.QStandardItem())
         self.tableView.setModel(self.__model)

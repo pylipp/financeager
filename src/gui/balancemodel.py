@@ -36,7 +36,7 @@ class BalanceModel(QtGui.QStandardItemModel):
         """
         super(BalanceModel, self).__init__(parent)
         self.__mainWindow = parent
-        self.__valueItem = ExpenseItem('0')
+        self.__valueItem = ExpenseItem()
         self.setHorizontalHeaderLabels(_HEADERLABELS_)
         if filled:
             for category in categories:

@@ -98,6 +98,6 @@ class NewEntryDialog(QDialog):
         :return     list[EntryItem, ExpenseItem, DateItem]
         """
         entryItem = EntryItem(unicode(self.nameLineEdit.text()))
-        expenseItem = ExpenseItem(str(self.valueDoubleSpinBox.value()))
+        expenseItem = ExpenseItem(self.valueDoubleSpinBox.value())
         dateItem = DateItem(self.dateEdit.date())
         return [entryItem, expenseItem, dateItem]
