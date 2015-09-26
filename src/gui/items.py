@@ -25,6 +25,19 @@ class CategoryItem(QtGui.QStandardItem):
         self.setEditable(False)
         self.setFont(_FONT_)
 
+    def appendRow(self, itemList, updateSumItem=True):
+        """
+        Re-implemented method.
+        Set updateSumItem=False if the row is read from xml (and the SumItem,
+        too).
+
+        :param      updateSumItem | bool 
+        """
+        super(CategoryItem, self).appendRow(itemList)
+        if updateSumItem:
+            # ExpenseItem is the second entry of the row
+            self.model().setSumItem(itemList[1])
+
     def xmlTag(self):
         return 'category'
      

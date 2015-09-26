@@ -144,7 +144,8 @@ class MonthTab(QWidget):
             else:
                 day = unicode(child.get('date'))
                 dateItem = DateItem(day, self.monthIndex()+1, self.__mainWindow.year())
-                appender.appendRow([EntryItem(name), ExpenseItem(value), dateItem])
+                appender.appendRow([
+                    EntryItem(name), ExpenseItem(value), dateItem], False)
 
     def receiptsModel(self):
         return self.__receiptsModel 
