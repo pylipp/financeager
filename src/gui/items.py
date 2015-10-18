@@ -42,23 +42,22 @@ class CategoryItem(QtGui.QStandardItem):
         return 'category'
      
 #TODO classes DateItem, EntryItem and ExpenseItem could be nicely derived from
-#     base class ValueItem or something
-
+#     base class ValueItem or something 
 class DateItem(QtGui.QStandardItem):
     """ 
     Represents a date item holding a QVariant with data. 
     Can be constructed from a string ('21.'), an int (21) or a QDate object. 
     """
     def __init__(self, day, month=None, year=None):
-        text = None
+        text = ""
         data = None
-        if type(day) is int:
+        if isinstance(day, int):
             text = str(day) + '.'
             data = QtCore.QDate(year, month, day)
         elif isinstance(day, QtCore.QDate):
             text = str(day.day()) + '.'
             data = day
-        else:
+        elif isinstance(day, str) or isinstance(day, unicode):
             text = day
             data = QtCore.QDate(year, month, int(day[:-1]))
         super(DateItem, self).__init__(text)
@@ -100,7 +99,7 @@ class ExpenseItem(QtGui.QStandardItem):
     def __init__(self, data=None):
         """ 
         Can be initialized in three ways: With data=None, an ExpenseItem with
-        value zero is created. Otherwise, the value is deducted from an input
+        value zero is created. Otherwise, the value is deduced from an input
         string or number.
 
         :param      data | str, int, float or None 
