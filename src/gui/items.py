@@ -108,10 +108,13 @@ class ExpenseItem(QtGui.QStandardItem):
         value = 0.0
         if data is None:
             text = "0.0"
-        elif type(data) is int or type(data) is float:
+        elif isinstance(data, int):
             text = str(data)
             value = float(data)
-        elif type(data) is str:
+        elif isinstance(data, float):
+            text = str(data)
+            value = data
+        elif isinstance(data, str) or isinstance(data, unicode):
             text = data 
             value = float(data)
         super(ExpenseItem, self).__init__(text)
