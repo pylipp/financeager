@@ -1,11 +1,12 @@
 import unittest
-from hypothesis import given, Settings
-from hypothesis.strategies import text
+from hypothesis import given, Settings, assume
+from hypothesis.strategies import text, integers, floats, one_of, none
 from hypothesis.extra.datetime import dates
 
 from datetime import date
+from math import isnan
 
-from ..gui.items import EntryItem, DateItem
+from ..gui.items import EntryItem, DateItem, ExpenseItem
 from PyQt4.QtCore import QString, QDate
 
 
@@ -20,6 +21,11 @@ def suite():
             'test_date'
             ]
     suite.addTest(unittest.TestSuite(map(DateItemDataTestCase, tests)))
+    tests = [
+            'test_value',
+            'test_set_value'
+            ]
+    suite.addTest(unittest.TestSuite(map(ExpenseItemValueTestCase, tests)))
     return suite
 
 
@@ -69,6 +75,40 @@ class DateItemDataTestCase(DateItemTestCase):
     def test_date(self):
         for item in self.items:
             self.assertEqual(self._dataAsPyDate(item), self.date)
+
+
+class ExpenseItemTestCase(unittest.TestCase):
+
+    @given(one_of(integers(min_value=0), floats(min_value=0.0), none()))
+    def setUp(self, val):
+        if val is not None:
+            assume(not isnan(val))
+        self.items = dict()
+        self.items[ExpenseItem()] = None 
+        self.items[ExpenseItem(val)] = val
+        if val is not None:
+            self.items[ExpenseItem(str(val))] = val
+            self.items[ExpenseItem(unicode(val))] = val
+
+
+class ExpenseItemValueTestCase(ExpenseItemTestCase):
+
+    def test_value(self):
+        for item, value in self.items.iteritems():
+            if value is None:
+                self.assertAlmostEqual(item.value(), 0.0, places=3)
+                self.assertEqual(item.text(), QString(str(0.0)))
+            else:
+                self.assertAlmostEqual(item.value(), value, places=3)
+                self.assertEqual(item.text(), QString(str(value)))
+
+    @given(one_of(integers(min_value=0), floats(min_value=0.0)))
+    def test_set_value(self, v):
+        for item in self.items.iterkeys():
+            item.setValue(v)
+            self.assertAlmostEqual(item.value(), v)
+            self.assertEqual(item.text(), QString(str(v)))
+
 
 if __name__ == '__main__':
     unittest.main()
