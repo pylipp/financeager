@@ -6,7 +6,7 @@ from hypothesis.extra.datetime import dates
 from datetime import date
 from math import isnan
 
-from ..gui.items import EntryItem, DateItem, ExpenseItem
+from .items import EntryItem, DateItem, ExpenseItem
 from PyQt4.QtCore import QString, QDate
 
 
@@ -42,16 +42,16 @@ class EntryItemValueTestCase(EntryItemTestCase):
     def test_value(self):
         self.assertEqual(self.item.value(), self.s)
         self.assertEqual(self.item.text(), QString(self.s))
-    
+
     @given(text())
     def test_set_value(self, s):
         self.item.setText(s)
         self.assertEqual(self.item.value(), s)
         self.assertEqual(self.item.text(), QString(s))
-    
-        
+
+
 class DateItemTestCase(unittest.TestCase):
-        
+
     @given(dates(), settings=Settings(max_examples=500))
     def setUp(self, d):
         self.items = [
@@ -84,7 +84,7 @@ class ExpenseItemTestCase(unittest.TestCase):
         if val is not None:
             assume(not isnan(val))
         self.items = dict()
-        self.items[ExpenseItem()] = None 
+        self.items[ExpenseItem()] = None
         self.items[ExpenseItem(val)] = val
         if val is not None:
             self.items[ExpenseItem(str(val))] = val
