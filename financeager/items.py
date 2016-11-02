@@ -35,6 +35,7 @@ class DataItem(QtGui.QStandardItem):
 
 class EmptyItem(QtGui.QStandardItem):
     """Represents an empty item in the third column of a category row. """
+
     def __init__(self):
         super(EmptyItem, self).__init__()
         self.setEditable(False)
@@ -44,6 +45,8 @@ class NameItem(DataItem):
 
     Holds a lowercase `QString` as data. When its text is requested, an
     uppercase representation is returned.
+
+    :param data: Python string
     """
 
     def __init__(self, data):
@@ -95,6 +98,8 @@ class ValueItem(DataItem):
     Holds a `QFloat` number as data. When its text is requested, the return format
     has two decimal points. If input with sub-percent precision is given, it is
     rounded.
+
+    :param data: Python integer or float number
     """
     def __init__(self, data):
         super(ValueItem, self).__init__(data)
