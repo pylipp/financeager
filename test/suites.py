@@ -1,10 +1,11 @@
 # Script to conveniently run all test suites
-#   cd financeager/ 
+#   cd financeager/
 #   python -m src.test.suites
-import unittest 
+import unittest
 
 modules = [
-        'test_items'
+        'test_items',
+        'test_entries'
         ]
 
 testRunner = unittest.TextTestRunner(verbosity=2)
