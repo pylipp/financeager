@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-""" Defines custom Items for the MonthTreeView. """
+""" Defines custom Items, the fundamental elements for building models."""
 
 # authorship information
 __authors__     = ['Philipp Metzner']
@@ -15,23 +15,71 @@ __email__       = 'beth.aleph@yahoo.de'
 
 
 from PyQt4 import QtGui, QtCore
-from . import _FONT_ 
+from abc import ABCMeta
 
-class CategoryItem(QtGui.QStandardItem):
-    """ Represents a category item. """
+class DataItem(QtGui.QStandardItem):
+    """Abstract base class for all items that hold data.
 
-    def __init__(self, text=""):
-        super(CategoryItem, self).__init__(text)
+    At initialization, the item data is set. By default, an instance of
+    `DataItem` is editable. Finally, the item text is set by formatting the
+    corresponding data. The formatting via `text()` is defined in the
+    subclasses.
+    """
+    # __metaclass__ = ABCMeta
+
+    def __init__(self, data):
+        super(DataItem, self).__init__()
+        self.setData(data)
+        self.setEditable(True)
+        self.setText(self.text())
+
+class EmptyItem(QtGui.QStandardItem):
+    """Represents an empty item in the third column of a category row. """
+    def __init__(self):
+        super(EmptyItem, self).__init__()
         self.setEditable(False)
-        self.setFont(_FONT_)
 
+class NameItem(DataItem):
+    """Item representing the name of an entry.
+
+    Holds a lowercase `QString` as data. When its text is requested, an
+    uppercase representation is returned.
+    """
+
+    def __init__(self, data):
+        #TODO handle empty name
+        super(NameItem, self).__init__(data.lower())
+
+    def text(self):
+        # workaround because QString has no capitalize method
+        text_ = unicode(self.data().toString())
+        capitalized = u' '.join([t.capitalize() for t in text_.split()])
+        return QtCore.QString(capitalized)
+
+    def setText(self, text_):
+        super(NameItem, self).setText(text_)
+        self.setData(text_.toLower())
+
+class CategoryItem(NameItem):
+    """Item representing the name of a category.
+
+    Cannot be edited. Text is printed in bold letters.
+    """
+    def __init__(self, data):
+        super(CategoryItem, self).__init__(data)
+        self.setEditable(False)
+        font = self.font()
+        font.setBold(True)
+        self.setFont(font)
+
+    #deprecated
     def appendRow(self, itemList, updateSumItem=True):
         """
         Re-implemented method.
         Set updateSumItem=False if the row is read from xml (and the SumItem,
         too).
 
-        :param      updateSumItem | bool 
+        :param      updateSumItem | bool
         """
         super(CategoryItem, self).appendRow(itemList)
         if updateSumItem:
@@ -40,69 +88,65 @@ class CategoryItem(QtGui.QStandardItem):
 
     def xmlTag(self):
         return 'category'
-     
-#TODO classes DateItem, EntryItem and ExpenseItem could be nicely derived from
-#     base class ValueItem or something 
-class DateItem(QtGui.QStandardItem):
-    """ 
-    Represents a date item holding a QVariant with data. 
-    Can be constructed from a string ('21.'), an int (21) or a QDate object. 
+
+class ValueItem(DataItem):
+    """Item representing the value of an entry.
+
+    Holds a `QFloat` number as data. When its text is requested, the return format
+    has two decimal points. If input with sub-percent precision is given, it is
+    rounded.
     """
-    def __init__(self, day, month=None, year=None):
-        text = ""
-        data = None
-        if isinstance(day, int):
-            text = str(day) + '.'
-            data = QtCore.QDate(year, month, day)
-        elif isinstance(day, QtCore.QDate):
-            text = str(day.day()) + '.'
-            data = day
-        elif isinstance(day, str) or isinstance(day, unicode):
-            text = day
-            data = QtCore.QDate(year, month, int(day[:-1]))
-        super(DateItem, self).__init__(text)
-        self.setData(data)
-        self.__value = text
+    def __init__(self, data):
+        super(ValueItem, self).__init__(data)
+        # TODO add sign attribute
 
-    def value(self):
-        return self.__value
+    def text(self):
+        value, ok = self.data().toFloat()
+        # should not fail...
+        # TODO negative numbers should be displayed without minus sign
+        if ok:
+            return QtCore.QString.number(value, 'f', 2)
 
+    def setText(self, text_):
+        value, ok = text_.toFloat()
+        if ok:
+            super(ValueItem, self).setText(text_)
+            self.setData(value)
 
-class EmptyItem(QtGui.QStandardItem):
-    """ Represents an empty item in the third column of a category row. """
-    def __init__(self):
-        super(EmptyItem, self).__init__()
-        self.setEditable(False)
+class DateItem(DataItem):
+    """Item representing the date of an entry.
 
+    Holds a `QDate` as data. If an invalid data is given at initialization,
+    today's date is used instead.
+    """
+    FORMAT = "yyyy-MM-dd"
+    def __init__(self, data=""):
+        date = QtCore.QDate.fromString(data, DateItem.FORMAT)
+        if not date.isValid():
+            date = QtCore.QDate.currentDate()
+        super(DateItem, self).__init__(date)
 
-class EntryItem(QtGui.QStandardItem):
-    """ Represents an entry item. """
+    def text(self):
+        # assume the conversion to date does not fail
+        return self.data().toDate().toString(DateItem.FORMAT)
 
-    def __init__(self, text=""):
-        super(EntryItem, self).__init__(text)
-        self.__value = text
+    def setText(self, text_):
+        date  = QtCore.QDate.fromString(text_, DateItem.FORMAT)
+        if date.isValid():
+            super(DateItem, self).setText(text_)
+            self.setData(date)
 
-    def setText(self, text):
-        self.__value = text 
-        super(EntryItem, self).setText(text)
-
-    def value(self):
-        return self.__value 
-
-    def xmlTag(self):
-        return 'entry'
-
-
+# deprecated, replaced by ValueItem
 class ExpenseItem(QtGui.QStandardItem):
     """ Represents an expense item. Accepts only float as text. """
 
     def __init__(self, data=None):
-        """ 
+        """
         Can be initialized in three ways: With data=None, an ExpenseItem with
         value zero is created. Otherwise, the value is deduced from an input
         string or number.
 
-        :param      data | str, int, float or None 
+        :param      data | str, int, float or None
         """
         text = ""
         value = 0.0
@@ -115,26 +159,27 @@ class ExpenseItem(QtGui.QStandardItem):
             text = str(data)
             value = data
         elif isinstance(data, str) or isinstance(data, unicode):
-            text = data 
+            text = data
             value = float(data)
         super(ExpenseItem, self).__init__(text)
         self.__value = value
 
     def value(self):
-        return self.__value 
+        return self.__value
 
     def setValue(self, value):
-        self.__value = value 
+        self.__value = value
         self.setText(str(value))
-        
 
+
+# deprecated
 class ResultItem(QtGui.QStandardItem):
-    """ 
+    """
     Represents an item displayed in the SearchDialog.
     The text of name, value and category entries is the string representation
-    of their data. The text of the date entry is formatted. 
-    
-    :param      data | str, float, QDate 
+    of their data. The text of the date entry is formatted.
+
+    :param      data | str, float, QDate
     """
     def __init__(self, data=None):
         super(ResultItem, self).__init__()
@@ -146,21 +191,16 @@ class ResultItem(QtGui.QStandardItem):
         self.setText(unicode(data))
 
 
-class SumItem(QtGui.QStandardItem):
-    """ Represents a sum item. Set by the system. """
+class SumItem(ValueItem):
+    """Item representing the sum of entry values of a category.
 
-    def __init__(self, text=""):
-        super(SumItem, self).__init__(text)
-        if not len(text):
-            text = '0'
-        self.__value = float(text)
-        self.setFont(_FONT_)
+    Is updated when new entries are added. Not editable. The text will be
+    represented in bold.
+    """
+
+    def __init__(self, data=0.0):
+        super(SumItem, self).__init__(data)
         self.setEditable(False)
-
-    def increment(self, newValue, oldValue):
-        self.__value = self.__value - oldValue + newValue 
-        self.setText(str(self.__value))
-        self.setEditable(False)
-
-    def value(self):
-        return self.__value 
+        font = self.font()
+        font.setBold(True)
+        self.setFont(font)

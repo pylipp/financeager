@@ -1,114 +1,143 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import unittest
-from hypothesis import given, Settings, assume
-from hypothesis.strategies import text, integers, floats, one_of, none
-from hypothesis.extra.datetime import dates
 
-from datetime import date
-from math import isnan
-
-from .items import EntryItem, DateItem, ExpenseItem
-from PyQt4.QtCore import QString, QDate
+from financeager.items import (DateItem, ExpenseItem, EmptyItem, NameItem,
+    ValueItem)
+from PyQt4.QtCore import QString, QDate, QVariant
 
 
 def suite():
     suite = unittest.TestSuite()
     tests = [
-            'test_value',
-            'test_set_value'
+            'test_text_is_empty',
+            'test_data_is_null',
+            'test_is_not_editable'
             ]
-    suite.addTest(unittest.TestSuite(map(EntryItemValueTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(EmptyItemTestCase, tests)))
     tests = [
-            'test_date'
+            'test_text',
+            'test_data'
             ]
-    suite.addTest(unittest.TestSuite(map(DateItemDataTestCase, tests)))
-    tests = [
-            'test_value',
-            'test_set_value'
-            ]
-    suite.addTest(unittest.TestSuite(map(ExpenseItemValueTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(SingleWordNameItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(ComplexWordNameItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(SetTextNameItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(IntegerValueItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(FloatValueItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(SetTextValueItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(SimpleDateItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(InvalidDateItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(SetTextDateItemTestCase, tests)))
     return suite
 
 
-class EntryItemTestCase(unittest.TestCase):
+class EmptyItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = EmptyItem()
 
-    @given(text())
-    def setUp(self, s):
-        self.item = EntryItem(s)
-        self.s = s
+    def test_text_is_empty(self):
+        self.assertTrue(self.item.text().isEmpty())
 
+    def test_data_is_null(self):
+        self.assertTrue(self.item.data().isNull())
 
-class EntryItemValueTestCase(EntryItemTestCase):
+    def test_is_not_editable(self):
+        self.assertFalse(self.item.isEditable())
 
-    def test_value(self):
-        self.assertEqual(self.item.value(), self.s)
-        self.assertEqual(self.item.text(), QString(self.s))
+class SingleWordNameItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = NameItem("GrocErIEs")
 
-    @given(text())
-    def test_set_value(self, s):
-        self.item.setText(s)
-        self.assertEqual(self.item.value(), s)
-        self.assertEqual(self.item.text(), QString(s))
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("Groceries"))
 
+    def test_data(self):
+        self.assertEqual(self.item.data(), QVariant("groceries"))
 
-class DateItemTestCase(unittest.TestCase):
+class ComplexWordNameItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = NameItem("Miete März-Juli!")
 
-    @given(dates(), settings=Settings(max_examples=500))
-    def setUp(self, d):
-        self.items = [
-                DateItem(d.day, d.month, d.year),
-                DateItem(str(d.day)+'.', d.month, d.year),
-                DateItem(unicode(str(d.day)+'.'), d.month, d.year),
-                DateItem(QDate(d.year, d.month, d.day))]
-        self.date = d
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("Miete März-juli!"))
 
+    def test_data(self):
+        self.assertEqual(self.item.data(), QVariant("miete märz-juli!"))
 
-class DateItemDataTestCase(DateItemTestCase):
+class SetTextNameItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = NameItem("Money")
+        self.item.setText(QString("busy g3tTIn' $"))
 
-    def _dataAsPyDate(self, item):
-        """ Method to convert item's data (QDate) to datetime.date """
-        d = item.data().toDate()
-        if d.isValid():
-            return d.toPyDate()
-        else:
-            return date(1, 1, 1)
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("Busy G3ttin' $"))
 
-    def test_date(self):
-        for item in self.items:
-            self.assertEqual(self._dataAsPyDate(item), self.date)
+    def test_data(self):
+        self.assertEqual(self.item.data(), QVariant("busy g3ttin' $"))
 
+class IntegerValueItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = ValueItem(123)
 
-class ExpenseItemTestCase(unittest.TestCase):
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("123.00"))
 
-    @given(one_of(integers(min_value=0), floats(min_value=0.0), none()))
-    def setUp(self, val):
-        if val is not None:
-            assume(not isnan(val))
-        self.items = dict()
-        self.items[ExpenseItem()] = None
-        self.items[ExpenseItem(val)] = val
-        if val is not None:
-            self.items[ExpenseItem(str(val))] = val
-            self.items[ExpenseItem(unicode(val))] = val
+    def test_data(self):
+        self.assertEqual(self.item.data(), QVariant(123))
 
+class FloatValueItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = ValueItem(3.1415926)
 
-class ExpenseItemValueTestCase(ExpenseItemTestCase):
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("3.14"))
 
-    def test_value(self):
-        for item, value in self.items.iteritems():
-            if value is None:
-                self.assertAlmostEqual(item.value(), 0.0, places=3)
-                self.assertEqual(item.text(), QString(str(0.0)))
-            else:
-                self.assertAlmostEqual(item.value(), value, places=3)
-                self.assertEqual(item.text(), QString(str(value)))
+    #FIXME
+    def test_data(self):
+        self.assertEqual(self.item.data(), QVariant(3.1415926))
 
-    @given(one_of(integers(min_value=0), floats(min_value=0.0)))
-    def test_set_value(self, v):
-        for item in self.items.iterkeys():
-            item.setValue(v)
-            self.assertAlmostEqual(item.value(), v)
-            self.assertEqual(item.text(), QString(str(v)))
+class SetTextValueItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = ValueItem(42.42)
+        self.item.setText(QString("13.37"))
 
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("13.37"))
+
+    #FIXME
+    def test_data(self):
+        self.assertEqual(self.item.data(), QVariant(13.37))
+
+class SimpleDateItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = DateItem("2016-01-01")
+
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("2016-01-01"))
+
+    def test_data(self):
+        self.assertEqual(self.item.data(), QDate(2016, 1, 1))
+
+class InvalidDateItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = DateItem()
+
+    def test_text(self):
+        self.assertEqual(self.item.text(), QDate.currentDate().toString(DateItem.FORMAT))
+
+    def test_data(self):
+        self.assertEqual(self.item.data(), QDate.currentDate())
+
+class SetTextDateItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = DateItem("2016-12-24")
+        self.item.setText("2015-11-11")
+
+    def test_text(self):
+        self.assertEqual(self.item.text(), QString("2015-11-11"))
+
+    def test_data(self):
+        self.assertEqual(self.item.data(), QDate(2015, 11, 11))
 
 if __name__ == '__main__':
     unittest.main()
