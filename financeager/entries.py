@@ -15,12 +15,15 @@ class Entry(object):
     #FIXME This would be prettier when using ordered kwargs as introduced in 3.6
     def __init__(self, *args):
         self._items = []
+        # expand if args are omitted
+        args_list = list(args) + (len(self.ITEM_TYPES) - len(args)) * [None]
         # FIXME this iteration is actually required only once when creating a
         # class not every time an instance is created. Use factory instead?
         # BaseEntry = type("BaseEntry", (Entry,), {methods})
-        for type_, arg in zip(self.ITEM_TYPES, args):
+        for type_, arg in zip(self.ITEM_TYPES, args_list):
+            ItemClass = globals()["{}Item".format(type_.capitalize())]
             self._items.append(
-                    globals()["{}Item".format(type_.capitalize())](arg)
+                    ItemClass() if arg is None else ItemClass(arg)
                     )
 
     def __getattr__(self, name):
