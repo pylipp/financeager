@@ -5,7 +5,8 @@ import unittest
 
 modules = [
         'test_items',
-        'test_entries'
+        'test_entries',
+        'test_model'
         ]
 
 testRunner = unittest.TextTestRunner(verbosity=2)

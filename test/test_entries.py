@@ -39,7 +39,7 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.entry = CategoryEntry("Gifts")
 
     def test_name(self):
-        self.assertEqual(self.entry.category, QString("gifts"))
+        self.assertEqual(self.entry.name, QString("gifts"))
 
     def test_sum(self):
         self.assertEqual(self.entry.sum, QVariant(0.0))

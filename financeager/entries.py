@@ -3,6 +3,7 @@
 from items import (CategoryItem, SumItem, EmptyItem, NameItem, DateItem,
         ValueItem)
 from abc import ABCMeta
+from collections import OrderedDict
 
 class Entry(object):
     """Abstract base class for all entries.
@@ -20,15 +21,15 @@ class Entry(object):
         # FIXME this iteration is actually required only once when creating a
         # class not every time an instance is created. Use factory instead?
         # BaseEntry = type("BaseEntry", (Entry,), {methods})
-        for type_, arg in zip(self.ITEM_TYPES, args_list):
-            ItemClass = globals()["{}Item".format(type_.capitalize())]
+        for type_, arg in zip(self.ITEM_TYPES.keys(), args_list):
+            ItemClass = self.ITEM_TYPES[type_]
             self._items.append(
                     ItemClass() if arg is None else ItemClass(arg)
                     )
 
     def __getattr__(self, name):
         """Reimplementation for accessing item member data."""
-        return self._items[self.ITEM_TYPES.index(name)].data()
+        return self._items[self.ITEM_TYPES.keys().index(name)].data()
 
     @property
     def items(self):
@@ -37,9 +38,11 @@ class Entry(object):
 class BaseEntry(Entry):
     """Wrapper around a Name-, Value-, DateItem tuple."""
 
-    ITEM_TYPES = ["name", "value", "date"]
+    ITEM_TYPES = OrderedDict((
+        ("name", NameItem), ("value", ValueItem), ("date", DateItem)))
 
 class CategoryEntry(Entry):
     """Wrapper around a Category- and SumItem tuple."""
 
-    ITEM_TYPES = ["category", "sum", "empty"]
+    ITEM_TYPES = OrderedDict((
+        ("name", CategoryItem), ("sum", SumItem), ("empty", EmptyItem)))
