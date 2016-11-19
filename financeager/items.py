@@ -92,7 +92,8 @@ class CategoryItem(NameItem):
         super(CategoryItem, self).appendRow(itemList)
         if updateSumItem:
             # ExpenseItem is the second entry of the row
-            self.model().setSumItem(itemList[1])
+            # self._entry.sum_item.update(itemList[1])
+            pass
 
     def xmlTag(self):
         return 'category'
