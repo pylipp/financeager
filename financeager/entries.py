@@ -29,8 +29,9 @@ class Entry(object):
             self._items.append(ItemClass(**kwargs))
 
     def __getattr__(self, name):
-        """Reimplementation for accessing item member data."""
-        return self._items[self.ITEM_TYPES.keys().index(name)].data()
+        """Reimplementation for accessing an item member."""
+        name = name.replace("_item", "")
+        return self._items[self.ITEM_TYPES.keys().index(name)]
 
     @property
     def items(self):

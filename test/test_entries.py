@@ -26,23 +26,23 @@ class BaseEntryTestCase(unittest.TestCase):
         self.entry = BaseEntry("Groceries", 123.45, "2016-08-10")
 
     def test_name(self):
-        self.assertEqual(self.entry.name, QString("groceries"))
+        self.assertEqual(self.entry.name_item.data(), QString("groceries"))
 
     def test_value(self):
-        self.assertEqual(self.entry.value, QVariant(123.45))
+        self.assertEqual(self.entry.value_item.data(), QVariant(123.45))
 
     def test_date(self):
-        self.assertEqual(self.entry.date, QDate(2016, 8, 10))
+        self.assertEqual(self.entry.date_item.data(), QDate(2016, 8, 10))
 
 class CategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.entry = CategoryEntry("Gifts")
 
     def test_name(self):
-        self.assertEqual(self.entry.name, QString("gifts"))
+        self.assertEqual(self.entry.name_item.data(), QString("gifts"))
 
     def test_sum(self):
-        self.assertEqual(self.entry.sum, QVariant(0.0))
+        self.assertEqual(self.entry.sum_item.data(), QVariant(0.0))
 
 if __name__ == '__main__':
     unittest.main()
