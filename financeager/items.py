@@ -23,21 +23,26 @@ class DataItem(QtGui.QStandardItem):
     At initialization, the item data is set. By default, an instance of
     `DataItem` is editable. Finally, the item text is set by formatting the
     corresponding data. The formatting via `text()` is defined in the
-    subclasses.
+    subclasses. The `entry` member refers to the parent entry if it exists.
     """
     # __metaclass__ = ABCMeta
 
-    def __init__(self, data):
+    def __init__(self, data, entry=None):
         super(DataItem, self).__init__()
         self.setData(data)
         self.setEditable(True)
         self.setText(self.text())
+        self._entry = entry
 
-class EmptyItem(QtGui.QStandardItem):
+    @property
+    def entry(self):
+        return self._entry
+
+class EmptyItem(DataItem):
     """Represents an empty item in the third column of a category row. """
 
-    def __init__(self):
-        super(EmptyItem, self).__init__()
+    def __init__(self, entry=None):
+        super(EmptyItem, self).__init__(None, entry)
         self.setEditable(False)
 
 class NameItem(DataItem):
@@ -49,9 +54,9 @@ class NameItem(DataItem):
     :param data: Python string
     """
 
-    def __init__(self, data):
+    def __init__(self, data, entry=None):
         #TODO handle empty name
-        super(NameItem, self).__init__(data.lower())
+        super(NameItem, self).__init__(data.lower(), entry)
 
     def text(self):
         # workaround because QString has no capitalize method
@@ -68,8 +73,8 @@ class CategoryItem(NameItem):
 
     Cannot be edited. Text is printed in bold letters.
     """
-    def __init__(self, data):
-        super(CategoryItem, self).__init__(data)
+    def __init__(self, data, entry=None):
+        super(CategoryItem, self).__init__(data, entry)
         self.setEditable(False)
         font = self.font()
         font.setBold(True)
@@ -101,8 +106,8 @@ class ValueItem(DataItem):
 
     :param data: Python integer or float number
     """
-    def __init__(self, data):
-        super(ValueItem, self).__init__(data)
+    def __init__(self, data, entry=None):
+        super(ValueItem, self).__init__(data, entry)
         # TODO add sign attribute
 
     def text(self):
@@ -125,11 +130,11 @@ class DateItem(DataItem):
     today's date is used instead.
     """
     FORMAT = "yyyy-MM-dd"
-    def __init__(self, data=""):
+    def __init__(self, data="", entry=None):
         date = QtCore.QDate.fromString(data, DateItem.FORMAT)
         if not date.isValid():
             date = QtCore.QDate.currentDate()
-        super(DateItem, self).__init__(date)
+        super(DateItem, self).__init__(date, entry)
 
     def text(self):
         # assume the conversion to date does not fail
@@ -203,8 +208,8 @@ class SumItem(ValueItem):
     represented in bold.
     """
 
-    def __init__(self, data=0.0):
-        super(SumItem, self).__init__(data)
+    def __init__(self, data=0.0, entry=None):
+        super(SumItem, self).__init__(data, entry)
         self.setEditable(False)
         font = self.font()
         font.setBold(True)

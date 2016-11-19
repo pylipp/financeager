@@ -23,9 +23,10 @@ class Entry(object):
         # BaseEntry = type("BaseEntry", (Entry,), {methods})
         for type_, arg in zip(self.ITEM_TYPES.keys(), args_list):
             ItemClass = self.ITEM_TYPES[type_]
-            self._items.append(
-                    ItemClass() if arg is None else ItemClass(arg)
-                    )
+            kwargs = dict(entry=self)
+            if arg is not None:
+                kwargs["data"] = arg
+            self._items.append(ItemClass(**kwargs))
 
     def __getattr__(self, name):
         """Reimplementation for accessing item member data."""

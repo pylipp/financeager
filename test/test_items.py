@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 from financeager.items import (DateItem, ExpenseItem, EmptyItem, NameItem,
-    ValueItem)
+    ValueItem, DataItem)
 from PyQt4.QtCore import QString, QDate, QVariant
 
 
@@ -11,7 +11,11 @@ def suite():
     suite = unittest.TestSuite()
     tests = [
             'test_text_is_empty',
-            'test_data_is_null',
+            'test_entry_is_none',
+            'test_data_is_null'
+            ]
+    suite.addTest(unittest.TestSuite(map(DataItemTestCase, tests)))
+    tests = [
             'test_is_not_editable'
             ]
     suite.addTest(unittest.TestSuite(map(EmptyItemTestCase, tests)))
@@ -31,15 +35,22 @@ def suite():
     return suite
 
 
-class EmptyItemTestCase(unittest.TestCase):
+class DataItemTestCase(unittest.TestCase):
     def setUp(self):
-        self.item = EmptyItem()
+        self.item = DataItem(None)
 
     def test_text_is_empty(self):
         self.assertTrue(self.item.text().isEmpty())
 
+    def test_entry_is_none(self):
+        self.assertIsNone(self.item.entry)
+
     def test_data_is_null(self):
         self.assertTrue(self.item.data().isNull())
+
+class EmptyItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.item = EmptyItem()
 
     def test_is_not_editable(self):
         self.assertFalse(self.item.isEditable())
