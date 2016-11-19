@@ -4,20 +4,33 @@ import unittest
 
 from PyQt4.QtCore import QString, QDate, QVariant
 from financeager.model import Model
-from financeager.entries import BaseEntry
+from financeager.entries import BaseEntry, CategoryEntry
+from financeager.items import CategoryItem
 
 
 def suite():
     suite = unittest.TestSuite()
     tests = [
-            'test_category_is_added',
-            'test_category_sum',
-            'test_item_name',
-            'test_item_value',
-            'test_item_date'
+            'test_category_item_in_list'
             ]
-    suite.addTest(unittest.TestSuite(map(AddItemModelTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(AddCategoryEntryTestCase, tests)))
+    tests = [
+            'test_category_entry_in_list',
+            'test_base_entry_in_list',
+            'test_category_sum'
+            ]
+    # suite.addTest(unittest.TestSuite(map(AddItemModelTestCase, tests)))
     return suite
+
+class AddCategoryEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.category_name = "Groceries"
+        self.model.add_entry(CategoryEntry(self.category_name))
+
+    def test_category_item_in_list(self):
+        self.assertIn(CategoryItem(self.category_name).data(),
+                self.model.category_entry_names)
 
 class AddItemModelTestCase(unittest.TestCase):
     def setUp(self):
@@ -29,20 +42,17 @@ class AddItemModelTestCase(unittest.TestCase):
         self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
 
-    def test_category_is_added(self):
-        self.assertIn(self.item_category, list(self.model.categories))
+    def test_category_entry_in_list(self):
+        self.assertIn(CategoryItem(self.item_category).data(),
+                self.model.category_entry_names)
+
+    def test_base_entry_in_list(self):
+        base_entry_names = [item.data() for item in
+                self.model.base_entry_items("name")]
+        self.assertIn(QString(self.item_name), base_entry_names)
 
     def test_category_sum(self):
         self.assertEqual(self.item_value, self.model.category_sum(self.item_category))
-
-    def test_item_name(self):
-        self.assertEqual(self.model.categories.next()[0].name, QString(self.item_name))
-
-    def test_item_value(self):
-        self.assertEqual(self.model.categories.next()[0].value, QVariant(self.item_value))
-
-    def test_item_date(self):
-        self.assertEqual(self.model.categories.next()[0].date, QDate(*self.item_date))
 
 if __name__ == '__main__':
     unittest.main()
