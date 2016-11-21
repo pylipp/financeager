@@ -106,6 +106,13 @@ class ValueItem(DataItem):
             super(ValueItem, self).setText(text_)
             self.setData(value)
 
+    @property
+    def value(self):
+        val, ok = self.data().toFloat()
+        if ok:
+            return val
+        return 0.0
+
 class DateItem(DataItem):
     """Item representing the date of an entry.
 

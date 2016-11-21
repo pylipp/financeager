@@ -102,14 +102,14 @@ class IntegerValueItemTestCase(unittest.TestCase):
 
 class FloatValueItemTestCase(unittest.TestCase):
     def setUp(self):
-        self.item = ValueItem(3.1415926)
+        self.value = 3.1415926
+        self.item = ValueItem(self.value)
 
     def test_text(self):
         self.assertEqual(self.item.text(), QString("3.14"))
 
-    #FIXME
     def test_data(self):
-        self.assertEqual(self.item.data(), QVariant(3.1415926))
+        self.assertAlmostEqual(self.item.value, self.value, places=2)
 
 class SetTextValueItemTestCase(unittest.TestCase):
     def setUp(self):
@@ -119,9 +119,8 @@ class SetTextValueItemTestCase(unittest.TestCase):
     def test_text(self):
         self.assertEqual(self.item.text(), QString("13.37"))
 
-    #FIXME
     def test_data(self):
-        self.assertEqual(self.item.data(), QVariant(13.37))
+        self.assertAlmostEqual(self.item.value, 13.37, places=5)
 
 class SimpleDateItemTestCase(unittest.TestCase):
     def setUp(self):

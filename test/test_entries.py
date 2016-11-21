@@ -29,7 +29,7 @@ class BaseEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.name_item.data(), QString("groceries"))
 
     def test_value(self):
-        self.assertEqual(self.entry.value_item.data(), QVariant(123.45))
+        self.assertAlmostEqual(self.entry.value_item.value, 123.45, places=5)
 
     def test_date(self):
         self.assertEqual(self.entry.date_item.data(), QDate(2016, 8, 10))
