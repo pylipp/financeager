@@ -80,24 +80,6 @@ class CategoryItem(NameItem):
         font.setBold(True)
         self.setFont(font)
 
-    #deprecated
-    def appendRow(self, itemList, updateSumItem=True):
-        """
-        Re-implemented method.
-        Set updateSumItem=False if the row is read from xml (and the SumItem,
-        too).
-
-        :param      updateSumItem | bool
-        """
-        super(CategoryItem, self).appendRow(itemList)
-        if updateSumItem:
-            # ExpenseItem is the second entry of the row
-            # self._entry.sum_item.update(itemList[1])
-            pass
-
-    def xmlTag(self):
-        return 'category'
-
 class ValueItem(DataItem):
     """Item representing the value of an entry.
 
