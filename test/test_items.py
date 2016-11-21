@@ -32,10 +32,6 @@ def suite():
     suite.addTest(unittest.TestSuite(map(SimpleDateItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(InvalidDateItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(SetTextDateItemTestCase, tests)))
-    tests = [
-            'test_sum_value'
-            ]
-    suite.addTest(unittest.TestSuite(map(UpdateSumItemTestCase, tests)))
     return suite
 
 
@@ -152,16 +148,6 @@ class SetTextDateItemTestCase(unittest.TestCase):
 
     def test_data(self):
         self.assertEqual(self.item.data(), QDate(2015, 11, 11))
-
-class UpdateSumItemTestCase(unittest.TestCase):
-    def setUp(self):
-        self.sum_item = SumItem()
-        self.value = 12.34
-        self.value_item = ValueItem(self.value)
-        self.sum_item.update(self.value_item)
-
-    def test_sum_value(self):
-        self.assertEqual(self.sum_item.data(), self.value_item.data())
 
 if __name__ == '__main__':
     unittest.main()

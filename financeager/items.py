@@ -204,9 +204,3 @@ class SumItem(ValueItem):
         font = self.font()
         font.setBold(True)
         self.setFont(font)
-
-    def update(self, value_item):
-        old_sum = self.data().toFloat()[0]
-        value = value_item.data().toFloat()[0]
-        self.setText(QtCore.QString("{}".format(old_sum + value)))
-
