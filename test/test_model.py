@@ -29,6 +29,10 @@ def suite():
             'test_category_sum'
             ]
     suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
+    tests = [
+            'test_category_sum_updated'
+            ]
+    suite.addTest(unittest.TestSuite(map(SetValueItemTextTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -90,6 +94,21 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_a_value + self.item_b_value,
+                self.model.category_sum(self.item_category), places=5)
+
+class SetValueItemTextTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_a_value = 66.6
+        self.item_b_value = 10.01
+        self.item_category = "Groceries"
+        self.model.add_entry(BaseEntry("Aldi", self.item_a_value),
+                self.item_category)
+        self.model.item(0).child(0, 1).setText(
+                QString("{}".format(self.item_b_value)))
+
+    def test_category_sum_updated(self):
+        self.assertAlmostEqual(self.item_b_value,
                 self.model.category_sum(self.item_category), places=5)
 
 if __name__ == '__main__':
