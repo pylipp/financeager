@@ -14,10 +14,11 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import QStandardItem
+from PyQt4.QtCore import (QString, QDate)
 from abc import ABCMeta
 
-class DataItem(QtGui.QStandardItem):
+class DataItem(QStandardItem):
     """Abstract base class for all items that hold data.
 
     At initialization, the item data is set. By default, an instance of
@@ -62,7 +63,7 @@ class NameItem(DataItem):
         # workaround because QString has no capitalize method
         text_ = unicode(self.data().toString())
         capitalized = u' '.join([t.capitalize() for t in text_.split()])
-        return QtCore.QString(capitalized)
+        return QString(capitalized)
 
     def setText(self, text_):
         super(NameItem, self).setText(text_)
@@ -100,7 +101,7 @@ class ValueItem(DataItem):
         # should not fail...
         # TODO negative numbers should be displayed without minus sign
         if ok:
-            return QtCore.QString.number(value, 'f', 2)
+            return QString.number(value, 'f', 2)
 
     def setText(self, text_):
         value, ok = text_.toFloat()
@@ -123,9 +124,9 @@ class DateItem(DataItem):
     """
     FORMAT = "yyyy-MM-dd"
     def __init__(self, data="", entry=None):
-        date = QtCore.QDate.fromString(data, DateItem.FORMAT)
+        date = QDate.fromString(data, DateItem.FORMAT)
         if not date.isValid():
-            date = QtCore.QDate.currentDate()
+            date = QDate.currentDate()
         super(DateItem, self).__init__(date, entry)
 
     def text(self):
@@ -133,13 +134,13 @@ class DateItem(DataItem):
         return self.data().toDate().toString(DateItem.FORMAT)
 
     def setText(self, text_):
-        date  = QtCore.QDate.fromString(text_, DateItem.FORMAT)
+        date  = QDate.fromString(text_, DateItem.FORMAT)
         if date.isValid():
             super(DateItem, self).setText(text_)
             self.setData(date)
 
 # deprecated, replaced by ValueItem
-class ExpenseItem(QtGui.QStandardItem):
+class ExpenseItem(QStandardItem):
     """ Represents an expense item. Accepts only float as text. """
 
     def __init__(self, data=None):
@@ -175,7 +176,7 @@ class ExpenseItem(QtGui.QStandardItem):
 
 
 # deprecated
-class ResultItem(QtGui.QStandardItem):
+class ResultItem(QStandardItem):
     """
     Represents an item displayed in the SearchDialog.
     The text of name, value and category entries is the string representation
