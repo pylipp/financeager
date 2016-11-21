@@ -24,6 +24,11 @@ def suite():
             'test_category_sum'
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
+    tests = [
+            'test_two_entries_in_list',
+            'test_category_sum'
+            ]
+    suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -67,6 +72,24 @@ class AddBaseEntryTestCase(unittest.TestCase):
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_value,
+                self.model.category_sum(self.item_category), places=5)
+
+class AddTwoBaseEntriesTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_a_value = 66.6
+        self.item_b_value = 10.01
+        self.item_category = "Groceries"
+        self.model.add_entry(BaseEntry("Aldi", self.item_a_value),
+                self.item_category)
+        self.model.add_entry(BaseEntry("Rewe", self.item_b_value),
+                self.item_category)
+
+    def test_two_entries_in_list(self):
+        self.assertEqual(2, len(list(self.model.base_entry_items("name"))))
+
+    def test_category_sum(self):
+        self.assertAlmostEqual(self.item_a_value + self.item_b_value,
                 self.model.category_sum(self.item_category), places=5)
 
 if __name__ == '__main__':

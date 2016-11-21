@@ -3,11 +3,13 @@
 from PyQt4.QtGui import QStandardItemModel
 from PyQt4.QtCore import QString
 from financeager.entries import BaseEntry, CategoryEntry
+from financeager.items import ValueItem
 
 class Model(QStandardItemModel):
 
     def __init__(self):
         super(QStandardItemModel, self).__init__()
+        self.itemChanged.connect(self._update_sum_item)
 
     def add_entry(self, entry, category="Unspecified"):
         """Add a Category- or BaseEntry to the model.
@@ -25,8 +27,7 @@ class Model(QStandardItemModel):
             category_item = self.find_category_item(category)
             if category_item is not None:
                 category_item.appendRow(entry.items)
-                sum_item = category_item.entry.sum_item
-                sum_item.update(entry.value_item)
+                self.itemChanged.emit(entry.value_item)
 
     def category_entry_items(self, item_type):
         """Generator iterating over first-level children (CategoryEntries) of
@@ -79,3 +80,15 @@ class Model(QStandardItemModel):
         if category_item is not None:
             return category_item.entry.sum_item.data().toFloat()[0]
         return 0.0
+
+    def _update_sum_item(self, item):
+        if isinstance(item, ValueItem):
+            category_item = item.parent()
+            if category_item is None:
+                return
+            col = BaseEntry.ITEM_TYPES.keys().index("value")
+            new_sum = 0.0
+            for row in range(category_item.rowCount()):
+                new_sum += category_item.child(row, col).value
+            sum_item = category_item.entry.sum_item
+            sum_item.setText(QString("{}".format(new_sum)))
