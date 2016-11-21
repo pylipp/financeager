@@ -14,6 +14,8 @@ class Model(QStandardItemModel):
     def __init__(self):
         super(QStandardItemModel, self).__init__()
         self.itemChanged.connect(self._update_sum_item)
+        self.setHorizontalHeaderLabels(
+                [k.capitalize() for k in BaseEntry.ITEM_TYPES.keys()])
 
     def add_entry(self, entry, category=CategoryItem.DEFAULT_NAME):
         """Add a Category- or BaseEntry to the model.
