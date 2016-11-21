@@ -25,9 +25,8 @@ class Model(QStandardItemModel):
         elif isinstance(entry, BaseEntry):
             self.add_entry(CategoryEntry(category))
             category_item = self.find_category_item(category)
-            if category_item is not None:
-                category_item.appendRow(entry.items)
-                self.itemChanged.emit(entry.value_item)
+            category_item.appendRow(entry.items)
+            self.itemChanged.emit(entry.value_item)
 
     def category_entry_items(self, item_type):
         """Generator iterating over first-level children (CategoryEntries) of
@@ -78,7 +77,7 @@ class Model(QStandardItemModel):
         """Return sum of category named `category_name`."""
         category_item = self.find_category_item(category_name)
         if category_item is not None:
-            return category_item.entry.sum_item.data().toFloat()[0]
+            return category_item.entry.sum_item.value
         return 0.0
 
     def _update_sum_item(self, item):
