@@ -51,5 +51,8 @@ class Model(QStandardItemModel):
                 return category_item
         return None
 
-    def category_sum(self, category):
+    def category_sum(self, category_name):
+        category_item = self.find_category_item(category_name)
+        if category_item is not None:
+            return category_item.entry.sum_item.data().toFloat()[0]
         return 0.0

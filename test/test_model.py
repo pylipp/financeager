@@ -20,7 +20,6 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(AddCategoryEntryTwiceTestCase, tests)))
     tests = [
-            'test_category_entry_in_list',
             'test_base_entry_in_list',
             'test_category_sum'
             ]
@@ -67,7 +66,8 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.assertIn(NameItem(self.item_name).data(), base_entry_names)
 
     def test_category_sum(self):
-        self.assertEqual(self.item_value, self.model.category_sum(self.item_category))
+        self.assertAlmostEqual(self.item_value,
+                self.model.category_sum(self.item_category), places=5)
 
 if __name__ == '__main__':
     unittest.main()
