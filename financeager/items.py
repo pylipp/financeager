@@ -73,6 +73,8 @@ class CategoryItem(NameItem):
 
     Cannot be edited. Text is printed in bold letters.
     """
+    DEFAULT_NAME = "unspecified"
+
     def __init__(self, data, entry=None):
         super(CategoryItem, self).__init__(data, entry)
         self.setEditable(False)

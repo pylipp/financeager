@@ -3,7 +3,7 @@
 from PyQt4.QtGui import QStandardItemModel
 from PyQt4.QtCore import QString
 from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import ValueItem
+from financeager.items import ValueItem, CategoryItem
 
 class Model(QStandardItemModel):
     """Holds Entries in hierarchical order. First-level children are
@@ -15,13 +15,13 @@ class Model(QStandardItemModel):
         super(QStandardItemModel, self).__init__()
         self.itemChanged.connect(self._update_sum_item)
 
-    def add_entry(self, entry, category="Unspecified"):
+    def add_entry(self, entry, category=CategoryItem.DEFAULT_NAME):
         """Add a Category- or BaseEntry to the model.
         Category names are unique, i.e. a CategoryEntry is not skipped if one
         with identical name (case INsensitive) already exists.
         When adding a BaseEntry, the parent CategoryItem is created if it does
         not exist. If no category is specified, the BaseEntry is added to the
-        'Unspecified' category. The corresponding sum item is updated.
+        default category. The corresponding sum item is updated.
         """
         if isinstance(entry, CategoryEntry):
             if entry.name_item.data() not in self.category_entry_names:
