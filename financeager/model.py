@@ -6,6 +6,10 @@ from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import ValueItem
 
 class Model(QStandardItemModel):
+    """Holds Entries in hierarchical order. First-level children are
+    CategoryEntries, second-level children are BaseEntries. Generator methods
+    are provided to iterate over these.
+    """
 
     def __init__(self):
         super(QStandardItemModel, self).__init__()
@@ -81,6 +85,8 @@ class Model(QStandardItemModel):
         return 0.0
 
     def _update_sum_item(self, item):
+        """Slot that updates the corresponding SumItem if a ValueItem is added
+        or modified."""
         if isinstance(item, ValueItem):
             category_item = item.parent()
             if category_item is None:
