@@ -15,6 +15,11 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(AddCategoryEntryTestCase, tests)))
     tests = [
+            'test_category_item_in_list',
+            'test_single_item_in_list'
+            ]
+    suite.addTest(unittest.TestSuite(map(AddCategoryEntryTwiceTestCase, tests)))
+    tests = [
             'test_category_entry_in_list',
             'test_base_entry_in_list',
             'test_category_sum'
@@ -31,6 +36,20 @@ class AddCategoryEntryTestCase(unittest.TestCase):
     def test_category_item_in_list(self):
         self.assertIn(CategoryItem(self.category_name).data(),
                 self.model.category_entry_names)
+
+class AddCategoryEntryTwiceTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.category_name = "Groceries"
+        self.model.add_entry(CategoryEntry(self.category_name))
+        self.model.add_entry(CategoryEntry(self.category_name))
+
+    def test_category_item_in_list(self):
+        self.assertIn(CategoryItem(self.category_name).data(),
+                self.model.category_entry_names)
+
+    def test_single_item_in_list(self):
+        self.assertEqual(1, len(list(self.model.category_entry_names)))
 
 class AddItemModelTestCase(unittest.TestCase):
     def setUp(self):
