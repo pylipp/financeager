@@ -5,7 +5,7 @@ import unittest
 from PyQt4.QtCore import QString, QDate, QVariant
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import CategoryItem
+from financeager.items import (CategoryItem, NameItem)
 
 
 def suite():
@@ -24,7 +24,7 @@ def suite():
             'test_base_entry_in_list',
             'test_category_sum'
             ]
-    # suite.addTest(unittest.TestSuite(map(AddItemModelTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -51,7 +51,7 @@ class AddCategoryEntryTwiceTestCase(unittest.TestCase):
     def test_single_item_in_list(self):
         self.assertEqual(1, len(list(self.model.category_entry_names)))
 
-class AddItemModelTestCase(unittest.TestCase):
+class AddBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.model = Model()
         self.item_name = "Aldi"
@@ -61,14 +61,10 @@ class AddItemModelTestCase(unittest.TestCase):
         self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
 
-    def test_category_entry_in_list(self):
-        self.assertIn(CategoryItem(self.item_category).data(),
-                self.model.category_entry_names)
-
     def test_base_entry_in_list(self):
         base_entry_names = [item.data() for item in
                 self.model.base_entry_items("name")]
-        self.assertIn(QString(self.item_name), base_entry_names)
+        self.assertIn(NameItem(self.item_name).data(), base_entry_names)
 
     def test_category_sum(self):
         self.assertEqual(self.item_value, self.model.category_sum(self.item_category))

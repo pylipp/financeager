@@ -18,6 +18,8 @@ class Model(QStandardItemModel):
             category_item = self.find_category_item(category)
             if category_item is not None:
                 category_item.appendRow(entry.items)
+                sum_item = category_item.entry.sum_item
+                sum_item.update(entry.value_item)
 
     def category_entry_items(self, item_type):
         """yield: DataItem"""
