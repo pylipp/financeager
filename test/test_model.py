@@ -37,6 +37,11 @@ def suite():
             'test_category_sum_updated'
             ]
     suite.addTest(unittest.TestSuite(map(SetValueItemTextTestCase, tests)))
+    tests = [
+            'test_correct_item_is_found'
+            ]
+    suite.addTest(unittest.TestSuite(map(FindItemByNameTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(FindItemByNameAndDateTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -127,6 +132,41 @@ class SetValueItemTextTestCase(unittest.TestCase):
     def test_category_sum_updated(self):
         self.assertAlmostEqual(self.item_b_value,
                 self.model.category_sum(self.item_category), places=5)
+
+class FindItemByNameTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_name = "Aldi"
+        self.item_value = 66.6
+        self.item_date = (2016, 11, 8)
+        self.item_category = "Groceries"
+        self.base_entry = BaseEntry(self.item_name, self.item_value,
+            "-".join([str(s) for s in self.item_date]))
+        self.model.add_entry(self.base_entry, self.item_category)
+
+    def test_correct_item_is_found(self):
+        self.assertEqual(self.base_entry.name_item,
+                self.model.find_name_item(name=self.item_name.lower(),
+                    category=self.item_category))
+
+class FindItemByNameAndDateTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_a_name = "Aldi"
+        self.item_b_name = "Aldi"
+        self.item_a_value = 66.6
+        self.item_b_value = 1.00
+        self.item_date = "2016-11-08"
+        self.base_entry_a = BaseEntry(self.item_a_name, self.item_a_value,
+            self.item_date)
+        self.base_entry_b = BaseEntry(self.item_b_name, self.item_b_value)
+        self.model.add_entry(self.base_entry_b)
+        self.model.add_entry(self.base_entry_a)
+
+    def test_correct_item_is_found(self):
+        self.assertEqual(self.base_entry_a.name_item,
+                self.model.find_name_item(name=self.item_a_name.lower(),
+                    date=self.item_date))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 
 from PyQt4.QtGui import QStandardItemModel
-from PyQt4.QtCore import QString
+from PyQt4.QtCore import (QString, QVariant)
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import ValueItem, CategoryItem
 
@@ -99,3 +99,18 @@ class Model(QStandardItemModel):
                 new_sum += category_item.child(row, col).value
             sum_item = category_item.entry.sum_item
             sum_item.setText(QString("{}".format(new_sum)))
+
+    def find_name_item(self, **kwargs):
+        category_name = kwargs.pop("category", CategoryItem.DEFAULT_NAME)
+        attributes = set()
+        for item_type in kwargs:
+            attributes.add(QVariant(kwargs[item_type]).toString())
+        category_item = self.find_category_item(category_name)
+        for row in range(category_item.rowCount()):
+            name_item = category_item.child(row)
+            other_attributes = set()
+            other_attributes.add(name_item.data().toString())
+            other_attributes.add(name_item.entry.date_item.data().toString())
+            if attributes.issubset(other_attributes):
+                return name_item
+        return None
