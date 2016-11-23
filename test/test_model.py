@@ -42,6 +42,11 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(FindItemByNameTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(FindItemByNameAndDateTestCase, tests)))
+    tests = [
+            'test_remaining_entry',
+            'test_category_sum'
+            ]
+    suite.addTest(unittest.TestSuite(map(RemoveEntryTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -167,6 +172,26 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
         self.assertEqual(self.base_entry_a.name_item,
                 self.model.find_name_item(name=self.item_a_name.lower(),
                     date=self.item_date))
+
+class RemoveEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_a_value = 66.6
+        self.item_b_value = 10.01
+        self.item_category = "Groceries"
+        self.base_entry_a = BaseEntry("Aldi", self.item_a_value)
+        self.base_entry_b = BaseEntry("Rewe", self.item_b_value)
+        self.model.add_entry(self.base_entry_a, self.item_category)
+        self.model.add_entry(self.base_entry_b, self.item_category)
+        self.model.remove_entry(self.base_entry_a, category=self.item_category)
+
+    def test_remaining_entry(self):
+        self.assertEqual(list(self.model.base_entry_items("name"))[0],
+                self.base_entry_b.name_item)
+
+    def test_category_sum(self):
+        self.assertAlmostEqual(self.model.category_sum(self.item_category),
+                self.item_b_value, places=5)
 
 if __name__ == '__main__':
     unittest.main()

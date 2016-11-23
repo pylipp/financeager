@@ -34,6 +34,21 @@ class Model(QStandardItemModel):
             category_item.appendRow(entry.items)
             self.itemChanged.emit(entry.value_item)
 
+    def remove_entry(self, entry, category):
+        """Querying the given category, remove the first base entry whose
+        attributes are a superset of the attributes of `entry`.
+        The corresponding SumItem is updated.
+        """
+        item = self.find_name_item(name=entry.name_item.data(),
+                date=entry.date_item.data(), category=category)
+        category_item = item.parent()
+        self.removeRow(item.row(), item.index().parent())
+        if category_item.rowCount():
+            self.itemChanged.emit(category_item.child(0, 1))
+        else:
+            #TODO remove category bc empty ?
+            pass
+
     def category_entry_items(self, item_type):
         """Generator iterating over first-level children (CategoryEntries) of
         the model. `item_type` is one of `CategoryEntry.ITEM_TYPES`.
