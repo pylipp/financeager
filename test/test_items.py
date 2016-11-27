@@ -21,17 +21,22 @@ def suite():
     suite.addTest(unittest.TestSuite(map(EmptyItemTestCase, tests)))
     tests = [
             'test_text',
-            'test_data'
+            'test_data',
+            'test_str'
             ]
     suite.addTest(unittest.TestSuite(map(SingleWordNameItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(ComplexWordNameItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(SetTextNameItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(IntegerValueItemTestCase, tests)))
-    suite.addTest(unittest.TestSuite(map(FloatValueItemTestCase, tests)))
-    suite.addTest(unittest.TestSuite(map(SetTextValueItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(SimpleDateItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(InvalidDateItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(SetTextDateItemTestCase, tests)))
+    tests = [
+            'test_text',
+            'test_data'
+            ]
+    suite.addTest(unittest.TestSuite(map(FloatValueItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(SetTextValueItemTestCase, tests)))
     return suite
 
 
@@ -65,6 +70,9 @@ class SingleWordNameItemTestCase(unittest.TestCase):
     def test_data(self):
         self.assertEqual(self.item.data(), QVariant("groceries"))
 
+    def test_str(self):
+        self.assertEqual(str(self.item), "groceries")
+
 class ComplexWordNameItemTestCase(unittest.TestCase):
     def setUp(self):
         self.item = NameItem("Miete März-Juli!")
@@ -74,6 +82,10 @@ class ComplexWordNameItemTestCase(unittest.TestCase):
 
     def test_data(self):
         self.assertEqual(self.item.data(), QVariant("miete märz-juli!"))
+
+    def test_str(self):
+        #FIXME
+        self.assertEqual(str(self.item), "miete märz-juli!")
 
 class SetTextNameItemTestCase(unittest.TestCase):
     def setUp(self):
@@ -86,6 +98,9 @@ class SetTextNameItemTestCase(unittest.TestCase):
     def test_data(self):
         self.assertEqual(self.item.data(), QVariant("busy g3ttin' $"))
 
+    def test_str(self):
+        self.assertEqual(str(self.item), "busy g3ttin' $")
+
 class IntegerValueItemTestCase(unittest.TestCase):
     def setUp(self):
         self.item = ValueItem(123)
@@ -95,6 +110,9 @@ class IntegerValueItemTestCase(unittest.TestCase):
 
     def test_data(self):
         self.assertEqual(self.item.data(), QVariant(123))
+
+    def test_str(self):
+        self.assertEqual(str(self.item), "123")
 
 class FloatValueItemTestCase(unittest.TestCase):
     def setUp(self):
@@ -120,13 +138,17 @@ class SetTextValueItemTestCase(unittest.TestCase):
 
 class SimpleDateItemTestCase(unittest.TestCase):
     def setUp(self):
-        self.item = DateItem("2016-01-01")
+        self.date_str = "2016-01-01"
+        self.item = DateItem(self.date_str)
 
     def test_text(self):
-        self.assertEqual(self.item.text(), QString("2016-01-01"))
+        self.assertEqual(self.item.text(), QString(self.date_str))
 
     def test_data(self):
         self.assertEqual(self.item.data(), QDate(2016, 1, 1))
+
+    def test_str(self):
+        self.assertEqual(str(self.item), self.date_str)
 
 class InvalidDateItemTestCase(unittest.TestCase):
     def setUp(self):
@@ -138,16 +160,24 @@ class InvalidDateItemTestCase(unittest.TestCase):
     def test_data(self):
         self.assertEqual(self.item.data(), QDate.currentDate())
 
+    def test_str(self):
+        self.assertEqual(str(self.item), unicode(
+                QDate.currentDate().toString(DateItem.FORMAT)))
+
 class SetTextDateItemTestCase(unittest.TestCase):
     def setUp(self):
         self.item = DateItem("2016-12-24")
-        self.item.setText("2015-11-11")
+        self.new_date_str = "2015-11-11"
+        self.item.setText(self.new_date_str)
 
     def test_text(self):
-        self.assertEqual(self.item.text(), QString("2015-11-11"))
+        self.assertEqual(self.item.text(), QString(self.new_date_str))
 
     def test_data(self):
         self.assertEqual(self.item.data(), QDate(2015, 11, 11))
+
+    def test_str(self):
+        self.assertEqual(str(self.item), self.new_date_str)
 
 if __name__ == '__main__':
     unittest.main()

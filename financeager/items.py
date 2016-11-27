@@ -39,6 +39,9 @@ class DataItem(QStandardItem):
     def entry(self):
         return self._entry
 
+    def __str__(self):
+        return unicode(self.data().toString())
+
 class EmptyItem(DataItem):
     """Represents an empty item in the third column of a category row. """
 
