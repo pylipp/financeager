@@ -2,6 +2,7 @@
 
 from PyQt4.QtGui import QStandardItemModel
 from PyQt4.QtCore import (QString, QVariant)
+import xml.etree.ElementTree as ET
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import ValueItem, CategoryItem
 
@@ -9,13 +10,17 @@ class Model(QStandardItemModel):
     """Holds Entries in hierarchical order. First-level children are
     CategoryEntries, second-level children are BaseEntries. Generator methods
     are provided to iterate over these.
+    When a `root_element` (type `ET.Element`) is passed at initialization, the
+    model is built from it.
     """
 
-    def __init__(self):
+    def __init__(self, root_element=None):
         super(QStandardItemModel, self).__init__()
         self.itemChanged.connect(self._update_sum_item)
         self.setHorizontalHeaderLabels(
                 [k.capitalize() for k in BaseEntry.ITEM_TYPES.keys()])
+        if root_element is not None:
+            self.create_from_xml(root_element)
 
     def add_entry(self, entry, category=CategoryItem.DEFAULT_NAME):
         """Add a Category- or BaseEntry to the model.
@@ -136,3 +141,24 @@ class Model(QStandardItemModel):
             if attributes.issubset(other_attributes):
                 return name_item
         return None
+
+    def convert_to_xml(self, parent_element):
+        for name_item in self.base_entry_items("name"):
+            entry = name_item.entry
+            entry_element = ET.SubElement(
+                    parent_element,
+                    "entry",
+                    attrib=dict(
+                        name=str(entry.name),
+                        value=str(entry.value),
+                        date=str(entry.date),
+                        category=str(name_item.parent())
+                        )
+                    )
+            entry_element.tail="\n"
+
+    def create_from_xml(self, parent_element):
+        for child in parent_element:
+            category_name = child.attrib.pop("category")
+            self.add_entry(BaseEntry(child.attrib['name'],
+                child.attrib['value'], child.attrib['date']), category_name)

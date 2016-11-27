@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 from PyQt4.QtCore import QString, QDate, QVariant
+import xml.etree.ElementTree as ET
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import (CategoryItem, NameItem)
@@ -47,6 +48,12 @@ def suite():
             'test_category_sum'
             ]
     suite.addTest(unittest.TestSuite(map(RemoveEntryTestCase, tests)))
+    tests = [
+            'test_category_item_names',
+            'test_category_sums',
+            'test_base_entries'
+            ]
+    suite.addTest(unittest.TestSuite(map(XmlConversionTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -192,6 +199,41 @@ class RemoveEntryTestCase(unittest.TestCase):
     def test_category_sum(self):
         self.assertAlmostEqual(self.model.category_sum(self.item_category),
                 self.item_b_value, places=5)
+
+class XmlConversionTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_name = "Aldi"
+        self.item_value = 66.6
+        self.item_date = (2016, 11, 8)
+        self.item_category = "Groceries"
+        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+            "-".join([str(s) for s in self.item_date])), self.item_category)
+        period_element = ET.Element("period")
+        period_element.text = "\n\t"
+        self.model.convert_to_xml(period_element)
+        output = ET.tostring(period_element, "utf-8")
+        parsed_root = ET.fromstring(output)
+        self.parsed_model = Model(parsed_root)
+
+    def test_category_item_names(self):
+        model_entry_names = list(self.model.category_entry_names)
+        parsed_model_entry_names = list(self.parsed_model.category_entry_names)
+        self.assertListEqual(model_entry_names, parsed_model_entry_names)
+
+    def test_category_sums(self):
+        self.assertAlmostEqual(
+                self.model.category_sum(self.item_category),
+                self.parsed_model.category_sum(self.item_category), places=5)
+
+    def test_base_entries(self):
+        item = self.model.find_name_item(name=self.item_name,
+                category=self.item_category)
+        parsed_item = self.parsed_model.find_name_item(name=self.item_name,
+                category=self.item_category)
+        self.assertItemsEqual(
+                [str(i) for i in item.entry.items],
+                [str(i) for i in parsed_item.entry.items])
 
 if __name__ == '__main__':
     unittest.main()
