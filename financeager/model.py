@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from PyQt4.QtGui import QStandardItemModel
 from PyQt4.QtCore import (QString, QVariant)
