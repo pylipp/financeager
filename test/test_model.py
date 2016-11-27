@@ -42,6 +42,7 @@ def suite():
             'test_correct_item_is_found'
             ]
     suite.addTest(unittest.TestSuite(map(FindItemByNameTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(FindItemWrongCategoryTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(FindItemByNameAndDateTestCase, tests)))
     tests = [
             'test_remaining_entry',
@@ -160,6 +161,20 @@ class FindItemByNameTestCase(unittest.TestCase):
         self.assertEqual(self.base_entry.name_item,
                 self.model.find_name_item(name=self.item_name,
                     category=self.item_category))
+
+class FindItemWrongCategoryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_name = "Aldi"
+        self.item_value = 66.6
+        self.item_date = (2016, 11, 8)
+        self.item_category = "Groceries"
+        self.base_entry = BaseEntry(self.item_name, self.item_value,
+            "-".join([str(s) for s in self.item_date]))
+        self.model.add_entry(self.base_entry, self.item_category)
+
+    def test_correct_item_is_found(self):
+        self.assertIsNone(self.model.find_name_item(name=self.item_name))
 
 class FindItemByNameAndDateTestCase(unittest.TestCase):
     def setUp(self):

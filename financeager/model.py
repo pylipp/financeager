@@ -133,6 +133,8 @@ class Model(QStandardItemModel):
         for item_type in kwargs:
             attributes.add(QVariant(kwargs[item_type]).toString().toLower())
         category_item = self.find_category_item(category_name)
+        if category_item is None:
+            return None
         for row in range(category_item.rowCount()):
             name_item = category_item.child(row)
             other_attributes = set()
