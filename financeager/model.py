@@ -116,10 +116,17 @@ class Model(QStandardItemModel):
             sum_item.setText(QString("{}".format(new_sum)))
 
     def find_name_item(self, **kwargs):
+        """Find a NameItem by explicitely passing keyword arguments `name`
+        and/or `value` and/or `date` and/or `category`. The first NameItem
+        meeting the search requirements is returned. If no match is found,
+        `None` is returned. The matching is performed case-INsensitive. If no
+        category specified, the `CategoryItem.DEFAULT_NAME` category is
+        queried.
+        """
         category_name = kwargs.pop("category", CategoryItem.DEFAULT_NAME)
         attributes = set()
         for item_type in kwargs:
-            attributes.add(QVariant(kwargs[item_type]).toString())
+            attributes.add(QVariant(kwargs[item_type]).toString().toLower())
         category_item = self.find_category_item(category_name)
         for row in range(category_item.rowCount()):
             name_item = category_item.child(row)

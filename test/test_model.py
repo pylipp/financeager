@@ -151,7 +151,7 @@ class FindItemByNameTestCase(unittest.TestCase):
 
     def test_correct_item_is_found(self):
         self.assertEqual(self.base_entry.name_item,
-                self.model.find_name_item(name=self.item_name.lower(),
+                self.model.find_name_item(name=self.item_name,
                     category=self.item_category))
 
 class FindItemByNameAndDateTestCase(unittest.TestCase):
@@ -170,7 +170,7 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
 
     def test_correct_item_is_found(self):
         self.assertEqual(self.base_entry_a.name_item,
-                self.model.find_name_item(name=self.item_a_name.lower(),
+                self.model.find_name_item(name=self.item_a_name,
                     date=self.item_date))
 
 class RemoveEntryTestCase(unittest.TestCase):
