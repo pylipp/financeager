@@ -24,6 +24,14 @@ class Server(object):
             os.makedirs(CONFIG_DIR)
         self._period = Period()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        xml_tree = self._period.convert_to_xml()
+        xml_tree.write(self._period_filepath, encoding="utf-8",
+                xml_declaration=True)
+
     def __getattr__(self, name):
         """Call the server with any valid command line command. The underlying
         method of `Period` will be looked up and returned. This method is then
