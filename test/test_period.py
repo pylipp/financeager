@@ -25,6 +25,7 @@ def suite():
             'test_expenses_category_sum'
             ]
     suite.addTest(unittest.TestSuite(map(XmlConversionTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(PeriodOnlyXmlConversionTestCase, tests)))
     return suite
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
@@ -55,6 +56,25 @@ class XmlConversionTestCase(unittest.TestCase):
         # expenses_model.add_entry(BaseEntry("Citroën", 24999), category="Car")
         expenses_model.add_entry(BaseEntry("Citroen", 24999), category="Car")
         self.period = Period(models=(earnings_model, expenses_model), name="1st Quartal")
+        xml_tree = self.period.convert_to_xml()
+        self.parsed_period = Period(xml_tree=xml_tree)
+
+    def test_period_name(self):
+        self.assertEqual(self.parsed_period.name, "1st Quartal")
+
+    def test_earnings_category_sum(self):
+        self.assertAlmostEqual(self.parsed_period._earnings_model.category_sum(
+            CategoryItem.DEFAULT_NAME), 456.78, places=5)
+
+    def test_expenses_category_sum(self):
+        self.assertAlmostEqual(self.parsed_period._expenses_model.category_sum(
+            "Car"), 24999, places=5)
+
+class PeriodOnlyXmlConversionTestCase(unittest.TestCase):
+    def setUp(self):
+        self.period = Period(name="1st Quartal")
+        self.period.add_entry(name="Paycheck", value=456.78)
+        self.period.add_entry(name="Citroen", value="-24999", category="Car")
         xml_tree = self.period.convert_to_xml()
         self.parsed_period = Period(xml_tree=xml_tree)
 
