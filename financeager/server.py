@@ -8,21 +8,18 @@ CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
 class Server(object):
 
-    def __init__(self, name=None):
-        self._name = name
-        self._period_filepath = os.path.join(CONFIG_DIR, "2016.xml")
-        self._period = None
+    def __init__(self, period_name=None):
+        self._period = Period()
+        self._period_filepath = os.path.join(CONFIG_DIR, "{}.xml".format(
+            self._period.name if period_name is None else period_name))
+        if not os.path.isdir(CONFIG_DIR):
+            os.makedirs(CONFIG_DIR)
         self._read_period_from_file()
 
     def _read_period_from_file(self):
-        if os.path.isdir(CONFIG_DIR):
-            if os.path.isfile(self._period_filepath):
-                xml_tree = ET.parse(self._period_filepath)
-                self._period = Period(xml_tree=xml_tree)
-                return
-        else:
-            os.makedirs(CONFIG_DIR)
-        self._period = Period()
+        if os.path.isfile(self._period_filepath):
+            xml_tree = ET.parse(self._period_filepath)
+            self._period.create_from_xml(xml_tree)
 
     def __enter__(self):
         return self
