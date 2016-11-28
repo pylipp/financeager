@@ -8,6 +8,8 @@ CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
 class Server(object):
 
+    NAME_STUB = "financeager_server.{}"
+
     def __init__(self, period_name=None):
         self._period = Period()
         self._period_filepath = os.path.join(CONFIG_DIR, "{}.xml".format(
