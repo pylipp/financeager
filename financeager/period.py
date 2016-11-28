@@ -17,6 +17,10 @@ class Period(object):
             self._earnings_model, self._expenses_model = models
         elif xml_tree is not None:
             self.create_from_xml(xml_tree)
+        if self._earnings_model is None:
+            self._earnings_model = Model()
+        if self._expenses_model is None:
+            self._expenses_model = Model()
 
     @property
     def name(self):
