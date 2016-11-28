@@ -15,6 +15,11 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(CreateEmptyPeriodTestCase, tests)))
     tests = [
+            'test_expenses_entry_exists',
+            'test_expenses_category_sum'
+            ]
+    suite.addTest(unittest.TestSuite(map(AddExpenseEntryTestCase, tests)))
+    tests = [
             'test_period_name',
             'test_earnings_category_sum',
             'test_expenses_category_sum'
@@ -26,6 +31,21 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
     def test_default_name(self):
         period = Period()
         self.assertEqual(period.name, "2016")
+
+class AddExpenseEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.period = Period()
+        self.period.add_entry(name="Pineapple", value="-5", category="Fruits")
+
+    def test_expenses_entry_exists(self):
+        self.assertIsNotNone(
+                self.period._expenses_model.find_name_item(
+                    name="Pineapple", category="Fruits"))
+
+    def test_expenses_category_sum(self):
+        self.assertAlmostEqual(
+                self.period._expenses_model.category_sum("Fruits"),
+                5, places=5)
 
 class XmlConversionTestCase(unittest.TestCase):
     def setUp(self):

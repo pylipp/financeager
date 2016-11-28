@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from PyQt4.QtCore import QDate
 import xml.etree.ElementTree as ET
 from financeager.model import Model
+from financeager.entries import BaseEntry
 
 class Period(object):
 
@@ -44,3 +45,15 @@ class Period(object):
             getattr(self,
                     "_{}_model".format(model_name)).convert_to_xml(model_element)
         return xml_tree
+
+    def add_entry(self, **kwargs):
+        value = str(kwargs.pop("value"))
+        category = kwargs.get("category")
+        name = kwargs["name"]
+        date = kwargs.get("date")
+        if value.startswith("-"):
+            self._expenses_model.add_entry(
+                    BaseEntry(name, float(value[1:]), date), category=category)
+        else:
+            self._earnings_model.add_entry(
+                    BaseEntry(name, float(value), date), category=category)
