@@ -1,2 +1,2 @@
-hypothesis
+Pyro4==4.51
 #PyQt4
