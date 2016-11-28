@@ -23,3 +23,11 @@ class Server(object):
         else:
             os.makedirs(CONFIG_DIR)
         self._period = Period()
+
+    def __getattr__(self, name):
+        """Call the server with any valid command line command. The underlying
+        method of `Period` will be looked up and returned. This method is then
+        supposed to be executed in the caller, passing keyword arguments.
+        """
+        command2method = {"add": "add_entry"}
+        return getattr(self._period, command2method[name])
