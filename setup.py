@@ -10,5 +10,8 @@ setup(
         license="GPLv3",
         #classifiers=[],
         packages=find_packages(exclude=["test", "doc"]),
+        entry_points = {
+            "console_scripts": ["financeager = financeager.main:main"]
+            },
         install_requires=[]
         )
