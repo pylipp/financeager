@@ -2,10 +2,12 @@
 from __future__ import unicode_literals
 import os.path
 import xml.etree.ElementTree as ET
+import Pyro4
 from financeager.period import Period
 
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
+@Pyro4.expose
 class Server(object):
 
     NAME_STUB = "financeager_server.{}"
@@ -34,10 +36,10 @@ class Server(object):
         xml_tree.write(self._period_filepath, encoding="utf-8",
                 xml_declaration=True)
 
-    def __getattr__(self, name):
+    def run(self, command, **kwargs):
         """Call the server with any valid command line command. The underlying
         method of `Period` will be looked up and returned. This method is then
         supposed to be executed in the caller, passing keyword arguments.
         """
         command2method = {"add": "add_entry"}
-        return getattr(self._period, command2method[name])
+        getattr(self._period, command2method[command])(**kwargs)

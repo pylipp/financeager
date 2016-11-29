@@ -36,7 +36,7 @@ class StartServerTestCase(unittest.TestCase):
 class AddEntryToServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = Server()
-        self.server.add(name="Hiking boots", value="-111.11",
+        self.server.run("add", name="Hiking boots", value="-111.11",
                 category="outdoors")
 
     def test_entry_exists(self):
@@ -46,7 +46,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
 class ServerContextTestCase(unittest.TestCase):
     def setUp(self):
         with Server() as server:
-            server.add(name="Hiking boots", value="-111.11", category="outdoors")
+            server.run("add", name="Hiking boots", value="-111.11", category="outdoors")
 
     def test_period_file_exists(self):
         self.assertTrue(os.path.isfile(os.path.join(CONFIG_DIR, "2016.xml")))
