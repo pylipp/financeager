@@ -27,6 +27,9 @@ class Server(object):
         return self
 
     def __exit__(self, *args):
+        self.dump()
+
+    def dump(self):
         xml_tree = self._period.convert_to_xml()
         xml_tree.write(self._period_filepath, encoding="utf-8",
                 xml_declaration=True)
