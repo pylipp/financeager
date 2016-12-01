@@ -43,13 +43,17 @@ class AddEntryToServerTestCase(unittest.TestCase):
         self.assertIsNotNone(self.server._period._expenses_model.find_name_item(
             name="hiking boots", category="outdoors"))
 
-class ServerContextTestCase(unittest.TestCase):
+class ServerDumpTestCase(unittest.TestCase):
     def setUp(self):
-        with Server() as server:
-            server.run("add", name="Hiking boots", value="-111.11", category="outdoors")
+        server = Server(42)
+        self.dump_filepath = os.path.join(CONFIG_DIR, "42.xml")
+        server.run("add", name="Hiking boots", value="-111.11", category="outdoors")
 
     def test_period_file_exists(self):
-        self.assertTrue(os.path.isfile(os.path.join(CONFIG_DIR, "2016.xml")))
+        self.assertTrue(os.path.isfile(self.dump_filepath))
+
+    def tearDown(self):
+        os.remove(self.dump_filepath)
 
 class RunServerScriptTestCase(unittest.TestCase):
     """This runs yet no output is written to file by Server.__exit__().
