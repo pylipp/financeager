@@ -13,6 +13,7 @@ class Server(object):
     NAME_STUB = "financeager_server.{}"
 
     def __init__(self, period_name=None):
+        self._running = True
         self._period = Period()
         self._period_filepath = os.path.join(CONFIG_DIR, "{}.xml".format(
             self._period.name if period_name is None else period_name))
@@ -24,6 +25,10 @@ class Server(object):
         if os.path.isfile(self._period_filepath):
             xml_tree = ET.parse(self._period_filepath)
             self._period.create_from_xml(xml_tree)
+
+    @property
+    def running(self):
+        return self._running
 
     def __enter__(self):
         return self
@@ -41,5 +46,9 @@ class Server(object):
         method of `Period` will be looked up and returned. This method is then
         supposed to be executed in the caller, passing keyword arguments.
         """
-        command2method = {"add": "add_entry"}
-        getattr(self._period, command2method[command])(**kwargs)
+        if command == "stop":
+            self._running = False
+        else:
+            command2method = {"add": "add_entry"}
+            getattr(self._period, command2method[command])(**kwargs)
+            self.dump()

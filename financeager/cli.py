@@ -40,4 +40,3 @@ class Cli(object):
         server = Pyro4.Proxy("PYRONAME:{}".format(self._server_name))
         command = self._cl_kwargs.pop("command")
         server.run(command, **self._cl_kwargs)
-        server.dump()
