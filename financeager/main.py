@@ -4,8 +4,9 @@ from financeager.cli import Cli
 
 def parse_command():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--period", default=None,
-            help="name of period to modify or query")
+
+    period_args = ("-p", "--period")
+    period_kwargs = dict(default=None, help="name of period to modify or query")
 
     subparsers = parser.add_subparsers(title="subcommands", dest="command",
             help="list of available subcommands")
@@ -18,6 +19,11 @@ def parse_command():
     add_parser.add_argument("-c", "--category", default=None,
             help="entry category")
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
+    add_parser.add_argument(*period_args, **period_kwargs)
+
+    stop_parser = subparsers.add_parser("stop",
+            help="stop period server")
+    stop_parser.add_argument(*period_args, **period_kwargs)
 
     return parser.parse_args()
 
