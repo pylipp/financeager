@@ -6,6 +6,8 @@ from financeager.server import Server, CONFIG_DIR
 import os.path
 import subprocess
 import signal
+import socket
+import sys
 
 
 def suite():
@@ -21,7 +23,7 @@ def suite():
     tests = [
             'test_period_file_exists'
             ]
-    suite.addTest(unittest.TestSuite(map(ServerContextTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(ServerDumpTestCase, tests)))
     tests = [
             'test_server_process_running'
             ]
@@ -62,20 +64,22 @@ class RunServerScriptTestCase(unittest.TestCase):
     process. Terminating it via CTRL-C causes the period file to be written.
     """
     def setUp(self):
-        python_exec = os.path.join(
-                os.environ["WORKON_HOME"], "financeager", "bin", "python")
+        # silence error messages if name server has already been launched
+        DEVNULL = open(os.devnull, 'w')
         self.nameserver_process = subprocess.Popen(
-                [python_exec, "-m", "Pyro4.naming"], shell=False)
+                [sys.executable, "-m", "Pyro4.naming"], shell=False,
+                stderr=subprocess.STDOUT, close_fds=True,
+                stdout=DEVNULL)
         test_dir = os.path.dirname(os.path.abspath(__file__))
         script_path = os.path.join(
                 test_dir, "..", "financeager", "start_server.py")
         period_name = "1337"
         self.server_process = subprocess.Popen(
-                [python_exec, script_path, period_name], shell=False)
+                [sys.executable, script_path, period_name], shell=False)
 
     def test_server_process_running(self):
         # sleep a bit to see output from server launches
-        import time; time.sleep(3)
+        import time; time.sleep(1)
         running = True
         try:
             os.kill(self.server_process.pid, 0)
