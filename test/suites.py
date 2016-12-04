@@ -8,7 +8,8 @@ modules = [
         'test_entries',
         'test_model',
         'test_period',
-        'test_server'
+        'test_server',
+        'test_cli'
         ]
 
 testRunner = unittest.TextTestRunner(verbosity=2)
