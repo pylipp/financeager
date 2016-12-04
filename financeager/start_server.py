@@ -16,4 +16,7 @@ if __name__ == "__main__":
 
         print("Starting {}...".format(server_name))
         daemon.requestLoop(loopCondition=lambda: server.running)
-        print("Stopping {}...".format(server_name))
+
+        # no printing bc this clutters/blocks the command line
+        # print("Stopping {}...".format(server_name))
+        ns.remove(server_name)
