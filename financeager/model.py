@@ -15,8 +15,9 @@ class Model(QStandardItemModel):
     model is built from it.
     """
 
-    def __init__(self, root_element=None):
+    def __init__(self, root_element=None, name=None):
         super(QStandardItemModel, self).__init__()
+        self._name = name
         self.itemChanged.connect(self._update_sum_item)
         self.setHorizontalHeaderLabels(
                 [k.capitalize() for k in BaseEntry.ITEM_TYPES.keys()])
@@ -163,6 +164,7 @@ class Model(QStandardItemModel):
             entry_element.tail="\n"
 
     def create_from_xml(self, parent_element):
+        self._name = parent_element.get("name")
         for child in parent_element:
             category_name = child.attrib.pop("category")
             self.add_entry(BaseEntry(child.attrib['name'],

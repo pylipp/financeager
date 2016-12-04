@@ -50,9 +50,9 @@ class AddExpenseEntryTestCase(unittest.TestCase):
 
 class XmlConversionTestCase(unittest.TestCase):
     def setUp(self):
-        earnings_model = Model()
+        earnings_model = Model(name="earnings")
         earnings_model.add_entry(BaseEntry("Paycheck", 456.78))
-        expenses_model = Model()
+        expenses_model = Model(name="expenses")
         # expenses_model.add_entry(BaseEntry("Citroën", 24999), category="Car")
         expenses_model.add_entry(BaseEntry("Citroen", 24999), category="Car")
         self.period = Period(models=(earnings_model, expenses_model), name="1st Quartal")
