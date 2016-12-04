@@ -56,8 +56,8 @@ class XmlConversionTestCase(unittest.TestCase):
         # expenses_model.add_entry(BaseEntry("Citroën", 24999), category="Car")
         expenses_model.add_entry(BaseEntry("Citroen", 24999), category="Car")
         self.period = Period(models=(earnings_model, expenses_model), name="1st Quartal")
-        xml_tree = self.period.convert_to_xml()
-        self.parsed_period = Period(xml_tree=xml_tree)
+        xml_element = self.period.convert_to_xml()
+        self.parsed_period = Period(xml_element=xml_element)
 
     def test_period_name(self):
         self.assertEqual(self.parsed_period.name, "1st Quartal")
@@ -75,8 +75,8 @@ class PeriodOnlyXmlConversionTestCase(unittest.TestCase):
         self.period = Period(name="1st Quartal")
         self.period.add_entry(name="Paycheck", value=456.78)
         self.period.add_entry(name="Citroen", value="-24999", category="Car")
-        xml_tree = self.period.convert_to_xml()
-        self.parsed_period = Period(xml_tree=xml_tree)
+        xml_element = self.period.convert_to_xml()
+        self.parsed_period = Period(xml_element=xml_element)
 
     def test_period_name(self):
         self.assertEqual(self.parsed_period.name, "1st Quartal")

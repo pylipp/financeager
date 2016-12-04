@@ -224,12 +224,10 @@ class XmlConversionTestCase(unittest.TestCase):
         self.item_category = "Groceries"
         self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
-        period_element = ET.Element("period")
-        period_element.text = "\n\t"
-        self.model.convert_to_xml(period_element)
-        output = ET.tostring(period_element, "utf-8")
-        parsed_root = ET.fromstring(output)
-        self.parsed_model = Model(parsed_root)
+        model_element = self.model.convert_to_xml()
+        output = ET.tostring(model_element, "utf-8")
+        parsed_input = ET.fromstring(output)
+        self.parsed_model = Model(parsed_input)
 
     def test_category_item_names(self):
         model_entry_names = list(self.model.category_entry_names)

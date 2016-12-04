@@ -148,11 +148,14 @@ class Model(QStandardItemModel):
                 return name_item
         return None
 
-    def convert_to_xml(self, parent_element):
+    def convert_to_xml(self):
+        model_element = ET.Element("model")
+        if self._name is not None:
+            model_element.set("name", self._name)
         for name_item in self.base_entry_items("name"):
             entry = name_item.entry
             entry_element = ET.SubElement(
-                    parent_element,
+                    model_element,
                     "entry",
                     attrib=dict(
                         name=str(entry.name),
@@ -161,7 +164,10 @@ class Model(QStandardItemModel):
                         category=str(name_item.parent())
                         )
                     )
-            entry_element.tail="\n"
+            entry_element.tail = "\n"
+        model_element.text = "\n"
+        model_element.tail = "\n"
+        return model_element
 
     def create_from_xml(self, parent_element):
         self._name = parent_element.get("name")

@@ -10,41 +10,41 @@ class Period(object):
 
     DEFAULT_NAME = QDate.currentDate().year()
 
-    def __init__(self, name=None, xml_tree=None, models=None):
+    def __init__(self, name=None, xml_element=None, models=None):
+        # TODO store models in dict
         self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
         self._earnings_model = None
         self._expenses_model = None
         if models is not None and len(models) == 2:
             self._earnings_model, self._expenses_model = models
-        elif xml_tree is not None:
-            self.create_from_xml(xml_tree)
+        elif xml_element is not None:
+            self.create_from_xml(xml_element)
         if self._earnings_model is None:
-            self._earnings_model = Model()
+            self._earnings_model = Model(name="earnings")
         if self._expenses_model is None:
-            self._expenses_model = Model()
+            self._expenses_model = Model(name="expenses")
 
     @property
     def name(self):
         return self._name
 
-    def create_from_xml(self, xml_tree):
-        root = xml_tree.getroot()
-        earnings_element = root.find("earnings")
-        if earnings_element is not None:
-            self._earnings_model = Model(earnings_element)
-        expenses_element = root.find("expenses")
-        if expenses_element is not None:
-            self._expenses_model = Model(expenses_element)
-        self._name = root.get("name", Period.DEFAULT_NAME)
+    def create_from_xml(self, xml_element):
+        for model_element in xml_element.findall("model"):
+            name = model_element.get("name")
+            if name == "earnings":
+                self._earnings_model = Model(model_element)
+            elif name == "expenses":
+                self._expenses_model = Model(model_element)
+        self._name = xml_element.get("name", Period.DEFAULT_NAME)
 
     def convert_to_xml(self):
-        root = ET.Element("period", name=self._name)
-        xml_tree = ET.ElementTree(root)
+        period_element = ET.Element("period", name=self._name)
+        period_element.text = "\n"
         for model_name in ["earnings", "expenses"]:
-            model_element = ET.SubElement(root, model_name)
-            getattr(self,
-                    "_{}_model".format(model_name)).convert_to_xml(model_element)
-        return xml_tree
+            model_element = getattr(self,
+                    "_{}_model".format(model_name)).convert_to_xml()
+            period_element.append(model_element)
+        return period_element
 
     def add_entry(self, **kwargs):
         value = str(kwargs.pop("value"))

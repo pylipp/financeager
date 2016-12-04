@@ -24,14 +24,16 @@ class Server(object):
     def _read_period_from_file(self):
         if os.path.isfile(self._period_filepath):
             xml_tree = ET.parse(self._period_filepath)
-            self._period.create_from_xml(xml_tree)
+            period_element = xml_tree.getroot()
+            self._period.create_from_xml(period_element)
 
     @property
     def running(self):
         return self._running
 
     def dump(self):
-        xml_tree = self._period.convert_to_xml()
+        period_element = self._period.convert_to_xml()
+        xml_tree = ET.ElementTree(period_element)
         xml_tree.write(self._period_filepath, encoding="utf-8",
                 xml_declaration=True)
 
