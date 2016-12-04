@@ -20,7 +20,7 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
-        cl_kwargs = {"period": 1337}
+        cl_kwargs = {"period": "1337"}
         self.cli = Cli(cl_kwargs)
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],

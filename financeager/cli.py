@@ -20,11 +20,9 @@ class Cli(object):
         subprocess.Popen("{} -m Pyro4.naming".format(sys.executable).split(),
                 stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
-        period_name = self._cl_kwargs.get("period")
-        if period_name is None:
-            period_name = Period.DEFAULT_NAME
-        period_name = str(period_name)
+        period_name = self._cl_kwargs.get("period", str(Period.DEFAULT_NAME))
         self._server_name = Server.NAME_STUB.format(period_name)
+
         name_server = Pyro4.locateNS()
         # launch starting script if period server is not registered yet
         # TODO avoid accidental launching if stop requested
