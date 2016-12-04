@@ -25,10 +25,6 @@ def suite():
             'test_period_file_exists'
             ]
     suite.addTest(unittest.TestSuite(map(ServerDumpTestCase, tests)))
-    tests = [
-            'test_server_process_running'
-            ]
-    suite.addTest(unittest.TestSuite(map(RunServerScriptTestCase, tests)))
     return suite
 
 class StartServerTestCase(unittest.TestCase):
@@ -64,40 +60,6 @@ class ServerDumpTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.dump_filepath)
-
-class RunServerScriptTestCase(unittest.TestCase):
-    """This runs yet no output is written to file by Server.__exit__().
-    Manually starting a nameserver and running
-    `python start_server.py <name>` in the financeager virtualenv starts the
-    process. Terminating it via CTRL-C causes the period file to be written.
-    """
-    def setUp(self):
-        # silence error messages if name server has already been launched
-        DEVNULL = open(os.devnull, 'w')
-        self.nameserver_process = subprocess.Popen(
-                [sys.executable, "-m", "Pyro4.naming"], shell=False,
-                stderr=subprocess.STDOUT, close_fds=True,
-                stdout=DEVNULL)
-        test_dir = os.path.dirname(os.path.abspath(__file__))
-        script_path = os.path.join(
-                test_dir, "..", "financeager", "start_server.py")
-        period_name = "1337"
-        self.server_process = subprocess.Popen(
-                [sys.executable, script_path, period_name], shell=False)
-
-    def test_server_process_running(self):
-        # sleep a bit to see output from server launches
-        import time; time.sleep(1)
-        running = True
-        try:
-            os.kill(self.server_process.pid, 0)
-        except (OSError) as e:
-            running = False
-        self.assertTrue(running)
-
-    def tearDown(self):
-        os.kill(self.server_process.pid, signal.SIGTERM)
-        os.kill(self.nameserver_process.pid, signal.SIGTERM)
 
 if __name__ == '__main__':
     unittest.main()
