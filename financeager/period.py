@@ -10,8 +10,8 @@ class Period(object):
 
     DEFAULT_NAME = QDate.currentDate().year()
 
-    def __init__(self, name=DEFAULT_NAME, xml_tree=None, models=None):
-        self._name = "{}".format(name)
+    def __init__(self, name=None, xml_tree=None, models=None):
+        self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
         self._earnings_model = None
         self._expenses_model = None
         if models is not None and len(models) == 2:

@@ -17,7 +17,8 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(StartServerTestCase, tests)))
     tests = [
-            'test_entry_exists'
+            'test_entry_exists',
+            'test_period_name'
             ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
     tests = [
@@ -37,13 +38,20 @@ class StartServerTestCase(unittest.TestCase):
 
 class AddEntryToServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = Server()
+        self.server = Server(0)
+        self.dump_filepath = os.path.join(CONFIG_DIR, "0.xml")
         self.server.run("add", name="Hiking boots", value="-111.11",
                 category="outdoors")
 
     def test_entry_exists(self):
         self.assertIsNotNone(self.server._period._expenses_model.find_name_item(
             name="hiking boots", category="outdoors"))
+
+    def test_period_name(self):
+        self.assertEqual("0", self.server._period.name)
+
+    def tearDown(self):
+        os.remove(self.dump_filepath)
 
 class ServerDumpTestCase(unittest.TestCase):
     def setUp(self):

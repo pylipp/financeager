@@ -14,9 +14,9 @@ class Server(object):
 
     def __init__(self, period_name=None):
         self._running = True
-        self._period = Period()
-        self._period_filepath = os.path.join(CONFIG_DIR, "{}.xml".format(
-            self._period.name if period_name is None else period_name))
+        self._period = Period(period_name)
+        self._period_filepath = os.path.join(
+                CONFIG_DIR, "{}.xml".format(self._period.name))
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
         self._read_period_from_file()
