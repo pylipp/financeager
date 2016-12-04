@@ -20,8 +20,10 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
-        cl_kwargs = {"period": "1337"}
+        cl_kwargs = {"period": "1337", "command": "add", "name": "foo",
+                "value": 19, "period": "0"}
         self.cli = Cli(cl_kwargs)
+        self.cli()
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],
                 stdin=ps_process.stdout).splitlines()
@@ -55,6 +57,7 @@ class StartCliTestCase(unittest.TestCase):
         self.assertTrue(running)
 
     def tearDown(self):
+        os.remove(os.path.join(CONFIG_DIR, "0.xml"))
         os.kill(self.server_pid, signal.SIGTERM)
         os.kill(self.name_server_pid, signal.SIGTERM)
 
