@@ -25,21 +25,26 @@ class Cli(object):
     def __call__(self):
         command = self._cl_kwargs.pop("command")
         server_name = Server.NAME_STUB.format(self._period_name)
+
         if command != "stop":
-            name_server = Pyro4.locateNS()
-            # launch starting script if period server is not registered yet
-            try:
-                name_server.lookup(server_name)
-            except (Pyro4.naming.NamingError) as e:
-                server_script_path = os.path.join(
-                        os.path.dirname(os.path.abspath(__file__)), "start_server.py")
-                subprocess.Popen(
-                        [sys.executable, server_script_path, self._period_name])
-                time.sleep(1.1*Pyro4.config.COMMTIMEOUT)
+            self._start_period_server(server_name)
 
         server = Pyro4.Proxy("PYRONAME:{}".format(server_name))
         try:
             server.run(command, **self._cl_kwargs)
         except (Pyro4.naming.NamingError) as e:
-            # 'stop' requested but period server not launched
+            # 'stop' requested but corresponding period server not launched
             pass
+
+    def _start_period_server(self, server_name):
+        name_server = Pyro4.locateNS()
+        # launch starting script if period server is not registered yet
+        try:
+            name_server.lookup(server_name)
+        except (Pyro4.naming.NamingError) as e:
+            server_script_path = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "start_server.py")
+            subprocess.Popen(
+                    [sys.executable, server_script_path, self._period_name])
+            # wait for launch to avoid failure when creating Proxy
+            time.sleep(1.1*Pyro4.config.COMMTIMEOUT)
