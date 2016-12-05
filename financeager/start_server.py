@@ -1,6 +1,6 @@
 import Pyro4
 import sys
-from financeager.server import XmlServer
+from financeager.server import XmlServer, Server
 
 Pyro4.config.COMMTIMEOUT = 1.0
 
@@ -11,7 +11,7 @@ if __name__ == "__main__":
         server = XmlServer(name)
         ns = Pyro4.locateNS()
         uri = daemon.register(server)
-        server_name = XmlServer.NAME_STUB.format(name)
+        server_name = XmlServer.name(name)
         ns.register(server_name, uri)
 
         print("Starting {}...".format(server_name))

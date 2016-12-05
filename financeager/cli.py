@@ -24,7 +24,7 @@ class Cli(object):
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
-        server_name = XmlServer.NAME_STUB.format(self._period_name)
+        server_name = XmlServer.name(self._period_name)
 
         if command != "stop":
             self._start_period_server(server_name)

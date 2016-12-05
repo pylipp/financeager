@@ -38,12 +38,14 @@ class Server(object):
 @Pyro4.expose
 class XmlServer(Server):
 
-    NAME_STUB = "financeager_server.{}"
-
     def __init__(self, period_name=None):
         self._period = Period(period_name)
         super(XmlServer, self).__init__(period_name)
         self._read_period_from_file()
+
+    @staticmethod
+    def name(period_name):
+        return "financeager_xml_server.{}".format(period_name)
 
     @property
     def _file_suffix(self):
