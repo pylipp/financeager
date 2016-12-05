@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.server import Server, CONFIG_DIR
+from financeager.server import XmlServer, CONFIG_DIR
 import os.path
 import subprocess
 import signal
@@ -29,12 +29,12 @@ def suite():
 
 class StartServerTestCase(unittest.TestCase):
     def test_config_dir_exists(self):
-        server = Server()
+        server = XmlServer()
         self.assertTrue(os.path.isdir(CONFIG_DIR))
 
 class AddEntryToServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = Server(0)
+        self.server = XmlServer(0)
         self.dump_filepath = os.path.join(CONFIG_DIR, "0.xml")
         self.server.run("add", name="Hiking boots", value="-111.11",
                 category="outdoors")
@@ -51,7 +51,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
 
 class ServerDumpTestCase(unittest.TestCase):
     def setUp(self):
-        server = Server(42)
+        server = XmlServer(42)
         self.dump_filepath = os.path.join(CONFIG_DIR, "42.xml")
         server.run("add", name="Hiking boots", value="-111.11", category="outdoors")
 

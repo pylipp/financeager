@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.server import Server, CONFIG_DIR
+from financeager.server import CONFIG_DIR
 from financeager.cli import Cli
 import psutil
 import os

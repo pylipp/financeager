@@ -8,7 +8,7 @@ from financeager.period import Period
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
 @Pyro4.expose
-class Server(object):
+class XmlServer(object):
 
     NAME_STUB = "financeager_server.{}"
 
