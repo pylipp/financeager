@@ -53,7 +53,7 @@ class Period(object):
         date = kwargs.get("date")
         if value.startswith("-"):
             self._expenses_model.add_entry(
-                    BaseEntry(name, float(value[1:]), date), category=category)
+                    BaseEntry(name, value, date), category=category)
         else:
             self._earnings_model.add_entry(
-                    BaseEntry(name, float(value), date), category=category)
+                    BaseEntry(name, value, date), category=category)

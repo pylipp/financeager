@@ -96,6 +96,7 @@ class ValueItem(DataItem):
     :param data: Python integer or float number
     """
     def __init__(self, data, entry=None):
+        data = abs(float(data))
         super(ValueItem, self).__init__(data, entry)
         # TODO add sign attribute
 

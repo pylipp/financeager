@@ -36,6 +36,7 @@ def suite():
             'test_data'
             ]
     suite.addTest(unittest.TestSuite(map(FloatValueItemTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(StringValueItemTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(SetTextValueItemTestCase, tests)))
     return suite
 
@@ -124,6 +125,17 @@ class FloatValueItemTestCase(unittest.TestCase):
 
     def test_data(self):
         self.assertAlmostEqual(self.item.value, self.value, places=2)
+
+class StringValueItemTestCase(unittest.TestCase):
+    def setUp(self):
+        self.value = "-99.0"
+        self.item = ValueItem(self.value)
+
+    def test_text(self):
+        self.assertEqual(str(self.item), "99")
+
+    def test_data(self):
+        self.assertEqual(self.item.value, 99)
 
 class SetTextValueItemTestCase(unittest.TestCase):
     def setUp(self):
