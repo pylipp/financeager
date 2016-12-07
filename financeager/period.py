@@ -10,9 +10,18 @@ class Period(object):
 
     DEFAULT_NAME = QDate.currentDate().year()
 
-    def __init__(self, name=None, xml_element=None, models=None):
-        # TODO store models in dict
+    def __init__(self, name=None):
         self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
+
+    @property
+    def name(self):
+        return self._name
+
+class XmlPeriod(Period):
+
+    def __init__(self, name=None, xml_element=None, models=None):
+        super(XmlPeriod, self).__init__(name)
+        # TODO store models in dict
         self._earnings_model = None
         self._expenses_model = None
         if models is not None and len(models) == 2:
@@ -23,10 +32,6 @@ class Period(object):
             self._earnings_model = Model(name="earnings")
         if self._expenses_model is None:
             self._expenses_model = Model(name="expenses")
-
-    @property
-    def name(self):
-        return self._name
 
     def create_from_xml(self, xml_element):
         for model_element in xml_element.findall("model"):

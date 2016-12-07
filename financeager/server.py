@@ -4,7 +4,7 @@ import os.path
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod, abstractproperty
 import Pyro4
-from financeager.period import Period
+from financeager.period import Period, XmlPeriod
 
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
@@ -15,7 +15,9 @@ class Server(object):
     def __init__(self, period_name=None):
         self._running = True
         self._period_filepath = os.path.join(
-                CONFIG_DIR, "{}.{}".format(self._period.name, self._file_suffix))
+                CONFIG_DIR, "{}.{}".format(
+                    Period.DEFAULT_NAME if period_name is None else
+                    period_name, self._file_suffix))
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
 
@@ -39,8 +41,8 @@ class Server(object):
 class XmlServer(Server):
 
     def __init__(self, period_name=None):
-        self._period = Period(period_name)
         super(XmlServer, self).__init__(period_name)
+        self._period = XmlPeriod(period_name)
         self._read_period_from_file()
 
     @staticmethod
