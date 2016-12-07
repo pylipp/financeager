@@ -3,8 +3,11 @@ from __future__ import unicode_literals
 
 from PyQt4.QtCore import QDate
 import xml.etree.ElementTree as ET
+from tinydb import TinyDB, Query
+import os.path
 from financeager.model import Model
 from financeager.entries import BaseEntry
+from financeager.items import DateItem
 
 class Period(object):
 
@@ -62,3 +65,31 @@ class XmlPeriod(Period):
         else:
             self._earnings_model.add_entry(
                     BaseEntry(name, value, date), category=category)
+
+class TinyDbPeriod(TinyDB, Period):
+
+    def __init__(self, filepath):
+        super(TinyDbPeriod, self).__init__(filepath)
+        self._name = os.path.splitext(os.path.basename(filepath))[0]
+
+    def add_entry(self, **kwargs):
+        value = kwargs["value"]
+        name = kwargs["name"]
+        date = kwargs.get("date")
+        if date is None:
+            date = str(DateItem())
+        category = kwargs.get("category")
+        self.insert(dict(name=name, value=value, date=date, category=category))
+
+    def find_entry(self, **kwargs):
+        entry = Query()
+        kwarg, value = kwargs.popitem()
+        query_impl = (getattr(entry, kwarg) == value)
+        for kwarg in kwargs:
+            query_impl = query_impl & (getattr(entry, kwarg) == kwargs[kwarg])
+        return self.get(query_impl)
+
+    def remove_entry(self, **kwargs):
+        entry = self.find_entry(**kwargs)
+        if entry is not None:
+            self.remove(eids=[entry.eid])

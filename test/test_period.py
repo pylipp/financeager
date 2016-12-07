@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 import unittest
 
 import xml.etree.ElementTree as ET
-from financeager.period import XmlPeriod
+from financeager.period import XmlPeriod, TinyDbPeriod
 from financeager.model import Model
 from financeager.entries import BaseEntry
 from financeager.items import CategoryItem
+import os
 
 def suite():
     suite = unittest.TestSuite()
@@ -26,6 +27,11 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(XmlConversionTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(PeriodOnlyXmlConversionTestCase, tests)))
+    tests = [
+            'test_find_entry',
+            'test_remove_entry'
+            ]
+    suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
@@ -88,6 +94,22 @@ class PeriodOnlyXmlConversionTestCase(unittest.TestCase):
     def test_expenses_category_sum(self):
         self.assertAlmostEqual(self.parsed_period._expenses_model.category_sum(
             "Car"), 24999, places=5)
+
+class TinyDbPeriodTestCase(unittest.TestCase):
+    def setUp(self):
+        self.filepath = "678.json"
+        self.period = TinyDbPeriod(self.filepath)
+        self.period.add_entry(name="Bicycle", value=999.99)
+
+    def test_find_entry(self):
+        self.assertIsNotNone(self.period.find_entry(name="Bicycle"))
+
+    def test_remove_entry(self):
+        self.period.remove_entry(category=None)
+        self.assertEqual(0, len(self.period))
+
+    def tearDown(self):
+        os.remove(self.filepath)
 
 if __name__ == '__main__':
     unittest.main()
