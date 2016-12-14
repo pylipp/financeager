@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.server import CONFIG_DIR
+from financeager.server import CONFIG_DIR, XmlServer
 from financeager.cli import Cli
 import psutil
 import os
@@ -22,7 +22,7 @@ class StartCliTestCase(unittest.TestCase):
     def setUp(self):
         cl_kwargs = {"period": "1337", "command": "add", "name": "foo",
                 "value": 19, "period": "0"}
-        self.cli = Cli(cl_kwargs)
+        self.cli = Cli(cl_kwargs, server_cls=XmlServer)
         self.cli()
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],

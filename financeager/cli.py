@@ -6,16 +6,15 @@ import os
 import sys
 import time
 from financeager.period import Period
-from financeager.server import XmlServer
+from financeager.server import XmlServer, TinyDbServer
 
 Pyro4.config.COMMTIMEOUT = 1.0
 
-DEFAULT_SERVER = XmlServer
-
 class Cli(object):
 
-    def __init__(self, cl_kwargs):
+    def __init__(self, cl_kwargs, server_cls=TinyDbServer):
         self._cl_kwargs = cl_kwargs
+        self._server_cls = server_cls
 
         # launch nameserver. Silence errors if already running
         DEVNULL = open(os.devnull, 'w')
@@ -26,7 +25,7 @@ class Cli(object):
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
-        server_name = DEFAULT_SERVER.name(self._period_name)
+        server_name = self._server_cls.name(self._period_name)
 
         if command != "stop":
             self._start_period_server(server_name)
@@ -47,6 +46,7 @@ class Cli(object):
             server_script_path = os.path.join(
                     os.path.dirname(os.path.abspath(__file__)), "start_server.py")
             subprocess.Popen(
-                    [sys.executable, server_script_path, self._period_name])
+                    [sys.executable, server_script_path, self._period_name,
+                        self._server_cls.__name__])
             # wait for launch to avoid failure when creating Proxy
             time.sleep(1.1*Pyro4.config.COMMTIMEOUT)

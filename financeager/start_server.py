@@ -1,17 +1,19 @@
 import Pyro4
 import sys
-from financeager.cli import DEFAULT_SERVER
 
 Pyro4.config.COMMTIMEOUT = 1.0
 
 if __name__ == "__main__":
     name = sys.argv[1]
+    server_cls_name = sys.argv[2]
+    server_module = __import__("financeager.server", fromlist=[server_cls_name])
+    server_cls = getattr(server_module, server_cls_name)
 
     with Pyro4.Daemon() as daemon:
-        server = DEFAULT_SERVER(name)
+        server = server_cls(name)
         ns = Pyro4.locateNS()
         uri = daemon.register(server)
-        server_name = DEFAULT_SERVER.name(name)
+        server_name = server_cls.name(name)
         ns.register(server_name, uri)
 
         print("Starting {}...".format(server_name))
