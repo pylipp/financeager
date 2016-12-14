@@ -4,7 +4,7 @@ import os.path
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod, abstractproperty
 import Pyro4
-from financeager.period import Period, XmlPeriod
+from financeager.period import Period, TinyDbPeriod, XmlPeriod
 
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
@@ -73,3 +73,21 @@ class XmlServer(Server):
         super(XmlServer, self).run(command, **kwargs)
         if command != "stop":
             self.dump()
+
+@Pyro4.expose
+class TinyDbServer(Server):
+
+    def __init__(self, period_name=None):
+        super(TinyDbServer, self).__init__(period_name)
+        self._period = TinyDbPeriod(self._period_filepath)
+
+    @property
+    def _file_suffix(self):
+        return "json"
+
+    @staticmethod
+    def name(period_name):
+        return "financeager_tinydb_server.{}".format(period_name)
+
+    def run(self, command, **kwargs):
+        super(TinyDbServer, self).run(command, **kwargs)

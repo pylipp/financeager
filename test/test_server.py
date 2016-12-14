@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.server import XmlServer, CONFIG_DIR
+from financeager.server import XmlServer, CONFIG_DIR, TinyDbServer
 import os.path
 import subprocess
 import signal
@@ -21,6 +21,7 @@ def suite():
             'test_period_name'
             ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(AddEntryToTinyDbServerTestCase, tests)))
     tests = [
             'test_period_file_exists'
             ]
@@ -57,6 +58,23 @@ class ServerDumpTestCase(unittest.TestCase):
 
     def test_period_file_exists(self):
         self.assertTrue(os.path.isfile(self.dump_filepath))
+
+    def tearDown(self):
+        os.remove(self.dump_filepath)
+
+class AddEntryToTinyDbServerTestCase(unittest.TestCase):
+    def setUp(self):
+        self.server = TinyDbServer(0)
+        self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
+        self.server.run("add", name="Hiking boots", value="-111.11",
+                category="outdoors")
+
+    def test_entry_exists(self):
+        self.assertIsNotNone(self.server._period.find_entry(
+            name="Hiking boots"))
+
+    def test_period_name(self):
+        self.assertEqual("0", self.server._period.name)
 
     def tearDown(self):
         os.remove(self.dump_filepath)
