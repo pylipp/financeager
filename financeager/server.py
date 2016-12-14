@@ -61,7 +61,8 @@ class Server(object):
             command2method = {
                     "add": "add_entry",
                     "rm": "remove_entry",
-                    "find": "find_entry"
+                    "find": "find_entry",
+                    "print": "all"
                     }
             self._response = getattr(self._period, command2method[command])(**kwargs)
 
