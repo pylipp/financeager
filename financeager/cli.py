@@ -33,6 +33,8 @@ class Cli(object):
         server = Pyro4.Proxy("PYRONAME:{}".format(server_name))
         try:
             server.run(command, **self._cl_kwargs)
+            if server.response is not None:
+                print(server.response)
         except (Pyro4.naming.NamingError) as e:
             # 'stop' requested but corresponding period server not launched
             pass

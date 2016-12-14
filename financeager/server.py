@@ -20,6 +20,7 @@ class Server(object):
                     period_name, self._file_suffix))
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
+        self._response = None
 
     @abstractproperty
     def _file_suffix(self):
@@ -29,13 +30,20 @@ class Server(object):
     def running(self):
         return self._running
 
+    @Pyro4.expose
+    @property
+    def response(self):
+        return self._response
+
     @abstractmethod
     def run(self, command, **kwargs):
         if command == "stop":
             self._running = False
         else:
-            command2method = {"add": "add_entry"}
-            getattr(self._period, command2method[command])(**kwargs)
+            command2method = {
+                    "add": "add_entry"
+                    }
+            self._response = getattr(self._period, command2method[command])(**kwargs)
 
 @Pyro4.expose
 class XmlServer(Server):
