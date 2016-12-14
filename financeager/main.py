@@ -25,6 +25,18 @@ def parse_command():
             help="stop period server")
     stop_parser.add_argument(*period_args, **period_kwargs)
 
+    rm_parser = subparsers.add_parser("rm",
+            help="remove an entry from the database")
+
+    rm_parser.add_argument("name", help="entry name")
+    rm_parser.add_argument(*period_args, **period_kwargs)
+
+    find_parser = subparsers.add_parser("find",
+            help="find an entry in the database")
+
+    find_parser.add_argument("name", help="entry name")
+    find_parser.add_argument(*period_args, **period_kwargs)
+
     return parser.parse_args()
 
 def main():

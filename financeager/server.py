@@ -41,7 +41,9 @@ class Server(object):
             self._running = False
         else:
             command2method = {
-                    "add": "add_entry"
+                    "add": "add_entry",
+                    "rm": "remove_entry",
+                    "find": "find_entry"
                     }
             self._response = getattr(self._period, command2method[command])(**kwargs)
 
@@ -79,7 +81,7 @@ class XmlServer(Server):
         supposed to be executed in the caller, passing keyword arguments.
         """
         super(XmlServer, self).run(command, **kwargs)
-        if command != "stop":
+        if command not in ["stop", "find"]:
             self.dump()
 
 @Pyro4.expose
