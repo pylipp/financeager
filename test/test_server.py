@@ -8,6 +8,7 @@ import subprocess
 import signal
 import socket
 import sys
+import tinydb
 
 
 def suite():
@@ -26,6 +27,11 @@ def suite():
             'test_period_file_exists'
             ]
     suite.addTest(unittest.TestSuite(map(XmlServerDumpTestCase, tests)))
+    tests = [
+            'test_response_is_tinydb_element',
+            'test_response_is_none'
+            ]
+    suite.addTest(unittest.TestSuite(map(FindEntryTinyDbServerTestCase, tests)))
     return suite
 
 class StartXmlServerTestCase(unittest.TestCase):
@@ -75,6 +81,24 @@ class AddEntryToTinyDbServerTestCase(unittest.TestCase):
 
     def test_period_name(self):
         self.assertEqual("0", self.server._period.name)
+
+    def tearDown(self):
+        os.remove(self.dump_filepath)
+
+class FindEntryTinyDbServerTestCase(unittest.TestCase):
+    def setUp(self):
+        self.server = TinyDbServer(0)
+        self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
+        self.server.run("add", name="Hiking boots", value="-111.11")
+
+    def test_response_is_tinydb_element(self):
+        self.server.run("find", category=None)
+        self.assertIsInstance(self.server.response, tinydb.database.Element)
+
+    def test_response_is_none(self):
+        self.server.run("rm", category=None)
+        self.server.run("find", name="Hiking boots", category=None)
+        self.assertIsNone(self.server.response)
 
     def tearDown(self):
         os.remove(self.dump_filepath)
