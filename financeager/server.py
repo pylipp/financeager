@@ -9,6 +9,14 @@ from financeager.period import Period, TinyDbPeriod, XmlPeriod
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
 class Server(object):
+    """Abstract class holding the database and communicated with via Pyro.
+
+    The server creates a Period instance from the appropriate filepath in the
+    config directory. It is typically launched at the initial `financeager`
+    command line call and then runs in the background as a Pyro daemon.
+    The `response` attribute can be used to access possible output data from
+    querying commands (f.i. `find`).
+    """
 
     __metaclass__ = ABCMeta
 
@@ -42,6 +50,11 @@ class Server(object):
 
     @abstractmethod
     def run(self, command, **kwargs):
+        """The method of `Period` corresponding to the given `command` is
+        looked up and called. All `kwargs` are passed on. The return value is
+        stored in the `response` attribute.
+        Calling `stop` causes the Pyro daemon request loop to terminate.
+        """
         if command == "stop":
             self._running = False
         else:
@@ -54,6 +67,13 @@ class Server(object):
 
 @Pyro4.expose
 class XmlServer(Server):
+    """Server implementation holding a `XmlPeriod` database.
+
+    The class explicitly loads the period at initialization and dumps it if a
+    modifying command is called.
+
+    NOTE: The development of this class is discontinued.
+    """
 
     def __init__(self, period_name=None):
         super(XmlServer, self).__init__(period_name)
@@ -81,16 +101,16 @@ class XmlServer(Server):
                 xml_declaration=True)
 
     def run(self, command, **kwargs):
-        """Call the server with any valid command line command. The underlying
-        method of `Period` will be looked up and returned. This method is then
-        supposed to be executed in the caller, passing keyword arguments.
-        """
         super(XmlServer, self).run(command, **kwargs)
         if command not in ["stop", "find"]:
             self.dump()
 
 @Pyro4.expose
 class TinyDbServer(Server):
+    """Server implementation holding a `TinyDbPeriod` database.
+
+    All database handling is taken care of in the underlying `TinyDbPeriod`.
+    """
 
     def __init__(self, period_name=None):
         super(TinyDbServer, self).__init__(period_name)
