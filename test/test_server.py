@@ -15,25 +15,25 @@ def suite():
     tests = [
             'test_config_dir_exists'
             ]
-    suite.addTest(unittest.TestSuite(map(StartServerTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(StartXmlServerTestCase, tests)))
     tests = [
             'test_entry_exists',
             'test_period_name'
             ]
-    suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(AddEntryToXmlServerTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(AddEntryToTinyDbServerTestCase, tests)))
     tests = [
             'test_period_file_exists'
             ]
-    suite.addTest(unittest.TestSuite(map(ServerDumpTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(XmlServerDumpTestCase, tests)))
     return suite
 
-class StartServerTestCase(unittest.TestCase):
+class StartXmlServerTestCase(unittest.TestCase):
     def test_config_dir_exists(self):
         server = XmlServer()
         self.assertTrue(os.path.isdir(CONFIG_DIR))
 
-class AddEntryToServerTestCase(unittest.TestCase):
+class AddEntryToXmlServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = XmlServer(0)
         self.dump_filepath = os.path.join(CONFIG_DIR, "0.xml")
@@ -50,7 +50,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
     def tearDown(self):
         os.remove(self.dump_filepath)
 
-class ServerDumpTestCase(unittest.TestCase):
+class XmlServerDumpTestCase(unittest.TestCase):
     def setUp(self):
         server = XmlServer(42)
         self.dump_filepath = os.path.join(CONFIG_DIR, "42.xml")
