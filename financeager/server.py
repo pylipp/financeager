@@ -35,6 +35,11 @@ class Server(object):
     def response(self):
         return self._response
 
+    @Pyro4.expose
+    @response.setter
+    def response(self, value):
+        self._response = value
+
     @abstractmethod
     def run(self, command, **kwargs):
         if command == "stop":

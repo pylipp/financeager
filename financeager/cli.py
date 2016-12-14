@@ -35,6 +35,7 @@ class Cli(object):
             server.run(command, **self._cl_kwargs)
             if server.response is not None:
                 print(server.response)
+                server.response = None
         except (Pyro4.naming.NamingError) as e:
             # 'stop' requested but corresponding period server not launched
             pass
