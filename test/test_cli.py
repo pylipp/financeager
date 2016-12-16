@@ -27,7 +27,7 @@ class StartCliTestCase(unittest.TestCase):
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],
                 stdin=ps_process.stdout).splitlines()
-        self.server_pid = self.find_pid_by_name("start_server.py")
+        self.server_pid = self.find_pid_by_name("start_server.py 0")
         self.name_server_pid = self.find_pid_by_name("Pyro4.naming")
 
     def find_pid_by_name(self, name):
@@ -58,8 +58,8 @@ class StartCliTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.remove(os.path.join(CONFIG_DIR, "0.xml"))
-        os.kill(self.server_pid, signal.SIGTERM)
-        os.kill(self.name_server_pid, signal.SIGTERM)
+        self.cli._cl_kwargs = dict(command="stop", period="0")
+        self.cli()
 
 if __name__ == '__main__':
     unittest.main()
