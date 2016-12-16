@@ -87,9 +87,10 @@ class TinyDbPeriod(TinyDB, Period):
         query_impl = (getattr(entry, kwarg) == value)
         for kwarg in kwargs:
             query_impl = query_impl & (getattr(entry, kwarg) == kwargs[kwarg])
-        return self.get(query_impl)
+        result = self.get(query_impl)
+        return [] if result is None else [result]
 
     def remove_entry(self, **kwargs):
         entry = self.find_entry(**kwargs)
-        if entry is not None:
-            self.remove(eids=[entry.eid])
+        if entry:
+            self.remove(eids=[entry[0].eid])

@@ -76,8 +76,8 @@ class AddEntryToTinyDbServerTestCase(unittest.TestCase):
                 category="outdoors")
 
     def test_entry_exists(self):
-        self.assertIsNotNone(self.server._period.find_entry(
-            name="Hiking boots"))
+        self.assertIsInstance(self.server._period.find_entry(
+            name="Hiking boots")[0], tinydb.database.Element)
 
     def test_period_name(self):
         self.assertEqual("0", self.server._period.name)
@@ -93,12 +93,12 @@ class FindEntryTinyDbServerTestCase(unittest.TestCase):
 
     def test_response_is_tinydb_element(self):
         self.server.run("find", category=None)
-        self.assertIsInstance(self.server.response, tinydb.database.Element)
+        self.assertIsInstance(self.server.response[0], tinydb.database.Element)
 
     def test_response_is_none(self):
         self.server.run("rm", category=None)
         self.server.run("find", name="Hiking boots", category=None)
-        self.assertIsNone(self.server.response)
+        self.assertEqual(0, len(self.server.response))
 
     def tearDown(self):
         os.remove(self.dump_filepath)

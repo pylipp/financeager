@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 import xml.etree.ElementTree as ET
+from tinydb import database
 from financeager.period import XmlPeriod, TinyDbPeriod
 from financeager.model import Model
 from financeager.entries import BaseEntry
@@ -102,7 +103,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.period.add_entry(name="Bicycle", value=999.99)
 
     def test_find_entry(self):
-        self.assertIsNotNone(self.period.find_entry(name="Bicycle"))
+        self.assertIsInstance(self.period.find_entry(name="Bicycle")[0],
+                database.Element)
 
     def test_remove_entry(self):
         self.period.remove_entry(category=None)
