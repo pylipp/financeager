@@ -67,7 +67,7 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.entry.value_item.value, self.value, places=5)
 
     def test_str(self):
-        self.assertEqual(str(self.entry), "Dinner For One   99.90 2016-12-31")
+        self.assertEqual(str(self.entry), "Dinner For One    99.90 2016-12-31")
 
 if __name__ == '__main__':
     unittest.main()
