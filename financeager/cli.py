@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 import subprocess
 import Pyro4
 import os
@@ -33,9 +33,9 @@ class Cli(object):
         server = Pyro4.Proxy("PYRONAME:{}".format(server_name))
         try:
             server.run(command, **self._cl_kwargs)
-            if server.response is not None:
-                print(server.response)
-                server.response = None
+            response = server.response
+            for element in response:
+                print(element)
         except (Pyro4.naming.NamingError) as e:
             # 'stop' requested but corresponding period server not launched
             pass

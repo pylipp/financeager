@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
+from financeager.entries import BaseEntry
 from financeager.server import XmlServer, CONFIG_DIR, TinyDbServer
 import os.path
 import subprocess
@@ -28,7 +29,7 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(XmlServerDumpTestCase, tests)))
     tests = [
-            'test_response_is_tinydb_element',
+            'test_query_and_reset_response',
             'test_response_is_none'
             ]
     suite.addTest(unittest.TestSuite(map(FindEntryTinyDbServerTestCase, tests)))
@@ -91,9 +92,11 @@ class FindEntryTinyDbServerTestCase(unittest.TestCase):
         self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
         self.server.run("add", name="Hiking boots", value="-111.11")
 
-    def test_response_is_tinydb_element(self):
+    def test_query_and_reset_response(self):
         self.server.run("find", category=None)
-        self.assertIsInstance(self.server.response[0], tinydb.database.Element)
+        response = self.server.response
+        self.assertEqual(0, len(self.server.response))
+        self.assertEqual(1, len(response))
 
     def test_response_is_none(self):
         self.server.run("rm", category=None)

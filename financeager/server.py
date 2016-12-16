@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod, abstractproperty
 import Pyro4
 from financeager.period import Period, TinyDbPeriod, XmlPeriod
+from financeager.entries import BaseEntry
 
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
@@ -15,7 +16,8 @@ class Server(object):
     config directory. It is typically launched at the initial `financeager`
     command line call and then runs in the background as a Pyro daemon.
     The `response` attribute can be used to access possible output data from
-    querying commands (f.i. `find`).
+    querying commands (f.i. `find`). It holds a list of tinydb.database.Element
+    objects (can be empty).
     """
 
     __metaclass__ = ABCMeta
@@ -28,7 +30,7 @@ class Server(object):
                     period_name, self._file_suffix))
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
-        self._response = None
+        self._response = []
 
     @abstractproperty
     def _file_suffix(self):
@@ -41,12 +43,11 @@ class Server(object):
     @Pyro4.expose
     @property
     def response(self):
-        return self._response
-
-    @Pyro4.expose
-    @response.setter
-    def response(self, value):
-        self._response = value
+        """Query and reset the server response. A list of strings is returned.
+        This avoid serialization issues with Pyro4."""
+        result = [str(BaseEntry.from_tinydb_element(e)) for e in self._response]
+        self._response = []
+        return result
 
     @abstractmethod
     def run(self, command, **kwargs):
@@ -64,7 +65,9 @@ class Server(object):
                     "find": "find_entry",
                     "print": "all"
                     }
-            self._response = getattr(self._period, command2method[command])(**kwargs)
+            response = getattr(self._period, command2method[command])(**kwargs)
+            if response is not None:
+                self._response = response
 
 @Pyro4.expose
 class XmlServer(Server):
