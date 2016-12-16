@@ -1,5 +1,7 @@
 """Defines Entries built from Items."""
 
+from __future__ import unicode_literals
+
 from items import (CategoryItem, SumItem, EmptyItem, NameItem, DateItem,
         ValueItem)
 from abc import ABCMeta
@@ -10,6 +12,8 @@ class Entry(object):
 
     An Entry is a wrapper around several items and allows simple access of
     corresponding item data. It can be visualized as a row in the data sheet.
+    At initialization, the item arguments have to be passed in the order given
+    by `ITEM_TYPES`.
     """
     __metaclass__ = ABCMeta
 
@@ -42,6 +46,19 @@ class BaseEntry(Entry):
 
     ITEM_TYPES = OrderedDict((
         ("name", NameItem), ("value", ValueItem), ("date", DateItem)))
+
+    @classmethod
+    def from_tinydb_element(cls, element):
+        """Create a BaseEntry from a TinyDB.database.Element. The element has
+        to contain the fields `name` and `value`, `date` is optional."""
+        base_entry = cls(element["name"], element["value"], element.get("date"))
+        return base_entry
+
+    def __str__(self):
+        """Return a formatted string representing the entry."""
+        attributes = [unicode(getattr(self, attrib).text()) for attrib in
+                BaseEntry.ITEM_TYPES.keys()]
+        return "{:16.16} {} {:>6}".format(*attributes)
 
 class CategoryEntry(Entry):
     """Wrapper around a Category- and SumItem tuple."""
