@@ -24,6 +24,14 @@ class Model(QStandardItemModel):
         if root_element is not None:
             self.create_from_xml(root_element)
 
+    @classmethod
+    def from_tinydb(cls, elements, name=None):
+        model = cls(name=name)
+        for element in elements:
+            model.add_entry(BaseEntry(element["name"], element["value"],
+                element.get("date")), category=element.get("category"))
+        return model
+
     def add_entry(self, entry, category=None):
         """Add a Category- or BaseEntry to the model.
         Category names are unique, i.e. a CategoryEntry is not skipped if one

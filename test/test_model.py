@@ -4,6 +4,7 @@ import unittest
 
 from PyQt4.QtCore import QString, QDate, QVariant
 import xml.etree.ElementTree as ET
+from tinydb import database
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import (CategoryItem, NameItem)
@@ -55,6 +56,10 @@ def suite():
             'test_base_entries'
             ]
     suite.addTest(unittest.TestSuite(map(XmlConversionTestCase, tests)))
+    tests = [
+            'test_contains_an_entry'
+            ]
+    suite.addTest(unittest.TestSuite(map(ModelFromTinyDbTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -247,6 +252,18 @@ class XmlConversionTestCase(unittest.TestCase):
         self.assertItemsEqual(
                 [str(i) for i in item.entry.items],
                 [str(i) for i in parsed_item.entry.items])
+
+class ModelFromTinyDbTestCase(unittest.TestCase):
+    def setUp(self):
+        self.name = "Dinner for one"
+        self.value = 99.9
+        self.date = "2016-12-31"
+        element = database.Element(value=dict(name=self.name, value=self.value,
+            date=self.date))
+        self.model = Model.from_tinydb([element])
+
+    def test_contains_an_entry(self):
+        self.assertIsNotNone(self.model.find_name_item(date=self.date))
 
 if __name__ == '__main__':
     unittest.main()
