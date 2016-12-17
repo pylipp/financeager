@@ -23,7 +23,8 @@ def suite():
     suite.addTest(unittest.TestSuite(map(AddCategoryEntryTwiceTestCase, tests)))
     tests = [
             'test_base_entry_in_list',
-            'test_category_sum'
+            'test_category_sum',
+            'test_str'
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
     tests = [
@@ -104,6 +105,13 @@ class AddBaseEntryTestCase(unittest.TestCase):
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_value,
                 self.model.category_sum(self.item_category), places=5)
+
+    def test_str(self):
+        self.assertEqual(str(self.model), '\n'.join([
+                "{:^34}".format("Model"),
+                "Name               Value  Date" + 6*" ",
+                "Groceries           66.60" + 11*" ",
+                "  Aldi              66.60 2016-11-08"]))
 
 class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
     def setUp(self):

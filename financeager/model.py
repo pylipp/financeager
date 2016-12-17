@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from PyQt4.QtGui import QStandardItemModel
-from PyQt4.QtCore import (QString, QVariant)
+from PyQt4.QtCore import (QString, QVariant, Qt)
 import xml.etree.ElementTree as ET
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import ValueItem, CategoryItem
@@ -31,6 +31,22 @@ class Model(QStandardItemModel):
             model.add_entry(BaseEntry(element["name"], element["value"],
                 element.get("date")), category=element.get("category"))
         return model
+
+    def __str__(self):
+        result = ["{:^34}".format("Model") if self._name is None else self._name]
+
+        result.append("{:18} {:6} {:10}".format(*[
+            unicode(self.headerData(col, Qt.Horizontal).toString()) for col in
+            range(self.columnCount())])
+            )
+
+        for category_item in self.category_entry_items("name"):
+            result.append(str(category_item.entry))
+            for row in range(category_item.rowCount()):
+                name_item = category_item.child(row)
+                result.append("  " + str(name_item.entry))
+
+        return '\n'.join(result)
 
     def add_entry(self, entry, category=None):
         """Add a Category- or BaseEntry to the model.
