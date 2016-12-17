@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from PyQt4.QtCore import QDate
 import xml.etree.ElementTree as ET
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 import os.path
 from financeager.model import Model
 from financeager.entries import BaseEntry
@@ -94,3 +94,11 @@ class TinyDbPeriod(TinyDB, Period):
         entry = self.find_entry(**kwargs)
         if entry:
             self.remove(eids=[entry[0].eid])
+
+    def __str__(self):
+        result = []
+        for name, comparator in zip(["Earnings", "Expenses"], ["__gt__", "__lt__"]):
+            elements = self.search(getattr(where("value"), comparator)(0))
+            model = Model.from_tinydb(elements, name)
+            result.append(str(model))
+        return result

@@ -31,6 +31,7 @@ class Server(object):
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
         self._response = []
+        self._command = None
 
     @abstractproperty
     def _file_suffix(self):
@@ -45,7 +46,11 @@ class Server(object):
     def response(self):
         """Query and reset the server response. A list of strings is returned.
         This avoid serialization issues with Pyro4."""
-        result = [str(BaseEntry.from_tinydb_element(e)) for e in self._response]
+        result = []
+        if self._command == "find":
+            result = [str(BaseEntry.from_tinydb_element(e)) for e in self._response]
+        elif self._command == "print":
+            result = self._response
         self._response = []
         return result
 
@@ -56,6 +61,7 @@ class Server(object):
         stored in the `response` attribute.
         Calling `stop` causes the Pyro daemon request loop to terminate.
         """
+        self._command = command
         if command == "stop":
             self._running = False
         else:
@@ -63,7 +69,7 @@ class Server(object):
                     "add": "add_entry",
                     "rm": "remove_entry",
                     "find": "find_entry",
-                    "print": "all"
+                    "print": "__str__"
                     }
             response = getattr(self._period, command2method[command])(**kwargs)
             if response is not None:
