@@ -17,7 +17,8 @@ def suite():
     suite.addTest(unittest.TestSuite(map(BaseEntryTestCase, tests)))
     tests = [
             'test_name',
-            'test_sum'
+            'test_sum',
+            'test_str'
             ]
     suite.addTest(unittest.TestSuite(map(CategoryEntryTestCase, tests)))
     tests = [
@@ -50,6 +51,9 @@ class CategoryEntryTestCase(unittest.TestCase):
 
     def test_sum(self):
         self.assertEqual(self.entry.sum_item.data(), QVariant(0.0))
+
+    def test_str(self):
+        self.assertEqual(str(self.entry), "Gifts" + 14*" " + "  0.00" + 11*" ")
 
 class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
     def setUp(self):

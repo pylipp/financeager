@@ -57,7 +57,7 @@ class BaseEntry(Entry):
     def __str__(self):
         """Return a formatted string representing the entry."""
         attributes = [unicode(getattr(self, attrib).text()) for attrib in
-                BaseEntry.ITEM_TYPES.keys()]
+                self.ITEM_TYPES.keys()]
         return "{:16.16} {:>6} {}".format(*attributes)
 
 class CategoryEntry(Entry):
@@ -65,3 +65,11 @@ class CategoryEntry(Entry):
 
     ITEM_TYPES = OrderedDict((
         ("name", CategoryItem), ("sum", SumItem), ("empty", EmptyItem)))
+
+    def __str__(self):
+        """Return a formatted string representing the entry. This is supposed
+        to be longer than the BaseEntry representation so that the latter is
+        indented."""
+        attributes = [unicode(getattr(self, attrib).text()) for attrib in
+                self.ITEM_TYPES.keys()]
+        return "{:18} {:>6} {:10}".format(*attributes)
