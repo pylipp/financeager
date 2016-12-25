@@ -96,9 +96,21 @@ class TinyDbPeriod(TinyDB, Period):
             self.remove(eids=[entry[0].eid])
 
     def __str__(self):
-        result = []
+        models = []
         for name, comparator in zip(["Earnings", "Expenses"], ["__gt__", "__lt__"]):
             elements = self.search(getattr(where("value"), comparator)(0))
             model = Model.from_tinydb(elements, name)
-            result.append(str(model))
-        return result
+            models.append(str(model).splitlines())
+        result = []
+        for row in zip(*models):
+            result.append(" | ".join(row))
+        earnings_size = len(models[0])
+        expenses_size = len(models[1])
+        diff = earnings_size - expenses_size
+        if diff > 0:
+            for row in models[0][expenses_size:]:
+                result.append(row + " | ")
+        else:
+            for row in models[1][earnings_size:]:
+                result.append(34*" " + " | " + row)
+        return '\n'.join(result)

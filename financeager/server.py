@@ -50,7 +50,7 @@ class Server(object):
         if self._command == "find":
             result = [str(BaseEntry.from_tinydb_element(e)) for e in self._response]
         elif self._command == "print":
-            result = self._response
+            result = [self._response]
         self._response = []
         return result
 
