@@ -21,7 +21,9 @@ class Cli(object):
         subprocess.Popen("{} -m Pyro4.naming".format(sys.executable).split(),
                 stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
-        self._period_name = self._cl_kwargs.pop("period", str(Period.DEFAULT_NAME))
+        self._period_name = self._cl_kwargs.pop("period")
+        if self._period_name is None:
+            self._period_name = str(Period.DEFAULT_NAME)
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
