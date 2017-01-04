@@ -58,7 +58,7 @@ class BaseEntry(Entry):
         """Return a formatted string representing the entry."""
         attributes = [unicode(getattr(self, attrib).text()) for attrib in
                 self.ITEM_TYPES.keys()]
-        return "{:16.16} {:>6} {}".format(*attributes)
+        return "{:16.16} {:>8} {}".format(*attributes)
 
 class CategoryEntry(Entry):
     """Wrapper around a Category- and SumItem tuple."""
@@ -72,4 +72,4 @@ class CategoryEntry(Entry):
         indented."""
         attributes = [unicode(getattr(self, attrib).text()) for attrib in
                 self.ITEM_TYPES.keys()]
-        return "{:18} {:>6} {:10}".format(*attributes)
+        return "{:18} {:>8} {:10}".format(*attributes)
