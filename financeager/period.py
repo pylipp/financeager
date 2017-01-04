@@ -116,5 +116,5 @@ class TinyDbPeriod(TinyDB, Period):
                 result.append(row + " | ")
         else:
             for row in models[1][earnings_size:]:
-                result.append(34*" " + " | " + row)
+                result.append(38*" " + " | " + row)
         return '\n'.join(result)

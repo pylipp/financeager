@@ -108,7 +108,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.model), '\n'.join([
-                "{:^36}".format("Model"),
+                "{:^38}".format("Model"),
                 "Name               Value    Date" + 6*" ",
                 "Groceries             66.60" + 11*" ",
                 "  Aldi                66.60 2016-11-08"]))

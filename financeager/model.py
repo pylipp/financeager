@@ -33,7 +33,7 @@ class Model(QStandardItemModel):
         return model
 
     def __str__(self):
-        result = ["{:^36}".format("Model") if self._name is None else self._name]
+        result = ["{:^38}".format("Model" if self._name is None else self._name)]
 
         result.append("{:18} {:8} {:10}".format(*[
             unicode(self.headerData(col, Qt.Horizontal).toString()) for col in
