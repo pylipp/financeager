@@ -38,7 +38,7 @@ def suite():
 class CreateEmptyPeriodTestCase(unittest.TestCase):
     def test_default_name(self):
         period = XmlPeriod()
-        self.assertEqual(period.name, "2016")
+        self.assertEqual(period.name, "2017")
 
 class AddExpenseEntryTestCase(unittest.TestCase):
     def setUp(self):
