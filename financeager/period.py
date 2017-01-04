@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from PyQt4.QtCore import QDate
 import xml.etree.ElementTree as ET
 from tinydb import TinyDB, Query, where
+from tinydb.queries import QueryImpl
 import os.path
 from financeager.model import Model
 from financeager.entries import BaseEntry
@@ -74,19 +75,22 @@ class TinyDbPeriod(TinyDB, Period):
 
     def add_entry(self, **kwargs):
         value = kwargs["value"]
-        name = kwargs["name"]
+        name = kwargs["name"].lower()
         date = kwargs.get("date")
         if date is None:
             date = str(DateItem())
         category = kwargs.get("category")
+        if category is not None:
+            category = category.lower()
         self.insert(dict(name=name, value=value, date=date, category=category))
 
     def find_entry(self, **kwargs):
         entry = Query()
-        kwarg, value = kwargs.popitem()
-        query_impl = (getattr(entry, kwarg) == value)
-        for kwarg in kwargs:
-            query_impl = query_impl & (getattr(entry, kwarg) == kwargs[kwarg])
+        query_impl = QueryImpl(lambda _: True, 0)
+        for kwarg, value in kwargs.viewitems():
+            if isinstance(value, str) or isinstance(value, unicode):
+                value = value.lower()
+            query_impl = query_impl & (getattr(entry, kwarg) == value)
         result = self.search(query_impl)
         return result
 
