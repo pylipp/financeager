@@ -6,7 +6,7 @@ import os
 import sys
 import time
 from financeager.period import Period
-from financeager.server import XmlServer, TinyDbServer
+from financeager.server import XmlServer, TinyDbServer, CONFIG_DIR
 
 Pyro4.config.COMMTIMEOUT = 1.0
 
@@ -21,13 +21,17 @@ class Cli(object):
         subprocess.Popen("{} -m Pyro4.naming".format(sys.executable).split(),
                 stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
-        self._period_name = self._cl_kwargs.pop("period")
+        self._period_name = self._cl_kwargs.pop("period", None)
         if self._period_name is None:
             self._period_name = str(Period.DEFAULT_NAME)
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
         server_name = self._server_cls.name(self._period_name)
+
+        if command == "list":
+            self._print_list()
+            return
 
         if command != "stop":
             self._start_period_server(server_name)
@@ -55,3 +59,19 @@ class Cli(object):
                         self._server_cls.__name__])
             # wait for launch to avoid failure when creating Proxy
             time.sleep(1.1*Pyro4.config.COMMTIMEOUT)
+
+    def _print_list(self):
+        running = self._cl_kwargs.pop("running", False)
+        if running:
+            name_server = Pyro4.locateNS()
+            registered_servers = name_server.list()
+            registered_servers.pop("Pyro.NameServer")
+            for server in registered_servers:
+                print(server)
+                print()
+        else:
+            for file in os.listdir(CONFIG_DIR):
+                filename, extension = os.path.splitext(file)
+                if extension in [".xml", ".json"]:
+                    print(filename)
+                    print()

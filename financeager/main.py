@@ -39,6 +39,11 @@ def parse_command():
             help="show the period database")
     print_parser.add_argument(*period_args, **period_kwargs)
 
+    list_parser = subparsers.add_parser("list",
+            help="list all databases")
+    list_parser.add_argument("-r", "--running", action='store_true',
+            help="list only databases that are currently running")
+
     return parser.parse_args()
 
 def main():
