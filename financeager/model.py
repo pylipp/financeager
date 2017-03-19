@@ -1,11 +1,17 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from PyQt4.QtGui import QStandardItemModel
-from PyQt4.QtCore import (QString, QVariant, Qt)
+from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtCore import (QVariant, Qt)
 import xml.etree.ElementTree as ET
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import ValueItem, CategoryItem
+
+try:
+    QString = unicode
+except NameError:
+    # Python 3
+    QString = str
 
 class Model(QStandardItemModel):
     """Holds Entries in hierarchical order. First-level children are
@@ -36,7 +42,7 @@ class Model(QStandardItemModel):
         result = ["{:^38}".format("Model" if self._name is None else self._name)]
 
         result.append("{:18} {:8} {:10}".format(*[
-            unicode(self.headerData(col, Qt.Horizontal).toString()) for col in
+            self.headerData(col, Qt.Horizontal) for col in
             range(self.columnCount())])
             )
 
@@ -73,7 +79,7 @@ class Model(QStandardItemModel):
         The corresponding SumItem is updated.
         """
         item = self.find_name_item(name=entry.name_item.data(),
-                date=entry.date_item.data(), category=category)
+                date=entry.date_item.text(), category=category)
         category_item = item.parent()
         self.removeRow(item.row(), item.index().parent())
         if category_item.rowCount():
@@ -89,7 +95,7 @@ class Model(QStandardItemModel):
         raises: KeyError if `item_type` not found.
         yields: CategoryItem, SumItem
         """
-        col = CategoryEntry.ITEM_TYPES.keys().index(item_type)
+        col = list(CategoryEntry.ITEM_TYPES.keys()).index(item_type)
         for row in range(self.rowCount()):
             yield self.item(row, col)
 
@@ -100,7 +106,7 @@ class Model(QStandardItemModel):
         raises: KeyError if `item_type` not found.
         yields: NameItem, ValueItem, DateItem
         """
-        col = BaseEntry.ITEM_TYPES.keys().index(item_type)
+        col = list(BaseEntry.ITEM_TYPES.keys()).index(item_type)
         for category_item in self.category_entry_items("name"):
             for row in range(category_item.rowCount()):
                 yield category_item.child(row, col)
@@ -112,9 +118,10 @@ class Model(QStandardItemModel):
         yield: QString
         """
         item_generator = self.category_entry_items("name")
+        # TODO there has to be a better way
         while True:
             try:
-                yield item_generator.next().data()
+                yield next(item_generator).data()
             except StopIteration:
                 break
 
@@ -141,7 +148,7 @@ class Model(QStandardItemModel):
             category_item = item.parent()
             if category_item is None:
                 return
-            col = BaseEntry.ITEM_TYPES.keys().index("value")
+            col = list(BaseEntry.ITEM_TYPES.keys()).index("value")
             new_sum = 0.0
             for row in range(category_item.rowCount()):
                 new_sum += category_item.child(row, col).value
@@ -155,19 +162,19 @@ class Model(QStandardItemModel):
         `None` is returned. The matching is performed case-INsensitive. If no
         category specified, the `CategoryItem.DEFAULT_NAME` category is
         queried.
+        kwargs values must be of type str.
         """
         category_name = kwargs.pop("category", CategoryItem.DEFAULT_NAME)
-        attributes = set()
-        for item_type in kwargs:
-            attributes.add(QVariant(kwargs[item_type]).toString().toLower())
+        attributes = {v.lower() for v in kwargs.values()}
         category_item = self.find_category_item(category_name)
         if category_item is None:
             return None
         for row in range(category_item.rowCount()):
             name_item = category_item.child(row)
             other_attributes = set()
-            other_attributes.add(name_item.data().toString())
-            other_attributes.add(name_item.entry.date_item.data().toString())
+            # use .data() to get lowercase name
+            other_attributes.add(name_item.data())
+            other_attributes.add(name_item.entry.date_item.text())
             if attributes.issubset(other_attributes):
                 return name_item
         return None

@@ -2,13 +2,19 @@
 from __future__ import unicode_literals
 import unittest
 
-from PyQt4.QtCore import QString, QDate, QVariant
+from PyQt5.QtCore import QDate, QVariant
 import xml.etree.ElementTree as ET
 from tinydb import database
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import (CategoryItem, NameItem)
 
+
+try:
+    QString = unicode
+except NameError:
+    # Python 3
+    QString = str
 
 def suite():
     suite = unittest.TestSuite()
@@ -257,7 +263,7 @@ class XmlConversionTestCase(unittest.TestCase):
                 category=self.item_category)
         parsed_item = self.parsed_model.find_name_item(name=self.item_name,
                 category=self.item_category)
-        self.assertItemsEqual(
+        self.assertCountEqual(
                 [str(i) for i in item.entry.items],
                 [str(i) for i in parsed_item.entry.items])
 
