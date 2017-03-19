@@ -13,37 +13,37 @@ DISCLAIMER: Defs not BUG-FREE!
 
 NOTE
 ----
-You're currently on the `cli` branch which is under active development.
+You're currently on the `cli_py3` branch which is under active development.
 The code base is being refactored. The idea is to first have a command line
 tool and successively built a GUI on top.
 
 GENERAL USAGE
 -------------
 ### Installation
+Install the dependencies (I'm on Ubuntu Trusty):
+
+    sudo apt-get install python3-pyqt5
+
 Create a virtual environment
 
-    mkvirtualenv --python=/usr/lib/python2.7 financeager
+    mkvirtualenv --python=/usr/bin/python3 financeager
 
-Clone the repo, checkout branch `cli`
-
-    git clone https://github.com/pylipp/financeager.git
-    git checkout -b cli cli
-
-Install via pip
-
-    pip install -r requirements.txt -e .
-
-Regarding the `PyQt4` dependency, I cheated by creating links to the packages
-that came with my installation of git-cola.
+Create links for the virtual environment to find PyQt5
 
     ln -s /usr/lib/python3/dist-packages/PyQt5 ~/.virtualenvs/financeager/lib/python3.5/site-packages/PyQt5
-    ln -s /usr/lib/python2.7/dist-packages/sip.x86_64-linux-gnu.so ~/.virtualenvs/financeager/lib/python2.7/site-packages/sip.x86_64-linux-gnu.so
+
+Clone the repo, the branch `cli_py3` is checked out by default
+
+    git clone https://github.com/pylipp/financeager.git
+
+Install (uses pip)
+
+    make install
 
 ### Testing
-The command line functionality is not fully implemented yet. However, you're
-invited to run the tests from the root directory:
+You're invited to run the tests from the root directory:
 
-    python -m unittest discover
+    make test
 
 KNOWN BUGS
 ----------
@@ -51,3 +51,8 @@ KNOWN BUGS
 
 FUTURE FEATURES
 ---------------
+- select from multiple options if possible (e.g. when searching or deleting an entry)
+- repetitive entries
+- stacked layout for `print`
+- detect category from entry name
+- display entries of single month
