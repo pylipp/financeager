@@ -2,10 +2,16 @@
 from __future__ import unicode_literals
 import unittest
 
-from PyQt4.QtCore import QString, QDate, QVariant
+from PyQt5.QtCore import QDate, QVariant
 from tinydb import database
 from financeager.entries import BaseEntry, CategoryEntry
 
+
+try:
+    QString = unicode
+except NameError:
+    # Python 3
+    QString = str
 
 def suite():
     suite = unittest.TestSuite()

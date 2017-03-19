@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from items import (CategoryItem, SumItem, EmptyItem, NameItem, DateItem,
+from .items import (CategoryItem, SumItem, EmptyItem, NameItem, DateItem,
         ValueItem)
 from abc import ABCMeta
 from collections import OrderedDict
@@ -35,7 +35,7 @@ class Entry(object):
     def __getattr__(self, name):
         """Reimplementation for accessing an item member."""
         name = name.replace("_item", "")
-        return self._items[self.ITEM_TYPES.keys().index(name)]
+        return self._items[list(self.ITEM_TYPES.keys()).index(name)]
 
     @property
     def items(self):
@@ -56,7 +56,7 @@ class BaseEntry(Entry):
 
     def __str__(self):
         """Return a formatted string representing the entry."""
-        attributes = [unicode(getattr(self, attrib).text()) for attrib in
+        attributes = [getattr(self, attrib).text() for attrib in
                 self.ITEM_TYPES.keys()]
         return "{:16.16} {:>8} {}".format(*attributes)
 
@@ -70,6 +70,6 @@ class CategoryEntry(Entry):
         """Return a formatted string representing the entry. This is supposed
         to be longer than the BaseEntry representation so that the latter is
         indented."""
-        attributes = [unicode(getattr(self, attrib).text()) for attrib in
+        attributes = [getattr(self, attrib).text() for attrib in
                 self.ITEM_TYPES.keys()]
         return "{:18} {:>8} {:10}".format(*attributes)
