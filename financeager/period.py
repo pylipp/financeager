@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from PyQt4.QtCore import QDate
+from PyQt5.QtCore import QDate
 import xml.etree.ElementTree as ET
 from tinydb import TinyDB, Query, where
 from tinydb.queries import QueryImpl
@@ -87,8 +87,8 @@ class TinyDbPeriod(TinyDB, Period):
     def find_entry(self, **kwargs):
         entry = Query()
         query_impl = QueryImpl(lambda _: True, 0)
-        for kwarg, value in kwargs.viewitems():
-            if isinstance(value, str) or isinstance(value, unicode):
+        for kwarg, value in kwargs.items():
+            if isinstance(value, str):
                 value = value.lower()
             query_impl = query_impl & (getattr(entry, kwarg) == value)
         result = self.search(query_impl)

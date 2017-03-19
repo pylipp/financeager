@@ -27,8 +27,9 @@ class StartCliTestCase(unittest.TestCase):
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],
                 stdin=ps_process.stdout).splitlines()
-        self.server_pid = self.find_pid_by_name("start_server.py 0")
-        self.name_server_pid = self.find_pid_by_name("Pyro4.naming")
+        # check_output returns byte strings, hence prefix strings being searched for
+        self.server_pid = self.find_pid_by_name(b"start_server.py 0")
+        self.name_server_pid = self.find_pid_by_name(b"Pyro4.naming")
 
     def find_pid_by_name(self, name):
         for process in self.python_processes:
