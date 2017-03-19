@@ -85,8 +85,7 @@ class ComplexWordNameItemTestCase(unittest.TestCase):
         self.assertEqual(self.item.data(), QVariant("miete märz-juli!"))
 
     def test_str(self):
-        #FIXME
-        self.assertEqual(str(self.item), "miete märz-juli!")
+        self.assertEqual(unicode(self.item), "miete m\xe4rz-juli!")
 
 class SetTextNameItemTestCase(unittest.TestCase):
     def setUp(self):
