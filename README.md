@@ -36,7 +36,7 @@ Install via pip
 Regarding the `PyQt4` dependency, I cheated by creating links to the packages
 that came with my installation of git-cola.
 
-    ln -s /usr/lib/python2.7/dist-packages/PyQt4 ~/.virtualenvs/financeager/lib/python2.7/site-packages/PyQt4
+    ln -s /usr/lib/python3/dist-packages/PyQt5 ~/.virtualenvs/financeager/lib/python3.5/site-packages/PyQt5
     ln -s /usr/lib/python2.7/dist-packages/sip.x86_64-linux-gnu.so ~/.virtualenvs/financeager/lib/python2.7/site-packages/sip.x86_64-linux-gnu.so
 
 ### Testing
