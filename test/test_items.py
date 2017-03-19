@@ -4,8 +4,14 @@ import unittest
 
 from financeager.items import (DateItem, ExpenseItem, EmptyItem, NameItem,
     ValueItem, DataItem, SumItem)
-from PyQt4.QtCore import QString, QDate, QVariant
+from PyQt5.QtCore import QDate, QVariant
 
+
+try:
+    QString = unicode
+except NameError:
+    # Python 3
+    QString = str
 
 def suite():
     suite = unittest.TestSuite()
@@ -46,13 +52,13 @@ class DataItemTestCase(unittest.TestCase):
         self.item = DataItem(None)
 
     def test_text_is_empty(self):
-        self.assertTrue(self.item.text().isEmpty())
+        self.assertEqual(0, len(self.item.text()))
 
     def test_entry_is_none(self):
         self.assertIsNone(self.item.entry)
 
     def test_data_is_null(self):
-        self.assertTrue(self.item.data().isNull())
+        self.assertIsNone(self.item.data())
 
 class EmptyItemTestCase(unittest.TestCase):
     def setUp(self):
@@ -85,7 +91,7 @@ class ComplexWordNameItemTestCase(unittest.TestCase):
         self.assertEqual(self.item.data(), QVariant("miete märz-juli!"))
 
     def test_str(self):
-        self.assertEqual(unicode(self.item), "miete m\xe4rz-juli!")
+        self.assertEqual(str(self.item), "miete märz-juli!")
 
 class SetTextNameItemTestCase(unittest.TestCase):
     def setUp(self):
@@ -172,8 +178,8 @@ class InvalidDateItemTestCase(unittest.TestCase):
         self.assertEqual(self.item.data(), QDate.currentDate())
 
     def test_str(self):
-        self.assertEqual(str(self.item), unicode(
-                QDate.currentDate().toString(DateItem.FORMAT)))
+        self.assertEqual(str(self.item),
+                QDate.currentDate().toString(DateItem.FORMAT))
 
 class SetTextDateItemTestCase(unittest.TestCase):
     def setUp(self):

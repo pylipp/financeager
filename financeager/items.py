@@ -14,9 +14,15 @@ __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
 
 
-from PyQt4.QtGui import QStandardItem
-from PyQt4.QtCore import (QString, QDate)
+from PyQt5.QtGui import QStandardItem
+from PyQt5.QtCore import QDate
 from abc import ABCMeta
+
+try:
+    QString = unicode
+except NameError:
+    # Python 3
+    QString = str
 
 class DataItem(QStandardItem):
     """Abstract base class for all items that hold data.
@@ -40,7 +46,7 @@ class DataItem(QStandardItem):
         return self._entry
 
     def __str__(self):
-        return unicode(self.data().toString())
+        return "{}".format(self.data())
 
 class EmptyItem(DataItem):
     """Represents an empty item in the third column of a category row. """
@@ -64,13 +70,12 @@ class NameItem(DataItem):
 
     def text(self):
         # workaround because QString has no capitalize method
-        text_ = unicode(self.data().toString())
-        capitalized = u' '.join([t.capitalize() for t in text_.split()])
+        capitalized = u' '.join([t.capitalize() for t in self.data().split()])
         return QString(capitalized)
 
     def setText(self, text_):
         super(NameItem, self).setText(text_)
-        self.setData(text_.toLower())
+        self.setData(text_.lower())
 
 class CategoryItem(NameItem):
     """Item representing the name of a category.
@@ -101,24 +106,26 @@ class ValueItem(DataItem):
         # TODO add sign attribute
 
     def text(self):
-        value, ok = self.data().toFloat()
         # should not fail...
         # TODO negative numbers should be displayed without minus sign
-        if ok:
-            return QString.number(value, 'f', 2)
+        return "{:.2f}".format(self.data())
 
     def setText(self, text_):
-        value, ok = text_.toFloat()
-        if ok:
-            super(ValueItem, self).setText(text_)
-            self.setData(value)
+        value = float(text_)
+        super(ValueItem, self).setText(text_)
+        self.setData(value)
 
     @property
     def value(self):
-        val, ok = self.data().toFloat()
-        if ok:
-            return val
-        return 0.0
+        return self.data()
+
+    def __str__(self):
+        """Return integer values without trailing zeros and floating point
+        values with two digit precision."""
+        prec = 2
+        if int(self.value) == self.value:
+            prec = 0
+        return "{v:.{p}f}".format(v=self.value, p=prec)
 
 class DateItem(DataItem):
     """Item representing the date of an entry.
@@ -135,13 +142,17 @@ class DateItem(DataItem):
 
     def text(self):
         # assume the conversion to date does not fail
-        return self.data().toDate().toString(DateItem.FORMAT)
+        return self.data().toString(DateItem.FORMAT)
 
     def setText(self, text_):
         date  = QDate.fromString(text_, DateItem.FORMAT)
         if date.isValid():
             super(DateItem, self).setText(text_)
             self.setData(date)
+
+    def __str__(self):
+        """Override default DataItem behaviour."""
+        return self.text()
 
 # deprecated, replaced by ValueItem
 class ExpenseItem(QStandardItem):
