@@ -70,7 +70,7 @@ class XmlPeriod(Period):
 class TinyDbPeriod(TinyDB, Period):
 
     def __init__(self, filepath):
-        super(TinyDbPeriod, self).__init__(filepath)
+        super(TinyDbPeriod, self).__init__(filepath, default_table="standard")
         self._name = os.path.splitext(os.path.basename(filepath))[0]
 
     def add_entry(self, **kwargs):
