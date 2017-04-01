@@ -30,7 +30,8 @@ def suite():
     suite.addTest(unittest.TestSuite(map(PeriodOnlyXmlConversionTestCase, tests)))
     tests = [
             'test_find_entry',
-            'test_remove_entry'
+            'test_remove_entry',
+            'test_print_entry_filter_date'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -100,7 +101,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
     def setUp(self):
         self.filepath = "678.json"
         self.period = TinyDbPeriod(self.filepath)
-        self.period.add_entry(name="Bicycle", value=999.99)
+        self.period.add_entry(name="Bicycle", value=-999.99, date="678-01-01")
 
     def test_find_entry(self):
         self.assertIsInstance(self.period.find_entry(name="Bicycle")[0],
@@ -110,7 +111,17 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.period.remove_entry(category=None)
         self.assertEqual(0, len(self.period))
 
+    def test_print_entry_filter_date(self):
+        self.period.add_entry(name="Xmas gifts", value=500, date="678-12-23")
+        models = self.period._create_models(date="678-12")
+        self.assertEqual(models[0].rowCount(), 1)
+        self.assertEqual(models[1].rowCount(), 0)
+        category_item = models[0].item(0)
+        entry_name_item = category_item.child(0)
+        self.assertEqual(entry_name_item.text(), "Xmas Gifts")
+
     def tearDown(self):
+        self.period.close()
         os.remove(self.filepath)
 
 if __name__ == '__main__':

@@ -69,7 +69,7 @@ class Server(object):
                     "add": "add_entry",
                     "rm": "remove_entry",
                     "find": "find_entry",
-                    "print": "__str__"
+                    "print": "print_entries"
                     }
             response = getattr(self._period, command2method[command])(**kwargs)
             if response is not None:
