@@ -108,7 +108,25 @@ class TinyDbPeriod(TinyDB, Period):
             elements = self.search(query_impl)
             models.append(Model.from_tinydb(elements, name))
         return models
+
+    def print_entries(self, date=None, stacked_layout=False):
+        models_str = [str(model) for model in self._create_models(date=date)]
+        if stacked_layout:
+            return "{}\n\n{}\n\n{}".format(
+                    models_str[0], 38*"-", models_str[1]
+                    )
         else:
-            for row in models[1][earnings_size:]:
-                result.append(38*" " + " | " + row)
-        return '\n'.join(result)
+            result = []
+            models_str = [str(model).splitlines() for model in models]
+            for row in zip(*models_str):
+                result.append(" | ".join(row))
+            earnings_size = len(models_str[0])
+            expenses_size = len(models_str[1])
+            diff = earnings_size - expenses_size
+            if diff > 0:
+                for row in models_str[0][expenses_size:]:
+                    result.append(row + " | ")
+            else:
+                for row in models_str[1][earnings_size:]:
+                    result.append(38*" " + " | " + row)
+            return '\n'.join(result)

@@ -37,6 +37,8 @@ def parse_command():
 
     print_parser = subparsers.add_parser("print",
             help="show the period database")
+    print_parser.add_argument("-d", "--date", default=None,
+            help="filter entries acc. to a date (year or month)")
     print_parser.add_argument(*period_args, **period_kwargs)
 
     list_parser = subparsers.add_parser("list",
