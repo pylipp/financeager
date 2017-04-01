@@ -26,7 +26,7 @@ class Model(QStandardItemModel):
         self._name = name
         self.itemChanged.connect(self._update_sum_item)
         self.setHorizontalHeaderLabels(
-                [k.capitalize() for k in BaseEntry.ITEM_TYPES.keys()])
+                [k.capitalize() for k in BaseEntry.ITEM_TYPES])
         if root_element is not None:
             self.create_from_xml(root_element)
 
@@ -95,7 +95,7 @@ class Model(QStandardItemModel):
         raises: KeyError if `item_type` not found.
         yields: CategoryItem, SumItem
         """
-        col = list(CategoryEntry.ITEM_TYPES.keys()).index(item_type)
+        col = list(CategoryEntry.ITEM_TYPES).index(item_type)
         for row in range(self.rowCount()):
             yield self.item(row, col)
 
@@ -106,7 +106,7 @@ class Model(QStandardItemModel):
         raises: KeyError if `item_type` not found.
         yields: NameItem, ValueItem, DateItem
         """
-        col = list(BaseEntry.ITEM_TYPES.keys()).index(item_type)
+        col = list(BaseEntry.ITEM_TYPES).index(item_type)
         for category_item in self.category_entry_items("name"):
             for row in range(category_item.rowCount()):
                 yield category_item.child(row, col)
@@ -148,7 +148,7 @@ class Model(QStandardItemModel):
             category_item = item.parent()
             if category_item is None:
                 return
-            col = list(BaseEntry.ITEM_TYPES.keys()).index("value")
+            col = list(BaseEntry.ITEM_TYPES).index("value")
             new_sum = 0.0
             for row in range(category_item.rowCount()):
                 new_sum += category_item.child(row, col).value
