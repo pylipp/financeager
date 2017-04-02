@@ -1,11 +1,16 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os.path
+from dateutil import rrule
+from datetime import datetime as dt
+
 from PyQt5.QtCore import QDate
 import xml.etree.ElementTree as ET
 from tinydb import TinyDB, Query, where
+from tinydb.database import Element
 from tinydb.queries import QueryImpl
-import os.path
+
 from financeager.model import Model
 from financeager.entries import BaseEntry
 from financeager.items import DateItem
@@ -82,13 +87,63 @@ class TinyDbPeriod(TinyDB, Period):
         category = kwargs.get("category")
         if category is not None:
             category = category.lower()
-        self.insert(dict(name=name, value=value, date=date, category=category))
+
+        repetitive = kwargs.get("repetitive", False)
+        if repetitive:
+            frequency = kwargs["frequency"].lower()
+            start = kwargs.get("start", str(DateItem()))
+            end = kwargs.get("end")
+            self.table("repetitive").insert(
+                    dict(
+                        name=name, value=value, category=category,
+                        frequency=frequency, start=start, end=end
+                        ))
+        else:
+            self.insert(
+                    dict(
+                        name=name, value=value, date=date, category=category))
 
     def _search_all_tables(self, query_impl):
-        elements = []
-        for table_name in self.tables():
-            elements.extend(self.table(table_name).search(query_impl))
+        elements = self.search(query_impl)
+
+        if len(self.tables()) > 1:
+            repetitive_elements = self.table("repetitive").search(query_impl)
+
+            for element in repetitive_elements:
+                elements.extend(list(self._create_repetitive_elements(element)))
+
         return elements
+
+    def _create_repetitive_elements(self, element):
+        name = element["name"]
+        value = element["value"]
+        category = element.get("category")
+        frequency = element["frequency"].upper()
+        start = element["start"]
+        end = element.get("end")
+
+        if end is None:
+            end = dt.now()
+            last_second = dt(int(self._name), 12, 31, 23, 59, 59)
+            if end > last_second:
+                end = last_second
+        else:
+            end = dt.strptime(end, DateItem.FORMAT)
+
+        rule = rrule.rrule(
+                getattr(rrule, frequency),
+                dtstart=dt.strptime(start, DateItem.FORMAT),
+                until=end
+                )
+
+        for date in rule:
+            element_name = name
+            if frequency == "MONTHLY":
+                element_name = "{} {}".format(name, date.strftime("%B").lower())
+            yield Element(dict(
+                name=element_name, value=value, category=category,
+                date=date.strftime(DateItem.FORMAT)
+                ))
 
     def find_entry(self, **kwargs):
         query_impl = None
