@@ -172,14 +172,14 @@ class InvalidDateItemTestCase(unittest.TestCase):
         self.item = DateItem()
 
     def test_text(self):
-        self.assertEqual(self.item.text(), QDate.currentDate().toString(DateItem.FORMAT))
+        self.assertEqual(self.item.text(), QDate.currentDate().toString(DateItem.QT_FORMAT))
 
     def test_data(self):
         self.assertEqual(self.item.data(), QDate.currentDate())
 
     def test_str(self):
         self.assertEqual(str(self.item),
-                QDate.currentDate().toString(DateItem.FORMAT))
+                QDate.currentDate().toString(DateItem.QT_FORMAT))
 
 class SetTextDateItemTestCase(unittest.TestCase):
     def setUp(self):

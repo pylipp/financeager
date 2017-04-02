@@ -133,19 +133,22 @@ class DateItem(DataItem):
     Holds a `QDate` as data. If an invalid data is given at initialization,
     today's date is used instead.
     """
-    FORMAT = "yyyy-MM-dd"
+
+    QT_FORMAT = "yyyy-MM-dd"
+    FORMAT = "%Y-%m-%d"
+
     def __init__(self, data="", entry=None):
-        date = QDate.fromString(data, DateItem.FORMAT)
+        date = QDate.fromString(data, DateItem.QT_FORMAT)
         if not date.isValid():
             date = QDate.currentDate()
         super(DateItem, self).__init__(date, entry)
 
     def text(self):
         # assume the conversion to date does not fail
-        return self.data().toString(DateItem.FORMAT)
+        return self.data().toString(DateItem.QT_FORMAT)
 
     def setText(self, text_):
-        date  = QDate.fromString(text_, DateItem.FORMAT)
+        date  = QDate.fromString(text_, DateItem.QT_FORMAT)
         if date.isValid():
             super(DateItem, self).setText(text_)
             self.setData(date)
