@@ -51,8 +51,10 @@ KNOWN BUGS
 
 FUTURE FEATURES
 ---------------
-- select from multiple options if possible (e.g. when searching or deleting an entry)
-- repetitive entries
-- stacked layout for `print`
-- detect category from entry name
-- display entries of single month
+- [ ] select from multiple options if possible (e.g. when searching or deleting an entry)
+- [ ] repetitive entries
+- [x] stacked layout for `print`
+- [ ] detect category from entry name
+- [x] display entries of single month
+- [ ] create Python package
+- [ ] set up Travis CI
