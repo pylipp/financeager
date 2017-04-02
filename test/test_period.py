@@ -99,9 +99,9 @@ class PeriodOnlyXmlConversionTestCase(unittest.TestCase):
 
 class TinyDbPeriodTestCase(unittest.TestCase):
     def setUp(self):
-        self.filepath = "678.json"
+        self.filepath = "1901.json"
         self.period = TinyDbPeriod(self.filepath)
-        self.period.add_entry(name="Bicycle", value=-999.99, date="678-01-01")
+        self.period.add_entry(name="Bicycle", value=-999.99, date="1901-01-01")
 
     def test_find_entry(self):
         self.assertIsInstance(self.period.find_entry(name="Bicycle")[0],
@@ -112,8 +112,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertEqual(0, len(self.period))
 
     def test_print_entry_filter_date(self):
-        self.period.add_entry(name="Xmas gifts", value=500, date="678-12-23")
-        models = self.period._create_models(date="678-12")
+        self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
+        models = self.period._create_models(date="1901-12")
         self.assertEqual(models[0].rowCount(), 1)
         self.assertEqual(models[1].rowCount(), 0)
         category_item = models[0].item(0)
