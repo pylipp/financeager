@@ -173,8 +173,9 @@ class TinyDbPeriod(TinyDB, Period):
         return models
 
     def print_entries(self, date=None, stacked_layout=False):
-        models_str = [str(model) for model in self._create_models(date=date)]
+        models = self._create_models(date=date)
         if stacked_layout:
+            models_str = [str(model) for model in models]
             return "{}\n\n{}\n\n{}".format(
                     models_str[0], 38*"-", models_str[1]
                     )
