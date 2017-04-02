@@ -85,14 +85,16 @@ class TinyDbPeriod(TinyDB, Period):
         self.insert(dict(name=name, value=value, date=date, category=category))
 
     def find_entry(self, **kwargs):
-        entry = Query()
-        query_impl = QueryImpl(lambda _: True, 0)
+        query_impl = None
         for kwarg, value in kwargs.items():
             if isinstance(value, str):
                 value = value.lower()
-            query_impl = query_impl & (getattr(entry, kwarg) == value)
-        result = self.search(query_impl)
-        return result
+            if query_impl is None:
+                query_impl = (getattr(Query(), kwarg) == value)
+            else:
+                query_impl &= (getattr(Query(), kwarg) == value)
+        elements = self.search(query_impl)
+        return elements
 
     def remove_entry(self, **kwargs):
         entry = self.find_entry(**kwargs)
