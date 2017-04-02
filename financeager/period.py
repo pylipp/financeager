@@ -84,6 +84,12 @@ class TinyDbPeriod(TinyDB, Period):
             category = category.lower()
         self.insert(dict(name=name, value=value, date=date, category=category))
 
+    def _search_all_tables(self, query_impl):
+        elements = []
+        for table_name in self.tables():
+            elements.extend(self.table(table_name).search(query_impl))
+        return elements
+
     def find_entry(self, **kwargs):
         query_impl = None
         for kwarg, value in kwargs.items():
@@ -93,7 +99,7 @@ class TinyDbPeriod(TinyDB, Period):
                 query_impl = (getattr(Query(), kwarg) == value)
             else:
                 query_impl &= (getattr(Query(), kwarg) == value)
-        elements = self.search(query_impl)
+        elements = self._search_all_tables(query_impl)
         return elements
 
     def remove_entry(self, **kwargs):
@@ -107,7 +113,7 @@ class TinyDbPeriod(TinyDB, Period):
             query_impl = getattr(where("value"), comparator)(0)
             if date is not None:
                 query_impl &= (Query().date.matches("{}-*".format(date)))
-            elements = self.search(query_impl)
+            elements = self._search_all_tables(query_impl)
             models.append(Model.from_tinydb(elements, name))
         return models
 
