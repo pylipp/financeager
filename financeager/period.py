@@ -13,7 +13,7 @@ from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
 from financeager.model import Model
-from financeager.entries import BaseEntry
+from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import DateItem
 
 class Period(object):
@@ -229,4 +229,11 @@ class TinyDbPeriod(TinyDB, Period):
             else:
                 for row in models_str[1][earnings_size:]:
                     result.append(38*" " + " | " + row)
+            result.append(79*"=")
+            result.append(
+                    " | ".join(
+                        [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
+                            for m in models]
+                        )
+                    )
             return '\n'.join(result)
