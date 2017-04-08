@@ -55,7 +55,7 @@ FUTURE FEATURES
 - [x] repetitive entries
 - [ ] refactor TinyDbPeriod (return Model strings)
 - [x] stacked layout for `print`
-- [ ] detect category from entry name
+- [x] detect category from entry name
 - [x] display entries of single month
 - [ ] create Python package
 - [ ] set up Travis CI

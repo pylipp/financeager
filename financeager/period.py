@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os.path
+from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 
@@ -77,6 +78,16 @@ class TinyDbPeriod(TinyDB, Period):
     def __init__(self, filepath):
         super(TinyDbPeriod, self).__init__(filepath, default_table="standard")
         self._name = os.path.splitext(os.path.basename(filepath))[0]
+        self._create_category_cache()
+
+    def _create_category_cache(self):
+        """The category cache assigns a counter for each element name in the
+        database (excluding repetitive elements), keeping track of the
+        categories the element was labeled with. This allows deriving the
+        category of an element if not explicitly given."""
+        self._category_cache = defaultdict(Counter)
+        for element in self.all():
+            self._category_cache[element["name"]].update([element["category"]])
 
     def add_entry(self, **kwargs):
         value = kwargs["value"]
@@ -85,8 +96,15 @@ class TinyDbPeriod(TinyDB, Period):
         if date is None:
             date = str(DateItem())
         category = kwargs.get("category")
-        if category is not None:
+
+        # derive category if not given but unique in cache
+        if category is None:
+            if len(self._category_cache[name]) == 1:
+                category = self._category_cache[name].most_common(1)[0][0]
+        else:
             category = category.lower()
+
+        self._category_cache[name].update([category])
 
         repetitive_args = kwargs.get("repetitive", False)
         if repetitive_args:
@@ -173,9 +191,11 @@ class TinyDbPeriod(TinyDB, Period):
         return elements
 
     def remove_entry(self, **kwargs):
-        entry = self.find_entry(**kwargs)
-        if entry:
-            self.remove(eids=[entry[0].eid])
+        entries = self.find_entry(**kwargs)
+        if entries:
+            entry = entries[0]
+            self._category_cache[entry["name"]][entry["category"]] -= 1
+            self.remove(eids=[entry.eid])
 
     def _create_models(self, *query_impls):
         models = []

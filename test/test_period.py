@@ -34,6 +34,7 @@ def suite():
             'test_print_entry_filter_date',
             'test_repetitive_entries',
             'test_repetitive_quarter_yearly_entries'
+            ,'test_category_cache'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -147,6 +148,15 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         rep_element_names = {e["name"] for e in repetitive_elements}
         self.assertSetEqual(rep_element_names,
                 {"interest january", "interest april", "interest july", "interest october"})
+
+    def test_category_cache(self):
+        self.period.add_entry(name="walmart", value=-50.01,
+                category="groceries", date="1901-02-02")
+        self.period.add_entry(name="walmart", value=-0.99, date="1901-02-03")
+
+        groceries_elements = self.period.find_entry(category="groceries")
+        self.assertEqual(len(groceries_elements), 2)
+        self.assertEqual(sum([e["value"] for e in groceries_elements]), -51)
 
     def tearDown(self):
         self.period.close()
