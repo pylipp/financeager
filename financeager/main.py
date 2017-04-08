@@ -19,6 +19,11 @@ def parse_command():
     add_parser.add_argument("-c", "--category", default=None,
             help="entry category")
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
+
+    add_parser.add_argument("-r", "--repetitive", default=False,
+            nargs=argparse.REMAINDER, help="entry is repeated with given frequency,\
+                    from start date to end date (optional)")
+
     add_parser.add_argument(*period_args, **period_kwargs)
 
     stop_parser = subparsers.add_parser("stop",

@@ -88,11 +88,15 @@ class TinyDbPeriod(TinyDB, Period):
         if category is not None:
             category = category.lower()
 
-        repetitive = kwargs.get("repetitive", False)
-        if repetitive:
-            frequency = kwargs["frequency"].lower()
-            start = kwargs.get("start", str(DateItem()))
-            end = kwargs.get("end")
+        repetitive_args = kwargs.get("repetitive", False)
+        if repetitive_args:
+            frequency = repetitive_args[0].lower()
+            start = str(DateItem())
+            if len(repetitive_args) > 1:
+                start = repetitive_args[1]
+            end = None
+            if len(repetitive_args) > 2:
+                end = repetitive_args[2]
             self.table("repetitive").insert(
                     dict(
                         name=name, value=value, category=category,

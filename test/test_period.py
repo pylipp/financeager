@@ -122,8 +122,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertEqual(entry_name_item.text(), "Xmas Gifts")
 
     def test_repetitive_entries(self):
-        self.period.add_entry(name="rent", value=-500, start="1901-10-01",
-                repetitive=True, frequency="monthly")
+        self.period.add_entry(name="rent", value=-500,
+                repetitive=["monthly", "1901-10-01"])
         self.assertSetEqual({"standard", "repetitive"}, self.period.tables())
 
         element = self.period.table("repetitive").all()[0]
