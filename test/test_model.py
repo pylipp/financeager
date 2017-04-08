@@ -40,6 +40,7 @@ def suite():
     tests = [
             'test_two_entries_in_list',
             'test_category_sum'
+            ,'test_total_value'
             ]
     suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
     tests = [
@@ -149,6 +150,10 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_a_value + self.item_b_value,
                 self.model.category_sum(self.item_category), places=5)
+
+    def test_total_value(self):
+        self.assertAlmostEqual(self.item_a_value + self.item_b_value,
+                self.model.total_value(), places=5)
 
 class SetValueItemTextTestCase(unittest.TestCase):
     def setUp(self):
