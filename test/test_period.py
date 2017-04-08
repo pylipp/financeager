@@ -32,7 +32,8 @@ def suite():
             'test_find_entry',
             'test_remove_entry',
             'test_print_entry_filter_date',
-            'test_repetitive_entries'
+            'test_repetitive_entries',
+            'test_repetitive_quarter_yearly_entries'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -134,6 +135,18 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         rep_element_names = {e["name"] for e in repetitive_elements}
         self.assertSetEqual(rep_element_names,
                 {"rent october", "rent november", "rent december"})
+
+    def test_repetitive_quarter_yearly_entries(self):
+        self.period.add_entry(name="interest", value=25,
+                repetitive=["quarter-yearly", "1901-01-01"])
+
+        element = self.period.table("repetitive").all()[0]
+        repetitive_elements = list(self.period._create_repetitive_elements(element))
+        self.assertEqual(len(repetitive_elements), 4)
+
+        rep_element_names = {e["name"] for e in repetitive_elements}
+        self.assertSetEqual(rep_element_names,
+                {"interest january", "interest april", "interest july", "interest october"})
 
     def tearDown(self):
         self.period.close()

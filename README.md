@@ -52,7 +52,8 @@ KNOWN BUGS
 FUTURE FEATURES
 ---------------
 - [ ] select from multiple options if possible (e.g. when searching or deleting an entry)
-- [ ] repetitive entries
+- [x] repetitive entries
+- [ ] refactor TinyDbPeriod (return Model strings)
 - [x] stacked layout for `print`
 - [ ] detect category from entry name
 - [x] display entries of single month

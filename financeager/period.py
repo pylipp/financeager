@@ -134,11 +134,22 @@ class TinyDbPeriod(TinyDB, Period):
         else:
             end = dt.strptime(end, DateItem.FORMAT)
 
-        rule = rrule.rrule(
-                getattr(rrule, frequency),
-                dtstart=dt.strptime(start, DateItem.FORMAT),
-                until=end
+        rrule_kwargs = dict(
+                dtstart=dt.strptime(start, DateItem.FORMAT), until=end
                 )
+        interval = 1
+        if frequency == "BIMONTHLY":
+            frequency = "MONTHLY"
+            interval = 2
+        elif frequency == "QUARTER-YEARLY":
+            frequency = "MONTHLY"
+            interval = 3
+        elif frequency == "HALF-YEARLY":
+            frequency = "MONTHLY"
+            interval = 6
+
+        rrule_kwargs["interval"] = interval
+        rule = rrule.rrule(getattr(rrule, frequency), **rrule_kwargs)
 
         for date in rule:
             element_name = name
