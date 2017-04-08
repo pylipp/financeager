@@ -166,18 +166,19 @@ class TinyDbPeriod(TinyDB, Period):
         if entry:
             self.remove(eids=[entry[0].eid])
 
-    def _create_models(self, date=None):
+    def _create_models(self, *query_impls):
         models = []
         for name, comparator in zip(["Earnings", "Expenses"], ["__gt__", "__lt__"]):
             query_impl = getattr(where("value"), comparator)(0)
-            if date is not None:
-                query_impl &= (Query().date.matches("{}-*".format(date)))
+            for qi in query_impls:
+                query_impl &= qi
             elements = self._search_all_tables(query_impl)
             models.append(Model.from_tinydb(elements, name))
         return models
 
     def print_entries(self, date=None, stacked_layout=False):
-        models = self._create_models(date=date)
+        query_impl = [] if date is None else (Query().date.matches("{}-*".format(date)))
+        models = self._create_models(*query_impl)
         if stacked_layout:
             models_str = [str(model) for model in models]
             return "{}\n\n{}\n\n{}".format(

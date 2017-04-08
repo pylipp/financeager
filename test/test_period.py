@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 import xml.etree.ElementTree as ET
-from tinydb import database
+from tinydb import database, Query
 from financeager.period import XmlPeriod, TinyDbPeriod
 from financeager.model import Model
 from financeager.entries import BaseEntry
@@ -114,7 +114,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_print_entry_filter_date(self):
         self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
-        models = self.period._create_models(date="1901-12")
+        query_impl = Query().date.matches("1901-12-*")
+        models = self.period._create_models(query_impl)
         self.assertEqual(models[0].rowCount(), 1)
         self.assertEqual(models[1].rowCount(), 0)
         category_item = models[0].item(0)
