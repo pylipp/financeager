@@ -126,13 +126,15 @@ class TinyDbPeriod(TinyDB, Period):
                         name=name, value=value, date=date, category=category))
 
     def _search_all_tables(self, query_impl):
-        elements = self.search(query_impl)
+        elements = []
+        for table_name in self.tables():
+            if table_name == "repetitive":
+                repetitive_elements = self.table("repetitive").search(query_impl)
 
-        if len(self.tables()) > 1:
-            repetitive_elements = self.table("repetitive").search(query_impl)
-
-            for element in repetitive_elements:
-                elements.extend(list(self._create_repetitive_elements(element)))
+                for element in repetitive_elements:
+                    elements.extend(list(self._create_repetitive_elements(element)))
+            else:
+                elements.extend(self.search(query_impl))
 
         return elements
 
