@@ -68,12 +68,12 @@ Show a side-by-side overview of earnings and expenses with (filter a month with 
 
     > financeager print
 
-				   Earnings                |                Expenses               
+                       Earnings                |                Expenses               
 	Name               Value    Date       | Name               Value    Date      
 	Unspecified          123.45            | Rent				 1500.00 
 	  Lottery            123.45 2017-03-14 |   Rent January       500.00 2017-01-01
-										   |   Rent February      500.00 2017-02-01
-										   |   Rent March         500.00 2017-03-01
+	                                       |   Rent February      500.00 2017-02-01
+					       |   Rent March         500.00 2017-03-01
 	===============================================================================
 	Total                123.45            | Total               1500.00           
 
