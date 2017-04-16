@@ -189,6 +189,8 @@ class TinyDbPeriod(TinyDB, Period):
     def remove_entry(self, **kwargs):
         entries = self.find_entry(**kwargs)
         if entries:
+            if len(entries) > 1:
+                return "Ambiguous query. Nothing is removed."
             entry = entries[0]
             self._category_cache[entry["name"]][entry["category"]] -= 1
             self.remove(eids=[entry.eid])
