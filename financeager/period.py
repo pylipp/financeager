@@ -227,6 +227,9 @@ class TinyDbPeriod(TinyDB, Period):
     def print_entries(self, stacked_layout=False, **query_kwargs):
         models = self._create_models(**query_kwargs)
 
+        if all([m.rowCount() == 0 for m in models]):
+            return ""
+
         if stacked_layout:
             models_str = [str(model) for model in models]
             return "{}\n\n{}\n\n{}".format(
