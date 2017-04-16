@@ -62,7 +62,7 @@ class XmlServerDumpTestCase(unittest.TestCase):
     def setUp(self):
         server = XmlServer(42)
         self.dump_filepath = os.path.join(CONFIG_DIR, "42.xml")
-        server.run("add", name="Hiking boots", value="-111.11", category="outdoors")
+        server.run("add", name="Hiking boots", value=-111.11, category="outdoors")
 
     def test_period_file_exists(self):
         self.assertTrue(os.path.isfile(self.dump_filepath))
@@ -74,7 +74,7 @@ class AddEntryToTinyDbServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = TinyDbServer(0)
         self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
-        self.server.run("add", name="Hiking boots", value="-111.11",
+        self.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors")
 
     def test_entry_exists(self):
@@ -91,17 +91,19 @@ class FindEntryTinyDbServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = TinyDbServer(0)
         self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
-        self.server.run("add", name="Hiking boots", value="-111.11")
+        self.server.run("add", name="Hiking boots", value=-111.11)
 
     def test_query_and_reset_response(self):
-        self.server.run("find", category=CategoryItem.DEFAULT_NAME)
+        self.server.run("print", category=CategoryItem.DEFAULT_NAME)
         response = self.server.response
-        self.assertEqual(0, len(self.server.response))
-        self.assertEqual(1, len(response))
+        self.assertIsNone(self.server.response)
+        self.assertGreater(len(response), 0)
+        self.assertIsInstance(response, str)
 
     def test_response_is_none(self):
-        self.server.run("rm", category=None)
-        self.server.run("find", name="Hiking boots", category=None)
+        self.server.run("rm", category=CategoryItem.DEFAULT_NAME)
+        self.server.run("print", name="Hiking boots",
+                category=CategoryItem.DEFAULT_NAME)
         self.assertEqual(0, len(self.server.response))
 
     def tearDown(self):

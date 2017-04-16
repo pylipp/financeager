@@ -16,7 +16,7 @@ class Server(object):
     config directory. It is typically launched at the initial `financeager`
     command line call and then runs in the background as a Pyro daemon.
     The `response` attribute can be used to access possible output data from
-    querying commands (f.i. `find`). It holds a list of tinydb.database.Element
+    querying commands (f.i. `print`). It holds a list of tinydb.database.Element
     objects (can be empty).
     """
 
@@ -30,7 +30,7 @@ class Server(object):
                     period_name, self._file_suffix))
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
-        self._response = []
+        self._response = None
         self._command = None
 
     @abstractproperty
@@ -46,12 +46,8 @@ class Server(object):
     def response(self):
         """Query and reset the server response. A list of strings is returned.
         This avoid serialization issues with Pyro4."""
-        result = []
-        if self._command == "find":
-            result = [str(BaseEntry.from_tinydb_element(e)) for e in self._response]
-        elif self._command == "print":
-            result = [self._response]
-        self._response = []
+        result = self._response
+        self._response = None
         return result
 
     @abstractmethod
@@ -68,12 +64,10 @@ class Server(object):
             command2method = {
                     "add": "add_entry",
                     "rm": "remove_entry",
-                    "find": "find_entry",
                     "print": "print_entries"
                     }
             response = getattr(self._period, command2method[command])(**kwargs)
-            if response is not None:
-                self._response = response
+            self._response = response
 
 @Pyro4.expose
 class XmlServer(Server):
@@ -112,7 +106,7 @@ class XmlServer(Server):
 
     def run(self, command, **kwargs):
         super(XmlServer, self).run(command, **kwargs)
-        if command not in ["stop", "find"]:
+        if command not in ["stop"]:
             self.dump()
 
 @Pyro4.expose
