@@ -14,7 +14,7 @@ from tinydb.queries import QueryImpl
 
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import DateItem
+from financeager.items import DateItem, CategoryItem
 
 class Period(object):
 
@@ -101,6 +101,9 @@ class TinyDbPeriod(TinyDB, Period):
         if category is None:
             if len(self._category_cache[name]) == 1:
                 category = self._category_cache[name].most_common(1)[0][0]
+            else:
+                # assign default name (must be str), s.t. category field can be queried
+                category = CategoryItem.DEFAULT_NAME
         else:
             category = category.lower()
 

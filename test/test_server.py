@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
+from financeager.items import CategoryItem
 from financeager.entries import BaseEntry
 from financeager.server import XmlServer, CONFIG_DIR, TinyDbServer
 import os.path
@@ -93,7 +94,7 @@ class FindEntryTinyDbServerTestCase(unittest.TestCase):
         self.server.run("add", name="Hiking boots", value="-111.11")
 
     def test_query_and_reset_response(self):
-        self.server.run("find", category=None)
+        self.server.run("find", category=CategoryItem.DEFAULT_NAME)
         response = self.server.response
         self.assertEqual(0, len(self.server.response))
         self.assertEqual(1, len(response))

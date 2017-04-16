@@ -111,7 +111,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 database.Element)
 
     def test_remove_entry(self):
-        self.period.remove_entry(category=None)
+        self.period.remove_entry(category=CategoryItem.DEFAULT_NAME)
         self.assertEqual(0, len(self.period))
 
     def test_create_models_query_kwargs(self):
@@ -143,6 +143,11 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         rep_element_names = {e["name"] for e in repetitive_elements}
         self.assertSetEqual(rep_element_names,
                 {"rent october", "rent november", "rent december"})
+
+        _, model_expenses = self.period._create_models(date="1901-11")
+        self.assertEqual(model_expenses.rowCount(), 1)
+        self.assertEqual(
+                model_expenses.item(0).child(0).text(), "Rent November")
 
     def test_repetitive_quarter_yearly_entries(self):
         self.period.add_entry(name="interest", value=25,
