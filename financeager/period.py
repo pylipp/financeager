@@ -182,17 +182,9 @@ class TinyDbPeriod(TinyDB, Period):
                 date=date.strftime(DateItem.FORMAT)
                 ))
 
-    def find_entry(self, **kwargs):
-        query_impl = None
-        for kwarg, value in kwargs.items():
-            if isinstance(value, str):
-                value = value.lower()
-            if query_impl is None:
-                query_impl = (getattr(Query(), kwarg) == value)
-            else:
-                query_impl &= (getattr(Query(), kwarg) == value)
-        elements = self._search_all_tables(query_impl)
-        return elements
+    def find_entry(self, **query_kwargs):
+        condition = self._create_query_condition(**query_kwargs)
+        return self._search_all_tables(condition)
 
     def remove_entry(self, **kwargs):
         entries = self.find_entry(**kwargs)
@@ -201,8 +193,8 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[entry["name"]][entry["category"]] -= 1
             self.remove(eids=[entry.eid])
 
-    def _create_models(self, name=None, value=None, category=None, date=None):
-        query_impls = []
+    def _create_query_condition(self, name=None, value=None, category=None, date=None):
+        condition = None
         entry = Query()
 
         for item_name in ["name", "value", "category", "date"]:
@@ -213,14 +205,23 @@ class TinyDbPeriod(TinyDB, Period):
             if isinstance(item, str):
                 item = item.lower()
 
-            query_impls.append((entry[item_name].matches(".*{}.*".format(item))))
+            #TODO use tinydb.Query.search
+            new_condition = (entry[item_name].matches(".*{}.*".format(item)))
+            if condition is None:
+                condition = new_condition
+            else:
+                condition &= new_condition
 
+        return condition
+
+    def _create_models(self, **query_kwargs):
+        extra_condition = self._create_query_condition(**query_kwargs)
         models = []
         for name, comparator in zip(["Earnings", "Expenses"], ["__gt__", "__lt__"]):
-            query_impl = getattr(where("value"), comparator)(0)
-            for qi in query_impls:
-                query_impl &= qi
-            elements = self._search_all_tables(query_impl)
+            value_condition = getattr(where("value"), comparator)(0)
+            if extra_condition is not None:
+                value_condition &= extra_condition
+            elements = self._search_all_tables(value_condition)
             models.append(Model.from_tinydb(elements, name))
         return models
 
