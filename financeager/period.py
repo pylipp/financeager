@@ -128,15 +128,17 @@ class TinyDbPeriod(TinyDB, Period):
                     dict(
                         name=name, value=value, date=date, category=category))
 
-    def _search_all_tables(self, query_impl):
+    def _search_all_tables(self, query_impl, create_recurrent_elements=True):
         # copy result because a reference to the query cache is returned
         elements = self.search(query_impl)[:]
 
-        # create repetitive elements and query them
-        for element in self.table("repetitive").all():
-            for e in self._create_repetitive_elements(element):
-                if query_impl(e):
-                    elements.append(e)
+        if create_recurrent_elements:
+            for element in self.table("repetitive").all():
+                for e in self._create_repetitive_elements(element):
+                    if query_impl(e):
+                        elements.append(e)
+        else:
+            elements.extend(self.table("repetitive").search(query_impl))
 
         return elements
 
@@ -182,18 +184,23 @@ class TinyDbPeriod(TinyDB, Period):
                 date=date.strftime(DateItem.FORMAT)
                 ))
 
-    def find_entry(self, **query_kwargs):
+    def find_entry(self, create_recurrent_elements=True, **query_kwargs):
         condition = self._create_query_condition(**query_kwargs)
-        return self._search_all_tables(condition)
+        return self._search_all_tables(condition,
+                create_recurrent_elements=create_recurrent_elements)
 
     def remove_entry(self, **kwargs):
-        entries = self.find_entry(**kwargs)
+        entries = self.find_entry(create_recurrent_elements=False, **kwargs)
         if entries:
             if len(entries) > 1:
                 return "Ambiguous query. Nothing is removed."
             entry = entries[0]
             self._category_cache[entry["name"]][entry["category"]] -= 1
-            self.remove(eids=[entry.eid])
+
+            if entry.get("frequency", False):
+                self.table("repetitive").remove(eids=[entry.eid])
+            else:
+                self.remove(eids=[entry.eid])
 
     def _create_query_condition(self, name=None, value=None, category=None, date=None):
         condition = None

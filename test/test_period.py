@@ -161,6 +161,11 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertSetEqual(rep_element_names,
                 {"interest january", "interest april", "interest july", "interest october"})
 
+        repetitive_table_size = len(self.period.table("repetitive"))
+        self.period.remove_entry(name="interest")
+        self.assertEqual(len(self.period.table("repetitive")),
+                repetitive_table_size - 1)
+
     def test_category_cache(self):
         self.period.add_entry(name="walmart", value=-50.01,
                 category="groceries", date="1901-02-02")
