@@ -199,7 +199,20 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[entry["name"]][entry["category"]] -= 1
             self.remove(eids=[entry.eid])
 
-    def _create_models(self, *query_impls):
+    def _create_models(self, name=None, value=None, category=None, date=None):
+        query_impls = []
+        entry = Query()
+
+        for item_name in ["name", "value", "category", "date"]:
+            item = locals()[item_name]
+            if item is None:
+                continue
+
+            if isinstance(item, str):
+                item = item.lower()
+
+            query_impls.append((entry[item_name].matches(".*{}.*".format(item))))
+
         models = []
         for name, comparator in zip(["Earnings", "Expenses"], ["__gt__", "__lt__"]):
             query_impl = getattr(where("value"), comparator)(0)
@@ -209,9 +222,9 @@ class TinyDbPeriod(TinyDB, Period):
             models.append(Model.from_tinydb(elements, name))
         return models
 
-    def print_entries(self, date=None, stacked_layout=False):
-        query_impl = [] if date is None else (Query().date.matches("{}-*".format(date)))
-        models = self._create_models(*query_impl)
+    def print_entries(self, stacked_layout=False, **query_kwargs):
+        models = self._create_models(**query_kwargs)
+
         if stacked_layout:
             models_str = [str(model) for model in models]
             return "{}\n\n{}\n\n{}".format(

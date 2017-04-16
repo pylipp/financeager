@@ -31,7 +31,7 @@ def suite():
     tests = [
             'test_find_entry',
             'test_remove_entry',
-            'test_print_entry_filter_date',
+            'test_create_models_query_kwargs',
             'test_repetitive_entries',
             'test_repetitive_quarter_yearly_entries'
             ,'test_category_cache'
@@ -114,10 +114,17 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.period.remove_entry(category=None)
         self.assertEqual(0, len(self.period))
 
-    def test_print_entry_filter_date(self):
+    def test_create_models_query_kwargs(self):
         self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
-        query_impl = Query().date.matches("1901-12-*")
-        models = self.period._create_models(query_impl)
+        models = self.period._create_models(date="1901-12")
+        self.assertEqual(models[0].rowCount(), 1)
+        self.assertEqual(models[1].rowCount(), 0)
+        category_item = models[0].item(0)
+        entry_name_item = category_item.child(0)
+        self.assertEqual(entry_name_item.text(), "Xmas Gifts")
+
+        self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
+        models = self.period._create_models(name="xmas", date="1901-12")
         self.assertEqual(models[0].rowCount(), 1)
         self.assertEqual(models[1].rowCount(), 0)
         category_item = models[0].item(0)
