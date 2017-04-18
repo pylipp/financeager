@@ -43,6 +43,8 @@ def parse_command():
             help="only entries containing 'category'")
     print_parser.add_argument("-d", "--date", default=None,
             help="only entries containing 'date'")
+    print_parser.add_argument("-s", "--stacked-layout", action="store_true",
+            help="if true, display earnings and expenses in stacked layout, otherwise side-by-side")
     print_parser.add_argument(*period_args, **period_kwargs)
 
     list_parser = subparsers.add_parser("list",

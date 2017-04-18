@@ -22,6 +22,7 @@ class Cli(object):
                 stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
         self._period_name = self._cl_kwargs.pop("period", None)
+        self._stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
         if self._period_name is None:
             self._period_name = str(Period.DEFAULT_NAME)
 
@@ -47,7 +48,7 @@ class Cli(object):
 
                 elements = response.get("elements")
                 if elements is not None:
-                    print(prettify(elements))
+                    print(prettify(elements, self._stacked_layout))
         except (Pyro4.naming.NamingError) as e:
             # 'stop' requested but corresponding period server not launched
             pass
