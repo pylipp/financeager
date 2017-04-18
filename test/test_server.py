@@ -72,9 +72,10 @@ class XmlServerDumpTestCase(unittest.TestCase):
         os.remove(self.dump_filepath)
 
 class AddEntryToTinyDbServerTestCase(unittest.TestCase):
-    def setUp(self):
-        self.server = TinyDbServer(period_name=0)
-        self.server.run("add", name="Hiking boots", value=-111.11,
+    @classmethod
+    def setUpClass(cls):
+        cls.server = TinyDbServer(period_name=0)
+        cls.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors")
 
     def test_entry_exists(self):
@@ -84,7 +85,9 @@ class AddEntryToTinyDbServerTestCase(unittest.TestCase):
     def test_period_name(self):
         self.assertEqual("0", self.server._period.name)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.run("stop")
         os.remove(os.path.join(CONFIG_DIR, "0.json"))
 
 class FindEntryTinyDbServerTestCase(unittest.TestCase):

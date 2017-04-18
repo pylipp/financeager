@@ -129,4 +129,7 @@ class TinyDbServer(Server):
         return "financeager_tinydb_server.{}".format(period_name)
 
     def run(self, command, **kwargs):
+        # graceful shutdown, invoke closing of files
+        if command == "stop":
+            self._period.close()
         super(TinyDbServer, self).run(command, **kwargs)
