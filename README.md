@@ -13,14 +13,14 @@ DISCLAIMER: Defs not BUG-FREE!
 
 NOTE
 ----
-You're currently on the `cli_py3` branch which is under active development.
+You're currently on the `master` branch which is under active development.
 The code base is being refactored. The idea is to first have a command line
 tool and successively built a GUI on top.
 
 GENERAL USAGE
 -------------
 ### Installation
-Install the dependencies (I'm on Ubuntu Trusty):
+Install the dependencies (I'm on Ubuntu Xenial):
 
     sudo apt-get install python3-pyqt5
 
@@ -70,7 +70,7 @@ Show a side-by-side overview of earnings and expenses (filter date and/or catego
 
                    Earnings                |                Expenses
 	Name               Value    Date       | Name               Value    Date
-	Unspecified          123.45            | Rent				 1500.00
+	Unspecified          123.45            | Rent                1500.00
 	  Lottery            123.45 2017-03-14 |   Rent January       500.00 2017-01-01
 	                                       |   Rent February      500.00 2017-02-01
 					       |   Rent March         500.00 2017-03-01
@@ -94,10 +94,11 @@ FUTURE FEATURES
 ---------------
 - [ ] select from multiple options if possible (e.g. when searching or deleting an entry)
 - [x] repetitive entries
-- [ ] refactor TinyDbPeriod (return Model strings)
+- [x] refactor TinyDbPeriod (return Model strings)
 - [x] stacked layout for `print`
 - [x] detect category from entry name
 - [x] display entries of single month
 - [ ] improve documentation (period module)
 - [ ] create Python package
 - [ ] set up Travis CI
+- [ ] use flask for REST API
