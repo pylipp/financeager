@@ -98,13 +98,13 @@ class FindEntryTinyDbServerTestCase(unittest.TestCase):
         response = self.server.response
         self.assertIsNone(self.server.response)
         self.assertGreater(len(response), 0)
-        self.assertIsInstance(response, str)
+        self.assertIsInstance(response, dict)
 
     def test_response_is_none(self):
         self.server.run("rm", category=CategoryItem.DEFAULT_NAME)
         self.server.run("print", name="Hiking boots",
                 category=CategoryItem.DEFAULT_NAME)
-        self.assertEqual(0, len(self.server.response))
+        self.assertListEqual([], self.server.response["elements"])
 
     def tearDown(self):
         os.remove(self.dump_filepath)

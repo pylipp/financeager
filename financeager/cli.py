@@ -5,7 +5,7 @@ import Pyro4
 import os
 import sys
 import time
-from financeager.period import Period
+from financeager.period import Period, prettify
 from financeager.server import XmlServer, TinyDbServer, CONFIG_DIR
 
 Pyro4.config.COMMTIMEOUT = 1.0
@@ -41,7 +41,13 @@ class Cli(object):
             server.run(command, **self._cl_kwargs)
             response = server.response
             if response is not None:
-                print(response)
+                error = response.get("error")
+                if error is not None:
+                    print(error)
+
+                elements = response.get("elements")
+                if elements is not None:
+                    print(prettify(elements))
         except (Pyro4.naming.NamingError) as e:
             # 'stop' requested but corresponding period server not launched
             pass

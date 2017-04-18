@@ -118,15 +118,17 @@ class TinyDbPeriod(TinyDB, Period):
             end = None
             if len(repetitive_args) > 2:
                 end = repetitive_args[2]
-            self.table("repetitive").insert(
+            element_id = self.table("repetitive").insert(
                     dict(
                         name=name, value=value, category=category,
                         frequency=frequency, start=start, end=end
                         ))
         else:
-            self.insert(
+            element_id = self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))
+        return {"id": element_id}
+
     def _search_all_tables(self, query_impl=None, create_recurrent_elements=True):
         """
         Search both the standard table and the repetitive table for elements
@@ -215,7 +217,7 @@ class TinyDbPeriod(TinyDB, Period):
         entries = self.find_entry(create_recurrent_elements=False, **kwargs)
         if entries:
             if len(entries) > 1:
-                return "Ambiguous query. Nothing is removed."
+                return {"error": "Ambiguous query. Nothing is removed."}
             entry = entries[0]
             self._category_cache[entry["name"]][entry["category"]] -= 1
 
@@ -245,47 +247,51 @@ class TinyDbPeriod(TinyDB, Period):
 
         return condition
 
-    def _create_models(self, **query_kwargs):
-        extra_condition = self._create_query_condition(**query_kwargs)
-        models = []
-        for name, comparator in zip(["Earnings", "Expenses"], ["__gt__", "__lt__"]):
-            value_condition = getattr(where("value"), comparator)(0)
-            if extra_condition is not None:
-                value_condition &= extra_condition
-            elements = self._search_all_tables(value_condition)
-            models.append(Model.from_tinydb(elements, name))
-        return models
+    def print_entries(self, **query_kwargs):
+        condition = self._create_query_condition(**query_kwargs)
+        return {"elements": self._search_all_tables(condition)}
 
-    def print_entries(self, stacked_layout=False, **query_kwargs):
-        models = self._create_models(**query_kwargs)
+def prettify(elements, stacked_layout=False):
+    if not elements:
+        return ""
 
-        if all([m.rowCount() == 0 for m in models]):
-            return ""
+    query = where("value") > 0
+    earnings = []
+    expenses = []
 
-        if stacked_layout:
-            models_str = [str(model) for model in models]
-            return "{}\n\n{}\n\n{}".format(
-                    models_str[0], 38*"-", models_str[1]
-                    )
+    for element in elements:
+        if query(element):
+            earnings.append(element)
         else:
-            result = []
-            models_str = [str(model).splitlines() for model in models]
-            for row in zip(*models_str):
-                result.append(" | ".join(row))
-            earnings_size = len(models_str[0])
-            expenses_size = len(models_str[1])
-            diff = earnings_size - expenses_size
-            if diff > 0:
-                for row in models_str[0][expenses_size:]:
-                    result.append(row + " | ")
-            else:
-                for row in models_str[1][earnings_size:]:
-                    result.append(38*" " + " | " + row)
-            result.append(79*"=")
-            result.append(
-                    " | ".join(
-                        [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
-                            for m in models]
-                        )
+            expenses.append(element)
+
+    model_earnings = Model.from_tinydb(earnings, "Earnings")
+    model_expenses = Model.from_tinydb(expenses, "Expenses")
+
+    if stacked_layout:
+        return "{}\n\n{}\n\n{}".format(
+                str(model_earnings), 38*"-", str(model_expenses)
+                )
+    else:
+        result = []
+        models = [model_earnings, model_expenses]
+        models_str = [str(m).splitlines() for m in models]
+        for row in zip(*models_str):
+            result.append(" | ".join(row))
+        earnings_size = len(models_str[0])
+        expenses_size = len(models_str[1])
+        diff = earnings_size - expenses_size
+        if diff > 0:
+            for row in models_str[0][expenses_size:]:
+                result.append(row + " | ")
+        else:
+            for row in models_str[1][earnings_size:]:
+                result.append(38*" " + " | " + row)
+        result.append(79*"=")
+        result.append(
+                " | ".join(
+                    [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
+                        for m in models]
                     )
-            return '\n'.join(result)
+                )
+        return '\n'.join(result)

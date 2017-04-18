@@ -103,6 +103,7 @@ class PeriodOnlyXmlConversionTestCase(unittest.TestCase):
 class TinyDbPeriodTestCase(unittest.TestCase):
     def setUp(self):
         self.filepath = "1901.json"
+        # TODO use MemoryStorage
         self.period = TinyDbPeriod(self.filepath)
         self.period.add_entry(name="Bicycle", value=-999.99, date="1901-01-01")
 
@@ -116,20 +117,14 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_create_models_query_kwargs(self):
         self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
-        models = self.period._create_models(date="1901-12")
-        self.assertEqual(models[0].rowCount(), 1)
-        self.assertEqual(models[1].rowCount(), 0)
-        category_item = models[0].item(0)
-        entry_name_item = category_item.child(0)
-        self.assertEqual(entry_name_item.text(), "Xmas Gifts")
+        elements = self.period.print_entries(date="1901-12")
+        self.assertEqual(len(elements), 1)
+        self.assertEqual(elements["elements"][0]["name"], "xmas gifts")
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
-        models = self.period._create_models(name="xmas", date="1901-12")
-        self.assertEqual(models[0].rowCount(), 1)
-        self.assertEqual(models[1].rowCount(), 0)
-        category_item = models[0].item(0)
-        entry_name_item = category_item.child(0)
-        self.assertEqual(entry_name_item.text(), "Xmas Gifts")
+        elements = self.period.print_entries(name="xmas", date="1901-12")
+        self.assertEqual(len(elements), 1)
+        self.assertEqual(elements["elements"][0]["name"], "xmas gifts")
 
     def test_repetitive_entries(self):
         self.period.add_entry(name="rent", value=-500,
@@ -144,10 +139,9 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertSetEqual(rep_element_names,
                 {"rent october", "rent november", "rent december"})
 
-        _, model_expenses = self.period._create_models(date="1901-11")
-        self.assertEqual(model_expenses.rowCount(), 1)
-        self.assertEqual(
-                model_expenses.item(0).child(0).text(), "Rent November")
+        elements = self.period.print_entries(date="1901-11")
+        self.assertEqual(len(elements), 1)
+        self.assertEqual(elements["elements"][0]["name"], "rent november")
 
     def test_repetitive_quarter_yearly_entries(self):
         self.period.add_entry(name="interest", value=25,
