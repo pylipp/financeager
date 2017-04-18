@@ -4,10 +4,9 @@ import os.path
 import xml.etree.ElementTree as ET
 from abc import ABCMeta, abstractmethod, abstractproperty
 import Pyro4
-from financeager.period import Period, TinyDbPeriod, XmlPeriod
+from financeager.period import Period, TinyDbPeriod, XmlPeriod, CONFIG_DIR
 from financeager.entries import BaseEntry
 
-CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
 class Server(object):
     """Abstract class holding the database and communicated with via Pyro.
@@ -114,11 +113,12 @@ class TinyDbServer(Server):
     """Server implementation holding a `TinyDbPeriod` database.
 
     All database handling is taken care of in the underlying `TinyDbPeriod`.
+    Kwargs (f.i. storage) are passed to the TinyDbPeriod member.
     """
 
-    def __init__(self, period_name=None):
+    def __init__(self, period_name=None, **kwargs):
         super(TinyDbServer, self).__init__(period_name)
-        self._period = TinyDbPeriod(self._period_filepath)
+        self._period = TinyDbPeriod(name=period_name, **kwargs)
 
     @property
     def _file_suffix(self):

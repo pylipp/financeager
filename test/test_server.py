@@ -4,13 +4,14 @@ import unittest
 
 from financeager.items import CategoryItem
 from financeager.entries import BaseEntry
-from financeager.server import XmlServer, CONFIG_DIR, TinyDbServer
+from financeager.server import XmlServer, TinyDbServer
+from financeager.period import CONFIG_DIR
 import os.path
 import subprocess
 import signal
 import socket
 import sys
-import tinydb
+from tinydb import database, storages
 
 
 def suite():
@@ -72,25 +73,23 @@ class XmlServerDumpTestCase(unittest.TestCase):
 
 class AddEntryToTinyDbServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = TinyDbServer(0)
-        self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
+        self.server = TinyDbServer(period_name=0)
         self.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors")
 
     def test_entry_exists(self):
         self.assertIsInstance(self.server._period.find_entry(
-            name="Hiking boots")[0], tinydb.database.Element)
+            name="Hiking boots")[0], database.Element)
 
     def test_period_name(self):
         self.assertEqual("0", self.server._period.name)
 
     def tearDown(self):
-        os.remove(self.dump_filepath)
+        os.remove(os.path.join(CONFIG_DIR, "0.json"))
 
 class FindEntryTinyDbServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = TinyDbServer(0)
-        self.dump_filepath = os.path.join(CONFIG_DIR, "0.json")
+        self.server = TinyDbServer(storage=storages.MemoryStorage)
         self.server.run("add", name="Hiking boots", value=-111.11)
 
     def test_query_and_reset_response(self):
@@ -105,9 +104,6 @@ class FindEntryTinyDbServerTestCase(unittest.TestCase):
         self.server.run("print", name="Hiking boots",
                 category=CategoryItem.DEFAULT_NAME)
         self.assertListEqual([], self.server.response["elements"])
-
-    def tearDown(self):
-        os.remove(self.dump_filepath)
 
 if __name__ == '__main__':
     unittest.main()

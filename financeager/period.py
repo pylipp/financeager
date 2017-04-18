@@ -8,13 +8,17 @@ from datetime import datetime as dt
 
 from PyQt5.QtCore import QDate
 import xml.etree.ElementTree as ET
-from tinydb import TinyDB, Query, where
+from tinydb import TinyDB, Query, where, JSONStorage
 from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import DateItem, CategoryItem
+
+#FIXME create config singleton
+CONFIG_DIR = os.path.expanduser("~/.config/financeager")
+
 
 class Period(object):
 
@@ -75,9 +79,20 @@ class XmlPeriod(Period):
 
 class TinyDbPeriod(TinyDB, Period):
 
-    def __init__(self, filepath):
-        super(TinyDbPeriod, self).__init__(filepath, default_table="standard")
-        self._name = os.path.splitext(os.path.basename(filepath))[0]
+    def __init__(self, name=None, *args, **kwargs):
+        """
+        Create a period with a TinyDB database backend, identified by ``name``.
+        The filepath arg for tinydb.JSONStorage is derived from the name.
+        Keyword args other than ``default_table`` (set to ``standard``) are
+        passed to the TinyDB constructor (f.i. storage type).
+        """
+
+        self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
+        if "default_table" not in kwargs:
+            kwargs["default_table"] = "standard"
+        if kwargs.get("storage", JSONStorage) == JSONStorage:
+            args = list(args) + [os.path.join(CONFIG_DIR, "{}.json".format(self._name))]
+        super(TinyDbPeriod, self).__init__(*args, **kwargs)
         self._create_category_cache()
 
     def _create_category_cache(self):

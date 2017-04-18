@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 import xml.etree.ElementTree as ET
-from tinydb import database, Query
+from tinydb import database, Query, storages
 from financeager.period import XmlPeriod, TinyDbPeriod
 from financeager.model import Model
 from financeager.entries import BaseEntry
@@ -102,9 +102,7 @@ class PeriodOnlyXmlConversionTestCase(unittest.TestCase):
 
 class TinyDbPeriodTestCase(unittest.TestCase):
     def setUp(self):
-        self.filepath = "1901.json"
-        # TODO use MemoryStorage
-        self.period = TinyDbPeriod(self.filepath)
+        self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
         self.period.add_entry(name="Bicycle", value=-999.99, date="1901-01-01")
 
     def test_find_entry(self):
@@ -171,7 +169,6 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.period.close()
-        os.remove(self.filepath)
 
 if __name__ == '__main__':
     unittest.main()
