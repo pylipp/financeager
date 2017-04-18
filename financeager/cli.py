@@ -17,9 +17,9 @@ class Cli(object):
         self._server_cls = server_cls
 
         # launch nameserver. Silence errors if already running
-        DEVNULL = open(os.devnull, 'w')
-        subprocess.Popen("{} -m Pyro4.naming".format(sys.executable).split(),
-                stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
+        with open(os.devnull, 'w') as DEVNULL:
+            subprocess.Popen("{} -m Pyro4.naming".format(sys.executable).split(),
+                    stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
         self._period_name = self._cl_kwargs.pop("period", None)
         self._stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
