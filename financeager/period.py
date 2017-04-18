@@ -127,18 +127,40 @@ class TinyDbPeriod(TinyDB, Period):
             self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))
+    def _search_all_tables(self, query_impl=None, create_recurrent_elements=True):
+        """
+        Search both the standard table and the repetitive table for elements
+        that satisfy the given condition.
 
-    def _search_all_tables(self, query_impl, create_recurrent_elements=True):
-        # copy result because a reference to the query cache is returned
-        elements = self.search(query_impl)[:]
+        :param query_impl: condition for the search. If none (default), all elements are returned.
+        :type query_impl: tinydb.queries.QueryImpl
+
+        :param create_recurrent_elements: 'Expand' elements of the 'repetitive'
+            table prior to search (used when printing) or not (used when deleting).
+        :type create_recurrent_elements: bool
+
+        :return: list[tinydb.Element]
+        """
+
+        elements = []
+        if query_impl is None:
+            elements.extend(self.all())
+        else:
+            elements.extend(self.search(query_impl))
 
         if create_recurrent_elements:
             for element in self.table("repetitive").all():
                 for e in self._create_repetitive_elements(element):
-                    if query_impl(e):
+                    if query_impl is None:
                         elements.append(e)
+                    else:
+                        if query_impl(e):
+                            elements.append(e)
         else:
-            elements.extend(self.table("repetitive").search(query_impl))
+            if query_impl is None:
+                elements.extend(self.table("repetitive").all())
+            else:
+                elements.extend(self.table("repetitive").search(query_impl))
 
         return elements
 
