@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.server import CONFIG_DIR, XmlServer
+from financeager.server import CONFIG_DIR, TinyDbServer
 from financeager.cli import Cli
 import psutil
 import os
@@ -20,9 +20,8 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
-        cl_kwargs = {"period": "1337", "command": "add", "name": "foo",
-                "value": 19, "period": "0"}
-        self.cli = Cli(cl_kwargs, server_cls=XmlServer)
+        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
+        self.cli = Cli(cl_kwargs, server_cls=TinyDbServer)
         self.cli()
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],
@@ -58,9 +57,9 @@ class StartCliTestCase(unittest.TestCase):
         self.assertTrue(running)
 
     def tearDown(self):
-        os.remove(os.path.join(CONFIG_DIR, "0.xml"))
         self.cli._cl_kwargs = dict(command="stop", period="0")
         self.cli()
+        os.remove(os.path.join(CONFIG_DIR, "0.json"))
 
 if __name__ == '__main__':
     unittest.main()

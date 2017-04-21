@@ -116,6 +116,8 @@ class TinyDbServer(Server):
     Kwargs (f.i. storage) are passed to the TinyDbPeriod member.
     """
 
+    NAME = "financeager_tinydb_server"
+
     def __init__(self, period_name=None, **kwargs):
         super(TinyDbServer, self).__init__(period_name)
         self._period = TinyDbPeriod(name=period_name, **kwargs)

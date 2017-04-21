@@ -28,7 +28,7 @@ class Cli(object):
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
-        server_name = self._server_cls.name(self._period_name)
+        server_name = self._server_cls.NAME
 
         if command == "list":
             self._print_list()
@@ -39,6 +39,7 @@ class Cli(object):
 
         server = Pyro4.Proxy("PYRONAME:{}".format(server_name))
         try:
+            # server should be stateless and not storing response!
             server.run(command, **self._cl_kwargs)
             response = server.response
             if response is not None:
