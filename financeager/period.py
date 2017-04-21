@@ -88,8 +88,7 @@ class TinyDbPeriod(TinyDB, Period):
         """
 
         self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
-        if "default_table" not in kwargs:
-            kwargs["default_table"] = "standard"
+        kwargs["default_table"] = "standard"
         if kwargs.get("storage", JSONStorage) == JSONStorage:
             args = list(args) + [os.path.join(CONFIG_DIR, "{}.json".format(self._name))]
         super(TinyDbPeriod, self).__init__(*args, **kwargs)
