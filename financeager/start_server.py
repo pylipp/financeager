@@ -1,14 +1,11 @@
 import Pyro4
-import sys
 from financeager.server import TinyDbServer
 
 Pyro4.config.COMMTIMEOUT = 1.0
 
 if __name__ == "__main__":
-    period_name = sys.argv[1]
-
     with Pyro4.Daemon() as daemon:
-        server = TinyDbServer(period_name)
+        server = TinyDbServer()
         ns = Pyro4.locateNS()
         uri = daemon.register(server)
         ns.register(TinyDbServer.NAME, uri)

@@ -5,8 +5,8 @@ import Pyro4
 import os
 import sys
 import time
-from financeager.period import Period, prettify
-from financeager.server import XmlServer, TinyDbServer, CONFIG_DIR
+from financeager.period import prettify
+from financeager.server import TinyDbServer, CONFIG_DIR
 
 Pyro4.config.COMMTIMEOUT = 1.0
 
@@ -21,23 +21,19 @@ class Cli(object):
             subprocess.Popen("{} -m Pyro4.naming".format(sys.executable).split(),
                     stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
-        self._period_name = self._cl_kwargs.pop("period", None)
         self._stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
-        if self._period_name is None:
-            self._period_name = str(Period.DEFAULT_NAME)
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
-        server_name = self._server_cls.NAME
 
         if command == "list":
             self._print_list()
             return
 
         if command != "stop":
-            self._start_period_server(server_name)
+            self._start_period_server()
 
-        server = Pyro4.Proxy("PYRONAME:{}".format(server_name))
+        server = Pyro4.Proxy("PYRONAME:{}".format(TinyDbServer.NAME))
         try:
             # server should be stateless and not storing response!
             server.run(command, **self._cl_kwargs)
@@ -51,20 +47,18 @@ class Cli(object):
                 if elements is not None:
                     print(prettify(elements, self._stacked_layout))
         except (Pyro4.naming.NamingError) as e:
-            # 'stop' requested but corresponding period server not launched
+            # 'stop' requested but period server not launched
             pass
 
-    def _start_period_server(self, server_name):
+    def _start_period_server(self):
         name_server = Pyro4.locateNS()
         # launch starting script if period server is not registered yet
         try:
-            name_server.lookup(server_name)
+            name_server.lookup(TinyDbServer.NAME)
         except (Pyro4.naming.NamingError) as e:
             server_script_path = os.path.join(
                     os.path.dirname(os.path.abspath(__file__)), "start_server.py")
-            subprocess.Popen(
-                    [sys.executable, server_script_path, self._period_name,
-                        self._server_cls.__name__])
+            subprocess.Popen([sys.executable, server_script_path])
             # wait for launch to avoid failure when creating Proxy
             time.sleep(1.1*Pyro4.config.COMMTIMEOUT)
 

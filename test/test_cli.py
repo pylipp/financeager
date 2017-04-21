@@ -27,7 +27,7 @@ class StartCliTestCase(unittest.TestCase):
         self.python_processes = subprocess.check_output(["grep", "python"],
                 stdin=ps_process.stdout).splitlines()
         # check_output returns byte strings, hence prefix strings being searched for
-        self.server_pid = self.find_pid_by_name(b"start_server.py 0")
+        self.server_pid = self.find_pid_by_name(b"start_server.py")
         self.name_server_pid = self.find_pid_by_name(b"Pyro4.naming")
 
     def find_pid_by_name(self, name):
@@ -47,6 +47,7 @@ class StartCliTestCase(unittest.TestCase):
                 os.kill(self.server_pid, 0)
             except (OSError) as e:
                 running = False
+        self.assertTrue(running)
         if self.name_server_pid is None:
             running = False
         else:

@@ -1,40 +1,29 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import os.path
-import xml.etree.ElementTree as ET
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 import Pyro4
-from financeager.period import Period, TinyDbPeriod, XmlPeriod, CONFIG_DIR
-from financeager.entries import BaseEntry
+from financeager.period import Period, TinyDbPeriod, CONFIG_DIR
 
 
 class Server(object):
-    """Abstract class holding the database and communicated with via Pyro.
+    """
+    Abstract class holding the databases. Communicated with via Pyro.
 
-    The server creates a Period instance from the appropriate filepath in the
-    config directory. It is typically launched at the initial `financeager`
+    The server is typically launched at the initial `financeager`
     command line call and then runs in the background as a Pyro daemon.
-    The `response` attribute can be used to access possible output data from
-    querying commands (f.i. `print`). It holds a list of tinydb.database.Element
-    objects (can be empty).
+    The `response` attribute (type: dictionary) can be used to access possible
+    output data from querying commands (f.i. `print`).
     """
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, period_name=None):
+    def __init__(self):
         self._running = True
-        self._period_filepath = os.path.join(
-                CONFIG_DIR, "{}.{}".format(
-                    Period.DEFAULT_NAME if period_name is None else
-                    period_name, self._file_suffix))
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
+        self._periods = {}
         self._response = None
-        self._command = None
-
-    @abstractproperty
-    def _file_suffix(self):
-        pass
 
     @property
     def running(self):
@@ -43,7 +32,7 @@ class Server(object):
     @Pyro4.expose
     @property
     def response(self):
-        """Query and reset the server response. A list of strings is returned.
+        """Query and reset the server response. A dictionary is returned.
         This avoid serialization issues with Pyro4."""
         result = self._response
         self._response = None
@@ -56,7 +45,6 @@ class Server(object):
         stored in the `response` attribute.
         Calling `stop` causes the Pyro daemon request loop to terminate.
         """
-        self._command = command
         if command == "stop":
             self._running = False
         else:
@@ -65,12 +53,15 @@ class Server(object):
                     "rm": "remove_entry",
                     "print": "print_entries"
                     }
-            response = getattr(self._period, command2method[command])(**kwargs)
+            period_name = kwargs.pop("period", str(Period.DEFAULT_NAME))
+            response = getattr(
+                    self._periods[period_name], command2method[command])(**kwargs)
             self._response = response
 
 @Pyro4.expose
 class TinyDbServer(Server):
-    """Server implementation holding a `TinyDbPeriod` database.
+    """
+    Server implementation holding `TinyDbPeriod` databases.
 
     All database handling is taken care of in the underlying `TinyDbPeriod`.
     Kwargs (f.i. storage) are passed to the TinyDbPeriod member.
@@ -78,20 +69,25 @@ class TinyDbServer(Server):
 
     NAME = "financeager_tinydb_server"
 
-    def __init__(self, period_name=None, **kwargs):
-        super(TinyDbServer, self).__init__(period_name)
-        self._period = TinyDbPeriod(name=period_name, **kwargs)
-
-    @property
-    def _file_suffix(self):
-        return "json"
-
-    @staticmethod
-    def name(period_name):
-        return "financeager_tinydb_server.{}".format(period_name)
+    def __init__(self, **kwargs):
+        super(TinyDbServer, self).__init__()
+        self._period_kwargs = kwargs
 
     def run(self, command, **kwargs):
-        # graceful shutdown, invoke closing of files
+        """
+        Create the requested TinyDbPeriod if not yet present, then run the
+        command.
+        """
+
         if command == "stop":
-            self._period.close()
+            # graceful shutdown, invoke closing of files
+            for period in self._periods.values():
+                period.close()
+        else:
+            period_name = kwargs.get("period")
+            if period_name not in self._periods:
+                # default period stored with key 'None'
+                self._periods[period_name] = TinyDbPeriod(period_name,
+                        **self._period_kwargs)
+
         super(TinyDbServer, self).run(command, **kwargs)
