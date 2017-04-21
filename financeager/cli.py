@@ -31,9 +31,7 @@ class Cli(object):
 
         proxy = self._communication_module.proxy()
         try:
-            # server should be stateless and not storing response!
-            proxy.run(command, **self._cl_kwargs)
-            response = proxy.response
+            response = proxy.run(command, **self._cl_kwargs)
             if response is not None:
                 error = response.get("error")
                 if error is not None:

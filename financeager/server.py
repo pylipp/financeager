@@ -12,8 +12,6 @@ class Server(object):
 
     The server is typically launched at the initial `financeager`
     command line call and then runs in the background as a Pyro daemon.
-    The `response` attribute (type: dictionary) can be used to access possible
-    output data from querying commands (f.i. `print`).
     """
 
     __metaclass__ = ABCMeta
@@ -23,26 +21,17 @@ class Server(object):
         if not os.path.isdir(CONFIG_DIR):
             os.makedirs(CONFIG_DIR)
         self._periods = {}
-        self._response = None
 
     @property
     def running(self):
         return self._running
 
-    @Pyro4.expose
-    @property
-    def response(self):
-        """Query and reset the server response. A dictionary is returned.
-        This avoid serialization issues with Pyro4."""
-        result = self._response
-        self._response = None
-        return result
-
     @abstractmethod
     def run(self, command, **kwargs):
         """The method of `Period` corresponding to the given `command` is
-        looked up and called. All `kwargs` are passed on. The return value is
-        stored in the `response` attribute.
+        looked up and called. All `kwargs` are passed on. The return value
+        (type: dictionary, serializable by Pyor) can later be used to access
+        possible output data from querying commands (f.i. `print`).
         Calling `stop` causes the Pyro daemon request loop to terminate.
         """
         if command == "stop":
@@ -56,7 +45,7 @@ class Server(object):
             period_name = kwargs.pop("period", str(Period.DEFAULT_NAME))
             response = getattr(
                     self._periods[period_name], command2method[command])(**kwargs)
-            self._response = response
+            return response
 
 @Pyro4.expose
 class TinyDbServer(Server):
@@ -90,4 +79,4 @@ class TinyDbServer(Server):
                 self._periods[period_name] = TinyDbPeriod(period_name,
                         **self._period_kwargs)
 
-        super(TinyDbServer, self).run(command, **kwargs)
+        return super(TinyDbServer, self).run(command, **kwargs)
