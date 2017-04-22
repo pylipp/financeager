@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 from financeager.items import CategoryItem
-from financeager.server import TinyDbServer
+from financeager.server import Server
 from financeager.period import CONFIG_DIR
 import os.path
 from tinydb import database, storages
@@ -17,19 +17,19 @@ def suite():
             'test_config_dir_exists',
             'test_period_file_exists'
             ]
-    suite.addTest(unittest.TestSuite(map(AddEntryToTinyDbServerTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
     tests = [
             'test_query_and_reset_response',
             'test_response_is_none'
             ]
-    suite.addTest(unittest.TestSuite(map(FindEntryTinyDbServerTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(FindEntryServerTestCase, tests)))
     return suite
 
 
-class AddEntryToTinyDbServerTestCase(unittest.TestCase):
+class AddEntryToServerTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = TinyDbServer()
+        cls.server = Server()
         cls.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors", period="0")
 
@@ -51,9 +51,9 @@ class AddEntryToTinyDbServerTestCase(unittest.TestCase):
         cls.server.run("stop")
         os.remove(os.path.join(CONFIG_DIR, "0.json"))
 
-class FindEntryTinyDbServerTestCase(unittest.TestCase):
+class FindEntryServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = TinyDbServer(storage=storages.MemoryStorage)
+        self.server = Server(storage=storages.MemoryStorage)
         self.period = "0"
         self.server.run("add", name="Hiking boots", value=-111.11,
                 period=self.period)
