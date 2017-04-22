@@ -22,7 +22,7 @@ class Cli(object):
     def __call__(self):
         command = self._cl_kwargs.pop("command")
 
-        if command == "list":
+        if command == "list" and not self._cl_kwargs.get("running", False):
             self._print_list()
             return
 
@@ -40,19 +40,17 @@ class Cli(object):
                 elements = response.get("elements")
                 if elements is not None:
                     print(prettify(elements, self._stacked_layout))
+
+                periods = response.get("periods")
+                if periods is not None:
+                    for p in periods:
+                        print(p)
         except (self._communication_module.CommunicationError) as e:
             # 'stop' requested but period server not launched
             pass
 
     def _print_list(self):
-        running = self._cl_kwargs.pop("running", False)
-        if running:
-            for server in self._communication_module.running_servers():
-                print(server)
-                print()
-        else:
-            for file in os.listdir(CONFIG_DIR):
-                filename, extension = os.path.splitext(file)
-                if extension in [".xml", ".json"]:
-                    print(filename)
-                    print()
+        for file in os.listdir(CONFIG_DIR):
+            filename, extension = os.path.splitext(file)
+            if extension in [".xml", ".json"]:
+                print(filename)

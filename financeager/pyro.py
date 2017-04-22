@@ -39,11 +39,4 @@ def proxy():
     return Pyro4.Proxy("PYRONAME:{}".format(PyroServer.NAME))
 
 
-def running_servers():
-    name_server = Pyro4.locateNS()
-    servers = name_server.list()
-    servers.pop("Pyro.NameServer")
-    return servers
-
-
 CommunicationError = Pyro4.naming.NamingError

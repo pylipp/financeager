@@ -28,7 +28,9 @@ class Server(object):
         possible output data from querying commands (f.i. `print`).
         """
 
-        if command == "stop":
+        if command == "list":
+            return self.periods()
+        elif command == "stop":
             # graceful shutdown, invoke closing of files
             for period in self._periods.values():
                 period.close()
@@ -47,6 +49,9 @@ class Server(object):
             response = getattr(
                     self._periods[period_name], command2method[command])(**kwargs)
             return response
+
+    def periods(self):
+        return {"periods": [p._name for p in self._periods.values()]}
 
 @Pyro4.expose
 class PyroServer(Server):
