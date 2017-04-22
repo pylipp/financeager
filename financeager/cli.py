@@ -47,7 +47,7 @@ class Cli(object):
                         print(p)
         except (self._communication_module.CommunicationError) as e:
             # 'stop' requested but period server not launched
-            pass
+            print(e)
 
     def _print_list(self):
         for file in os.listdir(CONFIG_DIR):
