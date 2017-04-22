@@ -34,7 +34,8 @@ def suite():
             'test_create_models_query_kwargs',
             'test_repetitive_entries',
             'test_repetitive_quarter_yearly_entries'
-            ,'test_category_cache'
+            ,'test_category_cache',
+            'test_remove_nonexisting_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -110,8 +111,9 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 database.Element)
 
     def test_remove_entry(self):
-        self.period.remove_entry(category=CategoryItem.DEFAULT_NAME)
+        response = self.period.remove_entry(category=CategoryItem.DEFAULT_NAME)
         self.assertEqual(0, len(self.period))
+        self.assertEqual(1, response["id"])
 
     def test_create_models_query_kwargs(self):
         self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
@@ -166,6 +168,10 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         groceries_elements = self.period.find_entry(category="groceries")
         self.assertEqual(len(groceries_elements), 2)
         self.assertEqual(sum([e["value"] for e in groceries_elements]), -51)
+
+    def test_remove_nonexisting_entry(self):
+        response = self.period.remove_entry(name="non-existing")
+        self.assertIn("error", list(response.keys()))
 
     def tearDown(self):
         self.period.close()

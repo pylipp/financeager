@@ -235,10 +235,16 @@ class TinyDbPeriod(TinyDB, Period):
             entry = entries[0]
             self._category_cache[entry["name"]][entry["category"]] -= 1
 
+            entry_id = entry.eid
+
             if entry.get("frequency", False):
-                self.table("repetitive").remove(eids=[entry.eid])
+                self.table("repetitive").remove(eids=[entry_id])
             else:
-                self.remove(eids=[entry.eid])
+                self.remove(eids=[entry_id])
+
+            return {"id": entry_id}
+        return {"error": "No entry matching the query."}
+
 
     def _create_query_condition(self, name=None, value=None, category=None, date=None):
         condition = None
