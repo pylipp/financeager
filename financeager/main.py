@@ -28,6 +28,7 @@ def parse_command():
 
     stop_parser = subparsers.add_parser("stop",
             help="stop period server")
+    # TODO refactor usage of period option
     stop_parser.add_argument(*period_args, **period_kwargs)
 
     rm_parser = subparsers.add_parser("rm",
