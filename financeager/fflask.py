@@ -37,11 +37,19 @@ class _Proxy(object):
         if command == "print":
             response = requests.get(url)
         elif command == "rm":
-            response = requests.delete(url, data=kwargs)
+            eid = kwargs.get("eid")
+            if eid is None:
+                response = requests.delete(url, data=kwargs)
+            else:
+                response = requests.delete("{}/{}/{}".format(
+                    url, kwargs.get("table_name", "standard"), kwargs.get("eid")))
         elif command == "add":
             response = requests.post(url, data=kwargs)
         elif command == "list":
             response = requests.get("http://127.0.0.1:5000/financeager/periods")
+        elif command == "get":
+            response = requests.get("{}/{}/{}".format(
+                url, kwargs.get("table_name", "standard"), kwargs.get("eid")))
         else:
             return {"error": "Unknown command: {}".format(command)}
 

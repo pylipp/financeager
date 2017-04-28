@@ -34,3 +34,19 @@ class PeriodResource(Resource):
     def delete(self, period_name):
         args = delete_parser.parse_args()
         return SERVER.run("rm", period=period_name, **args)
+
+class EntryResource(Resource):
+    def get(self, period_name, table_name, eid):
+        response = SERVER.run("get", period=period_name, table_name=table_name,
+                eid=eid)
+
+        if response.get("error") is not None:
+            return response, 404
+        return response
+
+    def delete(self, period_name, table_name, eid):
+        response = SERVER.run("rm", period=period_name, table_name=table_name,
+                eid=eid)
+        if response.get("error") is not None:
+            return {}, 404
+        return response

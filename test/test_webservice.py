@@ -12,6 +12,7 @@ def suite():
     suite = unittest.TestSuite()
     tests = [
         'test_add_print_rm'
+        ,'test_add_get_rm_via_eid'
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
@@ -26,17 +27,30 @@ class WebserviceTestCase(unittest.TestCase):
     def test_add_print_rm(self):
         response = self.proxy.run("add", period=self.period, name="cookies",
                 value="-100", category="food")
-        self.assertEqual(response["id"], 1)
+        entry_id = response["id"]
 
         response = self.proxy.run("print", period=self.period)
         self.assertEqual(response["elements"][0]["name"], "cookies")
         self.assertEqual(len(response["elements"]), 1)
 
         response = self.proxy.run("rm", period=self.period, name="cookies")
-        self.assertEqual(response["id"], 1)
+        self.assertEqual(response["id"], entry_id)
 
         response = self.proxy.run("list")
         self.assertEqual(response["periods"][0], self.period)
+
+    def test_add_get_rm_via_eid(self):
+        response = self.proxy.run("add", period=self.period, name="donuts",
+                value="-50", category="sweets")
+        eid = response["id"]
+
+        response = self.proxy.run("get", period=self.period, eid=eid)
+        self.assertEqual(response["element"]["name"], "donuts")
+
+        response = self.proxy.run("rm", period=self.period, eid=eid)
+
+        response = self.proxy.run("print", period=self.period)
+        self.assertEqual(len(response["elements"]), 0)
 
     def tearDown(self):
         self.proxy.run("stop")
