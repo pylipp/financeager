@@ -36,6 +36,7 @@ def suite():
             'test_repetitive_quarter_yearly_entries'
             ,'test_category_cache',
             'test_remove_nonexisting_entry'
+            ,'test_add_rm_via_eid'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -172,6 +173,18 @@ class TinyDbPeriodTestCase(unittest.TestCase):
     def test_remove_nonexisting_entry(self):
         response = self.period.remove_entry(name="non-existing")
         self.assertIn("error", list(response.keys()))
+
+    def test_add_rm_via_eid(self):
+        entry_name = "penguin sale"
+        response = self.period.add_entry(name=entry_name, value=1337,
+                date="1901-12-01")
+        entry_id = response["id"]
+        nr_entries = len(self.period)
+
+        response = self.period.remove_entry(eid=entry_id)
+        self.assertEqual(response["id"], entry_id)
+        self.assertEqual(len(self.period), nr_entries - 1)
+        self.assertEqual(self.period._category_cache[entry_name]["unspecified"], 0)
 
     def tearDown(self):
         self.period.close()

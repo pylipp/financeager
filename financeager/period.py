@@ -143,6 +143,25 @@ class TinyDbPeriod(TinyDB, Period):
                         name=name, value=value, date=date, category=category))
         return {"id": element_id}
 
+    def get_entry(self, eid=None, table_name="standard"):
+        """
+        Get entry specified by ``eid`` in the table ``table_name``.
+
+        :type eid: int or str
+
+        :return: response dict containing the element if found, error
+            information otherwise
+        """
+
+        if eid is None:
+            return {"error": "No eid specified."}
+
+        element = self.table(table_name).get(eid=int(eid))
+        if element is None:
+            return {"error": "Element not found."}
+
+        return {"element": element}
+
     def _search_all_tables(self, query_impl=None, create_recurrent_elements=True):
         """
         Search both the standard table and the repetitive table for elements
@@ -228,6 +247,42 @@ class TinyDbPeriod(TinyDB, Period):
                 create_recurrent_elements=create_recurrent_elements)
 
     def remove_entry(self, **kwargs):
+        """
+        Remove an entry from the Period database.
+
+        This can be achieved in two ways by providing suitable kwargs:
+        a)
+            :param eid: ID of the element to be deleted.
+            :type eid: int or str
+            :param table_name: name of the table that contains the element.
+                Default: 'standard'
+            :type table_name: str
+        b)
+            :param name: name of the element to be deleted
+            :param date: date of the element to be deleted (optional)
+            :param category: category of the element to be deleted (optional)
+            A query is constructed from the given kwargs and used to search the
+            entire database. If multiple entries match the query, nothing is
+            removed.
+
+        :return: response dict containing element ID (if removal was succesful)
+            or error information otherwise
+        """
+
+        entry_id = kwargs.get("eid")
+        if entry_id is not None:
+            entry_id = int(entry_id)
+            table_name = kwargs.get("table_name", "standard")
+
+            response = self.get_entry(eid=entry_id, table_name=table_name)
+            if response.get("error") is not None:
+                return response
+
+            self.table(table_name).remove(eids=[entry_id])
+            entry = response["element"]
+            self._category_cache[entry["name"]][entry["category"]] -= 1
+            return {"id": entry_id}
+
         entries = self.find_entry(create_recurrent_elements=False, **kwargs)
         if entries:
             if len(entries) > 1:
