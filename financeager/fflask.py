@@ -53,10 +53,7 @@ class _Proxy(object):
         else:
             return {"error": "Unknown command: {}".format(command)}
 
-        if response.ok:
-            return response.json()
-        else:
-            return {"error": "Request of '{}' failed".format(command)}
+        return response.json()
 
 
 def proxy():

@@ -13,6 +13,8 @@ def suite():
     tests = [
         'test_add_print_rm'
         ,'test_add_get_rm_via_eid'
+        ,'test_get_nonexisting_entry'
+        ,'test_delete_nonexisting_entry'
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
@@ -49,6 +51,15 @@ class WebserviceTestCase(unittest.TestCase):
 
         response = self.proxy.run("print", period=self.period)
         self.assertEqual(len(response["elements"]), 0)
+
+    def test_get_nonexisting_entry(self):
+        response = self.proxy.run("get", period=self.period, eid=-1)
+        self.assertSetEqual({"error"}, set(response.keys()))
+
+    def test_delete_nonexisting_entry(self):
+        response = self.proxy.run("rm", period=self.period,
+                name="something that won't be found", category="nowhere")
+        self.assertSetEqual({"error"}, set(response.keys()))
 
     def tearDown(self):
         self.proxy.run("stop")

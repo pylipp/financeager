@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import os.path
 import Pyro4
-from financeager.period import Period, TinyDbPeriod, CONFIG_DIR
+from financeager.period import Period, TinyDbPeriod, CONFIG_DIR, PeriodException
 
 
 class Server(object):
@@ -78,4 +78,7 @@ class PyroServer(Server):
         if command == "stop":
             self._running = False
 
-        return super().run(command, **kwargs)
+        try:
+            return super().run(command, **kwargs)
+        except PeriodException as e:
+            return {"error": str(e)}

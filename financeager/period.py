@@ -77,6 +77,11 @@ class XmlPeriod(Period):
             self._earnings_model.add_entry(
                     BaseEntry(name, value, date), category=category)
 
+
+class PeriodException(Exception):
+    pass
+
+
 class TinyDbPeriod(TinyDB, Period):
 
     def __init__(self, name=None, *args, **kwargs):
@@ -179,18 +184,18 @@ class TinyDbPeriod(TinyDB, Period):
 
         :type eid: int or str
 
-        :return: response dict containing the element if found, error
-            information otherwise
+        :raise: PeriodException if eid missing or element not found
+        :return: found element (tinydb.Element)
         """
 
         if eid is None:
-            return {"error": "No eid specified."}
+            raise PeriodException("No element ID specified.")
 
         element = self.table(table_name).get(eid=int(eid))
         if element is None:
-            return {"error": "Element not found."}
+            raise PeriodException("Element not found.")
 
-        return {"element": element}
+        return element
 
     def _search_all_tables(self, query_impl=None, create_recurrent_elements=True):
         """
@@ -295,8 +300,8 @@ class TinyDbPeriod(TinyDB, Period):
             entire database. If multiple entries match the query, nothing is
             removed.
 
-        :return: response dict containing element ID (if removal was succesful)
-            or error information otherwise
+        :raise: PeriodException if element/ID not found or ambiguous query.
+        :return: element ID if removal was successful
         """
 
         entry_id = kwargs.get("eid")
@@ -304,19 +309,18 @@ class TinyDbPeriod(TinyDB, Period):
             entry_id = int(entry_id)
             table_name = kwargs.get("table_name", TinyDB.DEFAULT_TABLE)
 
-            response = self.get_entry(eid=entry_id, table_name=table_name)
-            if response.get("error") is not None:
-                return response
+            # might raise PeriodException if ID not existing
+            entry = self.get_entry(eid=entry_id, table_name=table_name)
 
-            self.table(table_name).remove(eids=[entry_id])
-            entry = response["element"]
+            self.table(table_name).remove(eids=[entry.eid])
             self._category_cache[entry["name"]][entry["category"]] -= 1
-            return {"id": entry_id}
+            return entry.eid
 
         entries = self.find_entry(create_recurrent_elements=False, **kwargs)
         if entries:
             if len(entries) > 1:
-                return {"error": "Ambiguous query. Nothing is removed."}
+                raise PeriodException("Ambiguous query. Nothing is removed.")
+
             entry = entries[0]
             self._category_cache[entry["name"]][entry["category"]] -= 1
 
@@ -327,9 +331,9 @@ class TinyDbPeriod(TinyDB, Period):
             else:
                 self.remove(eids=[entry_id])
 
-            return {"id": entry_id}
-        return {"error": "No entry matching the query."}
+            return entry_id
 
+        raise PeriodException("No entry matching the query.")
 
     def _create_query_condition(self, name=None, value=None, category=None, date=None):
         condition = None

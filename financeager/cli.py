@@ -32,19 +32,22 @@ class Cli(object):
         proxy = self._communication_module.proxy()
         try:
             response = proxy.run(command, **self._cl_kwargs)
-            if response is not None:
-                error = response.get("error")
-                if error is not None:
-                    print(error)
 
-                elements = response.get("elements")
-                if elements is not None:
-                    print(prettify(elements, self._stacked_layout))
+            if not isinstance(response, dict):
+                return
 
-                periods = response.get("periods")
-                if periods is not None:
-                    for p in periods:
-                        print(p)
+            error = response.get("error")
+            if error is not None:
+                print(error)
+
+            elements = response.get("elements")
+            if elements is not None:
+                print(prettify(elements, self._stacked_layout))
+
+            periods = response.get("periods")
+            if periods is not None:
+                for p in periods:
+                    print(p)
         except (self._communication_module.CommunicationError) as e:
             # 'stop' requested but period server not launched
             print(e)

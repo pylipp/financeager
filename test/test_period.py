@@ -4,7 +4,7 @@ import unittest
 
 import xml.etree.ElementTree as ET
 from tinydb import database, Query, storages
-from financeager.period import XmlPeriod, TinyDbPeriod
+from financeager.period import XmlPeriod, TinyDbPeriod, PeriodException
 from financeager.model import Model
 from financeager.entries import BaseEntry
 from financeager.items import CategoryItem
@@ -37,6 +37,7 @@ def suite():
             ,'test_category_cache',
             'test_remove_nonexisting_entry'
             ,'test_add_rm_via_eid'
+            ,'test_get_nonexisting_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -114,7 +115,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
     def test_remove_entry(self):
         response = self.period.remove_entry(category=CategoryItem.DEFAULT_NAME)
         self.assertEqual(0, len(self.period))
-        self.assertEqual(1, response["id"])
+        self.assertEqual(1, response)
 
     def test_create_models_query_kwargs(self):
         self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
@@ -171,8 +172,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertEqual(sum([e["value"] for e in groceries_elements]), -51)
 
     def test_remove_nonexisting_entry(self):
-        response = self.period.remove_entry(name="non-existing")
-        self.assertIn("error", list(response.keys()))
+        self.assertRaises(PeriodException, self.period.remove_entry, name="non-existing")
 
     def test_add_rm_via_eid(self):
         entry_name = "penguin sale"
@@ -180,10 +180,13 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 date="1901-12-01")
         nr_entries = len(self.period)
 
-        response = self.period.remove_entry(eid=entry_id)
-        self.assertEqual(response["id"], entry_id)
+        removed_entry_id = self.period.remove_entry(eid=entry_id)
+        self.assertEqual(removed_entry_id, entry_id)
         self.assertEqual(len(self.period), nr_entries - 1)
         self.assertEqual(self.period._category_cache[entry_name]["unspecified"], 0)
+
+    def test_get_nonexisting_entry(self):
+        self.assertRaises(PeriodException, self.period.get_entry, eid=-1)
 
     def tearDown(self):
         self.period.close()
