@@ -176,9 +176,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_add_rm_via_eid(self):
         entry_name = "penguin sale"
-        response = self.period.add_entry(name=entry_name, value=1337,
+        entry_id = self.period.add_entry(name=entry_name, value=1337,
                 date="1901-12-01")
-        entry_id = response["id"]
         nr_entries = len(self.period)
 
         response = self.period.remove_entry(eid=entry_id)

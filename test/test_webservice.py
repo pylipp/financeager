@@ -25,9 +25,8 @@ class WebserviceTestCase(unittest.TestCase):
         time.sleep(1)
 
     def test_add_print_rm(self):
-        response = self.proxy.run("add", period=self.period, name="cookies",
+        entry_id = self.proxy.run("add", period=self.period, name="cookies",
                 value="-100", category="food")
-        entry_id = response["id"]
 
         response = self.proxy.run("print", period=self.period)
         self.assertEqual(response["elements"][0]["name"], "cookies")
@@ -40,14 +39,13 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(response["periods"][0], self.period)
 
     def test_add_get_rm_via_eid(self):
-        response = self.proxy.run("add", period=self.period, name="donuts",
+        entry_id = self.proxy.run("add", period=self.period, name="donuts",
                 value="-50", category="sweets")
-        eid = response["id"]
 
-        response = self.proxy.run("get", period=self.period, eid=eid)
+        response = self.proxy.run("get", period=self.period, eid=entry_id)
         self.assertEqual(response["element"]["name"], "donuts")
 
-        response = self.proxy.run("rm", period=self.period, eid=eid)
+        response = self.proxy.run("rm", period=self.period, eid=entry_id)
 
         response = self.proxy.run("print", period=self.period)
         self.assertEqual(len(response["elements"]), 0)

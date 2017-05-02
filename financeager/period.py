@@ -104,14 +104,46 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[element["name"]].update([element["category"]])
 
     def add_entry(self, **kwargs):
+        """
+        Add an entry (standard or recurrent) to the database.
+        Using the kwargs name, value[, category, date] inserts a unique entry
+        in the standard table. Using the kwargs name, value, repetitive[, category]
+        inserts a template entry in the repetitive table.
+
+        Two kwargs are mandatory:
+            :param name: entry name
+            :type name: str
+            :param value: entry value
+            :type value: float or int
+
+        The following kwarg is optional:
+            :param category: entry category. If not specified, the program
+                attempts to derive it from previous, eponymous entries. If this
+                fails, ``CategoryItem.DEFAULT_NAME`` is assigned
+            :type category: str
+
+        The following kwarg is optional for standard entries:
+            :param date: entry date. If not specified, the current date is assigned
+            :type date: str of ``DateItem.FORMAT``
+
+        The following kwarg is mandatory for recurrent entries:
+            :param repetitive: frequency ('yearly', 'half-yearly', 'quarterly',
+                'monthly', 'weekly' or 'daily'), start date (optional, defaults to
+                current date) and end date (optional, defaults to last day of
+                the period's year)
+            :type repetitive: list[str]
+
+        :return: TinyDB ID of new entry (int)
+        """
+
         value = kwargs["value"]
         name = kwargs["name"].lower()
         date = kwargs.get("date")
         if date is None:
+            # FIXME this will assign the current date to ANY period
             date = str(DateItem())
         category = kwargs.get("category")
 
-        # derive category if not given but unique in cache
         if category is None:
             if len(self._category_cache[name]) == 1:
                 category = self._category_cache[name].most_common(1)[0][0]
@@ -141,7 +173,7 @@ class TinyDbPeriod(TinyDB, Period):
             element_id = self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))
-        return {"id": element_id}
+        return element_id
 
     def get_entry(self, eid=None, table_name="standard"):
         """
