@@ -83,12 +83,10 @@ class TinyDbPeriod(TinyDB, Period):
         """
         Create a period with a TinyDB database backend, identified by ``name``.
         The filepath arg for tinydb.JSONStorage is derived from the name.
-        Keyword args other than ``default_table`` (set to ``standard``) are
-        passed to the TinyDB constructor (f.i. storage type).
+        Keyword args are passed to the TinyDB constructor (f.i. storage type).
         """
 
         self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
-        kwargs["default_table"] = "standard"
         if kwargs.get("storage", JSONStorage) == JSONStorage:
             args = list(args) + [os.path.join(CONFIG_DIR, "{}.json".format(self._name))]
         super(TinyDbPeriod, self).__init__(*args, **kwargs)
@@ -175,7 +173,7 @@ class TinyDbPeriod(TinyDB, Period):
                         name=name, value=value, date=date, category=category))
         return element_id
 
-    def get_entry(self, eid=None, table_name="standard"):
+    def get_entry(self, eid=None, table_name=TinyDB.DEFAULT_TABLE):
         """
         Get entry specified by ``eid`` in the table ``table_name``.
 
@@ -287,7 +285,7 @@ class TinyDbPeriod(TinyDB, Period):
             :param eid: ID of the element to be deleted.
             :type eid: int or str
             :param table_name: name of the table that contains the element.
-                Default: 'standard'
+                Default: TinyDbPeriod.DEFAULT_TABLE
             :type table_name: str
         b)
             :param name: name of the element to be deleted
@@ -304,7 +302,7 @@ class TinyDbPeriod(TinyDB, Period):
         entry_id = kwargs.get("eid")
         if entry_id is not None:
             entry_id = int(entry_id)
-            table_name = kwargs.get("table_name", "standard")
+            table_name = kwargs.get("table_name", TinyDB.DEFAULT_TABLE)
 
             response = self.get_entry(eid=entry_id, table_name=table_name)
             if response.get("error") is not None:
@@ -402,3 +400,6 @@ def prettify(elements, stacked_layout=False):
                     )
                 )
         return '\n'.join(result)
+
+
+TinyDB.DEFAULT_TABLE = "standard"

@@ -9,7 +9,7 @@ import os
 
 import requests
 
-from financeager.period import Period
+from financeager.period import Period, TinyDbPeriod
 
 
 def launch_server():
@@ -42,14 +42,14 @@ class _Proxy(object):
                 response = requests.delete(url, data=kwargs)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    url, kwargs.get("table_name", "standard"), kwargs.get("eid")))
+                    url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
         elif command == "add":
             response = requests.post(url, data=kwargs)
         elif command == "list":
             response = requests.get("http://127.0.0.1:5000/financeager/periods")
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                url, kwargs.get("table_name", "standard"), kwargs.get("eid")))
+                url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
         else:
             return {"error": "Unknown command: {}".format(command)}
 
