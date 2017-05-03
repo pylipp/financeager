@@ -55,3 +55,12 @@ class EntryResource(Resource):
             return {"id": response}
         except PeriodException as e:
             return {"error": str(e)}, 404
+
+class ShutdownResource(Resource):
+    def post(self):
+        SERVER.run("stop")
+        from flask import request
+        f = request.environ.get("werkzeug.server.shutdown")
+        if f is None:
+            return {"error": "Not running with the Werkzeug Server"}, 500
+        f()

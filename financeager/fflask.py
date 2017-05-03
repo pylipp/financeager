@@ -50,6 +50,8 @@ class _Proxy(object):
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
                 url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+        elif command == "stop":
+            response = requests.post("http://127.0.0.1:5000/financeager/stop")
         else:
             return {"error": "Unknown command: {}".format(command)}
 
