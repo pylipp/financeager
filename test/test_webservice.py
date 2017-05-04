@@ -4,7 +4,7 @@ import unittest
 import os
 
 from financeager.fflask import launch_server, proxy
-from financeager.period import CONFIG_DIR
+from financeager.config import CONFIG_DIR
 
 
 def suite():

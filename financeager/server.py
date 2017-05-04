@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import os.path
 import Pyro4
-from financeager.period import Period, TinyDbPeriod, CONFIG_DIR, PeriodException
+from financeager.period import Period, TinyDbPeriod, PeriodException
 
 
 class Server(object):
@@ -14,8 +14,6 @@ class Server(object):
     """
 
     def __init__(self, **kwargs):
-        if not os.path.isdir(CONFIG_DIR):
-            os.makedirs(CONFIG_DIR)
         self._periods = {}
         self._period_kwargs = kwargs
 

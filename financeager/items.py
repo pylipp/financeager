@@ -18,6 +18,9 @@ from PyQt5.QtGui import QStandardItem
 from PyQt5.QtCore import QDate
 from abc import ABCMeta
 
+from .config import CONFIG
+
+
 try:
     QString = unicode
 except NameError:
@@ -82,7 +85,7 @@ class CategoryItem(NameItem):
 
     Cannot be edited. Text is printed in bold letters.
     """
-    DEFAULT_NAME = "unspecified"
+    DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
 
     def __init__(self, data, entry=None):
         super(CategoryItem, self).__init__(data, entry)
@@ -135,7 +138,7 @@ class DateItem(DataItem):
     """
 
     QT_FORMAT = "yyyy-MM-dd"
-    FORMAT = "%Y-%m-%d"
+    FORMAT = CONFIG["DATABASE"]["date_format"]
 
     def __init__(self, data="", entry=None):
         date = QDate.fromString(data, DateItem.QT_FORMAT)

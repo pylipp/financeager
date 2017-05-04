@@ -4,7 +4,7 @@ import unittest
 
 from financeager.items import CategoryItem
 from financeager.server import Server
-from financeager.period import CONFIG_DIR
+from financeager.config import CONFIG_DIR
 import os.path
 from tinydb import database, storages
 
@@ -14,7 +14,6 @@ def suite():
     tests = [
             'test_entry_exists',
             'test_period_name',
-            'test_config_dir_exists',
             'test_period_file_exists'
             ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
@@ -32,9 +31,6 @@ class AddEntryToServerTestCase(unittest.TestCase):
         cls.server = Server()
         cls.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors", period="0")
-
-    def test_config_dir_exists(self):
-        self.assertTrue(os.path.isdir(CONFIG_DIR))
 
     def test_period_file_exists(self):
         self.assertTrue(os.path.isfile(os.path.join(CONFIG_DIR, "0.json")))

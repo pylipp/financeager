@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.server import CONFIG_DIR
+from financeager.config import CONFIG_DIR, CONFIG
 from financeager.cli import Cli
 import psutil
 import os
@@ -20,8 +20,8 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
-        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period":
-                "0", "backend": "pyro"}
+        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
+        CONFIG["SERVICE"]["name"] = "pyro"
         self.cli = Cli(cl_kwargs)
         self.cli()
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
