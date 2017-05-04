@@ -20,7 +20,8 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
-        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
+        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period":
+                "0", "backend": "pyro"}
         self.cli = Cli(cl_kwargs)
         self.cli()
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
