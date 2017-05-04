@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import unittest
-import time
 import os
 
 from financeager.fflask import launch_server, proxy
@@ -24,7 +23,6 @@ class WebserviceTestCase(unittest.TestCase):
         self.webservice_process = launch_server()
         self.proxy = proxy()
         self.period = "0"
-        time.sleep(1)
 
     def test_add_print_rm(self):
         entry_id = self.proxy.run("add", period=self.period, name="cookies",
