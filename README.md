@@ -32,7 +32,7 @@ Create links for the virtual environment to find PyQt5
 
     ln -s /usr/lib/python3/dist-packages/PyQt5 $WORKON_HOME/financeager/lib/python3.5/site-packages/PyQt5
 
-Clone the repo, the branch `cli_py3` is checked out by default
+Clone the repo
 
     git clone https://github.com/pylipp/financeager.git
 
@@ -60,9 +60,11 @@ Add repetitive entries using the `-r FREQUENCY [START END]` flag.
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
-Remove an entry by (removes the first entry found)
+Remove an entry by
 
     > financeager rm burgers
+
+Nothing is removed if the query gives multiple or no results.
 
 Show a side-by-side overview of earnings and expenses (filter date and/or category by providing the `-d` and `-c` flag and/or filter the name by providing a positional argument)
 
@@ -81,6 +83,10 @@ All financeager command operate on the default database (named by the current ye
 
 	> financeager add xmas-gifts -42 --date 2016-12-23 --period 2016
 
+Stop the server doing the database backend communication with 
+
+    > financeager stop
+
 Detailed information is available from
 
 	> financeager --help
@@ -98,7 +104,13 @@ FUTURE FEATURES
 - [x] stacked layout for `print`
 - [x] detect category from entry name
 - [x] display entries of single month
-- [ ] improve documentation (period module)
+- [x] improve documentation (period module)
 - [ ] create Python package
 - [ ] set up Travis CI
-- [ ] use flask for REST API
+- [x] use flask for REST API
+
+PERSONAL NOTE
+-------------
+This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development. 
+
+Feel free to browse the project and give feedback (comments, issues, PRs). 
