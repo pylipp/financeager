@@ -26,7 +26,7 @@ class WebserviceTestCase(unittest.TestCase):
 
     def test_add_print_rm(self):
         entry_id = self.proxy.run("add", period=self.period, name="cookies",
-                value="-100", category="food")
+                value="-100", category="food", repetitive=[])
 
         response = self.proxy.run("print", period=self.period)
         self.assertEqual(response["elements"][0]["name"], "cookies")
