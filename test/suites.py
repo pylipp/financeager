@@ -10,7 +10,8 @@ modules = [
         'test_period',
         'test_server',
         'test_webservice',
-        'test_cli'
+        'test_cli',
+        'test_config'
         ]
 
 testRunner = unittest.TextTestRunner(verbosity=2)
