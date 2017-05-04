@@ -19,7 +19,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(os.path.isdir(CONFIG_DIR))
 
     def test_config_sections(self):
-        self.assertSetEqual(set(CONFIG.sections()), {"SERVICE", "DATABASE"})
+        self.assertSetEqual(set(CONFIG.sections()), {"SERVICE", "DATABASE",
+            "SERVICE:FLASK"})
 
 
 if __name__ == "__main__":

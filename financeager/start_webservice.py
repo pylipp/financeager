@@ -2,6 +2,7 @@
 from flask import Flask
 from flask_restful import Api
 
+from financeager.config import CONFIG
 from financeager.resources import (PeriodsResource, PeriodResource,
         EntryResource, ShutdownResource)
 
@@ -16,7 +17,7 @@ api.add_resource(ShutdownResource, "/financeager/stop")
 
 if __name__ == "__main__":
     try:
-        app.run(debug=True)
+        app.run(debug=CONFIG["SERVICE:FLASK"].getboolean("debug"))
     except OSError as e:
         # socket binding: address already in use
         print(e)

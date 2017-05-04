@@ -25,6 +25,9 @@ def _load():
                 "default_category": "unspecified",
                 "date_format": "%%Y-%%m-%%d"
                 }
+        parser["SERVICE:FLASK"] = {
+                "debug": False
+                }
         with open(path, "w") as f:
             parser.write(f)
 

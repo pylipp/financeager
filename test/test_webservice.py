@@ -4,7 +4,7 @@ import unittest
 import os
 
 from financeager.fflask import launch_server, proxy
-from financeager.config import CONFIG_DIR
+from financeager.config import CONFIG, CONFIG_DIR
 
 
 def suite():
@@ -20,6 +20,7 @@ def suite():
 
 class WebserviceTestCase(unittest.TestCase):
     def setUp(self):
+        CONFIG["SERVICE:FLASK"]["debug"] = "yes"
         self.webservice_process = launch_server()
         self.proxy = proxy()
         self.period = "0"
