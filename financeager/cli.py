@@ -7,6 +7,7 @@ from __future__ import unicode_literals, print_function
 import os
 
 import financeager.pyro
+import financeager.fflask
 from financeager.period import prettify
 from financeager.server import CONFIG_DIR
 
@@ -15,7 +16,7 @@ class Cli(object):
 
     def __init__(self, cl_kwargs):
         self._cl_kwargs = cl_kwargs
-        self._communication_module = getattr(financeager, "pyro")
+        self._communication_module = getattr(financeager, "fflask")
 
         self._stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
 
