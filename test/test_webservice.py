@@ -36,7 +36,7 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(response["id"], entry_id)
 
         response = self.proxy.run("list")
-        self.assertEqual(response["periods"][0], self.period)
+        self.assertIn(self.period, response["periods"])
 
     def test_add_get_rm_via_eid(self):
         entry_id = self.proxy.run("add", period=self.period, name="donuts",
