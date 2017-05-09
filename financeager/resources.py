@@ -8,7 +8,7 @@ SERVER = Server()
 
 put_parser = reqparse.RequestParser()
 put_parser.add_argument("name", required=True)
-put_parser.add_argument("value", required=True)
+put_parser.add_argument("value", required=True, type=float)
 put_parser.add_argument("category", default=None)
 put_parser.add_argument("date", default=None)
 put_parser.add_argument("repetitive", default=False, type=list)
