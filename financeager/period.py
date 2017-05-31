@@ -117,7 +117,7 @@ class TinyDbPeriod(TinyDB, Period):
             :param name: entry name
             :type name: str
             :param value: entry value
-            :type value: float or int
+            :type value: float, int or str
 
         The following kwarg is optional:
             :param category: entry category. If not specified, the program
@@ -139,7 +139,7 @@ class TinyDbPeriod(TinyDB, Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        value = kwargs["value"]
+        value = float(kwargs["value"])
         name = kwargs["name"].lower()
         date = kwargs.get("date")
         if date is None:
