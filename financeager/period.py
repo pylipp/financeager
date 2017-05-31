@@ -6,7 +6,6 @@ from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 
-from PyQt5.QtCore import QDate
 import xml.etree.ElementTree as ET
 from tinydb import TinyDB, Query, where, JSONStorage
 from tinydb.database import Element
@@ -22,7 +21,7 @@ CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
 class Period(object):
 
-    DEFAULT_NAME = QDate.currentDate().year()
+    DEFAULT_NAME = dt.today().year
 
     def __init__(self, name=None):
         self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
