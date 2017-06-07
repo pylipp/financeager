@@ -13,6 +13,7 @@ from flask import Flask
 from flask_restful import Api
 
 from .period import Period, TinyDbPeriod
+from .config import CONFIG
 from .resources import (PeriodsResource, PeriodResource,
         EntryResource, ShutdownResource)
 
@@ -22,10 +23,11 @@ def create_app(config=None):
     app.config.update(config or {})
     api = Api(app)
 
-    api.add_resource(PeriodsResource, "/financeager/periods")
-    api.add_resource(PeriodResource, "/financeager/periods/<period_name>")
+    api.add_resource(PeriodsResource, _Proxy.PERIODS_TAIL)
+    api.add_resource(PeriodResource,
+            "{}/<period_name>".format(_Proxy.PERIODS_TAIL))
     api.add_resource(EntryResource,
-        "/financeager/periods/<period_name>/<table_name>/<eid>")
+        "{}/<period_name>/<table_name>/<eid>".format(_Proxy.PERIODS_TAIL))
     api.add_resource(ShutdownResource, "/financeager/stop")
 
     return app
@@ -49,28 +51,33 @@ class _Proxy(object):
     :return: dict
     """
 
+    PERIODS_TAIL = "/financeager/periods"
+
     def run(self, command, **kwargs):
         period = kwargs.pop("period", None) or str(Period.DEFAULT_NAME)
-        url = "http://127.0.0.1:5000/financeager/periods/{}".format(period)
+        url = "http://{}:5000{}".format(
+                CONFIG["SERVICE:FLASK"]["host"], self.PERIODS_TAIL
+                )
+        period_url = "{}/{}".format(url, period)
 
         if command == "print":
-            response = requests.get(url)
+            response = requests.get(period_url)
         elif command == "rm":
             eid = kwargs.get("eid")
             if eid is None:
-                response = requests.delete(url, data=kwargs)
+                response = requests.delete(period_url, data=kwargs)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                    period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
         elif command == "add":
-            response = requests.post(url, data=kwargs)
+            response = requests.post(period_url, data=kwargs)
         elif command == "list":
-            response = requests.get("http://127.0.0.1:5000/financeager/periods")
+            response = requests.get(url)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
         elif command == "stop":
-            response = requests.post("http://127.0.0.1:5000/financeager/stop")
+            response = requests.post("{}/stop".format(url))
         else:
             return {"error": "Unknown command: {}".format(command)}
 
