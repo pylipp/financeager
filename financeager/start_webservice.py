@@ -13,4 +13,4 @@ if __name__ == "__main__":
                 )
     except OSError as e:
         # socket binding: address already in use
-        print(e)
+        print("The financeager server has already been started.")
