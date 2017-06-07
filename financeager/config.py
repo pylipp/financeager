@@ -26,7 +26,8 @@ def _load():
                 "date_format": "%%Y-%%m-%%d"
                 }
         parser["SERVICE:FLASK"] = {
-                "debug": False
+                "debug": False,
+                "host": "127.0.0.1"
                 }
         with open(path, "w") as f:
             parser.write(f)
