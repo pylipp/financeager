@@ -29,10 +29,6 @@ class Cli(object):
     def __call__(self):
         command = self._cl_kwargs.pop("command")
 
-        if command == "list" and not self._cl_kwargs.get("running", False):
-            self._print_list()
-            return
-
         if command == "start":
             self._communication_module.launch_server()
             return
@@ -58,9 +54,3 @@ class Cli(object):
                     print(p)
         except (self._communication_module.CommunicationError) as e:
             print(e)
-
-    def _print_list(self):
-        for file in os.listdir(CONFIG_DIR):
-            filename, extension = os.path.splitext(file)
-            if extension in [".xml", ".json"]:
-                print(filename)

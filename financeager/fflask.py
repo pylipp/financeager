@@ -71,7 +71,7 @@ class _Proxy(object):
         elif command == "add":
             response = requests.post(period_url, data=kwargs)
         elif command == "list":
-            response = requests.get(url)
+            response = requests.post(url, data=kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
                 period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))

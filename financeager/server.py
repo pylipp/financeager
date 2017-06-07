@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os.path
 import Pyro4
 from financeager.period import Period, TinyDbPeriod, PeriodException
+from .config import CONFIG_DIR
 
 
 class Server(object):
@@ -27,7 +28,7 @@ class Server(object):
         """
 
         if command == "list":
-            return self.periods()
+            return self.periods(running=kwargs.get("running", False))
         elif command == "stop":
             # graceful shutdown, invoke closing of files
             for period in self._periods.values():
@@ -49,8 +50,17 @@ class Server(object):
                     self._periods[period_name], command2method[command])(**kwargs)
             return response
 
-    def periods(self):
-        return {"periods": [p._name for p in self._periods.values()]}
+    def periods(self, running=False):
+        if running:
+            return {"periods": [p._name for p in self._periods.values()]}
+        else:
+            filenames = []
+            for file in os.listdir(CONFIG_DIR):
+                filename, extension = os.path.splitext(file)
+                if extension in [".xml", ".json"]:
+                    filenames.append(filename)
+            return {"periods": filenames}
+
 
 @Pyro4.expose
 class PyroServer(Server):

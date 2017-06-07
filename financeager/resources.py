@@ -18,10 +18,14 @@ delete_parser.add_argument("name", required=True)
 delete_parser.add_argument("category", default=None)
 delete_parser.add_argument("date", default=None)
 
+periods_parser = reqparse.RequestParser()
+periods_parser.add_argument("running", default=False)
+
 
 class PeriodsResource(Resource):
-    def get(self):
-        return SERVER.periods()
+    def post(self):
+        args = periods_parser.parse_args()
+        return SERVER.run("list", **args)
 
 class PeriodResource(Resource):
     def get(self, period_name):
