@@ -57,7 +57,6 @@ class Cli(object):
                 for p in periods:
                     print(p)
         except (self._communication_module.CommunicationError) as e:
-            # 'stop' requested but period server not launched
             print(e)
 
     def _print_list(self):

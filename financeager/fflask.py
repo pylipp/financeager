@@ -28,7 +28,6 @@ def create_app(config=None):
             "{}/<period_name>".format(_Proxy.PERIODS_TAIL))
     api.add_resource(EntryResource,
         "{}/<period_name>/<table_name>/<eid>".format(_Proxy.PERIODS_TAIL))
-    api.add_resource(ShutdownResource, "/financeager/stop")
 
     return app
 
@@ -76,8 +75,6 @@ class _Proxy(object):
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
                 period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
-        elif command == "stop":
-            response = requests.post("{}/stop".format(url))
         else:
             return {"error": "Unknown command: {}".format(command)}
 
