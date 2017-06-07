@@ -20,6 +20,7 @@ tool and successively built a GUI on top.
 GENERAL USAGE
 -------------
 ### Installation
+
 Install the dependencies (I'm on Ubuntu Xenial):
 
     sudo apt-get install python3-pyqt5
@@ -28,7 +29,7 @@ Create a virtual environment
 
     mkvirtualenv --python=/usr/bin/python3 financeager
 
-Create links for the virtual environment to find PyQt5
+Create links for the virtual environment to find PyQt5 (same for `sip` library)
 
     ln -s /usr/lib/python3/dist-packages/PyQt5 $WORKON_HOME/financeager/lib/python3.5/site-packages/PyQt5
 
@@ -41,18 +42,29 @@ Install (uses pip)
     make install
 
 ### Testing
+
 You're invited to run the tests from the root directory:
 
     make test
 
-### Command line usage
+### Server side usage
+
+Launch the server via
+
+    > financeager start
+
+Host IP and debug mode are read from the configuration. Personally I run a financeager server on my Raspi, making it accessible via local network by setting `host=0.0.0.0`.
+
+### Client side command line usage
+
+Specify the host in the config (defaults to localhost).
 
 Add earnings (no/positive sign) and expenses (negative sign) to the database:
 
     > financeager add burgers -19.99 --category Restaurants
     > financeager add lottery 123.45 --date 2017-03-14
 
-Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used. 
+Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
 Add repetitive entries using the `-r FREQUENCY [START END]` flag.
 
@@ -83,10 +95,6 @@ All financeager command operate on the default database (named by the current ye
 
 	> financeager add xmas-gifts -42 --date 2016-12-23 --period 2016
 
-Stop the server doing the database backend communication with 
-
-    > financeager stop
-
 Detailed information is available from
 
 	> financeager --help
@@ -111,6 +119,6 @@ FUTURE FEATURES
 
 PERSONAL NOTE
 -------------
-This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development. 
+This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development.
 
-Feel free to browse the project and give feedback (comments, issues, PRs). 
+Feel free to browse the project and give feedback (comments, issues, PRs).
