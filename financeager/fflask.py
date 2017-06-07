@@ -9,8 +9,26 @@ import os
 import time
 
 import requests
+from flask import Flask
+from flask_restful import Api
 
-from financeager.period import Period, TinyDbPeriod
+from .period import Period, TinyDbPeriod
+from .resources import (PeriodsResource, PeriodResource,
+        EntryResource, ShutdownResource)
+
+
+def create_app(config=None):
+    app = Flask(__name__)
+    app.config.update(config or {})
+    api = Api(app)
+
+    api.add_resource(PeriodsResource, "/financeager/periods")
+    api.add_resource(PeriodResource, "/financeager/periods/<period_name>")
+    api.add_resource(EntryResource,
+        "/financeager/periods/<period_name>/<table_name>/<eid>")
+    api.add_resource(ShutdownResource, "/financeager/stop")
+
+    return app
 
 
 def launch_server():
