@@ -33,8 +33,9 @@ class Cli(object):
             self._print_list()
             return
 
-        if command != "stop":
+        if command == "start":
             self._communication_module.launch_server()
+            return
 
         proxy = self._communication_module.proxy()
         try:

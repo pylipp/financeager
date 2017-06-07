@@ -39,9 +39,7 @@ def launch_server():
     """
     server_script_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "start_webservice.py")
-    process = subprocess.Popen([sys.executable, server_script_path])
-    time.sleep(1)
-    return process
+    process = subprocess.call([sys.executable, server_script_path])
 
 
 class _Proxy(object):
