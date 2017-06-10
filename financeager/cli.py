@@ -45,7 +45,7 @@ class Cli(object):
 
             error = response.get("error")
             if error is not None:
-                print(error)
+                print("Command '{}' returned an error: {}".format(command, error))
 
             elements = response.get("elements")
             if elements is not None:
@@ -59,4 +59,4 @@ class Cli(object):
             if self._backend == "none":
                 proxy.run("stop")
         except (self._communication_module.CommunicationError) as e:
-            print(e)
+            print("Error running command '{}': {}".format(command, e))
