@@ -47,7 +47,11 @@ You're invited to run the tests from the root directory:
 
     make test
 
-### Server side usage
+### Client-server or serverless mode?
+
+You can run `financeager` as a client-server or a serverless application (default).
+
+In the first case, specify `SERVICE.name = flask` in the config file at `~/.config/financeager`.
 
 Launch the server via
 
@@ -55,9 +59,9 @@ Launch the server via
 
 Host IP and debug mode are read from the configuration. Personally I run a financeager server on my Raspi, making it accessible via local network by setting `host=0.0.0.0`.
 
-### Client side command line usage
+On the client side, specify the host in the config (defaults to localhost, so rather put the server IP).
 
-Specify the host in the config (defaults to localhost).
+### Command line usage
 
 Add earnings (no/positive sign) and expenses (negative sign) to the database:
 
