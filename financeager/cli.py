@@ -8,6 +8,7 @@ import os
 
 import financeager.pyro
 import financeager.fflask
+import financeager.server
 from financeager.period import prettify
 from .config import CONFIG, CONFIG_DIR
 
@@ -17,12 +18,14 @@ class Cli(object):
     def __init__(self, cl_kwargs):
         self._cl_kwargs = cl_kwargs
 
-        backend = CONFIG["SERVICE"]["name"]
+        self._backend = CONFIG["SERVICE"]["name"]
         backend_modules = {
                 "flask": "fflask",
-                "pyro": "pyro"
+                "pyro": "pyro",
+                "none": "server"
                 }
-        self._communication_module = getattr(financeager, backend_modules[backend])
+        self._communication_module = getattr(financeager,
+                backend_modules[self._backend])
 
         self._stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
 
@@ -52,5 +55,8 @@ class Cli(object):
             if periods is not None:
                 for p in periods:
                     print(p)
+
+            if self._backend == "none":
+                proxy.run("stop")
         except (self._communication_module.CommunicationError) as e:
             print(e)

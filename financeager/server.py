@@ -90,3 +90,16 @@ class PyroServer(Server):
             return super().run(command, **kwargs)
         except PeriodException as e:
             return {"error": str(e)}
+
+
+def launch_server():
+    print("'start' command has no effect with SERVICE.name configured as 'none'.")
+
+
+def proxy():
+    """Pseudo-proxy for local, one-time server that shuts down right down after
+    running one command."""
+    return Server()
+
+
+CommunicationError = Exception

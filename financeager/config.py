@@ -19,7 +19,7 @@ def _load():
         parser.read(path)
     else:
         parser["SERVICE"] = {
-                "name": "flask"
+                "name": "none"
                 }
         parser["DATABASE"] = {
                 "default_category": "unspecified",
