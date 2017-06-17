@@ -6,11 +6,14 @@ from __future__ import unicode_literals, print_function
 
 import os
 
+from requests.exceptions import ConnectTimeout
+
 import financeager.pyro
 import financeager.fflask
 import financeager.server
 from financeager.period import prettify
 from .config import CONFIG, CONFIG_DIR
+from .offline import add
 
 
 class Cli(object):
@@ -60,3 +63,4 @@ class Cli(object):
                 proxy.run("stop")
         except (self._communication_module.CommunicationError) as e:
             print("Error running command '{}': {}".format(command, e))
+            add(command, **self._cl_kwargs)
