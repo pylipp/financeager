@@ -30,10 +30,9 @@ class Cli(object):
         self._communication_module = getattr(financeager,
                 backend_modules[self._backend])
 
-        self._stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
-
     def __call__(self):
         command = self._cl_kwargs.pop("command")
+        stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
 
         if command == "start":
             self._communication_module.launch_server()
@@ -52,7 +51,7 @@ class Cli(object):
 
             elements = response.get("elements")
             if elements is not None:
-                print(prettify(elements, self._stacked_layout))
+                print(prettify(elements, stacked_layout))
 
             periods = response.get("periods")
             if periods is not None:
