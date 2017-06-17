@@ -6,8 +6,7 @@ import os.path
 import json
 
 from .config import CONFIG_DIR, CONFIG
-from .server import run
-from .fflask import CommunicationError
+from .communication import run, module
 
 
 def _load(filepath):
@@ -60,7 +59,7 @@ def recover(proxy):
         item = content.pop()
         try:
             run(proxy, item["command"], **item["kwargs"])
-        except CommunicationError as e:
+        except module().CommunicationError as e:
             print("Aborting offline backup recovery: {}".format(e))
 
             content.append(item)

@@ -4,15 +4,8 @@ Module containing top layer of backend communication.
 """
 from __future__ import unicode_literals, print_function
 
-import os
-
-from requests.exceptions import ConnectTimeout
-
-import financeager.pyro
-import financeager.fflask
-import financeager.server
-from .config import CONFIG, CONFIG_DIR
-from financeager import offline
+from .config import CONFIG
+from financeager import offline, communication
 
 
 class Cli(object):
@@ -21,13 +14,7 @@ class Cli(object):
         self._cl_kwargs = cl_kwargs
 
         self._backend = CONFIG["SERVICE"]["name"]
-        backend_modules = {
-                "flask": "fflask",
-                "pyro": "pyro",
-                "none": "server"
-                }
-        self._communication_module = getattr(financeager,
-                backend_modules[self._backend])
+        self._communication_module = communication.module()
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
@@ -38,7 +25,7 @@ class Cli(object):
 
         proxy = self._communication_module.proxy()
         try:
-            financeager.server.run(proxy, command, **self._cl_kwargs)
+            communication.run(proxy, command, **self._cl_kwargs)
 
             offline.recover(proxy)
 
