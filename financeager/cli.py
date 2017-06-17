@@ -32,7 +32,6 @@ class Cli(object):
 
     def __call__(self):
         command = self._cl_kwargs.pop("command")
-        stacked_layout = self._cl_kwargs.pop("stacked_layout", False)
 
         if command == "start":
             self._communication_module.launch_server()
@@ -40,26 +39,30 @@ class Cli(object):
 
         proxy = self._communication_module.proxy()
         try:
-            response = proxy.run(command, **self._cl_kwargs)
-
-            if not isinstance(response, dict):
-                return
-
-            error = response.get("error")
-            if error is not None:
-                print("Command '{}' returned an error: {}".format(command, error))
-
-            elements = response.get("elements")
-            if elements is not None:
-                print(prettify(elements, stacked_layout))
-
-            periods = response.get("periods")
-            if periods is not None:
-                for p in periods:
-                    print(p)
+            _run(proxy, command, **self._cl_kwargs)
 
             if self._backend == "none":
                 proxy.run("stop")
         except (self._communication_module.CommunicationError) as e:
             print("Error running command '{}': {}".format(command, e))
             add(command, **self._cl_kwargs)
+
+def _run(proxy, command, **kwargs):
+    stacked_layout = kwargs.pop("stacked_layout", False)
+    response = proxy.run(command, **kwargs)
+
+    if not isinstance(response, dict):
+        return
+
+    error = response.get("error")
+    if error is not None:
+        print("Command '{}' returned an error: {}".format(command, error))
+
+    elements = response.get("elements")
+    if elements is not None:
+        print(prettify(elements, stacked_layout))
+
+    periods = response.get("periods")
+    if periods is not None:
+        for p in periods:
+            print(p)
