@@ -14,9 +14,7 @@ from tinydb.queries import QueryImpl
 from financeager.model import Model
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.items import DateItem, CategoryItem
-
-#FIXME create config singleton
-CONFIG_DIR = os.path.expanduser("~/.config/financeager")
+from .config import CONFIG_DIR
 
 
 class Period(object):
