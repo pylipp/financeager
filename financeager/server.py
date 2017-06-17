@@ -2,8 +2,29 @@
 from __future__ import unicode_literals
 import os.path
 import Pyro4
-from financeager.period import Period, TinyDbPeriod, PeriodException
+from financeager.period import Period, TinyDbPeriod, PeriodException, prettify
 from .config import CONFIG_DIR
+
+
+def run(proxy, command, **kwargs):
+    stacked_layout = kwargs.pop("stacked_layout", False)
+    response = proxy.run(command, **kwargs)
+
+    if not isinstance(response, dict):
+        return
+
+    error = response.get("error")
+    if error is not None:
+        print("Command '{}' returned an error: {}".format(command, error))
+
+    elements = response.get("elements")
+    if elements is not None:
+        print(prettify(elements, stacked_layout))
+
+    periods = response.get("periods")
+    if periods is not None:
+        for p in periods:
+            print(p)
 
 
 class Server(object):
