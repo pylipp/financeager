@@ -12,7 +12,7 @@ import financeager.pyro
 import financeager.fflask
 import financeager.server
 from .config import CONFIG, CONFIG_DIR
-from .offline import add
+from financeager import offline
 
 
 class Cli(object):
@@ -40,8 +40,10 @@ class Cli(object):
         try:
             financeager.server.run(proxy, command, **self._cl_kwargs)
 
+            offline.recover(proxy)
+
             if self._backend == "none":
                 proxy.run("stop")
         except (self._communication_module.CommunicationError) as e:
             print("Error running command '{}': {}".format(command, e))
-            add(command, **self._cl_kwargs)
+            offline.add(command, **self._cl_kwargs)
