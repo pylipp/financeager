@@ -33,7 +33,6 @@ def launch_server():
                 )
         print("Starting Pyro nameserver via '{}'".format(command))
         subprocess.Popen(command.split())
-                # stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
     name_server = Pyro4.locateNS(hmac_key=hmac_key)
     try:
@@ -41,9 +40,12 @@ def launch_server():
     except (Pyro4.naming.NamingError) as e:
         server_script_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "start_server.py")
-        subprocess.Popen([sys.executable, server_script_path])
-        # wait for launch to avoid failure when creating Proxy
-        time.sleep(1.1*Pyro4.config.COMMTIMEOUT)
+
+        try:
+            subprocess.call([sys.executable, server_script_path])
+        except KeyboardInterrupt:
+            # quiet shutdown on Ctrl-C
+            pass
 
 
 def proxy():
