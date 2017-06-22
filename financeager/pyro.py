@@ -5,11 +5,10 @@ Module for frontend-backend communication using the Pyro4 framework.
 import sys
 import subprocess
 import os
-import time
 
 import Pyro4
 
-from financeager.server import PyroServer
+from .server import PyroServer
 from .config import CONFIG
 
 
@@ -26,15 +25,15 @@ def launch_server(testing=False):
     pyro_config = CONFIG["SERVICE:PYRO"]
     hmac_key = pyro_config.get("hmac_key")
 
-    with open(os.devnull, 'w') as DEVNULL:
-        hmac_key_option = "-k {}".format(hmac_key) if hmac_key else ""
-        command = "pyro4-ns -n {} -p {} {}".format(
-                pyro_config["host"],
-                pyro_config["ns_port"],
-                hmac_key_option
-                )
-        print("Starting Pyro nameserver via '{}'".format(command))
-        subprocess.Popen(command.split())
+    hmac_key_option = "-k {}".format(hmac_key) if hmac_key else ""
+    command = "pyro4-ns -n {} -p {} {}".format(
+            pyro_config["host"],
+            pyro_config["ns_port"],
+            hmac_key_option
+            )
+    print("Starting Pyro nameserver via '{}'".format(command))
+    # this just fails loudly if server has already been started
+    subprocess.Popen(command.split())
 
     name_server = Pyro4.locateNS(hmac_key=hmac_key)
     try:
