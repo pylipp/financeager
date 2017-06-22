@@ -120,6 +120,9 @@ FUTURE FEATURES
 - [ ] create Python package
 - [ ] set up Travis CI
 - [x] use flask for REST API
+- [ ] use asynchronous calls
+- [ ] use logging module instead of print
+- [ ] omit year with `-d` option
 
 PERSONAL NOTE
 -------------
