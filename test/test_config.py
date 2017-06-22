@@ -20,7 +20,7 @@ class ConfigTestCase(unittest.TestCase):
 
     def test_config_sections(self):
         self.assertSetEqual(set(CONFIG.sections()), {"SERVICE", "DATABASE",
-            "SERVICE:FLASK"})
+            "SERVICE:FLASK", "SERVICE:PYRO"})
 
 
 if __name__ == "__main__":
