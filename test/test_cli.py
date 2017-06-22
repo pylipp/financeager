@@ -4,10 +4,11 @@ import unittest
 
 from financeager.config import CONFIG_DIR, CONFIG
 from financeager.cli import Cli
-import psutil
+from financeager.pyro import launch_server
 import os
 import signal
 import subprocess
+import time
 
 
 def suite():
@@ -22,14 +23,18 @@ class StartCliTestCase(unittest.TestCase):
     def setUp(self):
         cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
         CONFIG["SERVICE"]["name"] = "pyro"
+        CONFIG["SERVICE:PYRO"]["host"] = "127.0.0.1"
+
+        self.launch_process = launch_server(testing=True)
+        time.sleep(2)
+        
         self.cli = Cli(cl_kwargs)
-        self.cli()
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],
                 stdin=ps_process.stdout).splitlines()
+
         # check_output returns byte strings, hence prefix strings being searched for
-        self.server_pid = self.find_pid_by_name(b"start_server.py")
-        self.name_server_pid = self.find_pid_by_name(b"Pyro4.naming")
+        self.name_server_pid = self.find_pid_by_name(b"pyro4-ns")
 
     def find_pid_by_name(self, name):
         for process in self.python_processes:
@@ -38,14 +43,13 @@ class StartCliTestCase(unittest.TestCase):
         return None
 
     def test_servers_running(self):
-        # sleep a bit to see output from server launches
-        import time; time.sleep(1)
+        self.cli()
         running = True
-        if self.server_pid is None:
+        if self.launch_process.pid is None:
             running = False
         else:
             try:
-                os.kill(self.server_pid, 0)
+                self.launch_process.kill()
             except (OSError) as e:
                 running = False
         self.assertTrue(running)
@@ -53,14 +57,14 @@ class StartCliTestCase(unittest.TestCase):
             running = False
         else:
             try:
-                os.kill(self.name_server_pid, 0)
+                os.kill(self.name_server_pid, signal.SIGKILL)
             except (OSError) as e:
                 running = False
         self.assertTrue(running)
 
     def tearDown(self):
-        self.cli._cl_kwargs = dict(command="stop", period="0")
-        self.cli()
+        # self.cli._cl_kwargs = dict(command="stop", period="0")
+        self.launch_process.kill()
         os.remove(os.path.join(CONFIG_DIR, "0.json"))
 
 if __name__ == '__main__':
