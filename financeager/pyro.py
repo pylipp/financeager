@@ -16,10 +16,12 @@ from .config import CONFIG
 Pyro4.config.COMMTIMEOUT = 1.0
 
 
-def launch_server():
-    """
-    Launch Pyro4 nameserver. Silence errors if already running.
+def launch_server(testing=False):
+    """Launch Pyro4 nameserver.
     Launch PyroServer via starting script if server is not registered yet.
+    With 'testing' set to True, a `subprocess.Popen` object is returned.
+    Otherwise `subprocess.call` is called, effectively blocking the terminal on
+    `financeager start`.
     """
     pyro_config = CONFIG["SERVICE:PYRO"]
     hmac_key = pyro_config.get("hmac_key")
@@ -42,7 +44,10 @@ def launch_server():
                 os.path.dirname(os.path.abspath(__file__)), "start_server.py")
 
         try:
-            subprocess.call([sys.executable, server_script_path])
+            if testing:
+                return subprocess.Popen([sys.executable, server_script_path])
+            else:
+                subprocess.call([sys.executable, server_script_path])
         except KeyboardInterrupt:
             # quiet shutdown on Ctrl-C
             pass
