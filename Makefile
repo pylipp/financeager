@@ -8,3 +8,6 @@ install:
 
 test:
 	@[ -z $$VIRTUAL_ENV ] && echo "Acticate financeager virtualenv." || python -m test.suites
+
+tags:
+	ctags -R .
