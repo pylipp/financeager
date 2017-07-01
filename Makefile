@@ -1,4 +1,4 @@
-.PHONY: all test install
+.PHONY: all test install tags
 
 all:
 	@echo "Available targets: install, test"
