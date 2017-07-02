@@ -10,8 +10,8 @@ from tinydb import TinyDB, Query, JSONStorage
 from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
-from financeager.items import DateItem, CategoryItem
-from .config import CONFIG_DIR
+from financeager.items import DateItem
+from .config import CONFIG_DIR, CONFIG
 
 
 class Period(object):
@@ -100,7 +100,7 @@ class TinyDbPeriod(TinyDB, Period):
                 category = self._category_cache[name].most_common(1)[0][0]
             else:
                 # assign default name (must be str), s.t. category field can be queried
-                category = CategoryItem.DEFAULT_NAME
+                category = CONFIG["DATABASE"]["default_category"]
         else:
             category = category.lower()
 
