@@ -6,12 +6,10 @@ from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 
-from tinydb import TinyDB, Query, where, JSONStorage
+from tinydb import TinyDB, Query, JSONStorage
 from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
-from financeager.model import Model
-from financeager.entries import CategoryEntry
 from financeager.items import DateItem, CategoryItem
 from .config import CONFIG_DIR
 
@@ -309,51 +307,6 @@ class TinyDbPeriod(TinyDB, Period):
     def print_entries(self, **query_kwargs):
         condition = self._create_query_condition(**query_kwargs)
         return {"elements": self._search_all_tables(condition)}
-
-def prettify(elements, stacked_layout=False):
-    if not elements:
-        return ""
-
-    query = where("value") > 0
-    earnings = []
-    expenses = []
-
-    for element in elements:
-        if query(element):
-            earnings.append(element)
-        else:
-            expenses.append(element)
-
-    model_earnings = Model.from_tinydb(earnings, "Earnings")
-    model_expenses = Model.from_tinydb(expenses, "Expenses")
-
-    if stacked_layout:
-        return "{}\n\n{}\n\n{}".format(
-                str(model_earnings), 38*"-", str(model_expenses)
-                )
-    else:
-        result = []
-        models = [model_earnings, model_expenses]
-        models_str = [str(m).splitlines() for m in models]
-        for row in zip(*models_str):
-            result.append(" | ".join(row))
-        earnings_size = len(models_str[0])
-        expenses_size = len(models_str[1])
-        diff = earnings_size - expenses_size
-        if diff > 0:
-            for row in models_str[0][expenses_size:]:
-                result.append(row + " | ")
-        else:
-            for row in models_str[1][earnings_size:]:
-                result.append(38*" " + " | " + row)
-        result.append(79*"=")
-        result.append(
-                " | ".join(
-                    [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
-                        for m in models]
-                    )
-                )
-        return '\n'.join(result)
 
 
 TinyDB.DEFAULT_TABLE = "standard"

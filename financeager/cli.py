@@ -9,7 +9,6 @@ import os
 import financeager.pyro
 import financeager.fflask
 import financeager.server
-from financeager.period import prettify
 from .config import CONFIG, CONFIG_DIR
 
 
@@ -49,6 +48,7 @@ class Cli(object):
 
             elements = response.get("elements")
             if elements is not None:
+                from financeager.model import prettify
                 print(prettify(elements, self._stacked_layout))
 
             periods = response.get("periods")
