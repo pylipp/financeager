@@ -36,7 +36,11 @@ class BaseEntry(Entry):
         """Return a formatted string representing the entry."""
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
         return "{:16.16} {:>8.2f} {}".format(capitalized_name, self.value,
-                DateItem().to_primitive(self.date))
+                self.date_str)
+
+    @property 
+    def date_str(self):
+        return DateItem().to_primitive(self.date)
 
 class CategoryEntry(Entry):
     name = CategoryItem(min_length=0)
