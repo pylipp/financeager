@@ -2,19 +2,12 @@
 from __future__ import unicode_literals
 import unittest
 
-from PyQt5.QtCore import QDate, QVariant
 import xml.etree.ElementTree as ET
 from tinydb import database
 from financeager.model import Model
-from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import (CategoryItem, NameItem)
+from financeager.entries import CategoryEntry, create_base_entry
+from financeager.items import CategoryItem
 
-
-try:
-    QString = unicode
-except NameError:
-    # Python 3
-    QString = str
 
 def suite():
     suite = unittest.TestSuite()
@@ -101,7 +94,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
 
     def test_base_entry_in_list(self):
@@ -126,7 +119,7 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
         self.item_name = "Aldi"
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])))
 
     def test_default_category_in_list(self):
@@ -139,9 +132,9 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry("Aldi", self.item_a_value),
+        self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
                 self.item_category)
-        self.model.add_entry(BaseEntry("Rewe", self.item_b_value),
+        self.model.add_entry(create_base_entry("Rewe", self.item_b_value),
                 self.item_category)
 
     def test_two_entries_in_list(self):
@@ -161,7 +154,7 @@ class SetValueItemTextTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry("Aldi", self.item_a_value),
+        self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
                 self.item_category)
         self.model.item(0).child(0, 1).setText(
                 QString("{}".format(self.item_b_value)))
@@ -177,7 +170,7 @@ class FindItemByNameTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.base_entry = BaseEntry(self.item_name, self.item_value,
+        self.base_entry = create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date]))
         self.model.add_entry(self.base_entry, self.item_category)
 
@@ -193,7 +186,7 @@ class FindItemWrongCategoryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.base_entry = BaseEntry(self.item_name, self.item_value,
+        self.base_entry = create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date]))
         self.model.add_entry(self.base_entry, self.item_category)
 
@@ -208,9 +201,9 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 1.00
         self.item_date = "2016-11-08"
-        self.base_entry_a = BaseEntry(self.item_a_name, self.item_a_value,
+        self.base_entry_a = create_base_entry(self.item_a_name, self.item_a_value,
             self.item_date)
-        self.base_entry_b = BaseEntry(self.item_b_name, self.item_b_value)
+        self.base_entry_b = create_base_entry(self.item_b_name, self.item_b_value)
         self.model.add_entry(self.base_entry_b)
         self.model.add_entry(self.base_entry_a)
 
@@ -225,8 +218,8 @@ class RemoveEntryTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.base_entry_a = BaseEntry("Aldi", self.item_a_value)
-        self.base_entry_b = BaseEntry("Rewe", self.item_b_value)
+        self.base_entry_a = create_base_entry("Aldi", self.item_a_value)
+        self.base_entry_b = create_base_entry("Rewe", self.item_b_value)
         self.model.add_entry(self.base_entry_a, self.item_category)
         self.model.add_entry(self.base_entry_b, self.item_category)
         self.model.remove_entry(self.base_entry_a, category=self.item_category)
@@ -246,7 +239,7 @@ class XmlConversionTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
         model_element = self.model.convert_to_xml()
         output = ET.tostring(model_element, "utf-8")

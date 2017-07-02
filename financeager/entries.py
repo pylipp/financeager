@@ -50,3 +50,11 @@ class CategoryEntry(Entry):
         to be longer than the BaseEntry representation so that the latter is
         indented."""
         return "{:18} {:>8.2f}".format(self.name.capitalize(), self.value).ljust(38)
+
+
+def create_base_entry(name, value, date=None):
+    """Factory method for convenience."""
+    data = {"name": name, "value": value}
+    if date is not None:
+        data["date"] = date
+    return _BaseEntry(data)

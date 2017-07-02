@@ -204,7 +204,7 @@ class Model(QStandardItemModel):
         self._name = parent_element.get("name")
         for child in parent_element:
             category_name = child.attrib.pop("category")
-            self.add_entry(BaseEntry(child.attrib['name'],
+            self.add_entry(create_base_entry(child.attrib['name'],
                 child.attrib['value'], child.attrib['date']), category_name)
 
     def total_value(self):
