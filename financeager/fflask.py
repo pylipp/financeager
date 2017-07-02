@@ -54,7 +54,7 @@ class _Proxy(object):
 
     def run(self, command, **kwargs):
         period = kwargs.pop("period", None) or str(Period.DEFAULT_NAME)
-        url = "http://{}:5000{}".format(
+        url = "http://{}{}".format(
                 CONFIG["SERVICE:FLASK"]["host"], self.PERIODS_TAIL
                 )
         period_url = "{}/{}".format(url, period)
