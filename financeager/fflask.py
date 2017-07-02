@@ -52,8 +52,8 @@ class _Proxy(object):
 
     PERIODS_TAIL = "/financeager/periods"
 
-    def run(self, command, **kwargs):
-        period = kwargs.pop("period", None) or str(Period.DEFAULT_NAME)
+    def run(self, command, **data):
+        period = data.pop("period", None) or str(Period.DEFAULT_NAME)
         url = "http://{}{}".format(
                 CONFIG["SERVICE:FLASK"]["host"], self.PERIODS_TAIL
                 )
@@ -62,19 +62,20 @@ class _Proxy(object):
         if command == "print":
             response = requests.get(period_url)
         elif command == "rm":
-            eid = kwargs.get("eid")
+            eid = data.get("eid")
             if eid is None:
-                response = requests.delete(period_url, data=kwargs)
+                response = requests.delete(period_url, data=data)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                    period_url, data.get("table_name",
+                        TinyDbPeriod.DEFAULT_TABLE), data.get("eid")))
         elif command == "add":
-            response = requests.post(period_url, data=kwargs)
+            response = requests.post(period_url, data=data)
         elif command == "list":
-            response = requests.post(url, data=kwargs)
+            response = requests.post(url, data=data)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE), data.get("eid")))
         else:
             return {"error": "Unknown command: {}".format(command)}
 
