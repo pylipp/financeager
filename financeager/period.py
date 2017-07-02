@@ -10,8 +10,11 @@ from tinydb import TinyDB, Query, JSONStorage
 from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
-from financeager.items import DateItem
 from .config import CONFIG_DIR, CONFIG
+
+
+# TODO temporary set to have module independent of items
+DATE_FORMAT = CONFIG["DATABASE"]["date_format"]
 
 
 class Period(object):
@@ -75,7 +78,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         The following kwarg is optional for standard entries:
             :param date: entry date. If not specified, the current date is assigned
-            :type date: str of ``DateItem.FORMAT``
+            :type date: str of ``DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
             :param repetitive: frequency ('yearly', 'half-yearly', 'quarterly',
@@ -92,7 +95,7 @@ class TinyDbPeriod(TinyDB, Period):
         date = kwargs.get("date")
         if date is None:
             # FIXME this will assign the current date to ANY period
-            date = str(DateItem())
+            date = dt.today().strftime(DATE_FORMAT)
         category = kwargs.get("category")
 
         if category is None:
@@ -109,7 +112,7 @@ class TinyDbPeriod(TinyDB, Period):
         repetitive_args = kwargs.get("repetitive", False)
         if repetitive_args:
             frequency = repetitive_args[0].lower()
-            start = str(DateItem())
+            start = dt.today().strftime(DATE_FORMAT)
             if len(repetitive_args) > 1:
                 start = repetitive_args[1]
             end = None
@@ -196,10 +199,10 @@ class TinyDbPeriod(TinyDB, Period):
             if end > last_second:
                 end = last_second
         else:
-            end = dt.strptime(end, DateItem.FORMAT)
+            end = dt.strptime(end, DATE_FORMAT)
 
         rrule_kwargs = dict(
-                dtstart=dt.strptime(start, DateItem.FORMAT), until=end
+                dtstart=dt.strptime(start, DATE_FORMAT), until=end
                 )
         interval = 1
         if frequency == "BIMONTHLY":
@@ -221,7 +224,7 @@ class TinyDbPeriod(TinyDB, Period):
                 element_name = "{} {}".format(name, date.strftime("%B").lower())
             yield Element(dict(
                 name=element_name, value=value, category=category,
-                date=date.strftime(DateItem.FORMAT)
+                date=date.strftime(DATE_FORMAT)
                 ))
 
     def find_entry(self, create_recurrent_elements=True, **query_kwargs):
