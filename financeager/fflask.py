@@ -59,23 +59,32 @@ class _Proxy(object):
                 )
         period_url = "{}/{}".format(url, period)
 
+        username = CONFIG["SERVICE:FLASK"].get("username")
+        password = CONFIG["SERVICE:FLASK"].get("password")
+        auth = None
+        if username is not None and password is not None:
+            auth = (username, password)
+
+        kwargs = dict(data=data or None, auth=auth)
+
         if command == "print":
-            response = requests.get(period_url)
+            response = requests.get(period_url, **kwargs)
         elif command == "rm":
             eid = data.get("eid")
             if eid is None:
-                response = requests.delete(period_url, data=data)
+                response = requests.delete(period_url, **kwargs)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    period_url, data.get("table_name",
-                        TinyDbPeriod.DEFAULT_TABLE), data.get("eid")))
+                    period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                    data.get("eid")), auth=auth)
         elif command == "add":
-            response = requests.post(period_url, data=data)
+            response = requests.post(period_url, **kwargs)
         elif command == "list":
-            response = requests.post(url, data=data)
+            response = requests.post(url, **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE), data.get("eid")))
+                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                data.get("eid")), auth=auth)
         else:
             return {"error": "Unknown command: {}".format(command)}
 
