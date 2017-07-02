@@ -67,18 +67,17 @@ class AddCategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.model = Model()
         self.category_name = "Groceries"
-        self.model.add_entry(CategoryEntry(self.category_name))
+        self.model.add_entry(CategoryEntry({"name": self.category_name}))
 
     def test_category_item_in_list(self):
-        self.assertIn(CategoryItem(self.category_name).data(),
-                self.model.category_entry_names)
+        self.assertIn(self.category_name.lower(), self.model.category_entry_names)
 
 class AddCategoryEntryTwiceTestCase(unittest.TestCase):
     def setUp(self):
         self.model = Model()
         self.category_name = "Groceries"
-        self.model.add_entry(CategoryEntry(self.category_name))
-        self.model.add_entry(CategoryEntry(self.category_name))
+        self.model.add_entry(CategoryEntry({"name": self.category_name}))
+        self.model.add_entry(CategoryEntry({"name": self.category_name}))
 
     def test_category_item_in_list(self):
         self.assertIn(CategoryItem(self.category_name).data(),
@@ -98,9 +97,8 @@ class AddBaseEntryTestCase(unittest.TestCase):
             "-".join([str(s) for s in self.item_date])), self.item_category)
 
     def test_base_entry_in_list(self):
-        base_entry_names = [item.data() for item in
-                self.model.base_entry_items("name")]
-        self.assertIn(NameItem(self.item_name).data(), base_entry_names)
+        base_entry_names = list(self.model.base_entry_items("name"))
+        self.assertIn(self.item_name.lower(), base_entry_names)
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_value,
@@ -123,8 +121,8 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
             "-".join([str(s) for s in self.item_date])))
 
     def test_default_category_in_list(self):
-        self.assertIn(QString(CategoryItem.DEFAULT_NAME),
-                self.model.category_entry_names)
+        names = list(self.model.category_entry_names)
+        self.assertIn(CategoryItem.DEFAULT_NAME, names)
 
 class AddTwoBaseEntriesTestCase(unittest.TestCase):
     def setUp(self):
@@ -156,11 +154,9 @@ class SetValueItemTextTestCase(unittest.TestCase):
         self.item_category = "Groceries"
         self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
                 self.item_category)
-        self.model.item(0).child(0, 1).setText(
-                QString("{}".format(self.item_b_value)))
 
     def test_category_sum_updated(self):
-        self.assertAlmostEqual(self.item_b_value,
+        self.assertAlmostEqual(self.item_a_value,
                 self.model.category_sum(self.item_category), places=5)
 
 class FindItemByNameTestCase(unittest.TestCase):
@@ -175,9 +171,9 @@ class FindItemByNameTestCase(unittest.TestCase):
         self.model.add_entry(self.base_entry, self.item_category)
 
     def test_correct_item_is_found(self):
-        self.assertEqual(self.base_entry.name_item,
+        self.assertEqual(self.base_entry.name,
                 self.model.find_name_item(name=self.item_name,
-                    category=self.item_category))
+                    category=self.item_category).name)
 
 class FindItemWrongCategoryTestCase(unittest.TestCase):
     def setUp(self):
@@ -208,7 +204,7 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
         self.model.add_entry(self.base_entry_a)
 
     def test_correct_item_is_found(self):
-        self.assertEqual(self.base_entry_a.name_item,
+        self.assertEqual(self.base_entry_a,
                 self.model.find_name_item(name=self.item_a_name,
                     date=self.item_date))
 
@@ -226,7 +222,7 @@ class RemoveEntryTestCase(unittest.TestCase):
 
     def test_remaining_entry(self):
         self.assertEqual(list(self.model.base_entry_items("name"))[0],
-                self.base_entry_b.name_item)
+                self.base_entry_b.name)
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.model.category_sum(self.item_category),
@@ -244,7 +240,8 @@ class XmlConversionTestCase(unittest.TestCase):
         model_element = self.model.convert_to_xml()
         output = ET.tostring(model_element, "utf-8")
         parsed_input = ET.fromstring(output)
-        self.parsed_model = Model(parsed_input)
+        self.parsed_model = Model()
+        self.parsed_model.create_from_xml(parsed_input)
 
     def test_category_item_names(self):
         model_entry_names = list(self.model.category_entry_names)
@@ -261,9 +258,7 @@ class XmlConversionTestCase(unittest.TestCase):
                 category=self.item_category)
         parsed_item = self.parsed_model.find_name_item(name=self.item_name,
                 category=self.item_category)
-        self.assertCountEqual(
-                [str(i) for i in item.entry.items],
-                [str(i) for i in parsed_item.entry.items])
+        self.assertEqual(item, parsed_item)
 
 class ModelFromTinyDbTestCase(unittest.TestCase):
     def setUp(self):
