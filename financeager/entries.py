@@ -41,7 +41,7 @@ class BaseEntry(Entry):
 class CategoryEntry(Entry):
     name = CategoryItem(min_length=0)
     value = SumItem(default=0.0)
-    entries = ListType(ModelType(BaseEntry))
+    entries = ListType(ModelType(BaseEntry), default=[])
 
     ITEM_TYPES = ["name", "sum", "empty"]
 
