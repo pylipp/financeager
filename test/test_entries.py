@@ -29,7 +29,7 @@ class BaseEntryTestCase(unittest.TestCase):
         self.entry = BaseEntry({"name": "Groceries", "value": 123.45, "date": "2016-08-10"})
 
     def test_name(self):
-        self.assertEqual(self.entry.name, "Groceries")
+        self.assertEqual(self.entry.name, "groceries")
 
     def test_value(self):
         self.assertAlmostEqual(self.entry.value, 123.45, places=5)
@@ -42,7 +42,7 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.entry = CategoryEntry({"name": "Gifts"})
 
     def test_name(self):
-        self.assertEqual(self.entry.name, "Gifts")
+        self.assertEqual(self.entry.name, "gifts")
 
     def test_value(self):
         self.assertEqual(self.entry.value, 0.0)

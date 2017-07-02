@@ -14,7 +14,12 @@ SumItem = FloatType
 DateItem = DateType
 
 
-class BaseEntry(SchematicsModel):
+class Entry(SchematicsModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = self.name.lower()
+
+class BaseEntry(Entry):
     name = NameItem(min_length=0)
     value = ValueItem()
     date = DateItem(default=dt.date.today())
@@ -33,7 +38,7 @@ class BaseEntry(SchematicsModel):
         return "{:16.16} {:>8.2f} {}".format(capitalized_name, self.value,
                 DateItem().to_primitive(self.date))
 
-class CategoryEntry(SchematicsModel):
+class CategoryEntry(Entry):
     name = CategoryItem(min_length=0)
     value = SumItem(default=0.0)
     entries = ListType(ModelType(BaseEntry))
