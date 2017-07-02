@@ -61,4 +61,4 @@ def create_base_entry(name, value, date=None):
     data = {"name": name, "value": value}
     if date is not None:
         data["date"] = date
-    return _BaseEntry(data)
+    return BaseEntry(data)
