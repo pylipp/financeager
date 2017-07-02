@@ -15,11 +15,6 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(CreateEmptyPeriodTestCase, tests)))
     tests = [
-            'test_expenses_entry_exists',
-            'test_expenses_category_sum'
-            ]
-    suite.addTest(unittest.TestSuite(map(AddExpenseEntryTestCase, tests)))
-    tests = [
             'test_find_entry',
             'test_remove_entry',
             'test_create_models_query_kwargs',
