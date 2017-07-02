@@ -1,66 +1,47 @@
 """Defines Entries built from Items."""
 
 from __future__ import unicode_literals
+import datetime as dt
 
-from .items import (CategoryItem, SumItem, EmptyItem, NameItem, DateItem,
-        ValueItem)
-from abc import ABCMeta
+from schematics.types import ListType, ModelType, StringType, FloatType, DateType
+from schematics.models import Model as SchematicsModel
+
+# from .items import (CategoryItem, SumItem, NameItem, DateItem, ValueItem)
+NameItem = StringType
+CategoryItem = StringType
+ValueItem = FloatType
+SumItem = FloatType
+DateItem = DateType
 
 
-class Entry(object):
-    """Abstract base class for all entries.
-
-    An Entry is a wrapper around several items and allows simple access of
-    corresponding item data. It can be visualized as a row in the data sheet.
-    Subclasses have to contain members named `self._foo_item` of type
-    `FooItem`.
-    """
-    __metaclass__ = ABCMeta
-
-    def __getattr__(self, name):
-        """Reimplementation for accessing an item member."""
-        name = name.replace("_item", "")
-        return self.__dict__["_{}_item".format(name)]
-
-    @property
-    def items(self):
-        return [getattr(self, attr) for attr in self.ITEM_TYPES]
-
-class BaseEntry(Entry):
-    """Wrapper around a Name-, Value-, DateItem tuple."""
+class BaseEntry(SchematicsModel):
+    name = NameItem(min_length=0)
+    value = ValueItem()
+    date = DateItem(default=dt.date.today())
 
     ITEM_TYPES = ["name", "value", "date"]
-
-    def __init__(self, name, value, date=None):
-        self._name_item = NameItem(name, entry=self)
-        self._value_item = ValueItem(value, entry=self)
-        self._date_item = DateItem(date, entry=self)
 
     @classmethod
     def from_tinydb_element(cls, element):
         """Create a BaseEntry from a TinyDB.database.Element. The element has
         to contain the fields `name` and `value`, `date` is optional."""
-        base_entry = cls(element["name"], element["value"], element.get("date"))
-        return base_entry
+        return cls(element)
 
     def __str__(self):
         """Return a formatted string representing the entry."""
-        attributes = [getattr(self, attrib).text() for attrib in self.ITEM_TYPES]
-        return "{:16.16} {:>8} {}".format(*attributes)
+        capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
+        return "{:16.16} {:>8.2f} {}".format(capitalized_name, self.value,
+                DateItem().to_primitive(self.date))
 
-class CategoryEntry(Entry):
-    """Wrapper around a Category- and SumItem tuple."""
+class CategoryEntry(SchematicsModel):
+    name = CategoryItem(min_length=0)
+    value = SumItem(default=0.0)
+    entries = ListType(ModelType(BaseEntry))
 
     ITEM_TYPES = ["name", "sum", "empty"]
-
-    def __init__(self, name, sum=0.0):
-        self._name_item = CategoryItem(name, entry=self)
-        self._sum_item = SumItem(sum, entry=self)
-        self._empty_item = EmptyItem(entry=self)
 
     def __str__(self):
         """Return a formatted string representing the entry. This is supposed
         to be longer than the BaseEntry representation so that the latter is
         indented."""
-        attributes = [getattr(self, attrib).text() for attrib in self.ITEM_TYPES]
-        return "{:18} {:>8} {:10}".format(*attributes)
+        return "{:18} {:>8.2f}".format(self.name.capitalize(), self.value).ljust(38)
