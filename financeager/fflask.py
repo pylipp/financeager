@@ -3,11 +3,6 @@
 Module for frontend-backend communication using a flask webservice.
 """
 
-import sys
-import subprocess
-import os
-import time
-
 import requests
 from flask import Flask
 from flask_restful import Api
@@ -19,6 +14,7 @@ from .resources import (PeriodsResource, PeriodResource,
 
 
 def create_app(config=None):
+    """Create web app with RESTful API built from resources."""
     app = Flask(__name__)
     app.config.update(config or {})
     api = Api(app)
@@ -33,14 +29,20 @@ def create_app(config=None):
 
 
 def launch_server():
-    """
-    Launch flask webservice via script.
-
-    :return: corresponding ``subprocess.Popen`` object
-    """
-    server_script_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "start_webservice.py")
-    process = subprocess.call([sys.executable, server_script_path])
+    """Launch flask webservice application."""
+    try:
+        config = dict(
+                debug=CONFIG["SERVICE:FLASK"].getboolean("debug"),
+                host=CONFIG["SERVICE:FLASK"]["host"]
+                )
+        # FIXME debug config is not taken into account, however repetitive
+        # starts are possible. This does not work when passing config kwargs to
+        # app.run()
+        app = create_app(config=config)
+        app.run()
+    except OSError as e:
+        # socket binding: address already in use
+        print("The financeager server has already been started.")
 
 
 class _Proxy(object):
