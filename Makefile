@@ -1,4 +1,4 @@
-.PHONY: all test install
+.PHONY: all test install tags
 
 all:
 	@echo "Available targets: install, test"
@@ -8,3 +8,6 @@ install:
 
 test:
 	@[ -z $$VIRTUAL_ENV ] && echo "Acticate financeager virtualenv." || python -m test.suites
+
+tags:
+	ctags -R .

@@ -123,6 +123,7 @@ FUTURE FEATURES
 - [ ] use asynchronous calls
 - [ ] use logging module instead of print
 - [ ] omit year with `-d` option
+- [ ] drop PyQt dependency for schematics package
 
 PERSONAL NOTE
 -------------

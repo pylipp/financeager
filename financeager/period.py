@@ -6,15 +6,15 @@ from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 
-import xml.etree.ElementTree as ET
-from tinydb import TinyDB, Query, where, JSONStorage
+from tinydb import TinyDB, Query, JSONStorage
 from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
-from financeager.model import Model
-from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import DateItem, CategoryItem
-from .config import CONFIG_DIR
+from .config import CONFIG_DIR, CONFIG
+
+
+# TODO temporary set to have module independent of items
+DATE_FORMAT = CONFIG["DATABASE"]["date_format"]
 
 
 class Period(object):
@@ -27,52 +27,6 @@ class Period(object):
     @property
     def name(self):
         return self._name
-
-class XmlPeriod(Period):
-
-    def __init__(self, name=None, xml_element=None, models=None):
-        super(XmlPeriod, self).__init__(name)
-        # TODO store models in dict
-        self._earnings_model = None
-        self._expenses_model = None
-        if models is not None and len(models) == 2:
-            self._earnings_model, self._expenses_model = models
-        elif xml_element is not None:
-            self.create_from_xml(xml_element)
-        if self._earnings_model is None:
-            self._earnings_model = Model(name="earnings")
-        if self._expenses_model is None:
-            self._expenses_model = Model(name="expenses")
-
-    def create_from_xml(self, xml_element):
-        for model_element in xml_element.findall("model"):
-            name = model_element.get("name")
-            if name == "earnings":
-                self._earnings_model = Model(model_element)
-            elif name == "expenses":
-                self._expenses_model = Model(model_element)
-        self._name = xml_element.get("name", Period.DEFAULT_NAME)
-
-    def convert_to_xml(self):
-        period_element = ET.Element("period", name=self._name)
-        period_element.text = "\n"
-        for model_name in ["earnings", "expenses"]:
-            model_element = getattr(self,
-                    "_{}_model".format(model_name)).convert_to_xml()
-            period_element.append(model_element)
-        return period_element
-
-    def add_entry(self, **kwargs):
-        value = str(kwargs.pop("value"))
-        category = kwargs.get("category")
-        name = kwargs["name"]
-        date = kwargs.get("date")
-        if value.startswith("-"):
-            self._expenses_model.add_entry(
-                    BaseEntry(name, value, date), category=category)
-        else:
-            self._earnings_model.add_entry(
-                    BaseEntry(name, value, date), category=category)
 
 
 class PeriodException(Exception):
@@ -124,7 +78,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         The following kwarg is optional for standard entries:
             :param date: entry date. If not specified, the current date is assigned
-            :type date: str of ``DateItem.FORMAT``
+            :type date: str of ``DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
             :param repetitive: frequency ('yearly', 'half-yearly', 'quarterly',
@@ -141,7 +95,7 @@ class TinyDbPeriod(TinyDB, Period):
         date = kwargs.get("date")
         if date is None:
             # FIXME this will assign the current date to ANY period
-            date = str(DateItem())
+            date = dt.today().strftime(DATE_FORMAT)
         category = kwargs.get("category")
 
         if category is None:
@@ -149,7 +103,7 @@ class TinyDbPeriod(TinyDB, Period):
                 category = self._category_cache[name].most_common(1)[0][0]
             else:
                 # assign default name (must be str), s.t. category field can be queried
-                category = CategoryItem.DEFAULT_NAME
+                category = CONFIG["DATABASE"]["default_category"]
         else:
             category = category.lower()
 
@@ -158,7 +112,7 @@ class TinyDbPeriod(TinyDB, Period):
         repetitive_args = kwargs.get("repetitive", False)
         if repetitive_args:
             frequency = repetitive_args[0].lower()
-            start = str(DateItem())
+            start = dt.today().strftime(DATE_FORMAT)
             if len(repetitive_args) > 1:
                 start = repetitive_args[1]
             end = None
@@ -245,10 +199,10 @@ class TinyDbPeriod(TinyDB, Period):
             if end > last_second:
                 end = last_second
         else:
-            end = dt.strptime(end, DateItem.FORMAT)
+            end = dt.strptime(end, DATE_FORMAT)
 
         rrule_kwargs = dict(
-                dtstart=dt.strptime(start, DateItem.FORMAT), until=end
+                dtstart=dt.strptime(start, DATE_FORMAT), until=end
                 )
         interval = 1
         if frequency == "BIMONTHLY":
@@ -270,7 +224,7 @@ class TinyDbPeriod(TinyDB, Period):
                 element_name = "{} {}".format(name, date.strftime("%B").lower())
             yield Element(dict(
                 name=element_name, value=value, category=category,
-                date=date.strftime(DateItem.FORMAT)
+                date=date.strftime(DATE_FORMAT)
                 ))
 
     def find_entry(self, create_recurrent_elements=True, **query_kwargs):
@@ -356,51 +310,6 @@ class TinyDbPeriod(TinyDB, Period):
     def print_entries(self, **query_kwargs):
         condition = self._create_query_condition(**query_kwargs)
         return {"elements": self._search_all_tables(condition)}
-
-def prettify(elements, stacked_layout=False):
-    if not elements:
-        return ""
-
-    query = where("value") > 0
-    earnings = []
-    expenses = []
-
-    for element in elements:
-        if query(element):
-            earnings.append(element)
-        else:
-            expenses.append(element)
-
-    model_earnings = Model.from_tinydb(earnings, "Earnings")
-    model_expenses = Model.from_tinydb(expenses, "Expenses")
-
-    if stacked_layout:
-        return "{}\n\n{}\n\n{}".format(
-                str(model_earnings), 38*"-", str(model_expenses)
-                )
-    else:
-        result = []
-        models = [model_earnings, model_expenses]
-        models_str = [str(m).splitlines() for m in models]
-        for row in zip(*models_str):
-            result.append(" | ".join(row))
-        earnings_size = len(models_str[0])
-        expenses_size = len(models_str[1])
-        diff = earnings_size - expenses_size
-        if diff > 0:
-            for row in models_str[0][expenses_size:]:
-                result.append(row + " | ")
-        else:
-            for row in models_str[1][earnings_size:]:
-                result.append(38*" " + " | " + row)
-        result.append(79*"=")
-        result.append(
-                " | ".join(
-                    [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
-                        for m in models]
-                    )
-                )
-        return '\n'.join(result)
 
 
 TinyDB.DEFAULT_TABLE = "standard"

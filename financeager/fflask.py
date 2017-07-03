@@ -52,29 +52,39 @@ class _Proxy(object):
 
     PERIODS_TAIL = "/financeager/periods"
 
-    def run(self, command, **kwargs):
-        period = kwargs.pop("period", None) or str(Period.DEFAULT_NAME)
-        url = "http://{}:5000{}".format(
+    def run(self, command, **data):
+        period = data.pop("period", None) or str(Period.DEFAULT_NAME)
+        url = "http://{}{}".format(
                 CONFIG["SERVICE:FLASK"]["host"], self.PERIODS_TAIL
                 )
         period_url = "{}/{}".format(url, period)
 
+        username = CONFIG["SERVICE:FLASK"].get("username")
+        password = CONFIG["SERVICE:FLASK"].get("password")
+        auth = None
+        if username is not None and password is not None:
+            auth = (username, password)
+
+        kwargs = dict(data=data or None, auth=auth)
+
         if command == "print":
-            response = requests.get(period_url)
+            response = requests.get(period_url, **kwargs)
         elif command == "rm":
-            eid = kwargs.get("eid")
+            eid = data.get("eid")
             if eid is None:
-                response = requests.delete(period_url, data=kwargs)
+                response = requests.delete(period_url, **kwargs)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                    period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                    data.get("eid")), auth=auth)
         elif command == "add":
-            response = requests.post(period_url, data=kwargs)
+            response = requests.post(period_url, **kwargs)
         elif command == "list":
-            response = requests.post(url, data=kwargs)
+            response = requests.post(url, **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                data.get("eid")), auth=auth)
         else:
             return {"error": "Unknown command: {}".format(command)}
 

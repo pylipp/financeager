@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import (QVariant, Qt)
+from tinydb import where
 import xml.etree.ElementTree as ET
 
 from schematics.types import StringType, ListType, ModelType
@@ -192,3 +193,49 @@ class Model(SchematicsModel):
         for item in self.category_entry_items("value"):
             result += item
         return result
+
+
+def prettify(elements, stacked_layout=False):
+    if not elements:
+        return ""
+
+    query = where("value") > 0
+    earnings = []
+    expenses = []
+
+    for element in elements:
+        if query(element):
+            earnings.append(element)
+        else:
+            expenses.append(element)
+
+    model_earnings = Model.from_tinydb(earnings, "Earnings")
+    model_expenses = Model.from_tinydb(expenses, "Expenses")
+
+    if stacked_layout:
+        return "{}\n\n{}\n\n{}".format(
+                str(model_earnings), 38*"-", str(model_expenses)
+                )
+    else:
+        result = []
+        models = [model_earnings, model_expenses]
+        models_str = [str(m).splitlines() for m in models]
+        for row in zip(*models_str):
+            result.append(" | ".join(row))
+        earnings_size = len(models_str[0])
+        expenses_size = len(models_str[1])
+        diff = earnings_size - expenses_size
+        if diff > 0:
+            for row in models_str[0][expenses_size:]:
+                result.append(row + " | ")
+        else:
+            for row in models_str[1][earnings_size:]:
+                result.append(38*" " + " | " + row)
+        result.append(79*"=")
+        result.append(
+                " | ".join(
+                    [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
+                        for m in models]
+                    )
+                )
+        return '\n'.join(result)
