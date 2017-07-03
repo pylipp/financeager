@@ -57,7 +57,7 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
         self.date = "2016-12-31"
         element = database.Element(value=dict(name=self.name, value=self.value,
             date=self.date))
-        self.entry = BaseEntry.from_tinydb_element(element)
+        self.entry = BaseEntry(element)
 
     def test_name(self):
         self.assertEqual(self.entry.name, "dinner for one")

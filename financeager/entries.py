@@ -26,12 +26,6 @@ class BaseEntry(Entry):
 
     ITEM_TYPES = ["name", "value", "date"]
 
-    @classmethod
-    def from_tinydb_element(cls, element):
-        """Create a BaseEntry from a TinyDB.database.Element. The element has
-        to contain the fields `name` and `value`, `date` is optional."""
-        return cls(element)
-
     def __str__(self):
         """Return a formatted string representing the entry."""
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
