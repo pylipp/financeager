@@ -6,7 +6,6 @@ import xml.etree.ElementTree as ET
 from tinydb import database
 from financeager.model import Model
 from financeager.entries import CategoryEntry, create_base_entry
-from financeager.items import CategoryItem
 
 
 def suite():
@@ -80,8 +79,7 @@ class AddCategoryEntryTwiceTestCase(unittest.TestCase):
         self.model.add_entry(CategoryEntry({"name": self.category_name}))
 
     def test_category_item_in_list(self):
-        self.assertIn(CategoryItem(self.category_name).data(),
-                self.model.category_entry_names)
+        self.assertIn(self.category_name.lower(), self.model.category_entry_names)
 
     def test_single_item_in_list(self):
         self.assertEqual(1, len(list(self.model.category_entry_names)))
@@ -97,7 +95,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
             "-".join([str(s) for s in self.item_date])), self.item_category)
 
     def test_base_entry_in_list(self):
-        base_entry_names = list(self.model.base_entry_items("name"))
+        base_entry_names = list(self.model.base_entry_fields("name"))
         self.assertIn(self.item_name.lower(), base_entry_names)
 
     def test_category_sum(self):
@@ -136,7 +134,7 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
                 self.item_category)
 
     def test_two_entries_in_list(self):
-        self.assertEqual(2, len(list(self.model.base_entry_items("name"))))
+        self.assertEqual(2, len(list(self.model.base_entry_fields("name"))))
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_a_value + self.item_b_value,
@@ -172,7 +170,7 @@ class FindItemByNameTestCase(unittest.TestCase):
 
     def test_correct_item_is_found(self):
         self.assertEqual(self.base_entry.name,
-                self.model.find_name_item(name=self.item_name,
+                self.model.find_base_entry(name=self.item_name,
                     category=self.item_category).name)
 
 class FindItemWrongCategoryTestCase(unittest.TestCase):
@@ -187,7 +185,7 @@ class FindItemWrongCategoryTestCase(unittest.TestCase):
         self.model.add_entry(self.base_entry, self.item_category)
 
     def test_correct_item_is_found(self):
-        self.assertIsNone(self.model.find_name_item(name=self.item_name))
+        self.assertIsNone(self.model.find_base_entry(name=self.item_name))
 
 class FindItemByNameAndDateTestCase(unittest.TestCase):
     def setUp(self):
@@ -205,7 +203,7 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
 
     def test_correct_item_is_found(self):
         self.assertEqual(self.base_entry_a,
-                self.model.find_name_item(name=self.item_a_name,
+                self.model.find_base_entry(name=self.item_a_name,
                     date=self.item_date))
 
 class RemoveEntryTestCase(unittest.TestCase):
@@ -221,7 +219,7 @@ class RemoveEntryTestCase(unittest.TestCase):
         self.model.remove_entry(self.base_entry_a, category=self.item_category)
 
     def test_remaining_entry(self):
-        self.assertEqual(list(self.model.base_entry_items("name"))[0],
+        self.assertEqual(list(self.model.base_entry_fields("name"))[0],
                 self.base_entry_b.name)
 
     def test_category_sum(self):
@@ -254,9 +252,9 @@ class XmlConversionTestCase(unittest.TestCase):
                 self.parsed_model.category_sum(self.item_category), places=5)
 
     def test_base_entries(self):
-        item = self.model.find_name_item(name=self.item_name,
+        item = self.model.find_base_entry(name=self.item_name,
                 category=self.item_category)
-        parsed_item = self.parsed_model.find_name_item(name=self.item_name,
+        parsed_item = self.parsed_model.find_base_entry(name=self.item_name,
                 category=self.item_category)
         self.assertEqual(item, parsed_item)
 
@@ -270,7 +268,7 @@ class ModelFromTinyDbTestCase(unittest.TestCase):
         self.model = Model.from_tinydb([element])
 
     def test_contains_an_entry(self):
-        self.assertIsNotNone(self.model.find_name_item(date=self.date))
+        self.assertIsNotNone(self.model.find_base_entry(date=self.date))
 
 if __name__ == '__main__':
     unittest.main()

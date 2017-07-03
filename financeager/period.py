@@ -1,4 +1,5 @@
-#-*- coding: utf-8 -*-
+"""Defines Period database object holding per-year financial data."""
+
 from __future__ import unicode_literals
 
 import os.path

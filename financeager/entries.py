@@ -1,4 +1,4 @@
-"""Defines Entries built from Items."""
+"""Defines Entries (data model rows built from fields)."""
 
 from __future__ import unicode_literals
 import datetime as dt
@@ -17,11 +17,14 @@ DateItem = DateType
 
 
 class Entry(SchematicsModel):
+    """Base class storing the 'name' field in lowercase."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = self.name.lower()
 
 class BaseEntry(Entry):
+    """Innermost element of the Model, child of a CategoryEntry. Holds
+    information on name, value and date."""
     name = NameItem(min_length=0)
     value = ValueItem()
     date = DateItem(default=dt.date.today())
@@ -36,9 +39,13 @@ class BaseEntry(Entry):
 
     @property 
     def date_str(self):
+        """Convenience method to return formatted date."""
         return DateItem().to_primitive(self.date)
 
+
 class CategoryEntry(Entry):
+    """First child of the model, holding BaseEntries. Has a name and a value
+    (i.e. the sum of its children's values)."""
     name = CategoryItem(min_length=0)
     value = SumItem(default=0.0)
     entries = ListType(ModelType(BaseEntry), default=[])
