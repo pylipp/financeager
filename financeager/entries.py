@@ -6,7 +6,9 @@ import datetime as dt
 from schematics.types import ListType, ModelType, StringType, FloatType, DateType
 from schematics.models import Model as SchematicsModel
 
-# from .items import (CategoryItem, SumItem, NameItem, DateItem, ValueItem)
+from .config import CONFIG
+
+
 NameItem = StringType
 CategoryItem = StringType
 ValueItem = FloatType
@@ -42,6 +44,7 @@ class CategoryEntry(Entry):
     entries = ListType(ModelType(BaseEntry), default=[])
 
     ITEM_TYPES = ["name", "sum", "empty"]
+    DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
 
     def __str__(self):
         """Return a formatted string representing the entry. This is supposed

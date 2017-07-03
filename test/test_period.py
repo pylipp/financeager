@@ -5,7 +5,7 @@ import unittest
 from tinydb import database, Query, storages
 from financeager.period import TinyDbPeriod, PeriodException
 from financeager.model import Model
-from financeager.items import CategoryItem
+from financeager.entries import CategoryEntry
 import os
 
 def suite():
@@ -44,7 +44,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 database.Element)
 
     def test_remove_entry(self):
-        response = self.period.remove_entry(category=CategoryItem.DEFAULT_NAME)
+        response = self.period.remove_entry(category=CategoryEntry.DEFAULT_NAME)
         self.assertEqual(0, len(self.period))
         self.assertEqual(1, response)
 

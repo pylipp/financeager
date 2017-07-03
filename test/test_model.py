@@ -122,7 +122,7 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
 
     def test_default_category_in_list(self):
         names = list(self.model.category_entry_names)
-        self.assertIn(CategoryItem.DEFAULT_NAME, names)
+        self.assertIn(CategoryEntry.DEFAULT_NAME, names)
 
 class AddTwoBaseEntriesTestCase(unittest.TestCase):
     def setUp(self):

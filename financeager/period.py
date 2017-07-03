@@ -11,6 +11,7 @@ from tinydb.database import Element
 from tinydb.queries import QueryImpl
 
 from .config import CONFIG_DIR, CONFIG
+from .entries import CategoryEntry
 
 
 # TODO temporary set to have module independent of items
@@ -73,7 +74,7 @@ class TinyDbPeriod(TinyDB, Period):
         The following kwarg is optional:
             :param category: entry category. If not specified, the program
                 attempts to derive it from previous, eponymous entries. If this
-                fails, ``CategoryItem.DEFAULT_NAME`` is assigned
+                fails, ``CategoryEntry.DEFAULT_NAME`` is assigned
             :type category: str
 
         The following kwarg is optional for standard entries:
@@ -103,7 +104,7 @@ class TinyDbPeriod(TinyDB, Period):
                 category = self._category_cache[name].most_common(1)[0][0]
             else:
                 # assign default name (must be str), s.t. category field can be queried
-                category = CONFIG["DATABASE"]["default_category"]
+                category = CategoryEntry.DEFAULT_NAME
         else:
             category = category.lower()
 

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.items import CategoryItem
+from financeager.entries import CategoryEntry
 from financeager.server import Server
 from financeager.config import CONFIG_DIR
 import os.path
@@ -55,14 +55,15 @@ class FindEntryServerTestCase(unittest.TestCase):
                 period=self.period)
 
     def test_query_and_reset_response(self):
-        response = self.server.run("print", period=self.period, category=CategoryItem.DEFAULT_NAME)
+        response = self.server.run("print", period=self.period,
+                category=CategoryEntry.DEFAULT_NAME)
         self.assertGreater(len(response), 0)
         self.assertIsInstance(response, dict)
 
     def test_response_is_none(self):
-        self.server.run("rm", period=self.period, category=CategoryItem.DEFAULT_NAME)
+        self.server.run("rm", period=self.period, category=CategoryEntry.DEFAULT_NAME)
         response = self.server.run("print", period=self.period, name="Hiking boots",
-                category=CategoryItem.DEFAULT_NAME)
+                category=CategoryEntry.DEFAULT_NAME)
         self.assertListEqual([], response["elements"])
 
 if __name__ == '__main__':
