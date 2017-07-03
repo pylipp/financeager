@@ -231,7 +231,9 @@ def prettify(elements, stacked_layout=False):
         result.append(79*"=")
         result.append(
                 " | ".join(
-                    [str(CategoryEntry(name="TOTAL", sum=m.total_value()))
+                    [str(CategoryEntry(dict(
+                        name="TOTAL", value=m.total_value())
+                        ))
                         for m in models]
                     )
                 )
