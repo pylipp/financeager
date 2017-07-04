@@ -4,7 +4,7 @@ import unittest
 
 import xml.etree.ElementTree as ET
 from tinydb import database
-from financeager.model import Model
+from financeager.model import Model, prettify
 from financeager.entries import CategoryEntry, create_base_entry
 
 
@@ -25,6 +25,11 @@ def suite():
             'test_str'
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
+    tests = [
+            'test_category_sum',
+            'test_str'
+            ]
+    suite.addTest(unittest.TestSuite(map(AddNegativeBaseEntryTestCase, tests)))
     tests = [
             'test_default_category_in_list'
             ]
@@ -60,6 +65,8 @@ def suite():
             'test_contains_an_entry'
             ]
     suite.addTest(unittest.TestSuite(map(ModelFromTinyDbTestCase, tests)))
+    tests = ['test_prettify']
+    suite.addTest(unittest.TestSuite(map(PrettifyModelsTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
@@ -97,6 +104,27 @@ class AddBaseEntryTestCase(unittest.TestCase):
     def test_base_entry_in_list(self):
         base_entry_names = list(self.model.base_entry_fields("name"))
         self.assertIn(self.item_name.lower(), base_entry_names)
+
+    def test_category_sum(self):
+        self.assertAlmostEqual(self.item_value,
+                self.model.category_sum(self.item_category), places=5)
+
+    def test_str(self):
+        self.assertEqual(str(self.model), '\n'.join([
+                "{:^38}".format("Model"),
+                "Name               Value    Date" + 6*" ",
+                "Groceries             66.60" + 11*" ",
+                "  Aldi                66.60 2016-11-08"]))
+
+class AddNegativeBaseEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_name = "Aldi"
+        self.item_value = -66.6
+        self.item_date = (2016, 11, 8)
+        self.item_category = "Groceries"
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
+            "-".join([str(s) for s in self.item_date])), self.item_category)
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_value,
@@ -269,6 +297,23 @@ class ModelFromTinyDbTestCase(unittest.TestCase):
 
     def test_contains_an_entry(self):
         self.assertIsNotNone(self.model.find_base_entry(date=self.date))
+
+class PrettifyModelsTestCase(unittest.TestCase):
+    def test_prettify(self):
+        elements = [
+                {"name": "food", "value": -100.01, "date": "2017-03-03",
+                    "category": "groceries"},
+                {"name": "money", "value": 299.99, "date": "2017-03-03"}
+                ]
+        self.maxDiff = None
+        self.assertEqual(prettify(elements), 
+"               Earnings                |                Expenses               \n"
+"Name               Value    Date       | Name               Value    Date      \n"
+"Unspecified          299.99            | Groceries            100.01           \n"
+"  Money              299.99 2017-03-03 |   Food               100.01 2017-03-03\n"
+"===============================================================================\n"
+"Total                299.99            | Total                100.01           "
+                )
 
 if __name__ == '__main__':
     unittest.main()
