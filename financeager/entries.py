@@ -25,7 +25,7 @@ class Entry(SchematicsModel):
 class BaseEntry(Entry):
     """Innermost element of the Model, child of a CategoryEntry. Holds
     information on name, value and date."""
-    name = NameItem(min_length=0)
+    name = NameItem(min_length=1)
     value = ValueItem()
     date = DateItem(default=dt.date.today())
 
@@ -46,7 +46,7 @@ class BaseEntry(Entry):
 class CategoryEntry(Entry):
     """First child of the model, holding BaseEntries. Has a name and a value
     (i.e. the sum of its children's values)."""
-    name = CategoryItem(min_length=0)
+    name = CategoryItem(min_length=1)
     value = SumItem(default=0.0)
     entries = ListType(ModelType(BaseEntry), default=[])
 
