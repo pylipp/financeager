@@ -1,37 +1,26 @@
 FINANCEAGER
 ===========
 
-A PyQt application that helps you administering your daily expenses and receipts.
+A command line application that helps you administering your daily expenses and receipts.
 
 Who is this for?
 ----------------
 You might be someone who wants to organize finances with a simple software
 because you're tired of Excel and the like.
-Or you are interested in PyQt applications and like to see some example code.
 
 DISCLAIMER: Defs not BUG-FREE!
 
 NOTE
 ----
 You're currently on the `master` branch which is under active development.
-The code base is being refactored. The idea is to first have a command line
-tool and successively built a GUI on top.
 
 GENERAL USAGE
 -------------
 ### Installation
 
-Install the dependencies (I'm on Ubuntu Xenial):
-
-    sudo apt-get install python3-pyqt5
-
 Create a virtual environment
 
     mkvirtualenv --python=/usr/bin/python3 financeager
-
-Create links for the virtual environment to find PyQt5 (same for `sip` library)
-
-    ln -s /usr/lib/python3/dist-packages/PyQt5 $WORKON_HOME/financeager/lib/python3.5/site-packages/PyQt5
 
 Clone the repo
 
@@ -39,6 +28,7 @@ Clone the repo
 
 Install (uses pip)
 
+    cd financeager
     make install
 
 ### Testing
@@ -57,9 +47,9 @@ Launch the server via
 
     > financeager start
 
-Host IP and debug mode are read from the configuration. Personally I run a financeager server on my Raspi, making it accessible via local network by setting `host=0.0.0.0`.
+Host IP and debug mode are read from the configuration. Personally I run a financeager server on my Raspi, making it accessible via local network by setting `host=0.0.0.0`. Another option is to use a hosting platform like `pythonanywhere.com`.
 
-On the client side, specify the host in the config (defaults to localhost, so rather put the server IP).
+On the client side, specify the host in the config (defaults to localhost, so rather put the server IP). Specify username and password in the section `SERVICE:FLASK` if you have basic HTTP auth enabled.
 
 ### Command line usage
 
@@ -123,10 +113,10 @@ FUTURE FEATURES
 - [ ] use asynchronous calls
 - [ ] use logging module instead of print
 - [ ] omit year with `-d` option
-- [ ] drop PyQt dependency for schematics package
+- [x] drop PyQt dependency for schematics package
 
 PERSONAL NOTE
 -------------
-This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development.
+This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development.
 
 Feel free to browse the project and give feedback (comments, issues, PRs).
