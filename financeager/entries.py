@@ -32,9 +32,10 @@ class BaseEntry(Entry):
     ITEM_TYPES = ["name", "value", "date"]
 
     def __str__(self):
-        """Return a formatted string representing the entry."""
+        """Return a formatted string representing the entry. The value is
+        rendered absolute."""
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
-        return "{:16.16} {:>8.2f} {}".format(capitalized_name, self.value,
+        return "{:16.16} {:>8.2f} {}".format(capitalized_name, abs(self.value),
                 self.date_str)
 
     @property 
@@ -56,8 +57,11 @@ class CategoryEntry(Entry):
     def __str__(self):
         """Return a formatted string representing the entry. This is supposed
         to be longer than the BaseEntry representation so that the latter is
-        indented."""
-        return "{:18} {:>8.2f}".format(self.name.capitalize(), self.value).ljust(38)
+        indented. The value is rendered absolute."""
+        # TODO append entries
+        capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
+        return "{:18.18} {:>8.2f}".format(
+                capitalized_name, abs(self.value)).ljust(38)
 
 
 def create_base_entry(name, value, date=None):
