@@ -6,7 +6,7 @@ import financeager.pyro
 import financeager.fflask
 import financeager.server
 from .config import CONFIG
-from .period import prettify
+from .model import prettify
 
 
 def module():
