@@ -59,22 +59,29 @@ class _Proxy(object):
                 )
         period_url = "{}/{}".format(url, period)
 
+        requests_kwargs = dict(timeout=5)
+
         if command == "print":
-            response = requests.get(period_url)
+            response = requests.get(period_url, **requests_kwargs)
         elif command == "rm":
             eid = kwargs.get("eid")
             if eid is None:
-                response = requests.delete(period_url, data=kwargs)
+                response = requests.delete(period_url, data=kwargs,
+                        **requests_kwargs)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                    period_url, kwargs.get("table_name",
+                        TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")),
+                    **requests_kwargs)
         elif command == "add":
-            response = requests.post(period_url, data=kwargs)
+            response = requests.post(period_url, data=kwargs, **requests_kwargs)
         elif command == "list":
-            response = requests.post(url, data=kwargs)
+            response = requests.post(url, data=kwargs, **requests_kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                period_url, kwargs.get("table_name", TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")))
+                period_url, kwargs.get("table_name",
+                    TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")),
+                **requests_kwargs)
         else:
             return {"error": "Unknown command: {}".format(command)}
 
