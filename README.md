@@ -81,7 +81,7 @@ Show a side-by-side overview of earnings and expenses (filter date and/or catego
 	Unspecified          123.45       | Rent                1500.00
 	  Lottery            123.45 03-14 |   Rent January       500.00 01-01
 	                                  |   Rent February      500.00 02-01
-					                  |   Rent March         500.00 03-01
+                                      |   Rent March         500.00 03-01
 	=====================================================================
 	Total                123.45       | Total               1500.00
 
