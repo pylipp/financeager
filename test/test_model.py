@@ -2,19 +2,11 @@
 from __future__ import unicode_literals
 import unittest
 
-from PyQt5.QtCore import QDate, QVariant
 import xml.etree.ElementTree as ET
 from tinydb import database
-from financeager.model import Model
-from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import (CategoryItem, NameItem)
+from financeager.model import Model, prettify
+from financeager.entries import CategoryEntry, create_base_entry
 
-
-try:
-    QString = unicode
-except NameError:
-    # Python 3
-    QString = str
 
 def suite():
     suite = unittest.TestSuite()
@@ -33,6 +25,11 @@ def suite():
             'test_str'
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
+    tests = [
+            'test_category_sum',
+            'test_str'
+            ]
+    suite.addTest(unittest.TestSuite(map(AddNegativeBaseEntryTestCase, tests)))
     tests = [
             'test_default_category_in_list'
             ]
@@ -68,28 +65,28 @@ def suite():
             'test_contains_an_entry'
             ]
     suite.addTest(unittest.TestSuite(map(ModelFromTinyDbTestCase, tests)))
+    tests = ['test_prettify']
+    suite.addTest(unittest.TestSuite(map(PrettifyModelsTestCase, tests)))
     return suite
 
 class AddCategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.model = Model()
         self.category_name = "Groceries"
-        self.model.add_entry(CategoryEntry(self.category_name))
+        self.model.add_entry(CategoryEntry({"name": self.category_name}))
 
     def test_category_item_in_list(self):
-        self.assertIn(CategoryItem(self.category_name).data(),
-                self.model.category_entry_names)
+        self.assertIn(self.category_name.lower(), self.model.category_entry_names)
 
 class AddCategoryEntryTwiceTestCase(unittest.TestCase):
     def setUp(self):
         self.model = Model()
         self.category_name = "Groceries"
-        self.model.add_entry(CategoryEntry(self.category_name))
-        self.model.add_entry(CategoryEntry(self.category_name))
+        self.model.add_entry(CategoryEntry({"name": self.category_name}))
+        self.model.add_entry(CategoryEntry({"name": self.category_name}))
 
     def test_category_item_in_list(self):
-        self.assertIn(CategoryItem(self.category_name).data(),
-                self.model.category_entry_names)
+        self.assertIn(self.category_name.lower(), self.model.category_entry_names)
 
     def test_single_item_in_list(self):
         self.assertEqual(1, len(list(self.model.category_entry_names)))
@@ -101,13 +98,33 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
 
     def test_base_entry_in_list(self):
-        base_entry_names = [item.data() for item in
-                self.model.base_entry_items("name")]
-        self.assertIn(NameItem(self.item_name).data(), base_entry_names)
+        base_entry_names = list(self.model.base_entry_fields("name"))
+        self.assertIn(self.item_name.lower(), base_entry_names)
+
+    def test_category_sum(self):
+        self.assertAlmostEqual(self.item_value,
+                self.model.category_sum(self.item_category), places=5)
+
+    def test_str(self):
+        self.assertEqual(str(self.model), '\n'.join([
+                "{:^38}".format("Model"),
+                "Name               Value    Date" + 6*" ",
+                "Groceries             66.60" + 11*" ",
+                "  Aldi                66.60 2016-11-08"]))
+
+class AddNegativeBaseEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        self.item_name = "Aldi"
+        self.item_value = -66.6
+        self.item_date = (2016, 11, 8)
+        self.item_category = "Groceries"
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
+            "-".join([str(s) for s in self.item_date])), self.item_category)
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_value,
@@ -126,12 +143,12 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
         self.item_name = "Aldi"
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])))
 
     def test_default_category_in_list(self):
-        self.assertIn(QString(CategoryItem.DEFAULT_NAME),
-                self.model.category_entry_names)
+        names = list(self.model.category_entry_names)
+        self.assertIn(CategoryEntry.DEFAULT_NAME, names)
 
 class AddTwoBaseEntriesTestCase(unittest.TestCase):
     def setUp(self):
@@ -139,13 +156,13 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry("Aldi", self.item_a_value),
+        self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
                 self.item_category)
-        self.model.add_entry(BaseEntry("Rewe", self.item_b_value),
+        self.model.add_entry(create_base_entry("Rewe", self.item_b_value),
                 self.item_category)
 
     def test_two_entries_in_list(self):
-        self.assertEqual(2, len(list(self.model.base_entry_items("name"))))
+        self.assertEqual(2, len(list(self.model.base_entry_fields("name"))))
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.item_a_value + self.item_b_value,
@@ -161,13 +178,11 @@ class SetValueItemTextTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry("Aldi", self.item_a_value),
+        self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
                 self.item_category)
-        self.model.item(0).child(0, 1).setText(
-                QString("{}".format(self.item_b_value)))
 
     def test_category_sum_updated(self):
-        self.assertAlmostEqual(self.item_b_value,
+        self.assertAlmostEqual(self.item_a_value,
                 self.model.category_sum(self.item_category), places=5)
 
 class FindItemByNameTestCase(unittest.TestCase):
@@ -177,14 +192,14 @@ class FindItemByNameTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.base_entry = BaseEntry(self.item_name, self.item_value,
+        self.base_entry = create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date]))
         self.model.add_entry(self.base_entry, self.item_category)
 
     def test_correct_item_is_found(self):
-        self.assertEqual(self.base_entry.name_item,
-                self.model.find_name_item(name=self.item_name,
-                    category=self.item_category))
+        self.assertEqual(self.base_entry.name,
+                self.model.find_base_entry(name=self.item_name,
+                    category=self.item_category).name)
 
 class FindItemWrongCategoryTestCase(unittest.TestCase):
     def setUp(self):
@@ -193,12 +208,12 @@ class FindItemWrongCategoryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.base_entry = BaseEntry(self.item_name, self.item_value,
+        self.base_entry = create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date]))
         self.model.add_entry(self.base_entry, self.item_category)
 
     def test_correct_item_is_found(self):
-        self.assertIsNone(self.model.find_name_item(name=self.item_name))
+        self.assertIsNone(self.model.find_base_entry(name=self.item_name))
 
 class FindItemByNameAndDateTestCase(unittest.TestCase):
     def setUp(self):
@@ -208,15 +223,15 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 1.00
         self.item_date = "2016-11-08"
-        self.base_entry_a = BaseEntry(self.item_a_name, self.item_a_value,
+        self.base_entry_a = create_base_entry(self.item_a_name, self.item_a_value,
             self.item_date)
-        self.base_entry_b = BaseEntry(self.item_b_name, self.item_b_value)
+        self.base_entry_b = create_base_entry(self.item_b_name, self.item_b_value)
         self.model.add_entry(self.base_entry_b)
         self.model.add_entry(self.base_entry_a)
 
     def test_correct_item_is_found(self):
-        self.assertEqual(self.base_entry_a.name_item,
-                self.model.find_name_item(name=self.item_a_name,
+        self.assertEqual(self.base_entry_a,
+                self.model.find_base_entry(name=self.item_a_name,
                     date=self.item_date))
 
 class RemoveEntryTestCase(unittest.TestCase):
@@ -225,15 +240,15 @@ class RemoveEntryTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.base_entry_a = BaseEntry("Aldi", self.item_a_value)
-        self.base_entry_b = BaseEntry("Rewe", self.item_b_value)
+        self.base_entry_a = create_base_entry("Aldi", self.item_a_value)
+        self.base_entry_b = create_base_entry("Rewe", self.item_b_value)
         self.model.add_entry(self.base_entry_a, self.item_category)
         self.model.add_entry(self.base_entry_b, self.item_category)
         self.model.remove_entry(self.base_entry_a, category=self.item_category)
 
     def test_remaining_entry(self):
-        self.assertEqual(list(self.model.base_entry_items("name"))[0],
-                self.base_entry_b.name_item)
+        self.assertEqual(list(self.model.base_entry_fields("name"))[0],
+                self.base_entry_b.name)
 
     def test_category_sum(self):
         self.assertAlmostEqual(self.model.category_sum(self.item_category),
@@ -246,12 +261,13 @@ class XmlConversionTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (2016, 11, 8)
         self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
+        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
         model_element = self.model.convert_to_xml()
         output = ET.tostring(model_element, "utf-8")
         parsed_input = ET.fromstring(output)
-        self.parsed_model = Model(parsed_input)
+        self.parsed_model = Model()
+        self.parsed_model.create_from_xml(parsed_input)
 
     def test_category_item_names(self):
         model_entry_names = list(self.model.category_entry_names)
@@ -264,13 +280,11 @@ class XmlConversionTestCase(unittest.TestCase):
                 self.parsed_model.category_sum(self.item_category), places=5)
 
     def test_base_entries(self):
-        item = self.model.find_name_item(name=self.item_name,
+        item = self.model.find_base_entry(name=self.item_name,
                 category=self.item_category)
-        parsed_item = self.parsed_model.find_name_item(name=self.item_name,
+        parsed_item = self.parsed_model.find_base_entry(name=self.item_name,
                 category=self.item_category)
-        self.assertCountEqual(
-                [str(i) for i in item.entry.items],
-                [str(i) for i in parsed_item.entry.items])
+        self.assertEqual(item, parsed_item)
 
 class ModelFromTinyDbTestCase(unittest.TestCase):
     def setUp(self):
@@ -282,7 +296,24 @@ class ModelFromTinyDbTestCase(unittest.TestCase):
         self.model = Model.from_tinydb([element])
 
     def test_contains_an_entry(self):
-        self.assertIsNotNone(self.model.find_name_item(date=self.date))
+        self.assertIsNotNone(self.model.find_base_entry(date=self.date))
+
+class PrettifyModelsTestCase(unittest.TestCase):
+    def test_prettify(self):
+        elements = [
+                {"name": "food", "value": -100.01, "date": "2017-03-03",
+                    "category": "groceries"},
+                {"name": "money", "value": 299.99, "date": "2017-03-03"}
+                ]
+        self.maxDiff = None
+        self.assertEqual(prettify(elements), 
+"               Earnings                |                Expenses               \n"
+"Name               Value    Date       | Name               Value    Date      \n"
+"Unspecified          299.99            | Groceries            100.01           \n"
+"  Money              299.99 2017-03-03 |   Food               100.01 2017-03-03\n"
+"===============================================================================\n"
+"Total                299.99            | Total                100.01           "
+                )
 
 if __name__ == '__main__':
     unittest.main()

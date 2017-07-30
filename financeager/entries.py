@@ -1,66 +1,72 @@
-"""Defines Entries built from Items."""
+"""Defines Entries (data model rows built from fields)."""
 
 from __future__ import unicode_literals
+import datetime as dt
 
-from .items import (CategoryItem, SumItem, EmptyItem, NameItem, DateItem,
-        ValueItem)
-from abc import ABCMeta
+from schematics.types import ListType, ModelType, StringType, FloatType, DateType
+from schematics.models import Model as SchematicsModel
+
+from .config import CONFIG
 
 
-class Entry(object):
-    """Abstract base class for all entries.
+NameItem = StringType
+CategoryItem = StringType
+ValueItem = FloatType
+SumItem = FloatType
+DateItem = DateType
 
-    An Entry is a wrapper around several items and allows simple access of
-    corresponding item data. It can be visualized as a row in the data sheet.
-    Subclasses have to contain members named `self._foo_item` of type
-    `FooItem`.
-    """
-    __metaclass__ = ABCMeta
 
-    def __getattr__(self, name):
-        """Reimplementation for accessing an item member."""
-        name = name.replace("_item", "")
-        return self.__dict__["_{}_item".format(name)]
-
-    @property
-    def items(self):
-        return [getattr(self, attr) for attr in self.ITEM_TYPES]
+class Entry(SchematicsModel):
+    """Base class storing the 'name' field in lowercase."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = self.name.lower()
 
 class BaseEntry(Entry):
-    """Wrapper around a Name-, Value-, DateItem tuple."""
+    """Innermost element of the Model, child of a CategoryEntry. Holds
+    information on name, value and date."""
+    name = NameItem(min_length=1)
+    value = ValueItem()
+    date = DateItem(default=dt.date.today())
 
     ITEM_TYPES = ["name", "value", "date"]
 
-    def __init__(self, name, value, date=None):
-        self._name_item = NameItem(name, entry=self)
-        self._value_item = ValueItem(value, entry=self)
-        self._date_item = DateItem(date, entry=self)
-
-    @classmethod
-    def from_tinydb_element(cls, element):
-        """Create a BaseEntry from a TinyDB.database.Element. The element has
-        to contain the fields `name` and `value`, `date` is optional."""
-        base_entry = cls(element["name"], element["value"], element.get("date"))
-        return base_entry
-
     def __str__(self):
-        """Return a formatted string representing the entry."""
-        attributes = [getattr(self, attrib).text() for attrib in self.ITEM_TYPES]
-        return "{:16.16} {:>8} {}".format(*attributes)
+        """Return a formatted string representing the entry. The value is
+        rendered absolute."""
+        capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
+        return "{:16.16} {:>8.2f} {}".format(capitalized_name, abs(self.value),
+                self.date_str)
+
+    @property 
+    def date_str(self):
+        """Convenience method to return formatted date."""
+        return DateItem().to_primitive(self.date)
+
 
 class CategoryEntry(Entry):
-    """Wrapper around a Category- and SumItem tuple."""
+    """First child of the model, holding BaseEntries. Has a name and a value
+    (i.e. the sum of its children's values)."""
+    name = CategoryItem(min_length=1)
+    value = SumItem(default=0.0)
+    entries = ListType(ModelType(BaseEntry), default=[])
 
     ITEM_TYPES = ["name", "sum", "empty"]
-
-    def __init__(self, name, sum=0.0):
-        self._name_item = CategoryItem(name, entry=self)
-        self._sum_item = SumItem(sum, entry=self)
-        self._empty_item = EmptyItem(entry=self)
+    DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
 
     def __str__(self):
         """Return a formatted string representing the entry. This is supposed
         to be longer than the BaseEntry representation so that the latter is
-        indented."""
-        attributes = [getattr(self, attrib).text() for attrib in self.ITEM_TYPES]
-        return "{:18} {:>8} {:10}".format(*attributes)
+        indented. The value is rendered absolute."""
+        # TODO append entries
+        capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
+        return "{:18.18} {:>8.2f}".format(
+                capitalized_name, abs(self.value)).ljust(38)
+
+
+def create_base_entry(name, value, date=None):
+    """Factory method for convenience."""
+    data = {"name": name, "value": value}
+    if date is not None:
+        data["date"] = date
+    return BaseEntry(data)

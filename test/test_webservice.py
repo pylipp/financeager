@@ -3,7 +3,7 @@
 import unittest
 import os
 
-from financeager.fflask import launch_server, proxy
+from financeager.fflask import create_app, proxy
 from financeager.config import CONFIG, CONFIG_DIR
 
 
@@ -21,7 +21,13 @@ def suite():
 class WebserviceTestCase(unittest.TestCase):
     def setUp(self):
         CONFIG["SERVICE:FLASK"]["debug"] = "yes"
-        self.webservice_process = launch_server()
+        # FIXME does not use localhost!
+        config = dict(
+                debug=True,
+                host="127.0.0.1:5000"
+                )
+        self.app = create_app(config=config).test_client()
+        self.app.testing = True
         self.proxy = proxy()
         self.period = "0"
 
@@ -62,8 +68,6 @@ class WebserviceTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.proxy.run("stop")
-        if self.webservice_process is not None:
-            self.webservice_process.kill()
         filepath = os.path.join(CONFIG_DIR, "0.json")
         if os.path.exists(filepath):
             os.remove(filepath)

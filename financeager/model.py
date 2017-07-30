@@ -1,214 +1,240 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from PyQt5.QtGui import QStandardItemModel
-from PyQt5.QtCore import (QVariant, Qt)
+from tinydb import where
 import xml.etree.ElementTree as ET
-from financeager.entries import BaseEntry, CategoryEntry
-from financeager.items import ValueItem, CategoryItem
 
-try:
-    QString = unicode
-except NameError:
-    # Python 3
-    QString = str
+from schematics.types import StringType, ListType, ModelType
+from schematics.models import Model as SchematicsModel 
 
-class Model(QStandardItemModel):
+from .entries import BaseEntry, CategoryEntry, create_base_entry
+
+
+class Model(SchematicsModel):
     """Holds Entries in hierarchical order. First-level children are
     CategoryEntries, second-level children are BaseEntries. Generator methods
-    are provided to iterate over these.
-    When a `root_element` (type `ET.Element`) is passed at initialization, the
-    model is built from it.
-    """
+    are provided to iterate over these."""
 
-    def __init__(self, root_element=None, name=None):
-        super(QStandardItemModel, self).__init__()
-        self._name = name
-        self.itemChanged.connect(self._update_sum_item)
-        self.setHorizontalHeaderLabels(
-                [k.capitalize() for k in BaseEntry.ITEM_TYPES])
-        if root_element is not None:
-            self.create_from_xml(root_element)
+    name = StringType(default="Model")
+    categories = ListType(ModelType(CategoryEntry), default=[])
+
+    def __init__(self, *args, **kwargs):
+        super(SchematicsModel, self).__init__(*args, **kwargs)
+        self._headers = [k.capitalize() for k in BaseEntry.ITEM_TYPES]
 
     @classmethod
     def from_tinydb(cls, elements, name=None):
-        model = cls(name=name)
+        """Create model from tinydb.Elements or dict."""
+        model = cls(raw_data={"name": name})
         for element in elements:
-            model.add_entry(BaseEntry(element["name"], element["value"],
-                element.get("date")), category=element.get("category"))
+            category = element.pop("category", None)
+            model.add_entry(BaseEntry(element), category_name=category)
         return model
 
     def __str__(self):
-        result = ["{:^38}".format("Model" if self._name is None else self._name)]
+        """Format model (incl. name and header)."""
+        result = ["{:^38}".format(self.name)]
 
-        result.append("{:18} {:8} {:10}".format(*[
-            self.headerData(col, Qt.Horizontal) for col in
-            range(self.columnCount())])
-            )
+        result.append("{:18} {:8} {:10}".format(*self._headers))
 
-        for category_item in self.category_entry_items("name"):
-            result.append(str(category_item.entry))
-            for row in range(category_item.rowCount()):
-                name_item = category_item.child(row)
-                result.append("  " + str(name_item.entry))
+        for category in self.categories:
+            result.append(str(category))
+            for entry in category.entries:
+                result.append("  " + str(entry))
 
         return '\n'.join(result)
 
-    def add_entry(self, entry, category=None):
+    def add_entry(self, entry, category_name=None):
         """Add a Category- or BaseEntry to the model.
-        Category names are unique, i.e. a CategoryEntry is not skipped if one
+        Category names are unique, i.e. a CategoryEntry is discarded if one
         with identical name (case INsensitive) already exists.
-        When adding a BaseEntry, the parent CategoryItem is created if it does
+        When adding a BaseEntry, the parent CategoryEntry is created if it does
         not exist. If no category is specified, the BaseEntry is added to the
-        default category. The corresponding sum item is updated.
-        """
-        if category is None:
-            category = CategoryItem.DEFAULT_NAME
+        default category. The CategoryEntry's value is updated."""
+
+        if category_name is None:
+            category_name = CategoryEntry.DEFAULT_NAME
+
         if isinstance(entry, CategoryEntry):
-            if entry.name_item.data() not in self.category_entry_names:
-                self.appendRow(entry.items)
+            if entry.name not in self.category_entry_names:
+                self.categories.append(entry)
         elif isinstance(entry, BaseEntry):
-            self.add_entry(CategoryEntry(category))
-            category_item = self.find_category_item(category)
-            category_item.appendRow(entry.items)
-            self.itemChanged.emit(entry.value_item)
+            self.add_entry(CategoryEntry({"name": category_name}))
+            category_item = self.find_category_entry(category_name)
+            category_item.entries.append(entry)
+            category_item.value += entry.value
 
     def remove_entry(self, entry, category):
-        """Querying the given category, remove the first base entry whose
+        """Querying the given category, remove the first BaseEntry whose
         attributes are a superset of the attributes of `entry`.
-        The corresponding SumItem is updated.
+        The corresponding CategoryEntry's value is updated. The method fails if
+        the entry is not found.
+        This method is to be removed in future releases."""
+
+        item = self.find_base_entry(name=entry.name,
+                date=entry.date_str, category=category)
+        category_item = self.find_category_entry(category)
+        category_item.value -= item.value
+        category_item.entries.remove(item)
+
+    def category_fields(self, field_type):
+        """Generator iterating over the field specified by `field_type` of the 
+        first-level children (CategoryEntries) of the model. 
+
+        :param field_type: 'name' or 'value'
+
+        raises: KeyError if `field_type` not found.
+        yields: str or float
         """
-        item = self.find_name_item(name=entry.name_item.data(),
-                date=entry.date_item.text(), category=category)
-        category_item = item.parent()
-        self.removeRow(item.row(), item.index().parent())
-        if category_item.rowCount():
-            self.itemChanged.emit(category_item.child(0, 1))
-        else:
-            #TODO remove category bc empty ?
-            pass
+        for category_entry in self.categories:
+            yield getattr(category_entry, field_type)
 
-    def category_entry_items(self, item_type):
-        """Generator iterating over first-level children (CategoryEntries) of
-        the model. `item_type` is one of `CategoryEntry.ITEM_TYPES`.
+    def base_entry_fields(self, field_type):
+        """Generator iterating over the field specified by `field_type` of the 
+        second-level children (BaseEntries) of the model. 
 
-        raises: KeyError if `item_type` not found.
-        yields: CategoryItem, SumItem
+        :param field_type: 'name', 'value' or 'date'
+
+        raises: KeyError if `field_type` not found.
+        yields: str, float or datetime.date
         """
-        col = list(CategoryEntry.ITEM_TYPES).index(item_type)
-        for row in range(self.rowCount()):
-            yield self.item(row, col)
-
-    def base_entry_items(self, item_type):
-        """Generator iterating over second-level children (BaseEntries) of
-        the model. `item_type` is one of `BaseEntry.ITEM_TYPES`.
-
-        raises: KeyError if `item_type` not found.
-        yields: NameItem, ValueItem, DateItem
-        """
-        col = list(BaseEntry.ITEM_TYPES).index(item_type)
-        for category_item in self.category_entry_items("name"):
-            for row in range(category_item.rowCount()):
-                yield category_item.child(row, col)
+        for category_entry in self.categories:
+            for base_entry in category_entry.entries:
+                yield getattr(base_entry, field_type)
 
     @property
     def category_entry_names(self):
-        """Convenience generator method yielding category names.
+        """Convenience generator method yielding category names."""
+        for category_name in self.category_fields("name"):
+            yield category_name
 
-        yield: QString
-        """
-        item_generator = self.category_entry_items("name")
-        # TODO there has to be a better way
-        while True:
-            try:
-                yield next(item_generator).data()
-            except StopIteration:
-                break
+    def find_category_entry(self, category_name):
+        """Find CategoryEntry by given `category_name` or return None if not
+        found. The search is case insensitive."""
 
-    def find_category_item(self, category_name):
-        """Find CategoryItem by given `category_name` or return None if not
-        found. The search is case insensitive.
-        """
-        for category_item in self.category_entry_items("name"):
-            if category_item.data() == QString(category_name.lower()):
-                return category_item
+        category_name = category_name.lower()
+        for category_entry in self.categories:
+            if category_entry.name == category_name:
+                return category_entry
         return None
 
     def category_sum(self, category_name):
-        """Return sum of category named `category_name`."""
-        category_item = self.find_category_item(category_name)
-        if category_item is not None:
-            return category_item.entry.sum_item.value
+        """Return total value of category named `category_name`."""
+        category_entry = self.find_category_entry(category_name)
+        if category_entry is not None:
+            return category_entry.value
         return 0.0
 
-    def _update_sum_item(self, item):
-        """Slot that updates the corresponding SumItem if a ValueItem is added
-        or modified."""
-        if isinstance(item, ValueItem):
-            category_item = item.parent()
-            if category_item is None:
-                return
-            col = list(BaseEntry.ITEM_TYPES).index("value")
-            new_sum = 0.0
-            for row in range(category_item.rowCount()):
-                new_sum += category_item.child(row, col).value
-            sum_item = category_item.entry.sum_item
-            sum_item.setText(QString("{}".format(new_sum)))
-
-    def find_name_item(self, **kwargs):
-        """Find a NameItem by explicitely passing keyword arguments `name`
-        and/or `value` and/or `date` and/or `category`. The first NameItem
+    def find_base_entry(self, **kwargs):
+        """Find a BaseEntry by explicitely passing keyword arguments `name`
+        and/or `value` and/or `date` and/or `category`. The first BaseEntry
         meeting the search requirements is returned. If no match is found,
         `None` is returned. The matching is performed case-INsensitive. If no
-        category specified, the `CategoryItem.DEFAULT_NAME` category is
+        category specified, the `CategoryEntry.DEFAULT_NAME` category is
         queried.
-        kwargs values must be of type str.
-        """
-        category_name = kwargs.pop("category", CategoryItem.DEFAULT_NAME)
-        attributes = {v.lower() for v in kwargs.values()}
-        category_item = self.find_category_item(category_name)
-        if category_item is None:
+        kwargs values must be of type str or None."""
+
+        category_name = kwargs.pop("category", CategoryEntry.DEFAULT_NAME)
+        attributes = {v.lower() for v in kwargs.values() if v is not None}
+
+        category_entry = self.find_category_entry(category_name)
+        if category_entry is None:
             return None
-        for row in range(category_item.rowCount()):
-            name_item = category_item.child(row)
+
+        for base_entry in category_entry.entries:
             other_attributes = set()
-            # use .data() to get lowercase name
-            other_attributes.add(name_item.data())
-            other_attributes.add(name_item.entry.date_item.text())
+            other_attributes.add(base_entry.name)
+            other_attributes.add(base_entry.date_str)
             if attributes.issubset(other_attributes):
-                return name_item
+                return base_entry
         return None
 
     def convert_to_xml(self):
         model_element = ET.Element("model")
-        if self._name is not None:
-            model_element.set("name", self._name)
-        for name_item in self.base_entry_items("name"):
-            entry = name_item.entry
-            entry_element = ET.SubElement(
-                    model_element,
-                    "entry",
-                    attrib=dict(
-                        name=str(entry.name),
-                        value=str(entry.value),
-                        date=str(entry.date),
-                        category=str(name_item.parent())
+        if self.name is not None:
+            model_element.set("name", self.name)
+        for category_entry in self.categories:
+            for entry in category_entry.entries:
+                entry_element = ET.SubElement(
+                        model_element,
+                        "entry",
+                        attrib=dict(
+                            name=str(entry.name),
+                            value=str(entry.value),
+                            date=str(entry.date_str),
+                            category=str(category_entry.name)
+                            )
                         )
-                    )
             entry_element.tail = "\n"
         model_element.text = "\n"
         model_element.tail = "\n"
         return model_element
 
     def create_from_xml(self, parent_element):
-        self._name = parent_element.get("name")
+        self.name = parent_element.get("name")
         for child in parent_element:
             category_name = child.attrib.pop("category")
-            self.add_entry(BaseEntry(child.attrib['name'],
+            self.add_entry(create_base_entry(child.attrib['name'],
                 child.attrib['value'], child.attrib['date']), category_name)
 
     def total_value(self):
+        """Return total value of the model."""
         result = 0.0
-        for item in self.category_entry_items("sum"):
-            result += item.data()
+        for value in self.category_fields("value"):
+            result += value
         return result
+
+
+def prettify(elements, stacked_layout=False):
+    """Sort the given elements (type tinydb.Element) by positive and negative
+    value and return pretty string build from the corresponding Models. 
+
+    :param stacked_layout: If True, models are displayed one by one, else side by side"""
+
+    if not elements:
+        return ""
+
+    query = where("value") > 0
+    earnings = []
+    expenses = []
+
+    for element in elements:
+        if query(element):
+            earnings.append(element)
+        else:
+            expenses.append(element)
+
+    model_earnings = Model.from_tinydb(earnings, "Earnings")
+    model_expenses = Model.from_tinydb(expenses, "Expenses")
+
+    #TODO remove hard coded line sizes
+
+    if stacked_layout:
+        return "{}\n\n{}\n\n{}".format(
+                str(model_earnings), 38*"-", str(model_expenses)
+                )
+    else:
+        result = []
+        models = [model_earnings, model_expenses]
+        models_str = [str(m).splitlines() for m in models]
+        for row in zip(*models_str):
+            result.append(" | ".join(row))
+        earnings_size = len(models_str[0])
+        expenses_size = len(models_str[1])
+        diff = earnings_size - expenses_size
+        if diff > 0:
+            for row in models_str[0][expenses_size:]:
+                result.append(row + " | ")
+        else:
+            for row in models_str[1][earnings_size:]:
+                result.append(38*" " + " | " + row)
+        result.append(79*"=")
+        result.append(
+                " | ".join(
+                    [str(CategoryEntry(dict(
+                        name="TOTAL", value=m.total_value())
+                        ))
+                        for m in models]
+                    )
+                )
+        return '\n'.join(result)

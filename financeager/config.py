@@ -13,7 +13,7 @@ def _load():
     filename = "config"
     path = os.path.join(CONFIG_DIR, filename)
 
-    parser = configparser.ConfigParser()
+    parser = configparser.ConfigParser(allow_no_value=True)
 
     if os.path.isfile(path):
         parser.read(path)
@@ -28,6 +28,12 @@ def _load():
         parser["SERVICE:FLASK"] = {
                 "debug": False,
                 "host": "127.0.0.1"
+                }
+        parser["SERVICE:PYRO"] = {
+                "host": "127.0.0.1",
+                "port": 9091,
+                "ns_port": 9090
+                # hmac_key has no default value, dunno how to set it
                 }
         with open(path, "w") as f:
             parser.write(f)

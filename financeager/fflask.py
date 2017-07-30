@@ -3,11 +3,6 @@
 Module for frontend-backend communication using a flask webservice.
 """
 
-import sys
-import subprocess
-import os
-import time
-
 import requests
 from flask import Flask
 from flask_restful import Api
@@ -19,6 +14,7 @@ from .resources import (PeriodsResource, PeriodResource,
 
 
 def create_app(config=None):
+    """Create web app with RESTful API built from resources."""
     app = Flask(__name__)
     app.config.update(config or {})
     api = Api(app)
@@ -33,14 +29,20 @@ def create_app(config=None):
 
 
 def launch_server():
-    """
-    Launch flask webservice via script.
-
-    :return: corresponding ``subprocess.Popen`` object
-    """
-    server_script_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "start_webservice.py")
-    process = subprocess.call([sys.executable, server_script_path])
+    """Launch flask webservice application."""
+    try:
+        config = dict(
+                debug=CONFIG["SERVICE:FLASK"].getboolean("debug"),
+                host=CONFIG["SERVICE:FLASK"]["host"]
+                )
+        # FIXME debug config is not taken into account, however repetitive
+        # starts are possible. This does not work when passing config kwargs to
+        # app.run()
+        app = create_app(config=config)
+        app.run()
+    except OSError as e:
+        # socket binding: address already in use
+        print("The financeager server has already been started.")
 
 
 class _Proxy(object):
@@ -52,36 +54,39 @@ class _Proxy(object):
 
     PERIODS_TAIL = "/financeager/periods"
 
-    def run(self, command, **kwargs):
-        period = kwargs.pop("period", None) or str(Period.DEFAULT_NAME)
-        url = "http://{}:5000{}".format(
+    def run(self, command, **data):
+        period = data.pop("period", None) or str(Period.DEFAULT_NAME)
+        url = "http://{}{}".format(
                 CONFIG["SERVICE:FLASK"]["host"], self.PERIODS_TAIL
                 )
         period_url = "{}/{}".format(url, period)
 
-        requests_kwargs = dict(timeout=5)
+        username = CONFIG["SERVICE:FLASK"].get("username")
+        password = CONFIG["SERVICE:FLASK"].get("password")
+        auth = None
+        if username is not None and password is not None:
+            auth = (username, password)
+
+        kwargs = dict(data=data or None, auth=auth, timeout=5)
 
         if command == "print":
-            response = requests.get(period_url, **requests_kwargs)
+            response = requests.get(period_url, **kwargs)
         elif command == "rm":
-            eid = kwargs.get("eid")
+            eid = data.get("eid")
             if eid is None:
-                response = requests.delete(period_url, data=kwargs,
-                        **requests_kwargs)
+                response = requests.delete(period_url, **kwargs)
             else:
                 response = requests.delete("{}/{}/{}".format(
-                    period_url, kwargs.get("table_name",
-                        TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")),
-                    **requests_kwargs)
+                    period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                    eid), **kwargs)
         elif command == "add":
-            response = requests.post(period_url, data=kwargs, **requests_kwargs)
+            response = requests.post(period_url, **kwargs)
         elif command == "list":
-            response = requests.post(url, data=kwargs, **requests_kwargs)
+            response = requests.post(url, **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                period_url, kwargs.get("table_name",
-                    TinyDbPeriod.DEFAULT_TABLE), kwargs.get("eid")),
-                **requests_kwargs)
+                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                data.get("eid")), **kwargs)
         else:
             return {"error": "Unknown command: {}".format(command)}
 
