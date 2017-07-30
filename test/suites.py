@@ -11,7 +11,8 @@ modules = [
         'test_server',
         'test_webservice',
         'test_cli',
-        'test_config'
+        'test_config',
+        'test_offline'
         ]
 
 testRunner = unittest.TextTestRunner(verbosity=2)
