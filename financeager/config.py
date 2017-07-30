@@ -27,7 +27,8 @@ def _load():
                 }
         parser["SERVICE:FLASK"] = {
                 "debug": False,
-                "host": "127.0.0.1"
+                "host": "127.0.0.1",
+                "timeout": 10
                 }
         parser["SERVICE:PYRO"] = {
                 "host": "127.0.0.1",

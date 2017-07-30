@@ -67,7 +67,8 @@ class _Proxy(object):
         if username is not None and password is not None:
             auth = (username, password)
 
-        kwargs = dict(data=data or None, auth=auth, timeout=5)
+        kwargs = dict(data=data or None, auth=auth,
+                timeout=CONFIG["SERVICE:FLASK"].getint("timeout"))
 
         if command == "print":
             response = requests.get(period_url, **kwargs)
