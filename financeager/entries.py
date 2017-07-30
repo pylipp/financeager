@@ -7,6 +7,7 @@ from schematics.types import ListType, ModelType, StringType, FloatType, DateTyp
 from schematics.models import Model as SchematicsModel
 
 from .config import CONFIG
+DATE_FORMAT = CONFIG["DATABASE"]["date_format"]
 
 
 NameItem = StringType
@@ -14,6 +15,7 @@ CategoryItem = StringType
 ValueItem = FloatType
 SumItem = FloatType
 DateItem = DateType
+DateItem.SERIALIZED_FORMAT = DATE_FORMAT 
 
 
 class Entry(SchematicsModel):
@@ -27,7 +29,8 @@ class BaseEntry(Entry):
     information on name, value and date."""
     name = NameItem(min_length=1)
     value = ValueItem()
-    date = DateItem(default=dt.date.today())
+    # support legacy format
+    date = DateItem(formats=("%Y-%m-%d", DATE_FORMAT), default=dt.date.today())
 
     ITEM_TYPES = ["name", "value", "date"]
 
@@ -61,7 +64,7 @@ class CategoryEntry(Entry):
         # TODO append entries
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
         return "{:18.18} {:>8.2f}".format(
-                capitalized_name, abs(self.value)).ljust(38)
+                capitalized_name, abs(self.value)).ljust(33)
 
 
 def create_base_entry(name, value, date=None):

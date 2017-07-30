@@ -33,9 +33,9 @@ class Model(SchematicsModel):
 
     def __str__(self):
         """Format model (incl. name and header)."""
-        result = ["{:^38}".format(self.name)]
+        result = ["{:^33}".format(self.name)]
 
-        result.append("{:18} {:8} {:10}".format(*self._headers))
+        result.append("{:18} {:8} {:5}".format(*self._headers))
 
         for category in self.categories:
             result.append(str(category))
@@ -211,7 +211,7 @@ def prettify(elements, stacked_layout=False):
 
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(
-                str(model_earnings), 38*"-", str(model_expenses)
+                str(model_earnings), 33*"-", str(model_expenses)
                 )
     else:
         result = []
@@ -227,8 +227,8 @@ def prettify(elements, stacked_layout=False):
                 result.append(row + " | ")
         else:
             for row in models_str[1][earnings_size:]:
-                result.append(38*" " + " | " + row)
-        result.append(79*"=")
+                result.append(33*" " + " | " + row)
+        result.append(69*"=")
         result.append(
                 " | ".join(
                     [str(CategoryEntry(dict(

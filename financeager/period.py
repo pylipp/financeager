@@ -101,7 +101,6 @@ class TinyDbPeriod(TinyDB, Period):
         name = kwargs["name"].lower()
         date = kwargs.get("date")
         if date is None:
-            # FIXME this will assign the current date to ANY period
             date = dt.today().strftime(DATE_FORMAT)
         category = kwargs.get("category")
 
@@ -201,15 +200,17 @@ class TinyDbPeriod(TinyDB, Period):
         end = element.get("end")
 
         if end is None:
-            end = dt.now()
-            last_second = dt(int(self._name), 12, 31, 23, 59, 59)
-            if end > last_second:
-                end = last_second
+            end = dt(self.year, 12, 31, 23, 59, 59)
+            now = dt.now()
+            if end > now:
+                # don't show entries that are in the future
+                end = now
         else:
-            end = dt.strptime(end, DATE_FORMAT)
+            end = dt.strptime(end, DATE_FORMAT).replace(year=self.year)
 
         rrule_kwargs = dict(
-                dtstart=dt.strptime(start, DATE_FORMAT), until=end
+                dtstart=dt.strptime(start, DATE_FORMAT).replace(year=self.year),
+                until=end
                 )
         interval = 1
         if frequency == "BIMONTHLY":

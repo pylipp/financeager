@@ -6,6 +6,8 @@ from tinydb import database, Query, storages
 from financeager.period import TinyDbPeriod, PeriodException
 from financeager.model import Model
 from financeager.entries import CategoryEntry
+from financeager.config import CONFIG
+from datetime import datetime as dt
 import os
 
 def suite():
@@ -61,9 +63,10 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_repetitive_entries(self):
         self.period.add_entry(name="rent", value=-500,
-                repetitive=["monthly", "1901-10-01"])
+                repetitive=["monthly", "10-01"])
         self.assertSetEqual({"standard", "repetitive"}, self.period.tables())
 
+        self.assertEqual(len(self.period.table("repetitive").all()), 1)
         element = self.period.table("repetitive").all()[0]
         repetitive_elements = list(self.period._create_repetitive_elements(element))
         self.assertEqual(len(repetitive_elements), 3)
@@ -72,13 +75,13 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertSetEqual(rep_element_names,
                 {"rent october", "rent november", "rent december"})
 
-        elements = self.period.print_entries(date="1901-11")
-        self.assertEqual(len(elements), 1)
+        elements = self.period.print_entries(date="11")
+        self.assertEqual(len(elements["elements"]), 1)
         self.assertEqual(elements["elements"][0]["name"], "rent november")
 
     def test_repetitive_quarter_yearly_entries(self):
         self.period.add_entry(name="interest", value=25,
-                repetitive=["quarter-yearly", "1901-01-01"])
+                repetitive=["quarter-yearly", "01-01"])
 
         element = self.period.table("repetitive").all()[0]
         repetitive_elements = list(self.period._create_repetitive_elements(element))
@@ -118,6 +121,15 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_get_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.get_entry, eid=-1)
+
+    def test_add_entry_default_date(self):
+        name = "new backpack"
+        entry_id = self.period.add_entry(name=name, value=-49.95)
+        # FIXME: this calls _default table...
+        element = self.period.get_entry(entry_id, "standard")
+        self.assertEqual(element["date"], dt.today().strftime(
+            CONFIG["DATABASE"]["date_format"]))
+        self.period.remove_entry(eid=entry_id)
 
     def tearDown(self):
         self.period.close()

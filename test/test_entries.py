@@ -4,7 +4,7 @@ import unittest
 import datetime as dt
 
 from tinydb import database
-from schematics.exceptions import DataError 
+from schematics.exceptions import DataError
 
 from financeager.entries import BaseEntry, CategoryEntry, create_base_entry
 from financeager.config import CONFIG
@@ -63,7 +63,7 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.entry),
-                "Vw Bully" + 9*" " + " 6000.00 2017-01-01")
+                "Vw Bully" + 9*" " + " 6000.00 01-01")
 
 class InvalidBaseEntryTestCase(unittest.TestCase):
     def test_invalid_entry(self):
@@ -96,7 +96,7 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(str(self.entry), "Gifts" + 14*" " + "    0.00" + 11*" ")
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
-    @classmethod 
+    @classmethod
     def setUpClass(cls):
         cls.entry = CategoryEntry({"name": "This is quite a LOOONG Category",
             "value": -100, "entries": [create_base_entry("entry", -100)]})
@@ -108,7 +108,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.value, -100)
 
     def test_str(self):
-        self.assertEqual(str(self.entry), 
+        self.assertEqual(str(self.entry),
                 "This Is Quite A Lo " + "  100.00" + 11*" ")
 
 class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
@@ -127,7 +127,7 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.entry.value, self.value, places=5)
 
     def test_str(self):
-        self.assertEqual(str(self.entry), "Dinner For One      99.90 2016-12-31")
+        self.assertEqual(str(self.entry), "Dinner For One      99.90 12-31")
 
 if __name__ == '__main__':
     unittest.main()

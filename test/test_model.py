@@ -111,10 +111,10 @@ class AddBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.model), '\n'.join([
-                "{:^38}".format("Model"),
-                "Name               Value    Date" + 6*" ",
-                "Groceries             66.60" + 11*" ",
-                "  Aldi                66.60 2016-11-08"]))
+                "{:^33}".format("Model"),
+                "Name               Value    Date ",
+                "Groceries             66.60" + 6*" ",
+                "  Aldi                66.60 11-08"]))
 
 class AddNegativeBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
@@ -132,10 +132,10 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.model), '\n'.join([
-                "{:^38}".format("Model"),
-                "Name               Value    Date" + 6*" ",
-                "Groceries             66.60" + 11*" ",
-                "  Aldi                66.60 2016-11-08"]))
+                "{:^33}".format("Model"),
+                "Name               Value    Date ",
+                "Groceries             66.60" + 6*" ",
+                "  Aldi                66.60 11-08"]))
 
 class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
     def setUp(self):
@@ -190,7 +190,7 @@ class FindItemByNameTestCase(unittest.TestCase):
         self.model = Model()
         self.item_name = "Aldi"
         self.item_value = 66.6
-        self.item_date = (2016, 11, 8)
+        self.item_date = (11, 8)
         self.item_category = "Groceries"
         self.base_entry = create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date]))
@@ -222,7 +222,7 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
         self.item_b_name = "Aldi"
         self.item_a_value = 66.6
         self.item_b_value = 1.00
-        self.item_date = "2016-11-08"
+        self.item_date = "11-08"
         self.base_entry_a = create_base_entry(self.item_a_name, self.item_a_value,
             self.item_date)
         self.base_entry_b = create_base_entry(self.item_b_name, self.item_b_value)
@@ -259,7 +259,7 @@ class XmlConversionTestCase(unittest.TestCase):
         self.model = Model()
         self.item_name = "Aldi"
         self.item_value = 66.6
-        self.item_date = (2016, 11, 8)
+        self.item_date = (11, 8)
         self.item_category = "Groceries"
         self.model.add_entry(create_base_entry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
@@ -290,7 +290,7 @@ class ModelFromTinyDbTestCase(unittest.TestCase):
     def setUp(self):
         self.name = "Dinner for one"
         self.value = 99.9
-        self.date = "2016-12-31"
+        self.date = "12-31"
         element = database.Element(value=dict(name=self.name, value=self.value,
             date=self.date))
         self.model = Model.from_tinydb([element])
@@ -306,13 +306,13 @@ class PrettifyModelsTestCase(unittest.TestCase):
                 {"name": "money", "value": 299.99, "date": "2017-03-03"}
                 ]
         self.maxDiff = None
-        self.assertEqual(prettify(elements), 
-"               Earnings                |                Expenses               \n"
-"Name               Value    Date       | Name               Value    Date      \n"
-"Unspecified          299.99            | Groceries            100.01           \n"
-"  Money              299.99 2017-03-03 |   Food               100.01 2017-03-03\n"
-"===============================================================================\n"
-"Total                299.99            | Total                100.01           "
+        self.assertEqual(prettify(elements),
+"            Earnings              |             Expenses             \n"
+"Name               Value    Date  | Name               Value    Date \n"
+"Unspecified          299.99       | Groceries            100.01      \n"
+"  Money              299.99 03-03 |   Food               100.01 03-03\n"
+"=====================================================================\n"
+"Total                299.99       | Total                100.01      "
                 )
 
 if __name__ == '__main__':
