@@ -94,6 +94,10 @@ Detailed information is available from
 	> financeager --help
 	> financeager <subcommand> --help
 
+### More Goodies
+
+- financeager will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is online available when running financeager with flask.
+
 KNOWN BUGS
 ----------
 - Please. Report. Them.
@@ -114,6 +118,7 @@ FUTURE FEATURES
 - [ ] use logging module instead of print
 - [ ] omit year with `-d` option
 - [x] drop PyQt dependency for schematics package
+- [ ] experiment with urwid for building TUI
 
 PERSONAL NOTE
 -------------
