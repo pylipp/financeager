@@ -56,13 +56,13 @@ On the client side, specify the host in the config (defaults to localhost, so ra
 Add earnings (no/positive sign) and expenses (negative sign) to the database:
 
     > financeager add burgers -19.99 --category Restaurants
-    > financeager add lottery 123.45 --date 2017-03-14
+    > financeager add lottery 123.45 --date 03-14
 
 Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
 Add repetitive entries using the `-r FREQUENCY [START END]` flag.
 
-    > financeager add rent -500 -r monthly 2017-01-01 -c rent
+    > financeager add rent -500 -r monthly 01-01 -c rent
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
@@ -76,18 +76,18 @@ Show a side-by-side overview of earnings and expenses (filter date and/or catego
 
     > financeager print
 
-                   Earnings                |                Expenses
-	Name               Value    Date       | Name               Value    Date
-	Unspecified          123.45            | Rent                1500.00
-	  Lottery            123.45 2017-03-14 |   Rent January       500.00 2017-01-01
-	                                       |   Rent February      500.00 2017-02-01
-					       |   Rent March         500.00 2017-03-01
+                   Earnings           |                Expenses
+	Name               Value    Date  | Name               Value    Date
+	Unspecified          123.45       | Rent                1500.00
+	  Lottery            123.45 03-14 |   Rent January       500.00 01-01
+	                                       |   Rent February      500.00 02-01
+					       |   Rent March         500.00 03-01
 	===============================================================================
 	Total                123.45            | Total               1500.00
 
 All financeager command operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 
-	> financeager add xmas-gifts -42 --date 2016-12-23 --period 2016
+	> financeager add xmas-gifts -42 --date 12-23 --period 2016
 
 Detailed information is available from
 
@@ -96,7 +96,7 @@ Detailed information is available from
 
 ### More Goodies
 
-- financeager will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is online available when running financeager with flask.
+- `financeager` will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is online available when running financeager with flask.
 
 KNOWN BUGS
 ----------
@@ -116,7 +116,7 @@ FUTURE FEATURES
 - [x] use flask for REST API
 - [ ] use asynchronous calls
 - [ ] use logging module instead of print
-- [ ] omit year with `-d` option
+- [x] omit year with `-d` option
 - [x] drop PyQt dependency for schematics package
 - [ ] experiment with urwid for building TUI
 
