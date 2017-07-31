@@ -49,7 +49,6 @@ class VimTreeBox(TreeBox):
     """TreeBox subclass supporting vertical navigation via k and l key."""
 
     def keypress(self, size, key):
-        w, focuspos = self.get_focus()
         if key == 'j':
             return super().keypress(size, 'down')
         elif key == 'k':
