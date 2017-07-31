@@ -89,7 +89,7 @@ def run(response):
     Models and corresponding tree widgets are built. The TUI is constructed and
     started."""
 
-    if not "elements" in response:
+    if "elements" not in response:
         print("tui: Error while fetching database: {}".format(
             response.get("error", "unknown")))
         return
