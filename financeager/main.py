@@ -50,6 +50,10 @@ def parse_command():
     list_parser.add_argument("-r", "--running", action='store_true',
             help="list only databases that are currently running")
 
+    tui_parser = subparsers.add_parser("tui",
+            help="start financeager TUI")
+    tui_parser.add_argument(*period_args, **period_kwargs)
+
     return parser.parse_args()
 
 def main():

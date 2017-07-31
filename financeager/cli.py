@@ -5,7 +5,7 @@ Module containing top layer of backend communication.
 from __future__ import unicode_literals, print_function
 
 from .config import CONFIG
-from financeager import offline, communication
+from financeager import offline, communication, tui
 
 
 class Cli(object):
@@ -25,7 +25,12 @@ class Cli(object):
 
         proxy = self._communication_module.proxy()
         try:
-            communication.run(proxy, command, **self._cl_kwargs)
+            if command == "tui":
+                # fetch data to feed TUI
+                response = proxy.run("print", **self._cl_kwargs)
+                tui.run(response)
+            else:
+                communication.run(proxy, command, **self._cl_kwargs)
 
             offline.recover(proxy)
 
