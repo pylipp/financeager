@@ -1,11 +1,10 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from tinydb import where
 import xml.etree.ElementTree as ET
 
 from schematics.types import StringType, ListType, ModelType
-from schematics.models import Model as SchematicsModel 
+from schematics.models import Model as SchematicsModel
 
 from .entries import BaseEntry, CategoryEntry, create_base_entry
 
@@ -78,8 +77,8 @@ class Model(SchematicsModel):
         category_item.entries.remove(item)
 
     def category_fields(self, field_type):
-        """Generator iterating over the field specified by `field_type` of the 
-        first-level children (CategoryEntries) of the model. 
+        """Generator iterating over the field specified by `field_type` of the
+        first-level children (CategoryEntries) of the model.
 
         :param field_type: 'name' or 'value'
 
@@ -90,8 +89,8 @@ class Model(SchematicsModel):
             yield getattr(category_entry, field_type)
 
     def base_entry_fields(self, field_type):
-        """Generator iterating over the field specified by `field_type` of the 
-        second-level children (BaseEntries) of the model. 
+        """Generator iterating over the field specified by `field_type` of the
+        second-level children (BaseEntries) of the model.
 
         :param field_type: 'name', 'value' or 'date'
 
@@ -187,19 +186,18 @@ class Model(SchematicsModel):
 
 def prettify(elements, stacked_layout=False):
     """Sort the given elements (type tinydb.Element) by positive and negative
-    value and return pretty string build from the corresponding Models. 
+    value and return pretty string build from the corresponding Models.
 
     :param stacked_layout: If True, models are displayed one by one, else side by side"""
 
     if not elements:
         return ""
 
-    query = where("value") > 0
     earnings = []
     expenses = []
 
     for element in elements:
-        if query(element):
+        if element["value"] > 0:
             earnings.append(element)
         else:
             expenses.append(element)
