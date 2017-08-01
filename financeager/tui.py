@@ -11,11 +11,12 @@ from tinydb import where
 from .model import Model
 
 
-class FocusableText(urwid.WidgetWrap):
+class TreeElement(urwid.WidgetWrap):
     """Class providing selectable text."""
 
-    def __init__(self, txt):
-        t = urwid.Text(txt)
+    def __init__(self, entry):
+        self._entry = entry
+        t = urwid.Text(str(entry))
         w = urwid.AttrMap(t, 'body', 'focus')
         super().__init__(w)
 
@@ -70,11 +71,11 @@ def build_tree_from_model(model):
     for category in model.categories:
         entries = []
         for entry in category.entries:
-            entries.append((FocusableText(str(entry)), None))
-        category_subtree = (FocusableText(str(category)), entries)
+            entries.append((TreeElement(entry), None))
+        category_subtree = (TreeElement(category), entries)
         categories.append(category_subtree)
 
-    root = (FocusableText(model.name), categories)
+    root = (urwid.Text(model.name), categories)
 
     return CollapsibleIndentedTree(
             SimpleTree([root]),
