@@ -71,7 +71,7 @@ class _Proxy(object):
                 timeout=CONFIG["SERVICE:FLASK"].getint("timeout"))
 
         if command == "print":
-            response = requests.get(period_url, **kwargs)
+            response = {"elements": requests.get(period_url, **kwargs)}
         elif command == "rm":
             eid = data.get("eid")
             if eid is None:

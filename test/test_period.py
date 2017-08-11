@@ -54,12 +54,12 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
         elements = self.period.get_entries(date="1901-12")
         self.assertEqual(len(elements), 1)
-        self.assertEqual(elements["elements"][0]["name"], "xmas gifts")
+        self.assertEqual(elements[0]["name"], "xmas gifts")
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
         elements = self.period.get_entries(name="xmas", date="1901-12")
         self.assertEqual(len(elements), 1)
-        self.assertEqual(elements["elements"][0]["name"], "xmas gifts")
+        self.assertEqual(elements[0]["name"], "xmas gifts")
 
     def test_repetitive_entries(self):
         self.period.add_entry(name="rent", value=-500,
@@ -76,8 +76,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 {"rent october", "rent november", "rent december"})
 
         elements = self.period.get_entries(date="11")
-        self.assertEqual(len(elements["elements"]), 1)
-        self.assertEqual(elements["elements"][0]["name"], "rent november")
+        self.assertEqual(len(elements), 1)
+        self.assertEqual(elements[0]["name"], "rent november")
 
     def test_repetitive_quarter_yearly_entries(self):
         self.period.add_entry(name="interest", value=25,

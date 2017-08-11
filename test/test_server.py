@@ -58,13 +58,14 @@ class FindEntryServerTestCase(unittest.TestCase):
         response = self.server.run("print", period=self.period,
                 category=CategoryEntry.DEFAULT_NAME)
         self.assertGreater(len(response), 0)
-        self.assertIsInstance(response, dict)
+        self.assertIsInstance(response, list)
+        self.assertIsInstance(response[0], dict)
 
     def test_response_is_none(self):
         self.server.run("rm", period=self.period, category=CategoryEntry.DEFAULT_NAME)
         response = self.server.run("print", period=self.period, name="Hiking boots",
                 category=CategoryEntry.DEFAULT_NAME)
-        self.assertListEqual([], response["elements"])
+        self.assertListEqual([], response)
 
 if __name__ == '__main__':
     unittest.main()

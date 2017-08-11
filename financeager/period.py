@@ -317,7 +317,7 @@ class TinyDbPeriod(TinyDB, Period):
 
     def get_entries(self, **query_kwargs):
         """Get list of entries that match the given query kwargs. These can be
-        empty or consist of one or more of 'name', 'date' or 'category'. 
+        empty or consist of one or more of 'name', 'date' or 'category'.
         Constructs a condition from the given kwargs and uses it to query all
         tables.
 
@@ -327,7 +327,7 @@ class TinyDbPeriod(TinyDB, Period):
         """
 
         condition = self._create_query_condition(**query_kwargs)
-        return {"elements": self._search_all_tables(condition)}
+        return self._search_all_tables(condition)
 
 
 TinyDB.DEFAULT_TABLE = "standard"
