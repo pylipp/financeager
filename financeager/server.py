@@ -43,7 +43,7 @@ class Server(object):
             command2method = {
                     "add": "add_entry",
                     "rm": "remove_entry",
-                    "print": "print_entries",
+                    "print": "get_entries",
                     "get": "get_entry"
                     }
             response = getattr(

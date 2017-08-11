@@ -163,7 +163,7 @@ class TinyDbPeriod(TinyDB, Period):
         :type query_impl: tinydb.queries.QueryImpl
 
         :param create_recurrent_elements: 'Expand' elements of the 'repetitive'
-            table prior to search (used when printing) or not (used when deleting).
+            table prior to search (used when displaying) or not (used when deleting).
         :type create_recurrent_elements: bool
 
         :return: list[tinydb.Element]
@@ -315,7 +315,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         return condition
 
-    def print_entries(self, **query_kwargs):
+    def get_entries(self, **query_kwargs):
         condition = self._create_query_condition(**query_kwargs)
         return {"elements": self._search_all_tables(condition)}
 
