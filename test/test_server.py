@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.entries import CategoryEntry
+from financeager.entries import CategoryEntry, BaseEntry
 from financeager.server import Server
 from financeager.config import CONFIG_DIR
 import os.path
@@ -51,21 +51,28 @@ class FindEntryServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = Server(storage=storages.MemoryStorage)
         self.period = "0"
-        self.server.run("add", name="Hiking boots", value=-111.11,
-                period=self.period)
+        self.entry_id = self.server.run("add", name="Hiking boots", value=-111.11,
+                period=self.period)["id"]
 
     def test_query_and_reset_response(self):
+        category = CategoryEntry.DEFAULT_NAME
         response = self.server.run("print", period=self.period,
-                category=CategoryEntry.DEFAULT_NAME)
+                category=category)
         self.assertGreater(len(response), 0)
-        self.assertIsInstance(response, list)
-        self.assertIsInstance(response[0], dict)
+        self.assertIsInstance(response, dict)
+        self.assertIsInstance(response["elements"], list)
 
     def test_response_is_none(self):
-        self.server.run("rm", period=self.period, category=CategoryEntry.DEFAULT_NAME)
+        response = self.server.run("get", period=self.period, eid=self.entry_id)
+        self.assertIn("element", response)
+        self.assertEqual(response["element"].eid, self.entry_id)
+
+        response = self.server.run("rm", period=self.period, category=CategoryEntry.DEFAULT_NAME)
+        self.assertEqual(response["id"], self.entry_id)
+
         response = self.server.run("print", period=self.period, name="Hiking boots",
                 category=CategoryEntry.DEFAULT_NAME)
-        self.assertListEqual([], response)
+        self.assertListEqual([], response["elements"])
 
 if __name__ == '__main__':
     unittest.main()

@@ -21,10 +21,11 @@ class Server(object):
     def run(self, command, **kwargs):
         """
         The requested period is created if not yet present. The method of
-        `Period` corresponding to the given `command` is
-        looked up and called. All `kwargs` are passed on. The return value
-        (type: dictionary, serializable by Pyro) can later be used to access
-        possible output data from querying commands (f.i. `print`).
+        `Period` corresponding to the given `command` is called. All `kwargs`
+        are passed on. A json-like response is returned.
+        
+        :return: dict
+            key is one of 'id', 'element', 'elements', 'error'
         """
 
         if command == "list":
@@ -40,14 +41,22 @@ class Server(object):
                 self._periods[period_name] = TinyDbPeriod(period_name,
                         **self._period_kwargs)
 
-            command2method = {
-                    "add": "add_entry",
-                    "rm": "remove_entry",
-                    "print": "get_entries",
-                    "get": "get_entry"
-                    }
-            response = getattr(
-                    self._periods[period_name], command2method[command])(**kwargs)
+            period = self._periods[period_name]
+
+            try:
+                if command == "add":
+                    response = {"id": period.add_entry(**kwargs)}
+                elif command == "rm":
+                    response = {"id": period.remove_entry(**kwargs)}
+                elif command == "print":
+                    response = {"elements": period.get_entries(**kwargs)}
+                elif command == "get":
+                    response = {"element": period.get_entry(**kwargs)}
+                else:
+                    response = {"error": "Server: unknown command '{}'".format(command)}
+            except PeriodException as e:
+                response = {"error": str(e)}
+
             return response
 
     def periods(self, running=False):
@@ -69,7 +78,6 @@ class PyroServer(Server):
 
     The server is typically launched at the initial `financeager`
     command line call and then runs in the background as a Pyro daemon.
-    Calling `stop` causes the Pyro daemon request loop to terminate.
     """
 
     NAME = "financeager_tinydb_server"
@@ -83,13 +91,14 @@ class PyroServer(Server):
         return self._running
 
     def run(self, command, **kwargs):
+        """Cause the Pyro Daemon request loop to stop if requested, then call
+        parent method.
+        """
+
         if command == "stop":
             self._running = False
 
-        try:
-            return super().run(command, **kwargs)
-        except PeriodException as e:
-            return {"error": str(e)}
+        return super().run(command, **kwargs)
 
 
 def launch_server():
