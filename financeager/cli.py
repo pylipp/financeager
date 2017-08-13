@@ -5,6 +5,7 @@ Module containing command line interface to financeager backend.
 from __future__ import unicode_literals, print_function
 
 import argparse
+import traceback
 
 from financeager import offline, communication
 
@@ -32,7 +33,8 @@ def main(**kwargs):
         communication.run(proxy, command, **cl_kwargs)
         offline.recover(proxy)
     except (communication_module.CommunicationError) as e:
-        print("Error running command '{}': {}".format(command, e))
+        print("Error running command '{}':\n{}".format(
+            command, traceback.format_exc()))
         offline.add(command, **cl_kwargs)
 
 
