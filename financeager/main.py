@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 import argparse
-from financeager.cli import Cli
+from financeager import cli
 
 def parse_command():
     parser = argparse.ArgumentParser()
@@ -54,9 +54,7 @@ def parse_command():
 
 def main():
     args = parse_command()
-    # print(vars(args))
-    cli = Cli(vars(args))
-    cli()
+    cli.main(vars(args))
 
 if __name__ == "__main__":
     main()

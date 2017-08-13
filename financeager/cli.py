@@ -8,29 +8,22 @@ from .config import CONFIG
 from financeager import offline, communication
 
 
-class Cli(object):
+def main(cl_kwargs):
+    command = cl_kwargs.pop("command")
+    communication_module = communication.module()
 
-    def __init__(self, cl_kwargs):
-        self._cl_kwargs = cl_kwargs
+    if command == "start":
+        communication_module.launch_server()
+        return
 
-        self._backend = CONFIG["SERVICE"]["name"]
-        self._communication_module = communication.module()
+    proxy = communication_module.proxy()
+    try:
+        communication.run(proxy, command, **cl_kwargs)
 
-    def __call__(self):
-        command = self._cl_kwargs.pop("command")
+        offline.recover(proxy)
 
-        if command == "start":
-            self._communication_module.launch_server()
-            return
-
-        proxy = self._communication_module.proxy()
-        try:
-            communication.run(proxy, command, **self._cl_kwargs)
-
-            offline.recover(proxy)
-
-            if self._backend == "none":
-                proxy.run("stop")
-        except (self._communication_module.CommunicationError) as e:
-            print("Error running command '{}': {}".format(command, e))
-            offline.add(command, **self._cl_kwargs)
+        if CONFIG["SERVICE"]["name"] == "none":
+            proxy.run("stop")
+    except (communication_module.CommunicationError) as e:
+        print("Error running command '{}': {}".format(command, e))
+        offline.add(command, **cl_kwargs)

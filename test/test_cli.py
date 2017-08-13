@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 from financeager.config import CONFIG_DIR, CONFIG
-from financeager.cli import Cli
+from financeager.cli import main
 from financeager.pyro import launch_server
 import os
 import signal
@@ -21,14 +21,12 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
-        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
         CONFIG["SERVICE"]["name"] = "pyro"
         CONFIG["SERVICE:PYRO"]["host"] = "127.0.0.1"
 
         self.launch_process = launch_server(testing=True)
         time.sleep(2)
         
-        self.cli = Cli(cl_kwargs)
         ps_process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
         self.python_processes = subprocess.check_output(["grep", "python"],
                 stdin=ps_process.stdout).splitlines()
@@ -43,7 +41,9 @@ class StartCliTestCase(unittest.TestCase):
         return None
 
     def test_servers_running(self):
-        self.cli()
+        cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
+        main(cl_kwargs)
+
         running = True
         if self.launch_process.pid is None:
             running = False
