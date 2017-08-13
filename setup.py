@@ -11,7 +11,7 @@ setup(
         #classifiers=[],
         packages=find_packages(exclude=["test", "doc"]),
         entry_points = {
-            "console_scripts": ["financeager = financeager.main:main"]
+            "console_scripts": ["financeager = financeager.cli:main"]
             },
         install_requires=[]
         )
