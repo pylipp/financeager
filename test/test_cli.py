@@ -42,7 +42,7 @@ class StartCliTestCase(unittest.TestCase):
 
     def test_servers_running(self):
         cl_kwargs = {"command": "add", "name": "foo", "value": 19, "period": "0"}
-        main(cl_kwargs)
+        main(**cl_kwargs)
 
         running = True
         if self.launch_process.pid is None:
