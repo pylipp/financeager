@@ -105,10 +105,23 @@ def launch_server():
     print("'start' command has no effect with SERVICE.name configured as 'none'.")
 
 
+class LocalServer(Server):
+    """Subclass mocking a locally running server that shuts down (i.e. closes
+    opened files) right after running a command.
+    """
+
+    def run(self, command, **kwargs):
+        response = super().run(command, **kwargs)
+
+        if command != "stop":
+            # don't shutdown twice
+            super().run("stop")
+
+        return response
+
+
 def proxy():
-    """Pseudo-proxy for local, one-time server that shuts down right down after
-    running one command."""
-    return Server()
+    return LocalServer()
 
 
 CommunicationError = Exception

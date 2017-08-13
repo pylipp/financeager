@@ -6,7 +6,6 @@ from __future__ import unicode_literals, print_function
 
 import argparse
 
-from .config import CONFIG
 from financeager import offline, communication
 
 
@@ -31,11 +30,7 @@ def main(**kwargs):
     proxy = communication_module.proxy()
     try:
         communication.run(proxy, command, **cl_kwargs)
-
         offline.recover(proxy)
-
-        if CONFIG["SERVICE"]["name"] == "none":
-            proxy.run("stop")
     except (communication_module.CommunicationError) as e:
         print("Error running command '{}': {}".format(command, e))
         offline.add(command, **cl_kwargs)
