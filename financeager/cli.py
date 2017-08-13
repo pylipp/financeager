@@ -10,8 +10,16 @@ from .config import CONFIG
 from financeager import offline, communication
 
 
-def main():
-    cl_kwargs = vars(_parse_command())
+def main(**kwargs):
+    """Main entry point of the application. If used from the command line, all
+    arguments and options are parsed and passed.
+    On the other hand this method can be used in scripts. Kwargs have to be
+    passed analogously to what the command line interface would accept (consult
+    the help via `financeager [command] --help`), e.g. `{"command": "add",
+    "name": "champagne", "value": "99"}.
+    """
+
+    cl_kwargs = kwargs or vars(_parse_command())
 
     command = cl_kwargs.pop("command")
     communication_module = communication.module()
