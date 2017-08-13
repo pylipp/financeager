@@ -135,9 +135,10 @@ class TinyDbPeriod(TinyDB, Period):
                         name=name, value=value, date=date, category=category))
         return element_id
 
-    def get_entry(self, eid=None, table_name=TinyDB.DEFAULT_TABLE):
+    def get_entry(self, eid=None, table_name=None):
         """
-        Get entry specified by ``eid`` in the table ``table_name``.
+        Get entry specified by ``eid`` in the table ``table_name`` (defaults to
+        table 'standard').
 
         :type eid: int or str
 
@@ -148,7 +149,7 @@ class TinyDbPeriod(TinyDB, Period):
         if eid is None:
             raise PeriodException("No element ID specified.")
 
-        element = self.table(table_name).get(eid=int(eid))
+        element = self.table(table_name or TinyDB.DEFAULT_TABLE).get(eid=int(eid))
         if element is None:
             raise PeriodException("Element not found.")
 
@@ -163,7 +164,7 @@ class TinyDbPeriod(TinyDB, Period):
         :type query_impl: tinydb.queries.QueryImpl
 
         :param create_recurrent_elements: 'Expand' elements of the 'repetitive'
-            table prior to search (used when printing) or not (used when deleting).
+            table prior to search (used when displaying) or not (used when deleting).
         :type create_recurrent_elements: bool
 
         :return: list[tinydb.Element]
@@ -315,9 +316,19 @@ class TinyDbPeriod(TinyDB, Period):
 
         return condition
 
-    def print_entries(self, **query_kwargs):
+    def get_entries(self, **query_kwargs):
+        """Get list of entries that match the given query kwargs. These can be
+        empty or consist of one or more of 'name', 'date' or 'category'.
+        Constructs a condition from the given kwargs and uses it to query all
+        tables.
+
+        Return
+        ------
+        list[tinydb.Element]
+        """
+
         condition = self._create_query_condition(**query_kwargs)
-        return {"elements": self._search_all_tables(condition)}
+        return self._search_all_tables(condition)
 
 
 TinyDB.DEFAULT_TABLE = "standard"

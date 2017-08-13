@@ -1,7 +1,6 @@
 from flask_restful import Resource, reqparse
 
-from financeager.server import Server
-from financeager.period import Period, PeriodException
+from .server import Server
 
 
 SERVER = Server()
@@ -37,28 +36,31 @@ class PeriodResource(Resource):
 
     def delete(self, period_name):
         args = delete_parser.parse_args()
-        try:
-            response = SERVER.run("rm", period=period_name, **args)
-            return {"id": response}
-        except PeriodException as e:
-            return {"error": str(e)}, 404
+        response = SERVER.run("rm", period=period_name, **args)
+
+        if "error" in response:
+            response = (response, 404)
+
+        return response
 
 class EntryResource(Resource):
     def get(self, period_name, table_name, eid):
-        try:
-            response = SERVER.run("get", period=period_name, table_name=table_name,
+        response = SERVER.run("get", period=period_name, table_name=table_name,
                 eid=eid)
-            return {"element": response}
-        except PeriodException as e:
-            return {"error": str(e)}, 404
+
+        if "error" in response:
+            response = (response, 404)
+
+        return response
 
     def delete(self, period_name, table_name, eid):
-        try:
-            response = SERVER.run("rm", period=period_name, table_name=table_name,
-                    eid=eid)
-            return {"id": response}
-        except PeriodException as e:
-            return {"error": str(e)}, 404
+        response = SERVER.run("rm", period=period_name, table_name=table_name,
+                eid=eid)
+
+        if "error" in response:
+            response = (response, 404)
+
+        return response
 
 class ShutdownResource(Resource):
     def post(self):
