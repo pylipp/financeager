@@ -125,8 +125,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
     def test_add_entry_default_date(self):
         name = "new backpack"
         entry_id = self.period.add_entry(name=name, value=-49.95)
-        # FIXME: this calls _default table...
-        element = self.period.get_entry(entry_id, "standard")
+        element = self.period.get_entry(entry_id)
         self.assertEqual(element["date"], dt.today().strftime(
             CONFIG["DATABASE"]["date_format"]))
         self.period.remove_entry(eid=entry_id)

@@ -135,9 +135,10 @@ class TinyDbPeriod(TinyDB, Period):
                         name=name, value=value, date=date, category=category))
         return element_id
 
-    def get_entry(self, eid=None, table_name=TinyDB.DEFAULT_TABLE):
+    def get_entry(self, eid=None, table_name=None):
         """
-        Get entry specified by ``eid`` in the table ``table_name``.
+        Get entry specified by ``eid`` in the table ``table_name`` (defaults to
+        table 'standard').
 
         :type eid: int or str
 
@@ -148,7 +149,7 @@ class TinyDbPeriod(TinyDB, Period):
         if eid is None:
             raise PeriodException("No element ID specified.")
 
-        element = self.table(table_name).get(eid=int(eid))
+        element = self.table(table_name or TinyDB.DEFAULT_TABLE).get(eid=int(eid))
         if element is None:
             raise PeriodException("Element not found.")
 
