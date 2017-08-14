@@ -93,7 +93,7 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.value, 0.0)
 
     def test_str(self):
-        self.assertEqual(str(self.entry), "Gifts" + 14*" " + "    0.00" + 11*" ")
+        self.assertEqual(str(self.entry), "Gifts" + 14*" " + "    0.00" + 6*" ")
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod
@@ -109,7 +109,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.entry),
-                "This Is Quite A Lo " + "  100.00" + 11*" ")
+                "This Is Quite A Lo " + "  100.00" + 6*" ")
 
 class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
     def setUp(self):
