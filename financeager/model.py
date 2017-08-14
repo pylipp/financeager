@@ -38,8 +38,6 @@ class Model(SchematicsModel):
 
         for category in self.categories:
             result.append(str(category))
-            for entry in category.entries:
-                result.append("  " + str(entry))
 
         return '\n'.join(result)
 

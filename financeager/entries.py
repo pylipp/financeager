@@ -15,7 +15,7 @@ CategoryItem = StringType
 ValueItem = FloatType
 SumItem = FloatType
 DateItem = DateType
-DateItem.SERIALIZED_FORMAT = DATE_FORMAT 
+DateItem.SERIALIZED_FORMAT = DATE_FORMAT
 
 
 class Entry(SchematicsModel):
@@ -41,7 +41,7 @@ class BaseEntry(Entry):
         return "{:16.16} {:>8.2f} {}".format(capitalized_name, abs(self.value),
                 self.date_str)
 
-    @property 
+    @property
     def date_str(self):
         """Convenience method to return formatted date."""
         return DateItem().to_primitive(self.date)
@@ -58,13 +58,20 @@ class CategoryEntry(Entry):
     DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
 
     def __str__(self):
-        """Return a formatted string representing the entry. This is supposed
+        """Return a formatted string representing the entry including its
+        children (i.e. BaseEntries). The category representation is supposed
         to be longer than the BaseEntry representation so that the latter is
-        indented. The value is rendered absolute."""
-        # TODO append entries
+        indented. The value is rendered absolute.
+        """
+
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
-        return "{:18.18} {:>8.2f}".format(
-                capitalized_name, abs(self.value)).ljust(33)
+        lines = ["{:18.18} {:>8.2f}".format(
+                capitalized_name, abs(self.value)).ljust(33)]
+
+        for entry in self.entries:
+            lines.append("  " + str(entry))
+
+        return '\n'.join(lines)
 
 
 def create_base_entry(name, value, date=None):
