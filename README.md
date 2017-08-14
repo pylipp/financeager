@@ -119,6 +119,8 @@ FUTURE FEATURES
 - [x] omit year with `-d` option
 - [x] drop PyQt dependency for schematics package
 - [ ] experiment with urwid for building TUI
+- [ ] support 'patching' of entries
+- [ ] optionally show entry ID when `print`ing
 
 PERSONAL NOTE
 -------------
