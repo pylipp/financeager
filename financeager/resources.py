@@ -20,6 +20,11 @@ delete_parser.add_argument("date", default=None)
 periods_parser = reqparse.RequestParser()
 periods_parser.add_argument("running", default=False)
 
+print_parser = reqparse.RequestParser()
+print_parser.add_argument("name", default=None)
+print_parser.add_argument("category", default=None)
+print_parser.add_argument("date", default=None)
+
 
 class PeriodsResource(Resource):
     def post(self):
@@ -28,7 +33,8 @@ class PeriodsResource(Resource):
 
 class PeriodResource(Resource):
     def get(self, period_name):
-        return SERVER.run("print", period=period_name)
+        args = print_parser.parse_args()
+        return SERVER.run("print", period=period_name, **args)
 
     def post(self, period_name):
         args = put_parser.parse_args()
