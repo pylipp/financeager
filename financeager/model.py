@@ -27,7 +27,7 @@ class Model(SchematicsModel):
         model = cls(raw_data={"name": name})
         for element in elements:
             category = element.pop("category", None)
-            model.add_entry(BaseEntry(element), category_name=category)
+            model.add_entry(BaseEntry.from_tinydb(element), category_name=category)
         return model
 
     def __str__(self):

@@ -43,6 +43,19 @@ class BaseEntry(Entry):
     # two spaces separating name/value and value/date
     TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + 2
 
+    @classmethod
+    def from_tinydb(cls, element):
+        """Create a BaseEntry from a TinyDB Element or a dict. In the first
+        case, the entry eid is copied, otherwise it defaults to -1.
+        """
+
+        try:
+            element.update({"eid": element.eid})
+        except AttributeError:
+            # element is dict, not tinydb.database.Element
+            pass
+        return cls(raw_data=element)
+
     def __str__(self):
         """Return a formatted string representing the entry. The value is
         rendered absolute."""
