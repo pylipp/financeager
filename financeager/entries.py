@@ -34,12 +34,23 @@ class BaseEntry(Entry):
 
     ITEM_TYPES = ["name", "value", "date"]
 
+    NAME_LENGTH = 16
+    VALUE_LENGTH = 8 # 00000.00
+    VALUE_DIGITS = 2
+    DATE_LENGTH = 5 # mm-dd
+    # two spaces separating name/value and value/date
+    TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + 2
+
     def __str__(self):
         """Return a formatted string representing the entry. The value is
         rendered absolute."""
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
-        return "{:16.16} {:>8.2f} {}".format(capitalized_name, abs(self.value),
-                self.date_str)
+        return "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
+                self.NAME_LENGTH, self.VALUE_LENGTH, self.VALUE_DIGITS,
+                name=capitalized_name,
+                value=abs(self.value),
+                date=self.date_str
+                )
 
     @property
     def date_str(self):
@@ -57,6 +68,10 @@ class CategoryEntry(Entry):
     ITEM_TYPES = ["name", "sum", "empty"]
     DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
 
+    BASE_ENTRY_INDENT = 2
+    NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT
+    TOTAL_LENGTH = BaseEntry.TOTAL_LENGTH + BASE_ENTRY_INDENT
+
     def __str__(self):
         """Return a formatted string representing the entry including its
         children (i.e. BaseEntries). The category representation is supposed
@@ -65,8 +80,13 @@ class CategoryEntry(Entry):
         """
 
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
-        lines = ["{:18.18} {:>8.2f}".format(
-                capitalized_name, abs(self.value)).ljust(33)]
+        lines = [
+                "{name:{0}.{0}} {value:>{1}.{2}f}".format(
+                    self.NAME_LENGTH, BaseEntry.VALUE_LENGTH, BaseEntry.VALUE_DIGITS,
+                    name=capitalized_name,
+                    value=abs(self.value)
+                    ).ljust(self.TOTAL_LENGTH)
+                ]
 
         for entry in self.entries:
             lines.append("  " + str(entry))

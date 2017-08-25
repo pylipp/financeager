@@ -63,7 +63,7 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.entry),
-                "Vw Bully" + 9*" " + " 6000.00 01-01")
+                "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 01-01")
 
 class InvalidBaseEntryTestCase(unittest.TestCase):
     def test_invalid_entry(self):
@@ -93,7 +93,10 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.value, 0.0)
 
     def test_str(self):
-        self.assertEqual(str(self.entry), "Gifts" + 14*" " + "    0.00" + 6*" ")
+        self.assertEqual(str(self.entry),
+                "Gifts".ljust(CategoryEntry.NAME_LENGTH) + " " +
+                "0.00".rjust(BaseEntry.VALUE_LENGTH) + " " +
+                BaseEntry.DATE_LENGTH*" ")
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod

@@ -203,11 +203,11 @@ def prettify(elements, stacked_layout=False):
     model_earnings = Model.from_tinydb(earnings, "Earnings")
     model_expenses = Model.from_tinydb(expenses, "Expenses")
 
-    #TODO remove hard coded line sizes
-
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(
-                str(model_earnings), 33*"-", str(model_expenses)
+                str(model_earnings),
+                CategoryEntry.TOTAL_LENGTH * "-",
+                str(model_expenses)
                 )
     else:
         result = []
@@ -223,8 +223,9 @@ def prettify(elements, stacked_layout=False):
                 result.append(row + " | ")
         else:
             for row in models_str[1][earnings_size:]:
-                result.append(33*" " + " | " + row)
-        result.append(69*"=")
+                result.append(CategoryEntry.TOTAL_LENGTH*" " + " | " + row)
+        # add 3 to take central separator " | " into account
+        result.append((2*CategoryEntry.TOTAL_LENGTH + 3) * "=")
         result.append(
                 " | ".join(
                     [str(CategoryEntry(dict(

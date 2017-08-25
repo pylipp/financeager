@@ -111,7 +111,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.model), '\n'.join([
-                "{:^33}".format("Model"),
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
                 "Name               Value    Date ",
                 "Groceries             66.60" + 6*" ",
                 "  Aldi                66.60 11-08"]))
