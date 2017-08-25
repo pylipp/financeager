@@ -23,7 +23,8 @@ def _load():
                 }
         parser["DATABASE"] = {
                 "default_category": "unspecified",
-                "date_format": "%%m-%%d"
+                "date_format": "%%m-%%d",
+                "offline_backup": "offline"
                 }
         parser["SERVICE:FLASK"] = {
                 "debug": False,
