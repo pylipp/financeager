@@ -32,9 +32,10 @@ class Model(SchematicsModel):
 
     def __str__(self):
         """Format model (incl. name and header)."""
-        result = ["{:^33}".format(self.name)]
+        result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
 
-        result.append("{:18} {:8} {:5}".format(*self._headers))
+        result.append("{3:{0}} {4:{1}} {5:{2}}".format(CategoryEntry.NAME_LENGTH,
+            BaseEntry.VALUE_LENGTH, BaseEntry.DATE_LENGTH, *self._headers))
 
         for category in self.categories:
             result.append(str(category))
