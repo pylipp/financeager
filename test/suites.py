@@ -4,7 +4,6 @@
 import unittest
 
 modules = [
-        'test_items',
         'test_entries',
         'test_model',
         'test_period',
