@@ -15,7 +15,8 @@ def suite():
     tests = [
             'test_name',
             'test_value',
-            'test_date'
+            'test_date',
+            'test_eid'
             ]
     suite.addTest(unittest.TestSuite(map(BaseEntryTestCase, tests)))
     tests = [
@@ -25,8 +26,14 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(NegativeBaseEntryTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(CategoryEntryTestCase, tests)))
-    suite.addTest(unittest.TestSuite(map(BaseEntryFromTinyDbElementTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(LongNegativeCategoryEntryTestCase, tests)))
+    tests = [
+            'test_name',
+            'test_value',
+            'test_str',
+            'test_eid'
+            ]
+    suite.addTest(unittest.TestSuite(map(BaseEntryFromTinyDbElementTestCase, tests)))
     tests = ['test_invalid_entry']
     suite.addTest(unittest.TestSuite(map(InvalidBaseEntryTestCase, tests)))
     tests = [
@@ -48,6 +55,9 @@ class BaseEntryTestCase(unittest.TestCase):
 
     def test_date(self):
         self.assertEqual(self.entry.date, dt.date(2016, 8, 10))
+
+    def test_eid(self):
+        self.assertEqual(self.entry.eid, -1)
 
 class NegativeBaseEntryTestCase(unittest.TestCase):
     @classmethod
@@ -120,8 +130,9 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
         self.name = "dinner for one"
         self.value = 99.9
         self.date = "2016-12-31"
+        self.eid = 1
         element = database.Element(value=dict(name=self.name, value=self.value,
-            date=self.date))
+            date=self.date), eid=self.eid)
         self.entry = BaseEntry(element)
 
     def test_name(self):
@@ -132,6 +143,9 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.entry), "Dinner For One      99.90 12-31")
+
+    def test_eid(self):
+        self.assertEqual(self.entry.eid, self.eid)
 
 if __name__ == '__main__':
     unittest.main()

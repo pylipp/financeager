@@ -3,7 +3,8 @@
 from __future__ import unicode_literals
 import datetime as dt
 
-from schematics.types import ListType, ModelType, StringType, FloatType, DateType
+from schematics.types import ListType, ModelType, StringType, FloatType, \
+        DateType, IntType
 from schematics.models import Model as SchematicsModel
 
 from .config import CONFIG
@@ -31,6 +32,7 @@ class BaseEntry(Entry):
     value = ValueItem()
     # support legacy format
     date = DateItem(formats=("%Y-%m-%d", DATE_FORMAT), default=dt.date.today())
+    eid = IntType(default=-1)
 
     ITEM_TYPES = ["name", "value", "date"]
 
