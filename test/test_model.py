@@ -112,9 +112,9 @@ class AddBaseEntryTestCase(unittest.TestCase):
     def test_str(self):
         self.assertEqual(str(self.model), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
-                "Name               Value    Date ",
-                "Groceries             66.60" + 6*" ",
-                "  Aldi                66.60 11-08"]))
+                "Name               Value    Date  ID ",
+                "Groceries             66.60" + 10*" ",
+                "  Aldi                66.60 11-08   0"]))
 
 class AddNegativeBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
@@ -132,10 +132,10 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.model), '\n'.join([
-                "{:^33}".format("Model"),
-                "Name               Value    Date ",
-                "Groceries             66.60" + 6*" ",
-                "  Aldi                66.60 11-08"]))
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+                "Name               Value    Date  ID ",
+                "Groceries             66.60" + 10*" ",
+                "  Aldi                66.60 11-08   0"]))
 
 class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
     def setUp(self):
@@ -302,17 +302,18 @@ class PrettifyModelsTestCase(unittest.TestCase):
     def test_prettify(self):
         elements = [
                 {"name": "food", "value": -100.01, "date": "2017-03-03",
-                    "category": "groceries"},
-                {"name": "money", "value": 299.99, "date": "2017-03-03"}
+                    "category": "groceries", "eid": 1},
+                {"name": "money", "value": 299.99, "date": "2017-03-03",
+                    "eid": 999}
                 ]
         self.maxDiff = None
         self.assertEqual(prettify(elements),
-"            Earnings              |             Expenses             \n"
-"Name               Value    Date  | Name               Value    Date \n"
-"Unspecified          299.99       | Groceries            100.01      \n"
-"  Money              299.99 03-03 |   Food               100.01 03-03\n"
-"=====================================================================\n"
-"Total                299.99       | Total                100.01      "
+"              Earnings                |               Expenses               \n"
+"Name               Value    Date  ID  | Name               Value    Date  ID \n"
+"Unspecified          299.99           | Groceries            100.01          \n"
+"  Money              299.99 03-03 999 |   Food               100.01 03-03   1\n"
+"=============================================================================\n"
+"Total                299.99           | Total                100.01          "
                 )
 
 if __name__ == '__main__':

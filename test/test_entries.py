@@ -72,8 +72,10 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.value, -6000)
 
     def test_str(self):
-        self.assertEqual(str(self.entry),
-                "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 01-01")
+        expected = "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 01-01"
+        if BaseEntry.SHOW_EID:
+            expected += "   0"
+        self.assertEqual(str(self.entry), expected)
 
 class InvalidBaseEntryTestCase(unittest.TestCase):
     def test_invalid_entry(self):
@@ -106,7 +108,8 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(str(self.entry),
                 "Gifts".ljust(CategoryEntry.NAME_LENGTH) + " " +
                 "0.00".rjust(BaseEntry.VALUE_LENGTH) + " " +
-                BaseEntry.DATE_LENGTH*" ")
+                BaseEntry.DATE_LENGTH*" " +
+                (BaseEntry.EID_LENGTH + 1)*" " if BaseEntry.SHOW_EID else "")
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod
@@ -122,8 +125,8 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.entry),
-                "This Is Quite A Lo " + "  100.00" + 6*" " + "\n" +
-                "  Entry            " + "  100.00" + " 08-13")
+                "This Is Quite A Lo " + "  100.00" + 6*" " + 4*" " + "\n" +
+                "  Entry            " + "  100.00" + " 08-13 " + "  0")
 
 class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
     def setUp(self):
@@ -142,7 +145,7 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.entry.value, self.value, places=5)
 
     def test_str(self):
-        self.assertEqual(str(self.entry), "Dinner For One      99.90 12-31")
+        self.assertEqual(str(self.entry), "Dinner For One      99.90 12-31   1")
 
     def test_eid(self):
         self.assertEqual(self.entry.eid, self.eid)

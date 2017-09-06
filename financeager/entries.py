@@ -40,8 +40,11 @@ class BaseEntry(Entry):
     VALUE_LENGTH = 8 # 00000.00
     VALUE_DIGITS = 2
     DATE_LENGTH = 5 # mm-dd
-    # two spaces separating name/value and value/date
-    TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + 2
+    SHOW_EID = True
+    EID_LENGTH = 3 if SHOW_EID else 0
+    # add spaces separating name/value, value/date and date/eid
+    TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + \
+            3 if SHOW_EID else 2
 
     @classmethod
     def from_tinydb(cls, element):
@@ -60,12 +63,15 @@ class BaseEntry(Entry):
         """Return a formatted string representing the entry. The value is
         rendered absolute."""
         capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
-        return "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
+        string = "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
                 self.NAME_LENGTH, self.VALUE_LENGTH, self.VALUE_DIGITS,
                 name=capitalized_name,
                 value=abs(self.value),
                 date=self.date_str
                 )
+        if self.SHOW_EID:
+            string += " {1:{0}d}".format(self.EID_LENGTH, self.eid)
+        return string
 
     @property
     def date_str(self):

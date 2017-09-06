@@ -34,8 +34,11 @@ class Model(SchematicsModel):
         """Format model (incl. name and header)."""
         result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
 
-        result.append("{3:{0}} {4:{1}} {5:{2}}".format(CategoryEntry.NAME_LENGTH,
-            BaseEntry.VALUE_LENGTH, BaseEntry.DATE_LENGTH, *self._headers))
+        header_line = "{3:{0}} {4:{1}} {5:{2}}".format(CategoryEntry.NAME_LENGTH,
+                BaseEntry.VALUE_LENGTH, BaseEntry.DATE_LENGTH, *self._headers)
+        if BaseEntry.SHOW_EID:
+            header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
+        result.append(header_line)
 
         for category in self.categories:
             result.append(str(category))
