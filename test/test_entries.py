@@ -57,7 +57,7 @@ class BaseEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.date, dt.date(2016, 8, 10))
 
     def test_eid(self):
-        self.assertEqual(self.entry.eid, -1)
+        self.assertEqual(self.entry.eid, 0)
 
 class NegativeBaseEntryTestCase(unittest.TestCase):
     @classmethod

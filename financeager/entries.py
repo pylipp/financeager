@@ -32,7 +32,7 @@ class BaseEntry(Entry):
     value = ValueItem()
     # support legacy format
     date = DateItem(formats=("%Y-%m-%d", DATE_FORMAT), default=dt.date.today())
-    eid = IntType(default=-1)
+    eid = IntType(default=0)
 
     ITEM_TYPES = ["name", "value", "date"]
 
