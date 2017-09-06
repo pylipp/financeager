@@ -100,6 +100,7 @@ Detailed information is available from
 
 KNOWN BUGS
 ----------
+- [ ] the `-r`/`--repetitive` option of `financeager add` will 'consume' all other options if not placed last
 - Please. Report. Them.
 
 FUTURE FEATURES
@@ -120,7 +121,8 @@ FUTURE FEATURES
 - [x] drop PyQt dependency for schematics package
 - [ ] experiment with urwid for building TUI
 - [ ] support 'patching' of entries
-- [ ] optionally show entry ID when `print`ing
+- [x] always show entry ID when `print`ing
+- [ ] refactor structure of search result of `Period.get_entries` (see TODO in `Period._search_all_tables`)
 
 PERSONAL NOTE
 -------------
