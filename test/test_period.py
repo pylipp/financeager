@@ -55,6 +55,12 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         elements = self.period.get_entries(date="1901-12")
         self.assertEqual(len(elements), 1)
         self.assertEqual(elements[0]["name"], "xmas gifts")
+        # second entry
+        self.assertEqual(elements[0].eid, 2)
+        self.assertEqual(elements[0]["eid"], 2)
+
+        model = Model.from_tinydb(elements)
+        self.assertEqual(model.categories[0].entries[0].eid, 2)
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
         elements = self.period.get_entries(name="xmas", date="1901-12")
@@ -78,6 +84,12 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         elements = self.period.get_entries(date="11")
         self.assertEqual(len(elements), 1)
         self.assertEqual(elements[0]["name"], "rent november")
+        # the eid attribute is None because a new Element instance has been
+        # created in Period._create_repetitive_elements. The 'eid' entry
+        # however is 1 because the parent element is the first in the
+        # "repetitive" table
+        self.assertIsNone(elements[0].eid)
+        self.assertEqual(elements[0]["eid"], 1)
 
     def test_repetitive_quarter_yearly_entries(self):
         self.period.add_entry(name="interest", value=25,
