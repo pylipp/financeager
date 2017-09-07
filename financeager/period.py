@@ -40,6 +40,7 @@ class PeriodException(Exception):
     pass
 
 
+#TODO rename repetitive to recurrent
 class TinyDbPeriod(TinyDB, Period):
 
     def __init__(self, name=None, *args, **kwargs):
@@ -170,7 +171,8 @@ class TinyDbPeriod(TinyDB, Period):
         :type query_impl: tinydb.queries.QueryImpl
 
         :param create_recurrent_elements: 'Expand' elements of the 'repetitive'
-            table prior to search (used when displaying) or not (used when deleting).
+            table prior to search (used when displaying) or not (used when
+            deleting, TODO: remove this)
         :type create_recurrent_elements: bool
 
         :return: dict{
@@ -304,6 +306,8 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[entry["name"]][entry["category"]] -= 1
             return entry.eid
 
+        #TODO remove this because deleting an item should work by
+        # providing an eid, and should not require any searching
         entries = self.find_entry(create_recurrent_elements=False, **kwargs)
         if entries["standard"] or entries["recurrent"]:
             if len(entries["standard"]) + len(entries["recurrent"]) > 1:
