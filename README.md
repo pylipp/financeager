@@ -101,28 +101,41 @@ Detailed information is available from
 KNOWN BUGS
 ----------
 - [ ] the `-r`/`--repetitive` option of `financeager add` will 'consume' all other options if not placed last
+- [ ] flask config does not work reliably
 - Please. Report. Them.
 
 FUTURE FEATURES
 ---------------
-- [ ] select from multiple options if possible (e.g. when searching or deleting an entry)
-- [x] repetitive entries
-- [x] refactor TinyDbPeriod (return Model strings)
+- [ ] support 'patching' of entries
+- [ ] experiment with urwid for building TUI
+- [ ] sort `print` output acc. to entry name/value/date/category
+
+IMPLEMENTED FEATURES
+---------------
+- [x] recurrent entries
 - [x] stacked layout for `print`
-- [x] detect category from entry name
-- [x] display entries of single month
+- [x] detect category from entry name (category cache)
+- [x] allow filtering of specific date, name, etc. for `print`
+- [x] use flask for REST API
+- [x] always show entry ID when `print`ing
+- [x] specify date format as `MM-DD`
+
+DISCARDED FEATURE IDEAS
+-----------------------
+- select from multiple options if possible (e.g. when searching or deleting an entry): breaks the concept of having a single request-response action. Instead, the user is expected to know which element he wants to delete (by using the element ID) and can give a precise command
+
+DEVELOPER'S TODOs
+-----------------
+- [x] refactor TinyDbPeriod (return Model strings)
 - [x] improve documentation (period module)
 - [ ] create Python package
 - [ ] set up Travis CI
-- [x] use flask for REST API
 - [ ] use asynchronous calls
 - [ ] use logging module instead of print
-- [x] omit year with `-d` option
 - [x] drop PyQt dependency for schematics package
-- [ ] experiment with urwid for building TUI
-- [ ] support 'patching' of entries
-- [x] always show entry ID when `print`ing
-- [ ] refactor structure of search result of `Period.get_entries` (see TODO in `Period._search_all_tables`)
+- [ ] allow remove elements by ID only
+- [ ] specify CL option to differ between removing standard and recurrent element
+- [ ] refactor config module (custom method to intuitively retrieve config parameters)
 
 PERSONAL NOTE
 -------------
