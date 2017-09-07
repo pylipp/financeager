@@ -21,6 +21,7 @@ def suite():
 
 class StartCliTestCase(unittest.TestCase):
     def setUp(self):
+        # TODO test all commands!
         CONFIG["SERVICE"]["name"] = "pyro"
         CONFIG["SERVICE:PYRO"]["host"] = "127.0.0.1"
 
