@@ -42,33 +42,32 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.period.add_entry(name="Bicycle", value=-999.99, date="1901-01-01")
 
     def test_find_entry(self):
-        self.assertIsInstance(self.period.find_entry(name="Bicycle")[0],
+        self.assertIsInstance(
+                self.period.find_entry(name="Bicycle")["standard"][1],
                 database.Element)
 
     def test_remove_entry(self):
-        response = self.period.remove_entry(category=CategoryEntry.DEFAULT_NAME)
+        response = self.period.remove_entry(eid=1)
         self.assertEqual(0, len(self.period))
         self.assertEqual(1, response)
 
     def test_create_models_query_kwargs(self):
-        self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
-        elements = self.period.get_entries(date="1901-12")
-        self.assertEqual(len(elements), 1)
-        self.assertEqual(elements[0]["name"], "xmas gifts")
-        # second entry
-        self.assertEqual(elements[0].eid, 2)
-        self.assertEqual(elements[0]["eid"], 2)
+        eid = self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
+        standard_elements = self.period.get_entries(date="1901-12")["standard"]
+        self.assertEqual(len(standard_elements), 1)
+        self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
-        model = Model.from_tinydb(elements)
-        self.assertEqual(model.categories[0].entries[0].eid, 2)
+        model = Model.from_tinydb(standard_elements.values())
+        self.assertEqual(model.categories[0].entries[0].eid, eid)
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
-        elements = self.period.get_entries(name="xmas", date="1901-12")
-        self.assertEqual(len(elements), 1)
-        self.assertEqual(elements[0]["name"], "xmas gifts")
+        standard_elements = self.period.get_entries(
+                name="xmas", date="1901-12")["standard"]
+        self.assertEqual(len(standard_elements), 1)
+        self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
     def test_repetitive_entries(self):
-        self.period.add_entry(name="rent", value=-500,
+        eid = self.period.add_entry(name="rent", value=-500,
                 repetitive=["monthly", "10-01"])
         self.assertSetEqual({"standard", "repetitive"}, self.period.tables())
 
@@ -81,15 +80,15 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertSetEqual(rep_element_names,
                 {"rent october", "rent november", "rent december"})
 
-        elements = self.period.get_entries(date="11")
-        self.assertEqual(len(elements), 1)
-        self.assertEqual(elements[0]["name"], "rent november")
+        matching_elements = self.period.get_entries(date="11")["recurrent"]
+        self.assertEqual(len(matching_elements), 1)
+        self.assertEqual(
+                matching_elements[eid][0]["name"], "rent november")
         # the eid attribute is None because a new Element instance has been
         # created in Period._create_repetitive_elements. The 'eid' entry
         # however is 1 because the parent element is the first in the
         # "repetitive" table
-        self.assertIsNone(elements[0].eid)
-        self.assertEqual(elements[0]["eid"], 1)
+        self.assertIsNone(matching_elements[eid][0].eid)
 
     def test_repetitive_quarter_yearly_entries(self):
         self.period.add_entry(name="interest", value=25,
@@ -115,7 +114,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
         groceries_elements = self.period.find_entry(category="groceries")
         self.assertEqual(len(groceries_elements), 2)
-        self.assertEqual(sum([e["value"] for e in groceries_elements]), -51)
+        self.assertEqual(sum([e["value"] for e in
+            groceries_elements["standard"].values()]), -51)
 
     def test_remove_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.remove_entry, name="non-existing")

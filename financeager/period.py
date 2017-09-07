@@ -160,17 +160,11 @@ class TinyDbPeriod(TinyDB, Period):
         Search both the standard table and the repetitive table for elements
         that satisfy the given condition.
 
-        The elements' `eid` attribute is
-        copied because it might be lost in the client-server communication (on
+        The elements' `eid` attribute is used as key in the returned subdicts
+        because it might be lost in the client-server communication (on
         `financeager print`, the server calls Period.get_entries, yet the
         JSON response returned drops the Element.eid attribute s.t. it's not
         available when calling prettify on the client side).
-
-        TODO: a cleaner way would be to return a dict of matching standard and
-        recurrent elements, again stored in dicts using the Elements' eids as
-        keys (the way the `data` in tinydb.database.Table is stored). The client
-        then performs final processing (i.e. creating recurrent element
-        instances).
 
         :param query_impl: condition for the search. If none (default), all elements are returned.
         :type query_impl: tinydb.queries.QueryImpl
@@ -179,43 +173,54 @@ class TinyDbPeriod(TinyDB, Period):
             table prior to search (used when displaying) or not (used when deleting).
         :type create_recurrent_elements: bool
 
-        :return: list[tinydb.Element]
+        :return: dict{
+                    "standard":  dict{ int: tinydb.Element },
+                    "recurrent": dict{ int: list[tinydb.Element] }
+                    }
         """
 
-        elements = []
-        if query_impl is None:
-            elements.extend(self.all())
-        else:
-            elements.extend(self.search(query_impl))
+        elements = {
+                "standard": {},
+                "recurrent": defaultdict(list)
+                }
 
-        for element in elements:
-            element["eid"] = element.eid
+        if query_impl is None:
+            matching_standard_elements= self.all()
+        else:
+            matching_standard_elements = self.search(query_impl)
+
+        for element in matching_standard_elements:
+            elements["standard"][element.eid] = element
 
         if create_recurrent_elements:
+            # all recurrent elements are generated, and the ones matching the
+            # query are appended to a list that is stored under their generating
+            # element's eid in the 'recurrent' subdictionary
             for element in self.table("repetitive").all():
                 for e in self._create_repetitive_elements(element):
+                    matching_recurrent_element = None
+
                     if query_impl is None:
-                        elements.append(e)
+                        matching_recurrent_element = e
                     else:
                         if query_impl(e):
-                            elements.append(e)
+                            matching_recurrent_element = e
+
+                    if matching_recurrent_element is not None:
+                        elements["recurrent"][element.eid].append(
+                                matching_recurrent_element)
         else:
             if query_impl is None:
-                recurrent_elements = self.table("repetitive").all()
+                matching_recurrent_elements = self.table("repetitive").all()
             else:
-                recurrent_elements = self.table("repetitive").search(query_impl)
+                matching_recurrent_elements = self.table("repetitive").search(query_impl)
 
-            for element in recurrent_elements:
-                element["eid"] = element.eid
-
-            elements.extend(recurrent_elements)
+            for element in matching_recurrent_elements:
+                elements["recurrent"][element.eid] = element
 
         return elements
 
     def _create_repetitive_elements(self, element):
-        #TODO in the process of the TODO mentioned in _search_all_tables, this
-        # might be moved to a frontend module
-
         name = element["name"]
         value = element["value"]
         category = element.get("category")
@@ -254,10 +259,9 @@ class TinyDbPeriod(TinyDB, Period):
             element_name = name
             if frequency == "MONTHLY":
                 element_name = "{} {}".format(name, date.strftime("%B").lower())
-            # copy parent element's eid because it's lost as an attribute
             yield Element(dict(
                 name=element_name, value=value, category=category,
-                date=date.strftime(DATE_FORMAT), eid=element.eid
+                date=date.strftime(DATE_FORMAT)
                 ))
 
     def find_entry(self, create_recurrent_elements=True, **query_kwargs):
@@ -301,11 +305,17 @@ class TinyDbPeriod(TinyDB, Period):
             return entry.eid
 
         entries = self.find_entry(create_recurrent_elements=False, **kwargs)
-        if entries:
-            if len(entries) > 1:
+        if entries["standard"] or entries["recurrent"]:
+            if len(entries["standard"]) + len(entries["recurrent"]) > 1:
                 raise PeriodException("Ambiguous query. Nothing is removed.")
 
-            entry = entries[0]
+            try:
+                entry = list(entries["standard"].values())[0]
+            except IndexError:
+                # no recurrent elements created, recurrent subdict contains
+                # eid-element pairs, not eid-list pairs
+                entry = list(entries["recurrent"].values())[0]
+
             self._category_cache[entry["name"]][entry["category"]] -= 1
 
             entry_id = entry.eid

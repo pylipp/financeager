@@ -299,21 +299,34 @@ class ModelFromTinyDbTestCase(unittest.TestCase):
         self.assertIsNotNone(self.model.find_base_entry(date=self.date))
 
 class PrettifyModelsTestCase(unittest.TestCase):
+    def test_prettify_no_elements(self):
+        elements = {"standard": {}, "recurrent": {}}
+        self.assertEqual(prettify(elements), "")
+
     def test_prettify(self):
-        elements = [
-                {"name": "food", "value": -100.01, "date": "2017-03-03",
-                    "category": "groceries", "eid": 1},
-                {"name": "money", "value": 299.99, "date": "2017-03-03",
-                    "eid": 999}
-                ]
+        elements = {
+            "standard": {
+                1: {"name": "food", "value": -100.01, "date": "2017-03-03",
+                    "category": "groceries"},
+                999: {"name": "money", "value": 299.99, "date": "2017-03-03"}
+                },
+            "recurrent": {
+                42: [
+                        {"name": "gold", "value": 4321, "date": "01-01",
+                        "category": "bank"}
+                    ]
+                }
+            }
         self.maxDiff = None
         self.assertEqual(prettify(elements),
 "              Earnings                |               Expenses               \n"
 "Name               Value    Date  ID  | Name               Value    Date  ID \n"
 "Unspecified          299.99           | Groceries            100.01          \n"
 "  Money              299.99 03-03 999 |   Food               100.01 03-03   1\n"
+"Bank                4321.00           | \n"
+"  Gold              4321.00 01-01  42 | \n"
 "=============================================================================\n"
-"Total                299.99           | Total                100.01          "
+"Total               4620.99           | Total                100.01          "
                 )
 
 if __name__ == '__main__':

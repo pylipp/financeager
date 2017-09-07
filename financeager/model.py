@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 
 from schematics.types import StringType, ListType, ModelType
 from schematics.models import Model as SchematicsModel
+from tinydb.database import Element
 
 from .entries import BaseEntry, CategoryEntry, create_base_entry
 
@@ -187,22 +188,35 @@ class Model(SchematicsModel):
 
 
 def prettify(elements, stacked_layout=False):
-    """Sort the given elements (type tinydb.Element) by positive and negative
-    value and return pretty string build from the corresponding Models.
+    """Sort the given elements (type acc. to Period._search_all_tables) by
+    positive and negative value and return pretty string build from the
+    corresponding Models.
 
-    :param stacked_layout: If True, models are displayed one by one, else side by side"""
-
-    if not elements:
-        return ""
+    :param stacked_layout: If True, models are displayed one by one
+    """
 
     earnings = []
     expenses = []
 
-    for element in elements:
+    def sort_as_tinydb_element(eid, element):
+        # convert to tinydb.Element and sort acc. to value
+        element = Element(value=element, eid=eid)
         if element["value"] > 0:
             earnings.append(element)
         else:
             expenses.append(element)
+
+    # process standard elements
+    for eid, element in elements["standard"].items():
+        sort_as_tinydb_element(eid, element)
+
+    # process recurrent elements, i.e. for each eid iterate list
+    for eid, recurrent_elements in elements["recurrent"].items():
+        for element in recurrent_elements:
+            sort_as_tinydb_element(eid, element)
+
+    if not earnings and not expenses:
+        return ""
 
     model_earnings = Model.from_tinydb(earnings, "Earnings")
     model_expenses = Model.from_tinydb(expenses, "Expenses")

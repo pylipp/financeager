@@ -37,7 +37,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
 
     def test_entry_exists(self):
         self.assertIsInstance(self.server._periods["0"].find_entry(
-            name="Hiking boots")[0], database.Element)
+            name="Hiking boots")["standard"][1], database.Element)
 
     def test_period_name(self):
         self.assertEqual("0", self.server._periods["0"]._name)
@@ -60,7 +60,9 @@ class FindEntryServerTestCase(unittest.TestCase):
                 category=category)
         self.assertGreater(len(response), 0)
         self.assertIsInstance(response, dict)
-        self.assertIsInstance(response["elements"], list)
+        self.assertIsInstance(response["elements"], dict)
+        self.assertIsInstance(response["elements"]["standard"], dict)
+        self.assertIsInstance(response["elements"]["recurrent"], dict)
 
     def test_response_is_none(self):
         response = self.server.run("get", period=self.period, eid=self.entry_id)
@@ -72,7 +74,8 @@ class FindEntryServerTestCase(unittest.TestCase):
 
         response = self.server.run("print", period=self.period, name="Hiking boots",
                 category=CategoryEntry.DEFAULT_NAME)
-        self.assertListEqual([], response["elements"])
+        self.assertDictEqual(response["elements"]["standard"], {})
+        self.assertDictEqual(response["elements"]["recurrent"], {})
 
 if __name__ == '__main__':
     unittest.main()
