@@ -66,7 +66,9 @@ def _parse_command():
 
     rm_parser = subparsers.add_parser("rm",
             help="remove an entry from the database")
-    rm_parser.add_argument("name", help="entry name")
+    rm_parser.add_argument("eid", help="entry ID")
+    rm_parser.add_argument("-t", "--table-name", default=None,
+            help="Table to remove the entry from. Default: 'standard'.")
     rm_parser.add_argument(*period_args, **period_kwargs)
 
     print_parser = subparsers.add_parser("print",
