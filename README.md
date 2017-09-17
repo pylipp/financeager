@@ -66,24 +66,26 @@ Add repetitive entries using the `-r FREQUENCY [START END]` flag.
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
-Remove an entry by
+Remove an entry by specifying its ID (visible in the output of the `print` command). This removes the `burgers` entry:
 
-    > financeager rm burgers
+    > financeager rm 1
 
-Nothing is removed if the query gives multiple or no results.
+This would remove the recurrent rent entries (ID is also 1 because standard and recurrent entries are stored in separate tables):
+
+    > financeager rm 1 --table-name repetitive
 
 Show a side-by-side overview of earnings and expenses (filter date and/or category by providing the `-d` and `-c` flag and/or filter the name by providing a positional argument)
 
     > financeager print
 
-                   Earnings           |                Expenses
-	Name               Value    Date  | Name               Value    Date
-	Unspecified          123.45       | Rent                1500.00
-	  Lottery            123.45 03-14 |   Rent January       500.00 01-01
-	                                  |   Rent February      500.00 02-01
-                                      |   Rent March         500.00 03-01
-	=====================================================================
-	Total                123.45       | Total               1500.00
+                   Earnings               |                Expenses
+	Name               Value    Date  ID  | Name               Value    Date  ID
+	Unspecified          123.45           | Rent                1500.00
+	  Lottery            123.45 03-14   2 |   Rent January       500.00 01-01   1
+	                                      |   Rent February      500.00 02-01   1
+                                          |   Rent March         500.00 03-01   1
+	=============================================================================
+	Total                123.45           | Total               1500.00
 
 All financeager command operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 
