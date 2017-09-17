@@ -271,67 +271,31 @@ class TinyDbPeriod(TinyDB, Period):
         return self._search_all_tables(condition,
                 create_recurrent_elements=create_recurrent_elements)
 
-    def remove_entry(self, **kwargs):
-        """
-        Remove an entry from the Period database.
+    def remove_entry(self, eid=None, table_name=None):
+        """Remove an entry from the Period database given its ID. The category
+        cache is updated.
 
-        This can be achieved in two ways by providing suitable kwargs:
-        a)
-            :param eid: ID of the element to be deleted.
-            :type eid: int or str
-            :param table_name: name of the table that contains the element.
-                Default: TinyDbPeriod.DEFAULT_TABLE
-            :type table_name: str
-        b)
-            :param name: name of the element to be deleted
-            :param date: date of the element to be deleted (optional)
-            :param category: category of the element to be deleted (optional)
-            A query is constructed from the given kwargs and used to search the
-            entire database. If multiple entries match the query, nothing is
-            removed.
+        :param eid: ID of the element to be deleted.
+        :type eid: int or str
+        :param table_name: name of the table that contains the element.
+            Default: TinyDbPeriod.DEFAULT_TABLE
+        :type table_name: str
 
-        :raise: PeriodException if element/ID not found or ambiguous query.
+        :raise: PeriodException if element/ID not found.
         :return: element ID if removal was successful
         """
 
-        entry_id = kwargs.get("eid")
-        if entry_id is not None:
-            entry_id = int(entry_id)
-            table_name = kwargs.get("table_name", TinyDB.DEFAULT_TABLE)
+        if eid is None:
+            raise PeriodException("No element ID specified.")
 
-            # might raise PeriodException if ID not existing
-            entry = self.get_entry(eid=entry_id, table_name=table_name)
+        table_name = table_name or TinyDB.DEFAULT_TABLE
+        # might raise PeriodException if ID not existing
+        entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-            self.table(table_name).remove(eids=[entry.eid])
-            self._category_cache[entry["name"]][entry["category"]] -= 1
-            return entry.eid
+        self.table(table_name).remove(eids=[entry.eid])
+        self._category_cache[entry["name"]][entry["category"]] -= 1
 
-        #TODO remove this because deleting an item should work by
-        # providing an eid, and should not require any searching
-        entries = self.find_entry(create_recurrent_elements=False, **kwargs)
-        if entries["standard"] or entries["recurrent"]:
-            if len(entries["standard"]) + len(entries["recurrent"]) > 1:
-                raise PeriodException("Ambiguous query. Nothing is removed.")
-
-            try:
-                entry = list(entries["standard"].values())[0]
-            except IndexError:
-                # no recurrent elements created, recurrent subdict contains
-                # eid-element pairs, not eid-list pairs
-                entry = list(entries["recurrent"].values())[0]
-
-            self._category_cache[entry["name"]][entry["category"]] -= 1
-
-            entry_id = entry.eid
-
-            if entry.get("frequency", False):
-                self.table("repetitive").remove(eids=[entry_id])
-            else:
-                self.remove(eids=[entry_id])
-
-            return entry_id
-
-        raise PeriodException("No entry matching the query.")
+        return entry.eid
 
     def _create_query_condition(self, name=None, value=None, category=None, date=None):
         condition = None

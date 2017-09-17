@@ -91,7 +91,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertIsNone(matching_elements[eid][0].eid)
 
     def test_repetitive_quarter_yearly_entries(self):
-        self.period.add_entry(name="interest", value=25,
+        eid = self.period.add_entry(name="interest", value=25,
                 repetitive=["quarter-yearly", "01-01"])
 
         element = self.period.table("repetitive").all()[0]
@@ -103,7 +103,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 {"interest january", "interest april", "interest july", "interest october"})
 
         repetitive_table_size = len(self.period.table("repetitive"))
-        self.period.remove_entry(name="interest")
+        self.period.remove_entry(eid=eid, table_name="repetitive")
         self.assertEqual(len(self.period.table("repetitive")),
                 repetitive_table_size - 1)
 
@@ -118,7 +118,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
             groceries_elements["standard"].values()]), -51)
 
     def test_remove_nonexisting_entry(self):
-        self.assertRaises(PeriodException, self.period.remove_entry, name="non-existing")
+        self.assertRaises(PeriodException, self.period.remove_entry, eid=0)
+        self.assertRaises(PeriodException, self.period.remove_entry, eid=None)
 
     def test_add_rm_via_eid(self):
         entry_name = "penguin sale"

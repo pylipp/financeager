@@ -69,7 +69,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertIn("element", response)
         self.assertEqual(response["element"].eid, self.entry_id)
 
-        response = self.server.run("rm", period=self.period, category=CategoryEntry.DEFAULT_NAME)
+        response = self.server.run("rm", period=self.period, eid=self.entry_id)
         self.assertEqual(response["id"], self.entry_id)
 
         response = self.server.run("print", period=self.period, name="Hiking boots",
