@@ -73,13 +73,9 @@ class _Proxy(object):
         if command == "print":
             response = requests.get(period_url, **kwargs)
         elif command == "rm":
-            eid = data.get("eid")
-            if eid is None:
-                response = requests.delete(period_url, **kwargs)
-            else:
-                response = requests.delete("{}/{}/{}".format(
-                    period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
-                    eid), **kwargs)
+            response = requests.delete("{}/{}/{}".format(
+                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                eid), **kwargs)
         elif command == "add":
             response = requests.post(period_url, **kwargs)
         elif command == "list":

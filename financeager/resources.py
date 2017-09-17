@@ -12,11 +12,6 @@ put_parser.add_argument("category", default=None)
 put_parser.add_argument("date", default=None)
 put_parser.add_argument("repetitive", default=False, type=list)
 
-delete_parser = reqparse.RequestParser()
-delete_parser.add_argument("name", required=True)
-delete_parser.add_argument("category", default=None)
-delete_parser.add_argument("date", default=None)
-
 periods_parser = reqparse.RequestParser()
 periods_parser.add_argument("running", default=False)
 
@@ -39,15 +34,6 @@ class PeriodResource(Resource):
     def post(self, period_name):
         args = put_parser.parse_args()
         return SERVER.run("add", period=period_name, **args)
-
-    def delete(self, period_name):
-        args = delete_parser.parse_args()
-        response = SERVER.run("rm", period=period_name, **args)
-
-        if "error" in response:
-            response = (response, 404)
-
-        return response
 
 class EntryResource(Resource):
     def get(self, period_name, table_name, eid):
