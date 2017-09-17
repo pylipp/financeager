@@ -17,7 +17,7 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(CreateEmptyPeriodTestCase, tests)))
     tests = [
-            'test_find_entry',
+            'test_get_entries',
             'test_remove_entry',
             'test_create_models_query_kwargs',
             'test_repetitive_entries',
@@ -41,9 +41,9 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
         self.period.add_entry(name="Bicycle", value=-999.99, date="1901-01-01")
 
-    def test_find_entry(self):
+    def test_get_entries(self):
         self.assertIsInstance(
-                self.period.find_entry(name="Bicycle")["standard"][1],
+                self.period.get_entries(name="Bicycle")["standard"][1],
                 database.Element)
 
     def test_remove_entry(self):
@@ -112,7 +112,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 category="groceries", date="1901-02-02")
         self.period.add_entry(name="walmart", value=-0.99, date="1901-02-03")
 
-        groceries_elements = self.period.find_entry(category="groceries")
+        groceries_elements = self.period.get_entries(category="groceries")
         self.assertEqual(len(groceries_elements), 2)
         self.assertEqual(sum([e["value"] for e in
             groceries_elements["standard"].values()]), -51)

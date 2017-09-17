@@ -266,11 +266,6 @@ class TinyDbPeriod(TinyDB, Period):
                 date=date.strftime(DATE_FORMAT)
                 ))
 
-    def find_entry(self, create_recurrent_elements=True, **query_kwargs):
-        condition = self._create_query_condition(**query_kwargs)
-        return self._search_all_tables(condition,
-                create_recurrent_elements=create_recurrent_elements)
-
     def remove_entry(self, eid=None, table_name=None):
         """Remove an entry from the Period database given its ID. The category
         cache is updated.

@@ -12,7 +12,6 @@ from tinydb import database, storages
 def suite():
     suite = unittest.TestSuite()
     tests = [
-            'test_entry_exists',
             'test_period_name',
             'test_period_file_exists'
             ]
@@ -34,10 +33,6 @@ class AddEntryToServerTestCase(unittest.TestCase):
 
     def test_period_file_exists(self):
         self.assertTrue(os.path.isfile(os.path.join(CONFIG_DIR, "0.json")))
-
-    def test_entry_exists(self):
-        self.assertIsInstance(self.server._periods["0"].find_entry(
-            name="Hiking boots")["standard"][1], database.Element)
 
     def test_period_name(self):
         self.assertEqual("0", self.server._periods["0"]._name)
