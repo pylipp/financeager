@@ -135,9 +135,11 @@ DEVELOPER'S TODOs
 - [ ] use asynchronous calls
 - [ ] use logging module instead of print
 - [x] drop PyQt dependency for schematics package
-- [ ] allow remove elements by ID only
-- [ ] specify CL option to differ between removing standard and recurrent element
+- [x] allow remove elements by ID only
+- [x] specify CL option to differ between removing standard and recurrent element
 - [ ] refactor config module (custom method to intuitively retrieve config parameters)
+- [ ] consistent naming (recurrent instead of repetitive)
+- [ ] support `get` command
 
 PERSONAL NOTE
 -------------
