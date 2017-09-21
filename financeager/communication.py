@@ -25,27 +25,28 @@ def module():
 
 def run(proxy, command, **kwargs):
     """Run a command on the given proxy. The kwargs are passed on. This might
-    raise a CommunicationError.
+    raise a CommunicationError. Returns formatted server response.
     """
     stacked_layout = kwargs.pop("stacked_layout", False)
     response = proxy.run(command, **kwargs)
 
     if not isinstance(response, dict):
-        return
+        return ""
 
     error = response.get("error")
     if error is not None:
-        print("Command '{}' returned an error: {}".format(command, error))
+        return "Command '{}' returned an error: {}".format(command, error)
 
     elements = response.get("elements")
     if elements is not None:
-        print(prettify(elements, stacked_layout))
+        return prettify(elements, stacked_layout)
 
     element = response.get("element")
     if element is not None:
-        print(prettify_element(element))
+        return prettify_element(element)
 
     periods = response.get("periods")
     if periods is not None:
-        for p in periods:
-            print(p)
+        return "\n".join([p for p in periods])
+
+    return ""

@@ -30,7 +30,7 @@ def main(**kwargs):
 
     proxy = communication_module.proxy()
     try:
-        communication.run(proxy, command, **cl_kwargs)
+        print(communication.run(proxy, command, **cl_kwargs))
         offline.recover(proxy)
     except (communication_module.CommunicationError) as e:
         print("Error running command '{}':\n{}".format(
