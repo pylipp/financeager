@@ -123,14 +123,20 @@ def create_base_entry(name, value, date=None):
     return BaseEntry(data)
 
 
-def prettify(element):
+def prettify(element, recurrent=False):
     """Return element properties formatted as list.
 
     :type element: tinydb.database.Element
     """
 
-    properties = ("name", "value", "date", "category")
-    longest_property_length = 8
+    if recurrent:
+        properties = ("name", "value", "frequency", "start", "end", "category")
+    else:
+        properties = ("name", "value", "date", "category")
+    longest_property_length = 0
+    for p in properties:
+        if len(p) > longest_property_length:
+            longest_property_length = len(p)
 
     lines = []
     for p in properties:

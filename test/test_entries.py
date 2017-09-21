@@ -46,6 +46,7 @@ def suite():
             'test_prettify'
             ]
     suite.addTest(unittest.TestSuite(map(PrettifyBaseEntryTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
     return suite
 
 class BaseEntryTestCase(unittest.TestCase):
@@ -168,6 +169,23 @@ Name    : Soccer Shoes
 Value   : -123.45
 Date    : 04-01
 Category: Sport Equipment""")
+
+class PrettifyRecurrentElementTestCase(unittest.TestCase):
+    def setUp(self):
+        self.element = database.Element(value=dict(
+                name="retirement money", value=567.0,
+                category="income", frequency="monthly", start="01-01",
+                end="12-31"))
+
+    def test_prettify(self):
+        self.assertEqual(prettify_entry(self.element, True), """\
+Name     : Retirement Money
+Value    : 567.0
+Frequency: Monthly
+Start    : 01-01
+End      : 12-31
+Category : Income""")
+
 
 if __name__ == '__main__':
     unittest.main()
