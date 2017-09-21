@@ -42,5 +42,25 @@ Category: Clothes""".format(date.today().strftime("%m-%d")))
         self.assertTrue(response.startswith(
             communication.ERROR_MESSAGE.format("get", "")))
 
+class RecurrentEntryCommunicationTestCase(unittest.TestCase):
+    def setUp(self):
+        self.period = 0
+        self.proxy = LocalServer(storage=MemoryStorage)
+        communication.run(self.proxy, "add", name="retirement money", value=567,
+                period=self.period, category="income", 
+                repetitive=["monthly", "01-01"])
+
+    def test_get(self):
+        response = communication.run(self.proxy, "get", eid=1,
+                period=self.period, table_name="repetitive")
+        self.assertEqual(response, """\
+Name     : Retirement Money
+Value    : 567.0
+Frequency: Monthly
+Start    : 01-01
+End      : 12-31
+Category : Income""")
+
+
 if __name__ == '__main__':
     unittest.main()
