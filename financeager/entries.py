@@ -62,7 +62,7 @@ class BaseEntry(Entry):
     def __str__(self):
         """Return a formatted string representing the entry. The value is
         rendered absolute."""
-        capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
+        capitalized_name = capitalize_words(self.name)
         string = "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
                 self.NAME_LENGTH, self.VALUE_LENGTH, self.VALUE_DIGITS,
                 name=capitalized_name,
@@ -100,7 +100,7 @@ class CategoryEntry(Entry):
         indented. The value is rendered absolute.
         """
 
-        capitalized_name = " ".join([s.capitalize() for s in self.name.split()])
+        capitalized_name = capitalize_words(self.name)
         lines = [
                 "{name:{0}.{0}} {value:>{1}.{2}f}".format(
                     self.NAME_LENGTH, BaseEntry.VALUE_LENGTH, BaseEntry.VALUE_DIGITS,
@@ -121,3 +121,9 @@ def create_base_entry(name, value, date=None):
     if date is not None:
         data["date"] = date
     return BaseEntry(data)
+
+
+def capitalize_words(words):
+    """Convenience method to capitalize all words of a phrase."""
+    words = str(words)
+    return " ".join([s.capitalize() for s in words.split()])
