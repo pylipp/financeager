@@ -64,6 +64,12 @@ def _parse_command():
 
     start_parser = subparsers.add_parser("start", help="start period server")
 
+    get_parser = subparsers.add_parser("get",
+            help="show information about single entry")
+    get_parser.add_argument("eid", help="entry ID")
+    get_parser.add_argument("-t", "--table-name", default=None,
+            help="Table to get the entry from. Default: 'standard'.")
+
     rm_parser = subparsers.add_parser("rm",
             help="remove an entry from the database")
     rm_parser.add_argument("eid", help="entry ID")

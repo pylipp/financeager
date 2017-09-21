@@ -7,6 +7,7 @@ import financeager.fflask
 import financeager.server
 from .config import CONFIG
 from .model import prettify
+from .entries import prettify as prettify_element
 
 
 def module():
@@ -39,6 +40,10 @@ def run(proxy, command, **kwargs):
     elements = response.get("elements")
     if elements is not None:
         print(prettify(elements, stacked_layout))
+
+    element = response.get("element")
+    if element is not None:
+        print(prettify_element(element))
 
     periods = response.get("periods")
     if periods is not None:
