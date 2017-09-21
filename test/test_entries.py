@@ -7,6 +7,7 @@ from tinydb import database
 from schematics.exceptions import DataError
 
 from financeager.entries import BaseEntry, CategoryEntry, create_base_entry
+from financeager.entries import prettify as prettify_entry
 from financeager.config import CONFIG
 
 
@@ -41,6 +42,10 @@ def suite():
             'test_date_str'
             ]
     suite.addTest(unittest.TestSuite(map(CreateBaseEntryTestCase, tests)))
+    tests = [
+            'test_prettify'
+            ]
+    suite.addTest(unittest.TestSuite(map(PrettifyBaseEntryTestCase, tests)))
     return suite
 
 class BaseEntryTestCase(unittest.TestCase):
@@ -149,6 +154,20 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
 
     def test_eid(self):
         self.assertEqual(self.entry.eid, self.eid)
+
+class PrettifyBaseEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.element = database.Element(value=dict(
+            name="soccer shoes", value=-123.45, date="04-01",
+            category="sport equipment")
+            )
+
+    def test_prettify(self):
+        self.assertEqual(prettify_entry(self.element), """\
+Name    : Soccer Shoes
+Value   : -123.45
+Date    : 04-01
+Category: Sport Equipment""")
 
 if __name__ == '__main__':
     unittest.main()

@@ -123,6 +123,25 @@ def create_base_entry(name, value, date=None):
     return BaseEntry(data)
 
 
+def prettify(element):
+    """Return element properties formatted as list.
+
+    :type element: tinydb.database.Element
+    """
+
+    properties = ("name", "value", "date", "category")
+    longest_property_length = 8
+
+    lines = []
+    for p in properties:
+        lines.append("{}: {}".format(
+            p.capitalize().ljust(longest_property_length),
+            capitalize_words(element[p])
+            ))
+
+    return "\n".join(lines)
+
+
 def capitalize_words(words):
     """Convenience method to capitalize all words of a phrase."""
     words = str(words)
