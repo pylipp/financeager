@@ -23,6 +23,9 @@ def module():
     return getattr(financeager, backend_modules[backend])
 
 
+ERROR_MESSAGE = "Command '{}' returned an error: {}"
+
+
 def run(proxy, command, **kwargs):
     """Run a command on the given proxy. The kwargs are passed on. This might
     raise a CommunicationError. Returns formatted server response.
@@ -35,7 +38,7 @@ def run(proxy, command, **kwargs):
 
     error = response.get("error")
     if error is not None:
-        return "Command '{}' returned an error: {}".format(command, error)
+        return ERROR_MESSAGE.format(command, error)
 
     elements = response.get("elements")
     if elements is not None:
