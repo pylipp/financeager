@@ -139,7 +139,7 @@ DEVELOPER'S TODOs
 - [x] specify CL option to differ between removing standard and recurrent element
 - [ ] refactor config module (custom method to intuitively retrieve config parameters)
 - [ ] consistent naming (recurrent instead of repetitive)
-- [ ] support `get` command
+- [x] support `get` command
 
 PERSONAL NOTE
 -------------
