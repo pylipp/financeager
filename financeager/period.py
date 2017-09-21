@@ -125,6 +125,8 @@ class TinyDbPeriod(TinyDB, Period):
             end = None
             if len(repetitive_args) > 2:
                 end = repetitive_args[2]
+            else:
+                end = dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
             element_id = self.table("repetitive").insert(
                     dict(
                         name=name, value=value, category=category,
