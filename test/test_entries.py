@@ -46,7 +46,7 @@ def suite():
             'test_prettify'
             ]
     suite.addTest(unittest.TestSuite(map(PrettifyBaseEntryTestCase, tests)))
-    suite.addTest(unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(PrettifyRecurrentElementTestCase, tests)))
     return suite
 
 class BaseEntryTestCase(unittest.TestCase):
