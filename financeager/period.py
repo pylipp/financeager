@@ -99,12 +99,8 @@ class TinyDbPeriod(TinyDB, Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        # TODO write subfunctions for adding standard/recurrent entries
         value = float(kwargs["value"])
         name = kwargs["name"].lower()
-        date = kwargs.get("date")
-        if date is None:
-            date = dt.today().strftime(DATE_FORMAT)
         category = kwargs.get("category")
 
         if category is None:
@@ -121,9 +117,7 @@ class TinyDbPeriod(TinyDB, Period):
         table_name = kwargs.get("table_name", self.DEFAULT_TABLE)
         if table_name == "recurrent":
             frequency = kwargs["frequency"]
-            # hack for now, TODO cleanly separate standard/recurrent adding
-            start = kwargs.get("start", date)
-
+            start = kwargs.get("start", dt.today().strftime(DATE_FORMAT))
             end = kwargs.get("end",
                 dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
                 )
@@ -133,6 +127,7 @@ class TinyDbPeriod(TinyDB, Period):
                         frequency=frequency, start=start, end=end
                         ))
         elif table_name == self.DEFAULT_TABLE:
+            date = kwargs.get("date", dt.today().strftime(DATE_FORMAT))
             element_id = self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))
