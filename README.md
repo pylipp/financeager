@@ -60,7 +60,7 @@ Add earnings (no/positive sign) and expenses (negative sign) to the database:
 
 Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
-Add repetitive entries using the `-r FREQUENCY [START END]` flag.
+Add recurrent entries using the `-r FREQUENCY [START END]` flag.
 
     > financeager add rent -500 -r monthly 01-01 -c rent
 
@@ -72,7 +72,7 @@ Remove an entry by specifying its ID (visible in the output of the `print` comma
 
 This would remove the recurrent rent entries (ID is also 1 because standard and recurrent entries are stored in separate tables):
 
-    > financeager rm 1 --table-name repetitive
+    > financeager rm 1 --table-name recurrent
 
 Show a side-by-side overview of earnings and expenses (filter date and/or category by providing the `-d` and `-c` flag and/or filter the name by providing a positional argument)
 
@@ -102,7 +102,7 @@ Detailed information is available from
 
 KNOWN BUGS
 ----------
-- [ ] the `-r`/`--repetitive` option of `financeager add` will 'consume' all other options if not placed last
+- [ ] the `-r`/`--recurrent` option of `financeager add` will 'consume' all other options if not placed last
 - [ ] flask config does not work reliably
 - Please. Report. Them.
 
@@ -138,7 +138,7 @@ DEVELOPER'S TODOs
 - [x] allow remove elements by ID only
 - [x] specify CL option to differ between removing standard and recurrent element
 - [ ] refactor config module (custom method to intuitively retrieve config parameters)
-- [ ] consistent naming (recurrent instead of repetitive)
+- [x] consistent naming (recurrent instead of repetitive)
 - [x] support `get` command
 
 PERSONAL NOTE

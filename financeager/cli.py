@@ -56,7 +56,7 @@ def _parse_command():
             help="entry category")
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
 
-    add_parser.add_argument("-r", "--repetitive", default=[],
+    add_parser.add_argument("-r", "--recurrent", default=[],
             nargs=argparse.REMAINDER, help="entry is repeated with given frequency,\
                     from start date to end date (optional)")
 

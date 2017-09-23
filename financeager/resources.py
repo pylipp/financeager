@@ -10,7 +10,7 @@ put_parser.add_argument("name", required=True)
 put_parser.add_argument("value", required=True, type=float)
 put_parser.add_argument("category", default=None)
 put_parser.add_argument("date", default=None)
-put_parser.add_argument("repetitive", default=False, type=list)
+put_parser.add_argument("recurrent", default=False, type=list)
 
 periods_parser = reqparse.RequestParser()
 periods_parser.add_argument("running", default=False)

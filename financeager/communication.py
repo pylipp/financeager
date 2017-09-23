@@ -47,7 +47,7 @@ def run(proxy, command, **kwargs):
     element = response.get("element")
     if element is not None:
         return prettify_element(element,
-                recurrent=kwargs.get("table_name") == "repetitive")
+                recurrent=kwargs.get("table_name") == "recurrent")
 
     periods = response.get("periods")
     if periods is not None:

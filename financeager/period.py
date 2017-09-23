@@ -40,7 +40,6 @@ class PeriodException(Exception):
     pass
 
 
-#TODO rename repetitive to recurrent
 class TinyDbPeriod(TinyDB, Period):
 
     def __init__(self, name=None, *args, **kwargs):
@@ -58,7 +57,7 @@ class TinyDbPeriod(TinyDB, Period):
 
     def _create_category_cache(self):
         """The category cache assigns a counter for each element name in the
-        database (excluding repetitive elements), keeping track of the
+        database (excluding recurrent elements), keeping track of the
         categories the element was labeled with. This allows deriving the
         category of an element if not explicitly given."""
         self._category_cache = defaultdict(Counter)
@@ -69,8 +68,8 @@ class TinyDbPeriod(TinyDB, Period):
         """
         Add an entry (standard or recurrent) to the database.
         Using the kwargs name, value[, category, date] inserts a unique entry
-        in the standard table. Using the kwargs name, value, repetitive[, category]
-        inserts a template entry in the repetitive table.
+        in the standard table. Using the kwargs name, value, recurrent[, category]
+        inserts a template entry in the recurrent table.
 
         Two kwargs are mandatory:
             :param name: entry name
@@ -89,11 +88,11 @@ class TinyDbPeriod(TinyDB, Period):
             :type date: str of ``DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
-            :param repetitive: frequency ('yearly', 'half-yearly', 'quarterly',
+            :param recurrent: frequency ('yearly', 'half-yearly', 'quarterly',
                 'monthly', 'weekly' or 'daily'), start date (optional, defaults to
                 current date) and end date (optional, defaults to last day of
                 the period's year)
-            :type repetitive: list[str]
+            :type recurrent: list[str]
 
         :return: TinyDB ID of new entry (int)
         """
@@ -116,18 +115,18 @@ class TinyDbPeriod(TinyDB, Period):
 
         self._category_cache[name].update([category])
 
-        repetitive_args = kwargs.get("repetitive", False)
-        if repetitive_args:
-            frequency = repetitive_args[0].lower()
+        recurrent_args = kwargs.get("recurrent", False)
+        if recurrent_args:
+            frequency = recurrent_args[0].lower()
             start = dt.today().strftime(DATE_FORMAT)
-            if len(repetitive_args) > 1:
-                start = repetitive_args[1]
+            if len(recurrent_args) > 1:
+                start = recurrent_args[1]
             end = None
-            if len(repetitive_args) > 2:
-                end = repetitive_args[2]
+            if len(recurrent_args) > 2:
+                end = recurrent_args[2]
             else:
                 end = dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
-            element_id = self.table("repetitive").insert(
+            element_id = self.table("recurrent").insert(
                     dict(
                         name=name, value=value, category=category,
                         frequency=frequency, start=start, end=end
@@ -160,7 +159,7 @@ class TinyDbPeriod(TinyDB, Period):
 
     def _search_all_tables(self, query_impl=None, create_recurrent_elements=True):
         """
-        Search both the standard table and the repetitive table for elements
+        Search both the standard table and the recurrent table for elements
         that satisfy the given condition.
 
         The elements' `eid` attribute is used as key in the returned subdicts
@@ -172,7 +171,7 @@ class TinyDbPeriod(TinyDB, Period):
         :param query_impl: condition for the search. If none (default), all elements are returned.
         :type query_impl: tinydb.queries.QueryImpl
 
-        :param create_recurrent_elements: 'Expand' elements of the 'repetitive'
+        :param create_recurrent_elements: 'Expand' elements of the 'recurrent'
             table prior to search (used when displaying) or not (used when
             deleting, TODO: remove this)
         :type create_recurrent_elements: bool
@@ -200,8 +199,8 @@ class TinyDbPeriod(TinyDB, Period):
             # all recurrent elements are generated, and the ones matching the
             # query are appended to a list that is stored under their generating
             # element's eid in the 'recurrent' subdictionary
-            for element in self.table("repetitive").all():
-                for e in self._create_repetitive_elements(element):
+            for element in self.table("recurrent").all():
+                for e in self._create_recurrent_elements(element):
                     matching_recurrent_element = None
 
                     if query_impl is None:
@@ -215,16 +214,16 @@ class TinyDbPeriod(TinyDB, Period):
                                 matching_recurrent_element)
         else:
             if query_impl is None:
-                matching_recurrent_elements = self.table("repetitive").all()
+                matching_recurrent_elements = self.table("recurrent").all()
             else:
-                matching_recurrent_elements = self.table("repetitive").search(query_impl)
+                matching_recurrent_elements = self.table("recurrent").search(query_impl)
 
             for element in matching_recurrent_elements:
                 elements["recurrent"][element.eid] = element
 
         return elements
 
-    def _create_repetitive_elements(self, element):
+    def _create_recurrent_elements(self, element):
         name = element["name"]
         value = element["value"]
         category = element.get("category")
