@@ -68,7 +68,7 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_recurrent_entries(self):
         eid = self.period.add_entry(name="rent", value=-500,
-                recurrent=["monthly", "10-01"])
+                table_name="recurrent", frequency="monthly", start="10-01")
         self.assertSetEqual({"standard", "recurrent"}, self.period.tables())
 
         self.assertEqual(len(self.period.table("recurrent").all()), 1)
@@ -92,7 +92,8 @@ class TinyDbPeriodTestCase(unittest.TestCase):
 
     def test_recurrent_quarter_yearly_entries(self):
         eid = self.period.add_entry(name="interest", value=25,
-                recurrent=["quarter-yearly", "01-01"])
+                table_name="recurrent", frequency="quarter-yearly",
+                start="01-01")
 
         element = self.period.table("recurrent").all()[0]
         recurrent_elements = list(self.period._create_recurrent_elements(element))

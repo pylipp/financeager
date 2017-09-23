@@ -67,9 +67,10 @@ class TinyDbPeriod(TinyDB, Period):
     def add_entry(self, **kwargs):
         """
         Add an entry (standard or recurrent) to the database.
-        Using the kwargs name, value[, category, date] inserts a unique entry
-        in the standard table. Using the kwargs name, value, recurrent[, category]
-        inserts a template entry in the recurrent table.
+        If 'table_name' is not specified, the kwargs name, value[, category, date]
+        are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency[, start,
+        end, category] are used to insert a template entry in the recurrent table.
 
         Two kwargs are mandatory:
             :param name: entry name
@@ -88,15 +89,17 @@ class TinyDbPeriod(TinyDB, Period):
             :type date: str of ``DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
-            :param recurrent: frequency ('yearly', 'half-yearly', 'quarterly',
-                'monthly', 'weekly' or 'daily'), start date (optional, defaults to
-                current date) and end date (optional, defaults to last day of
-                the period's year)
-            :type recurrent: list[str]
+            :param frequency: 'yearly', 'half-yearly', 'quarterly',
+                'monthly', 'weekly' or 'daily'
+
+        The following kwargs are optional for recurrent entries:
+            :param start: start date (defaults to current date)
+            :param end: end date (defaults to last day of the period's year)
 
         :return: TinyDB ID of new entry (int)
         """
 
+        # TODO write subfunctions for adding standard/recurrent entries
         value = float(kwargs["value"])
         name = kwargs["name"].lower()
         date = kwargs.get("date")
@@ -115,26 +118,26 @@ class TinyDbPeriod(TinyDB, Period):
 
         self._category_cache[name].update([category])
 
-        recurrent_args = kwargs.get("recurrent", False)
-        if recurrent_args:
-            frequency = recurrent_args[0].lower()
-            start = dt.today().strftime(DATE_FORMAT)
-            if len(recurrent_args) > 1:
-                start = recurrent_args[1]
-            end = None
-            if len(recurrent_args) > 2:
-                end = recurrent_args[2]
-            else:
-                end = dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
+        table_name = kwargs.get("table_name", self.DEFAULT_TABLE)
+        if table_name == "recurrent":
+            frequency = kwargs["frequency"]
+            # hack for now, TODO cleanly separate standard/recurrent adding
+            start = kwargs.get("start", date)
+
+            end = kwargs.get("end",
+                dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
+                )
             element_id = self.table("recurrent").insert(
                     dict(
                         name=name, value=value, category=category,
                         frequency=frequency, start=start, end=end
                         ))
-        else:
+        elif table_name == self.DEFAULT_TABLE:
             element_id = self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))
+        else:
+            raise PeriodException("Unknow table name: '{}'".format(table_name))
         return element_id
 
     def get_entry(self, eid=None, table_name=None):

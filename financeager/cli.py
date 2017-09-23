@@ -56,9 +56,14 @@ def _parse_command():
             help="entry category")
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
 
-    add_parser.add_argument("-r", "--recurrent", default=[],
-            nargs=argparse.REMAINDER, help="entry is repeated with given frequency,\
-                    from start date to end date (optional)")
+    add_parser.add_argument("-t", "--table-name", default=None,
+            help="""table to add the entry to. With 'recurrent', specify at
+least a frequency, start date and end date are optional. Default:
+'standard'""")
+    add_parser.add_argument("-s", "--start", default=None,
+            help="start date of recurrent entry")
+    add_parser.add_argument("-e", "--end", default=None,
+            help="end date of recurrent entry")
 
     add_parser.add_argument(*period_args, **period_kwargs)
 

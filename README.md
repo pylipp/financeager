@@ -60,9 +60,9 @@ Add earnings (no/positive sign) and expenses (negative sign) to the database:
 
 Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
-Add recurrent entries using the `-r FREQUENCY [START END]` flag.
+Add recurrent entries using the `-t recurrent` flag (`t` for table name) and specify the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
 
-    > financeager add rent -500 -r monthly 01-01 -c rent
+    > financeager add rent -500 -t recurrent -f monthly -s 01-01 -c rent
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
@@ -102,7 +102,6 @@ Detailed information is available from
 
 KNOWN BUGS
 ----------
-- [ ] the `-r`/`--recurrent` option of `financeager add` will 'consume' all other options if not placed last
 - [ ] flask config does not work reliably
 - Please. Report. Them.
 

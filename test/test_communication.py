@@ -47,8 +47,8 @@ class RecurrentEntryCommunicationTestCase(unittest.TestCase):
         self.period = 0
         self.proxy = LocalServer(storage=MemoryStorage)
         communication.run(self.proxy, "add", name="retirement money", value=567,
-                period=self.period, category="income",
-                recurrent=["monthly", "01-01"])
+                period=self.period, category="income", frequency="monthly",
+                start="01-01", table_name="recurrent")
 
     def test_get(self):
         response = communication.run(self.proxy, "get", eid=1,

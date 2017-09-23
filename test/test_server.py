@@ -17,6 +17,10 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
     tests = [
+            'test_recurrent_entries'
+            ]
+    suite.addTest(unittest.TestSuite(map(RecurrentEntryServerTestCase, tests)))
+    tests = [
             'test_query_and_reset_response',
             'test_response_is_none'
             ]
@@ -41,6 +45,20 @@ class AddEntryToServerTestCase(unittest.TestCase):
     def tearDownClass(cls):
         cls.server.run("stop")
         os.remove(os.path.join(CONFIG_DIR, "0.json"))
+
+class RecurrentEntryServerTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.server = Server(storage=storages.MemoryStorage)
+        self.period = 2000
+        self.entry_id = self.server.run("add", name="rent", value=-1000,
+                table_name="recurrent", frequency="monthly", start="01-02",
+                end="07-01", period=self.period)["id"]
+
+    def test_recurrent_entries(self):
+        elements = self.server.run("print", period=self.period,
+                name="rent")["elements"]["recurrent"][self.entry_id]
+        self.assertEqual(len(elements), 6)
 
 class FindEntryServerTestCase(unittest.TestCase):
     def setUp(self):
