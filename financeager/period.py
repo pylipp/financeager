@@ -9,7 +9,6 @@ from datetime import datetime as dt
 
 from tinydb import TinyDB, Query, JSONStorage
 from tinydb.database import Element
-from tinydb.queries import QueryImpl
 
 from .config import CONFIG_DIR, CONFIG
 from .entries import CategoryEntry
@@ -180,7 +179,7 @@ class TinyDbPeriod(TinyDB, Period):
                 }
 
         if query_impl is None:
-            matching_standard_elements= self.all()
+            matching_standard_elements = self.all()
         else:
             matching_standard_elements = self.search(query_impl)
 
