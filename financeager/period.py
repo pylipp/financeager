@@ -155,24 +155,18 @@ class TinyDbPeriod(TinyDB, Period):
 
         return element
 
-    def _search_all_tables(self, query_impl=None, create_recurrent_elements=True):
-        """
-        Search both the standard table and the recurrent table for elements
+    def _search_all_tables(self, query_impl=None):
+        """Search both the standard table and the recurrent table for elements
         that satisfy the given condition.
 
         The elements' `eid` attribute is used as key in the returned subdicts
-        because it might be lost in the client-server communication (on
+        because it is lost in the client-server communication protocol (on
         `financeager print`, the server calls Period.get_entries, yet the
         JSON response returned drops the Element.eid attribute s.t. it's not
         available when calling prettify on the client side).
 
         :param query_impl: condition for the search. If none (default), all elements are returned.
         :type query_impl: tinydb.queries.QueryImpl
-
-        :param create_recurrent_elements: 'Expand' elements of the 'recurrent'
-            table prior to search (used when displaying) or not (used when
-            deleting, TODO: remove this)
-        :type create_recurrent_elements: bool
 
         :return: dict{
                     "standard":  dict{ int: tinydb.Element },
@@ -193,31 +187,22 @@ class TinyDbPeriod(TinyDB, Period):
         for element in matching_standard_elements:
             elements["standard"][element.eid] = element
 
-        if create_recurrent_elements:
-            # all recurrent elements are generated, and the ones matching the
-            # query are appended to a list that is stored under their generating
-            # element's eid in the 'recurrent' subdictionary
-            for element in self.table("recurrent").all():
-                for e in self._create_recurrent_elements(element):
-                    matching_recurrent_element = None
+        # all recurrent elements are generated, and the ones matching the
+        # query are appended to a list that is stored under their generating
+        # element's eid in the 'recurrent' subdictionary
+        for element in self.table("recurrent").all():
+            for e in self._create_recurrent_elements(element):
+                matching_recurrent_element = None
 
-                    if query_impl is None:
+                if query_impl is None:
+                    matching_recurrent_element = e
+                else:
+                    if query_impl(e):
                         matching_recurrent_element = e
-                    else:
-                        if query_impl(e):
-                            matching_recurrent_element = e
 
-                    if matching_recurrent_element is not None:
-                        elements["recurrent"][element.eid].append(
-                                matching_recurrent_element)
-        else:
-            if query_impl is None:
-                matching_recurrent_elements = self.table("recurrent").all()
-            else:
-                matching_recurrent_elements = self.table("recurrent").search(query_impl)
-
-            for element in matching_recurrent_elements:
-                elements["recurrent"][element.eid] = element
+                if matching_recurrent_element is not None:
+                    elements["recurrent"][element.eid].append(
+                            matching_recurrent_element)
 
         return elements
 
