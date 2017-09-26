@@ -25,7 +25,8 @@ def suite():
             'test_remove_nonexisting_entry'
             ,'test_add_rm_via_eid'
             ,'test_get_nonexisting_entry',
-            'test_update_standard_entry'
+            'test_update_standard_entry',
+            'test_update_nonexisting_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodStandardEntryTestCase, tests)))
     tests = [
@@ -141,6 +142,10 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
                 Counter({"sports": 0, "unspecified": 0}))
         self.assertEqual(self.period._category_cache["mtb tandem"],
                 Counter({"fun": 1}))
+
+    def test_update_nonexisting_entry(self):
+        self.assertRaises(PeriodException, self.period.update_entry,
+                eid=0, name="I shall fail")
 
     def tearDown(self):
         self.period.close()
