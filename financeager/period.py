@@ -160,41 +160,30 @@ class TinyDbPeriod(TinyDB, Period):
 
         table = self.table(table_name or TinyDB.DEFAULT_TABLE)
 
+        # create fields to-be-updated by trying to lowercase strings and convert
+        # numbers
         fields = {}
+        for k, v in kwargs.items():
+            try:
+                fields[k] = v.lower()
+            except AttributeError:
+                pass
+
+            try:
+                fields[k] = float(v)
+            except ValueError:
+                pass
+
+        # update category cache if one of name or category was changed
         old_entry = self.get_entry(eid=eid, table_name=table_name)
         old_name = old_entry["name"]
         old_category = old_entry["category"]
 
-        name = kwargs.get("name")
-        if name is not None:
-            fields["name"] = name.lower()
-
-        category = kwargs.get("category")
-        if category is not None:
-            fields["category"] = category.lower()
-
-        # update category cache if one of name or category was changed
         if fields.get("name") is not None or \
                 fields.get("category") is not None:
             self._category_cache[old_name][old_category] -= 1
             self._category_cache[fields.get("name") or old_name][
                     fields.get("category") or old_category] += 1
-
-        value = kwargs.get("value")
-        if value is not None:
-            fields["value"] = float(value)
-
-        frequency = kwargs.get("frequency")
-        if frequency is not None:
-            fields["frequency"] = frequency.lower()
-
-        start = kwargs.get("start")
-        if start is not None:
-            fields["start"] = start
-
-        end = kwargs.get("end")
-        if end is not None:
-            fields["end"] = end
 
         element_id = table.update(fields, eids=[eid])[0]
 
