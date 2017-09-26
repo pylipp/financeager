@@ -52,6 +52,8 @@ class Server(object):
                     response = {"elements": period.get_entries(**kwargs)}
                 elif command == "get":
                     response = {"element": period.get_entry(**kwargs)}
+                elif command == "update":
+                    response = {"id": period.update_entry(**kwargs)}
                 else:
                     response = {"error": "Server: unknown command '{}'".format(command)}
             except PeriodException as e:

@@ -22,7 +22,8 @@ def suite():
     suite.addTest(unittest.TestSuite(map(RecurrentEntryServerTestCase, tests)))
     tests = [
             'test_query_and_reset_response',
-            'test_response_is_none'
+            'test_response_is_none',
+            'test_update'
             ]
     suite.addTest(unittest.TestSuite(map(FindEntryServerTestCase, tests)))
     return suite
@@ -89,6 +90,14 @@ class FindEntryServerTestCase(unittest.TestCase):
                 category=CategoryEntry.DEFAULT_NAME)
         self.assertDictEqual(response["elements"]["standard"], {})
         self.assertDictEqual(response["elements"]["recurrent"], {})
+
+    def test_update(self):
+        new_category = "Outdoorsy shit"
+        self.server.run("update", eid=self.entry_id, period=self.period,
+                category=new_category)
+        element = self.server.run("get", eid=self.entry_id,
+                period=self.period)["element"]
+        self.assertEqual(element["category"], new_category.lower())
 
 if __name__ == '__main__':
     unittest.main()
