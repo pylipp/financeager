@@ -184,6 +184,18 @@ class TinyDbPeriod(TinyDB, Period):
         if value is not None:
             fields["value"] = float(value)
 
+        frequency = kwargs.get("frequency")
+        if frequency is not None:
+            fields["frequency"] = frequency.lower()
+
+        start = kwargs.get("start")
+        if start is not None:
+            fields["start"] = start
+
+        end = kwargs.get("end")
+        if end is not None:
+            fields["end"] = end
+
         element_id = table.update(fields, eids=[eid])[0]
 
         return element_id
