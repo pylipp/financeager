@@ -21,15 +21,18 @@ def suite():
             'test_get_entries',
             'test_remove_entry',
             'test_create_models_query_kwargs',
-            'test_recurrent_entries',
-            'test_recurrent_quarter_yearly_entries'
-            ,'test_category_cache',
+            'test_category_cache',
             'test_remove_nonexisting_entry'
             ,'test_add_rm_via_eid'
             ,'test_get_nonexisting_entry',
             'test_update_standard_entry'
             ]
-    suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(TinyDbPeriodStandardEntryTestCase, tests)))
+    tests = [
+            'test_recurrent_entries',
+            'test_recurrent_quarter_yearly_entries'
+            ]
+    suite.addTest(unittest.TestSuite(map(TinyDbPeriodRecurrentEntryTestCase, tests)))
     return suite
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
@@ -38,7 +41,7 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
         self.assertEqual(period.name, "2017")
         period.close()
 
-class TinyDbPeriodTestCase(unittest.TestCase):
+class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
         self.eid = self.period.add_entry(name="Bicycle", value=-999.99,
@@ -68,48 +71,6 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 name="xmas", date="1901-12")["standard"]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
-
-    def test_recurrent_entries(self):
-        eid = self.period.add_entry(name="rent", value=-500,
-                table_name="recurrent", frequency="monthly", start="10-01")
-        self.assertSetEqual({"standard", "recurrent"}, self.period.tables())
-
-        self.assertEqual(len(self.period.table("recurrent").all()), 1)
-        element = self.period.table("recurrent").all()[0]
-        recurrent_elements = list(self.period._create_recurrent_elements(element))
-        self.assertEqual(len(recurrent_elements), 3)
-
-        rep_element_names = {e["name"] for e in recurrent_elements}
-        self.assertSetEqual(rep_element_names,
-                {"rent october", "rent november", "rent december"})
-
-        matching_elements = self.period.get_entries(date="11")["recurrent"]
-        self.assertEqual(len(matching_elements), 1)
-        self.assertEqual(
-                matching_elements[eid][0]["name"], "rent november")
-        # the eid attribute is None because a new Element instance has been
-        # created in Period._create_recurrent_elements. The 'eid' entry
-        # however is 1 because the parent element is the first in the
-        # "recurrent" table
-        self.assertIsNone(matching_elements[eid][0].eid)
-
-    def test_recurrent_quarter_yearly_entries(self):
-        eid = self.period.add_entry(name="interest", value=25,
-                table_name="recurrent", frequency="quarter-yearly",
-                start="01-01")
-
-        element = self.period.table("recurrent").all()[0]
-        recurrent_elements = list(self.period._create_recurrent_elements(element))
-        self.assertEqual(len(recurrent_elements), 4)
-
-        rep_element_names = {e["name"] for e in recurrent_elements}
-        self.assertSetEqual(rep_element_names,
-                {"interest january", "interest april", "interest july", "interest october"})
-
-        recurrent_table_size = len(self.period.table("recurrent"))
-        self.period.remove_entry(eid=eid, table_name="recurrent")
-        self.assertEqual(len(self.period.table("recurrent")),
-                recurrent_table_size - 1)
 
     def test_category_cache(self):
         self.period.add_entry(name="walmart", value=-50.01,
@@ -179,6 +140,55 @@ class TinyDbPeriodTestCase(unittest.TestCase):
                 Counter({"sports": 0, "unspecified": 0}))
         self.assertEqual(self.period._category_cache["mtb tandem"],
                 Counter({"fun": 1}))
+
+    def tearDown(self):
+        self.period.close()
+
+class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
+    def setUp(self):
+        self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
+
+    def test_recurrent_entries(self):
+        eid = self.period.add_entry(name="rent", value=-500,
+                table_name="recurrent", frequency="monthly", start="10-01")
+        self.assertSetEqual({"standard", "recurrent"}, self.period.tables())
+
+        self.assertEqual(len(self.period.table("recurrent").all()), 1)
+        element = self.period.table("recurrent").all()[0]
+        recurrent_elements = list(self.period._create_recurrent_elements(element))
+        self.assertEqual(len(recurrent_elements), 3)
+
+        rep_element_names = {e["name"] for e in recurrent_elements}
+        self.assertSetEqual(rep_element_names,
+                {"rent october", "rent november", "rent december"})
+
+        matching_elements = self.period.get_entries(date="11")["recurrent"]
+        self.assertEqual(len(matching_elements), 1)
+        self.assertEqual(
+                matching_elements[eid][0]["name"], "rent november")
+        # the eid attribute is None because a new Element instance has been
+        # created in Period._create_recurrent_elements. The 'eid' entry
+        # however is 1 because the parent element is the first in the
+        # "recurrent" table
+        self.assertIsNone(matching_elements[eid][0].eid)
+
+    def test_recurrent_quarter_yearly_entries(self):
+        eid = self.period.add_entry(name="interest", value=25,
+                table_name="recurrent", frequency="quarter-yearly",
+                start="01-01")
+
+        element = self.period.table("recurrent").all()[0]
+        recurrent_elements = list(self.period._create_recurrent_elements(element))
+        self.assertEqual(len(recurrent_elements), 4)
+
+        rep_element_names = {e["name"] for e in recurrent_elements}
+        self.assertSetEqual(rep_element_names,
+                {"interest january", "interest april", "interest july", "interest october"})
+
+        recurrent_table_size = len(self.period.table("recurrent"))
+        self.period.remove_entry(eid=eid, table_name="recurrent")
+        self.assertEqual(len(self.period.table("recurrent")),
+                recurrent_table_size - 1)
 
     def tearDown(self):
         self.period.close()
