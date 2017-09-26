@@ -155,6 +155,18 @@ class TinyDbPeriod(TinyDB, Period):
         return element
 
     def update_entry(self, eid=None, table_name=None, **kwargs):
+        """Update one or more fields of a single entry of the Period.
+
+        :param eid: entry ID of the entry to be updated
+        :param table_name: table that the entry is stored in (default:
+            'standard')
+        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
+            'end' for recurrent entries; any of 'name', 'value', 'category' for
+            either entry type
+        :raise: PeriodException if eid missing or element not found
+        :return: ID of the updated entry
+        """
+
         if eid is None:
             raise PeriodException("No element ID specified.")
 
@@ -174,11 +186,12 @@ class TinyDbPeriod(TinyDB, Period):
             except ValueError:
                 pass
 
-        # update category cache if one of name or category was changed
+        # raises a PeriodException if eid is not found
         old_entry = self.get_entry(eid=eid, table_name=table_name)
         old_name = old_entry["name"]
         old_category = old_entry["category"]
 
+        # update category cache if one of name or category was changed
         if fields.get("name") is not None or \
                 fields.get("category") is not None:
             self._category_cache[old_name][old_category] -= 1
