@@ -9,6 +9,7 @@ from financeager.entries import CategoryEntry
 from financeager.config import CONFIG
 from datetime import datetime as dt
 import os
+from collections import Counter
 
 def suite():
     suite = unittest.TestSuite()
@@ -25,7 +26,8 @@ def suite():
             ,'test_category_cache',
             'test_remove_nonexisting_entry'
             ,'test_add_rm_via_eid'
-            ,'test_get_nonexisting_entry'
+            ,'test_get_nonexisting_entry',
+            'test_update_standard_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodTestCase, tests)))
     return suite
@@ -39,7 +41,8 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
 class TinyDbPeriodTestCase(unittest.TestCase):
     def setUp(self):
         self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
-        self.period.add_entry(name="Bicycle", value=-999.99, date="1901-01-01")
+        self.eid = self.period.add_entry(name="Bicycle", value=-999.99,
+                date="1901-01-01")
 
     def test_get_entries(self):
         self.assertIsInstance(
@@ -143,6 +146,39 @@ class TinyDbPeriodTestCase(unittest.TestCase):
         self.assertEqual(element["date"], dt.today().strftime(
             CONFIG["DATABASE"]["date_format"]))
         self.period.remove_entry(eid=entry_id)
+
+    def test_update_standard_entry(self):
+        self.period.update_entry(eid=self.eid, value=-100)
+        element = self.period.get_entry(eid=self.eid)
+        self.assertEqual(element["value"], -100)
+
+        self.period.update_entry(eid=self.eid, name="Trekking Bicycle")
+        element = self.period.get_entry(eid=self.eid)
+        self.assertEqual(element["name"], "trekking bicycle")
+
+        self.assertEqual(self.period._category_cache["bicycle"],
+                Counter({"unspecified": 0}))
+        self.assertEqual(self.period._category_cache["trekking bicycle"],
+                Counter({"unspecified": 1}))
+
+        self.period.update_entry(eid=self.eid, category="Sports")
+        element = self.period.get_entry(eid=self.eid)
+        self.assertEqual(element["category"], "sports")
+
+        self.assertEqual(self.period._category_cache["trekking bicycle"],
+                Counter({"sports": 1, "unspecified": 0}))
+
+        self.period.update_entry(eid=self.eid, name="MTB Tandem",
+                category="Fun", value=-1000)
+        element = self.period.get_entry(eid=self.eid)
+        self.assertEqual(element["name"], "mtb tandem")
+        self.assertEqual(element["value"], -1000.0)
+        self.assertEqual(element["category"], "fun")
+
+        self.assertEqual(self.period._category_cache["trekking bicycle"],
+                Counter({"sports": 0, "unspecified": 0}))
+        self.assertEqual(self.period._category_cache["mtb tandem"],
+                Counter({"fun": 1}))
 
     def tearDown(self):
         self.period.close()

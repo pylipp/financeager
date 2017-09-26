@@ -154,6 +154,40 @@ class TinyDbPeriod(TinyDB, Period):
 
         return element
 
+    def update_entry(self, eid=None, table_name=None, **kwargs):
+        if eid is None:
+            raise PeriodException("No element ID specified.")
+
+        table = self.table(table_name or TinyDB.DEFAULT_TABLE)
+
+        fields = {}
+        old_entry = self.get_entry(eid=eid, table_name=table_name)
+        old_name = old_entry["name"]
+        old_category = old_entry["category"]
+
+        name = kwargs.get("name")
+        if name is not None:
+            fields["name"] = name.lower()
+
+        category = kwargs.get("category")
+        if category is not None:
+            fields["category"] = category.lower()
+
+        # update category cache if one of name or category was changed
+        if fields.get("name") is not None or \
+                fields.get("category") is not None:
+            self._category_cache[old_name][old_category] -= 1
+            self._category_cache[fields.get("name") or old_name][
+                    fields.get("category") or old_category] += 1
+
+        value = kwargs.get("value")
+        if value is not None:
+            fields["value"] = float(value)
+
+        element_id = table.update(fields, eids=[eid])[0]
+
+        return element_id
+
     def _search_all_tables(self, query_impl=None):
         """Search both the standard table and the recurrent table for elements
         that satisfy the given condition.
