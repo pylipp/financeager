@@ -74,15 +74,17 @@ class _Proxy(object):
             response = requests.get(period_url, **kwargs)
         elif command == "rm":
             response = requests.delete("{}/{}/{}".format(
-                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
-                eid), **kwargs)
+                period_url,
+                data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
+                data.get("eid")), **kwargs)
         elif command == "add":
             response = requests.post(period_url, **kwargs)
         elif command == "list":
             response = requests.post(url, **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
-                period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
+                period_url,
+                data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
                 data.get("eid")), **kwargs)
         elif command == "update":
             response = requests.patch("{}/{}/{}".format(
