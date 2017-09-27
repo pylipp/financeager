@@ -66,7 +66,11 @@ Add recurrent entries using the `-t recurrent` flag (`t` for table name) and spe
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
-Remove an entry by specifying its ID (visible in the output of the `print` command). This removes the `burgers` entry:
+Did you make a mistake when adding a new entry? *Update* one or more fields by calling the 'update' command with the entry's ID and the respective corrected fields:
+
+    > financeager update 1 --name "McKing Burgers" --value -18.59
+
+*Remove* an entry by specifying its ID (visible in the output of the `print` command). This removes the `burgers` entry:
 
     > financeager rm 1
 
@@ -107,7 +111,7 @@ KNOWN BUGS
 
 FUTURE FEATURES
 ---------------
-- [ ] support 'patching' of entries
+- [x] support 'updating' of entries
 - [ ] experiment with urwid for building TUI
 - [ ] sort `print` output acc. to entry name/value/date/category
 
