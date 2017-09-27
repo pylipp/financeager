@@ -74,6 +74,7 @@ least a frequency, start date and end date are optional. Default:
     get_parser.add_argument("eid", help="entry ID")
     get_parser.add_argument("-t", "--table-name", default=None,
             help="Table to get the entry from. Default: 'standard'.")
+    get_parser.add_argument(*period_args, **period_kwargs)
 
     rm_parser = subparsers.add_parser("rm",
             help="remove an entry from the database")
