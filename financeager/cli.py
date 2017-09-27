@@ -82,6 +82,24 @@ least a frequency, start date and end date are optional. Default:
             help="Table to remove the entry from. Default: 'standard'.")
     rm_parser.add_argument(*period_args, **period_kwargs)
 
+    update_parser = subparsers.add_parser("update",
+            help="update one or more fields of an database entry")
+    update_parser.add_argument("eid", type=int, help="entry ID")
+    update_parser.add_argument("-t", "--table-name",
+            help="Table containing the entry. Default: 'standard'")
+    update_parser.add_argument("-n", "--name", help="new name")
+    update_parser.add_argument("-v", "--value", type=float, help="new value")
+    update_parser.add_argument("-c", "--category", help="new category")
+    update_parser.add_argument("-d", "--date",
+            help="new date (for standard entries only)")
+    update_parser.add_argument("-f", "--frequency",
+            help="new frequency (for recurrent entries only)")
+    update_parser.add_argument("-s", "--start",
+            help="new start date (for recurrent entries only)")
+    update_parser.add_argument("-e", "--end",
+            help="new end date (for recurrent entries only)")
+    update_parser.add_argument(*period_args, **period_kwargs)
+
     print_parser = subparsers.add_parser("print",
             help="show the period database")
     print_parser.add_argument("name", nargs="?", default=None,
