@@ -116,17 +116,16 @@ class TinyDbPeriod(TinyDB, Period):
         table_name = kwargs.get("table_name", self.DEFAULT_TABLE)
         if table_name == "recurrent":
             frequency = kwargs["frequency"]
-            start = kwargs.get("start", dt.today().strftime(DATE_FORMAT))
-            end = kwargs.get("end",
+            start = kwargs.get("start") or dt.today().strftime(DATE_FORMAT)
+            end = kwargs.get("end") or \
                 dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
-                )
             element_id = self.table("recurrent").insert(
                     dict(
                         name=name, value=value, category=category,
                         frequency=frequency, start=start, end=end
                         ))
         elif table_name == self.DEFAULT_TABLE:
-            date = kwargs.get("date", dt.today().strftime(DATE_FORMAT))
+            date = kwargs.get("date") or dt.today().strftime(DATE_FORMAT)
             element_id = self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))

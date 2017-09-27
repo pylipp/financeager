@@ -104,7 +104,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_add_entry_default_date(self):
         name = "new backpack"
-        entry_id = self.period.add_entry(name=name, value=-49.95)
+        entry_id = self.period.add_entry(name=name, value=-49.95, date=None)
         element = self.period.get_entry(entry_id)
         self.assertEqual(element["date"], dt.today().strftime(
             CONFIG["DATABASE"]["date_format"]))
