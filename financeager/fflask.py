@@ -84,6 +84,11 @@ class _Proxy(object):
             response = requests.get("{}/{}/{}".format(
                 period_url, data.get("table_name", TinyDbPeriod.DEFAULT_TABLE),
                 data.get("eid")), **kwargs)
+        elif command == "update":
+            response = requests.patch("{}/{}/{}".format(
+                period_url,
+                data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
+                data.get("eid")), **kwargs)
         else:
             return {"error": "Unknown command: {}".format(command)}
 

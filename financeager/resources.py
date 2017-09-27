@@ -20,6 +20,15 @@ print_parser.add_argument("name", default=None)
 print_parser.add_argument("category", default=None)
 print_parser.add_argument("date", default=None)
 
+update_parser = reqparse.RequestParser()
+update_parser.add_argument("name", default=None)
+update_parser.add_argument("value", default=None, type=float)
+update_parser.add_argument("category", default=None)
+update_parser.add_argument("date", default=None)
+update_parser.add_argument("frequency", default=None)
+update_parser.add_argument("start", default=None)
+update_parser.add_argument("end", default=None)
+
 
 class PeriodsResource(Resource):
     def post(self):
@@ -51,6 +60,16 @@ class EntryResource(Resource):
 
         if "error" in response:
             response = (response, 404)
+
+        return response
+
+    def patch(self, period_name, table_name, eid):
+        args = update_parser.parse_args()
+        response = SERVER.run("update", period=period_name,
+                table_name=table_name, eid=eid, **args)
+
+        if "error" in response:
+            response = (response, 400)
 
         return response
 
