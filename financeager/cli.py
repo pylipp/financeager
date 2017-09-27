@@ -60,6 +60,9 @@ def _parse_command():
             help="""table to add the entry to. With 'recurrent', specify at
 least a frequency, start date and end date are optional. Default:
 'standard'""")
+    add_parser.add_argument("-f", "--frequency", help="frequency of recurrent "
+            "entry; one of yearly, half-yearly, quarterly, monthly, weekly, "
+            "daily.")
     add_parser.add_argument("-s", "--start", default=None,
             help="start date of recurrent entry")
     add_parser.add_argument("-e", "--end", default=None,
