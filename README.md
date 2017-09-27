@@ -53,14 +53,16 @@ On the client side, specify the host in the config (defaults to localhost, so ra
 
 ### Command line usage
 
-Add earnings (no/positive sign) and expenses (negative sign) to the database:
+On the client side, `financeager` provides the following commands to interact with the database: `add`, `update`, `rm`, `get`, `print`, `list`.
+
+*Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
     > financeager add burgers -19.99 --category Restaurants
     > financeager add lottery 123.45 --date 03-14
 
 Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
-Add recurrent entries using the `-t recurrent` flag (`t` for table name) and specify the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
+*Add recurrent* entries using the `-t recurrent` flag (`t` for table name) and specify the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
 
     > financeager add rent -500 -t recurrent -f monthly -s 01-01 -c rent
 
@@ -78,7 +80,7 @@ This would remove the recurrent rent entries (ID is also 1 because standard and 
 
     > financeager rm 1 --table-name recurrent
 
-Show a side-by-side overview of earnings and expenses (filter date and/or category by providing the `-d` and `-c` flag and/or filter the name by providing a positional argument)
+Show a side-by-side *overview* of earnings and expenses (filter date and/or category by providing the `-d` and `-c` flag and/or filter the name by providing a positional argument)
 
     > financeager print
 
@@ -143,6 +145,7 @@ DEVELOPER'S TODOs
 - [ ] refactor config module (custom method to intuitively retrieve config parameters)
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] support `get` command
+- [ ] support querying of standard/recurrent table with `print`
 
 PERSONAL NOTE
 -------------
