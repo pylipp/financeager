@@ -115,7 +115,10 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         element = self.period.get_entry(eid=self.eid)
         self.assertEqual(element["value"], -100)
 
-        self.period.update_entry(eid=self.eid, name="Trekking Bicycle")
+        # kwargs with None-value should be ignored; they are passed e.g. by the
+        # flask_restful RequestParser
+        self.period.update_entry(eid=self.eid, name="Trekking Bicycle",
+                value=None)
         element = self.period.get_entry(eid=self.eid)
         self.assertEqual(element["name"], "trekking bicycle")
 
@@ -131,7 +134,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.assertEqual(self.period._category_cache["trekking bicycle"],
                 Counter({"sports": 1, "unspecified": 0}))
 
-        self.period.update_entry(eid=self.eid, name="MTB Tandem",
+        # string-eids should be internally converted to int
+        self.period.update_entry(eid=str(self.eid), name="MTB Tandem",
                 category="Fun", value=-1000)
         element = self.period.get_entry(eid=self.eid)
         self.assertEqual(element["name"], "mtb tandem")

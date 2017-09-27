@@ -176,6 +176,9 @@ class TinyDbPeriod(TinyDB, Period):
         # numbers
         fields = {}
         for k, v in kwargs.items():
+            if v is None:
+                continue
+
             try:
                 fields[k] = v.lower()
             except AttributeError:
@@ -198,7 +201,7 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[fields.get("name") or old_name][
                     fields.get("category") or old_category] += 1
 
-        element_id = table.update(fields, eids=[eid])[0]
+        element_id = table.update(fields, eids=[int(eid)])[0]
 
         return element_id
 
