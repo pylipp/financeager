@@ -148,8 +148,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         return converted_fields
 
-    @staticmethod
-    def _substitute_none_fields(table_name, **fields):
+    def _substitute_none_fields(self, table_name, **fields):
         """Substitute optional fields by defaults."""
 
         substituted_fields = fields.copy()
@@ -164,6 +163,18 @@ class TinyDbPeriod(TinyDB, Period):
         elif table_name == TinyDbPeriod.DEFAULT_TABLE:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(DATE_FORMAT)
+
+        if fields.get("category") is None:
+            name = fields["name"]
+            # TODO take most common, raise Exception if not clear.
+            # return element info instead of ID
+            if len(self._category_cache[name]) == 1:
+                category = self._category_cache[name].most_common(1)[0][0]
+            else:
+                # assign default name (must be str), s.t. category field can be queried
+                # TODO: reconsider this
+                category = CategoryEntry.DEFAULT_NAME
+            substituted_fields["category"] = category
 
         return substituted_fields
 
@@ -207,18 +218,7 @@ class TinyDbPeriod(TinyDB, Period):
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
         name = fields["name"]
-        category = fields.get("category")
-
-        if category is None:
-            if len(self._category_cache[name]) == 1:
-                category = self._category_cache[name].most_common(1)[0][0]
-            else:
-                # assign default name (must be str), s.t. category field can be queried
-                category = CategoryEntry.DEFAULT_NAME
-        else:
-            category = category.lower()
-        fields["category"] = category
-
+        category = fields["category"]
         self._category_cache[name].update([category])
 
         element_id = self.table(table_name).insert(fields)
