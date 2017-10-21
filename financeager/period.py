@@ -246,24 +246,9 @@ class TinyDbPeriod(TinyDB, Period):
         if eid is None:
             raise PeriodException("No element ID specified.")
 
-        table = self.table(table_name or TinyDB.DEFAULT_TABLE)
-
-        # create fields to-be-updated by trying to lowercase strings and convert
-        # numbers
-        fields = {}
-        for k, v in kwargs.items():
-            if v is None:
-                continue
-
-            try:
-                fields[k] = v.lower()
-            except AttributeError:
-                pass
-
-            try:
-                fields[k] = float(v)
-            except ValueError:
-                pass
+        table_name = table_name or TinyDB.DEFAULT_TABLE
+        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name,
+                partial=True)
 
         # raises a PeriodException if eid is not found
         old_entry = self.get_entry(eid=eid, table_name=table_name)
@@ -277,7 +262,7 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[fields.get("name") or old_name][
                     fields.get("category") or old_category] += 1
 
-        element_id = table.update(fields, eids=[int(eid)])[0]
+        element_id = self.table(table_name).update(fields, eids=[int(eid)])[0]
 
         return element_id
 

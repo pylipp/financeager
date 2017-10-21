@@ -234,6 +234,16 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.assertEqual(len(recurrent_entries), 1)
         self.assertEqual(recurrent_entries[0]["date"], "03-01")
 
+    def test_update_recurrent_entry_incorrectly(self):
+        eid = self.period.add_entry(name="interest", value=25,
+                table_name="recurrent", frequency="quarter-yearly",
+                start="01-01")
+
+        with self.assertRaises(PeriodException) as context:
+            self.period.update_entry(eid=eid, end="Dec-24",
+                    table_name="recurrent")
+        self.assertIn("end", str(context.exception))
+
     def tearDown(self):
         self.period.close()
 
