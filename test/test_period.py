@@ -31,7 +31,8 @@ def suite():
             ,'test_add_rm_via_eid'
             ,'test_get_nonexisting_entry',
             'test_update_standard_entry',
-            'test_update_nonexisting_entry'
+            'test_update_nonexisting_entry',
+            'test_add_invalid_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodStandardEntryTestCase, tests)))
     tests = [
@@ -72,7 +73,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_create_models_query_kwargs(self):
         eid = self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
-        standard_elements = self.period.get_entries(date="1901-12")["standard"]
+        standard_elements = self.period.get_entries(date="12")["standard"]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
@@ -81,7 +82,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
         standard_elements = self.period.get_entries(
-                name="xmas", date="1901-12")["standard"]
+                name="xmas", date="12")["standard"]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
@@ -161,6 +162,11 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def test_update_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.update_entry,
                 eid=0, name="I shall fail")
+
+    def test_add_invalid_entry(self):
+        self.assertRaises(PeriodException,
+            self.period.add_entry, name="I'm invalid", date="1.1",
+                value="hundred")
 
     def tearDown(self):
         self.period.close()

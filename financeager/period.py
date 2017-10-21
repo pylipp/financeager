@@ -105,7 +105,8 @@ class TinyDbPeriod(TinyDB, Period):
         :raise: PeriodException if validation failed
         """
 
-        raw_data = raw_data or {}
+        # copy data to not modify original
+        raw_data = raw_data.copy() or {}
         table_name = raw_data.pop("table_name", TinyDbPeriod.DEFAULT_TABLE)
 
         ValidationModel = RecurrentEntryValidationModel \
@@ -173,9 +174,11 @@ class TinyDbPeriod(TinyDB, Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        value = float(kwargs["value"])
-        name = kwargs["name"].lower()
-        category = kwargs.get("category")
+        fields = self._preprocess_entry(raw_data=kwargs)
+
+        value = fields["value"]
+        name = fields["name"]
+        category = fields.get("category")
 
         if category is None:
             if len(self._category_cache[name]) == 1:
@@ -190,9 +193,9 @@ class TinyDbPeriod(TinyDB, Period):
 
         table_name = kwargs.get("table_name", self.DEFAULT_TABLE)
         if table_name == "recurrent":
-            frequency = kwargs["frequency"]
-            start = kwargs.get("start") or dt.today().strftime(DATE_FORMAT)
-            end = kwargs.get("end") or \
+            frequency = fields["frequency"]
+            start = fields.get("start") or dt.today().strftime(DATE_FORMAT)
+            end = fields.get("end") or \
                 dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
             element_id = self.table("recurrent").insert(
                     dict(
@@ -200,7 +203,7 @@ class TinyDbPeriod(TinyDB, Period):
                         frequency=frequency, start=start, end=end
                         ))
         elif table_name == self.DEFAULT_TABLE:
-            date = kwargs.get("date") or dt.today().strftime(DATE_FORMAT)
+            date = fields.get("date") or dt.today().strftime(DATE_FORMAT)
             element_id = self.insert(
                     dict(
                         name=name, value=value, date=date, category=category))
