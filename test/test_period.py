@@ -42,9 +42,24 @@ def suite():
     tests = [
             'test_valid_base_entry',
             'test_valid_standard_entry',
-            'test_valid_standard_entry_default_date'
+            'test_valid_standard_entry_default_date',
+            'test_valid_base_entry_category_none',
+            'test_invalid_base_entry_name',
+            'test_invalid_base_entry_value',
+            'test_valid_recurrent_entry',
+            'test_invalid_recurrent_entry'
             ]
     suite.addTest(unittest.TestSuite(map(ValidationModelTestCase, tests)))
+    tests = [
+            'test_validate_valid_standard_entry',
+            'test_validate_invalid_standard_entry',
+            'test_validate_valid_recurrent_entry',
+            'test_validate_invalid_recurrent_entry',
+            'test_convert_fields',
+            'test_substitute_none_recurrent_fields',
+            'test_substitute_none_standard_fields'
+            ]
+    suite.addTest(unittest.TestSuite(map(ValidateEntryTestCase, tests)))
     return suite
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
