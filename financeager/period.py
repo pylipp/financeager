@@ -163,8 +163,8 @@ class TinyDbPeriod(TinyDB, Period):
             :type date: str of ``DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
-            :param frequency: 'yearly', 'half-yearly', 'quarterly',
-                'monthly', 'weekly' or 'daily'
+            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
+                'bimonthly', 'monthly', 'weekly' or 'daily'
 
         The following kwargs are optional for recurrent entries:
             :param start: start date (defaults to current date)
