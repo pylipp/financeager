@@ -9,6 +9,9 @@ from datetime import datetime as dt
 
 from tinydb import TinyDB, Query, JSONStorage
 from tinydb.database import Element
+from schematics.models import Model as SchematicsModel
+from schematics.types import StringType, FloatType, DateType
+from schematics.exceptions import DataError, ValidationError
 
 from .config import CONFIG_DIR, CONFIG
 from .entries import CategoryEntry
@@ -16,7 +19,23 @@ from .entries import CategoryEntry
 
 # TODO temporary set to have module independent of items
 DATE_FORMAT = CONFIG["DATABASE"]["date_format"]
+# format for ValidationModel.to_primitive() call
+DateType.SERIALIZED_FORMAT = DATE_FORMAT
 
+
+class BaseValidationModel(SchematicsModel):
+    name = StringType(min_length=1, required=True)
+    value = FloatType(required=True)
+    category = StringType(min_length=1)
+
+class StandardEntryValidationModel(BaseValidationModel):
+    date = DateType(formats=("%Y-%m-%d", DATE_FORMAT))
+
+class RecurrentEntryValidationModel(BaseValidationModel):
+    frequency = StringType(choices=["yearly", "half-yearly", "quarter-yearly",
+        "bimonthly", "monthly", "weekly", "daily"], required=True)
+    start = DateType(formats=("%Y-%m-%d", DATE_FORMAT))
+    end = DateType(formats=("%Y-%m-%d", DATE_FORMAT))
 
 class Period(object):
 
@@ -62,6 +81,62 @@ class TinyDbPeriod(TinyDB, Period):
         self._category_cache = defaultdict(Counter)
         for element in self.all():
             self._category_cache[element["name"]].update([element["category"]])
+
+    def _preprocess_entry(self, raw_data=None, partial=False):
+        """Perform preprocessing steps (validation, conversion, TODO: substitution) of
+        raw entry fields prior to adding it to the database.
+
+        :param raw_data: dict containing raw entry fields
+        :param partial: indicates whether preprocessing is performed before
+            adding (False) or updating (True) the database
+
+        :raise: PeriodException if validation failed
+        """
+
+        validated_fields = self._validate_entry(raw_data=raw_data,
+                partial=partial)
+        return self._convert_fields(**validated_fields)
+
+    @staticmethod
+    def _validate_entry(raw_data, **model_kwargs):
+        """Validate raw entry data acc. to ValidationModel.
+
+        :return: primitive (type-correct) representation of fields
+        :raise: PeriodException if validation failed
+        """
+
+        raw_data = raw_data or {}
+        table_name = raw_data.pop("table_name", TinyDbPeriod.DEFAULT_TABLE)
+
+        ValidationModel = RecurrentEntryValidationModel \
+            if table_name == "recurrent" else StandardEntryValidationModel
+
+        try:
+            validation_model = ValidationModel(raw_data=raw_data,
+                    **model_kwargs)
+            validation_model.validate()
+            return validation_model.to_primitive()
+        except (DataError, ValidationError) as e:
+            raise PeriodException("Invalid input data: {}".format(
+                e.messages))
+
+    @staticmethod
+    def _convert_fields(**fields):
+        """Convert string field values to lowercase for storage. Fields with
+        value None are discarded.
+        """
+
+        converted_fields = {}
+
+        for k, v in fields.items():
+            if v is None:
+                continue
+            try:
+                converted_fields[k] = v.lower()
+            except AttributeError:
+                converted_fields[k] = v
+
+        return converted_fields
 
     def add_entry(self, **kwargs):
         """
