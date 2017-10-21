@@ -108,7 +108,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         return converted_fields
 
-
+    #pylint: disable=no-member
     @staticmethod
     def _validate_entry(raw_data, table_name, **model_kwargs):
         """Validate raw entry data acc. to ValidationModel.
@@ -127,8 +127,7 @@ class TinyDbPeriod(TinyDB, Period):
             validation_model.validate(**model_kwargs)
             return validation_model.to_primitive()
         except (DataError, ValidationError) as e:
-            raise PeriodException("Invalid input data: {}".format(
-                e.messages))
+            raise PeriodException("Invalid input data: {}".format(e.messages))
 
     @staticmethod
     def _convert_fields(**fields):
@@ -423,7 +422,9 @@ class TinyDbPeriod(TinyDB, Period):
 
         return entry.eid
 
-    def _create_query_condition(self, name=None, value=None, category=None, date=None):
+    #pylint: disable=unused-argument
+    @staticmethod
+    def _create_query_condition(name=None, value=None, category=None, date=None):
         condition = None
         entry = Query()
 

@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
+#pylint: disable=protected-access
 from __future__ import unicode_literals
 import unittest
 
-from tinydb import database, Query, storages
+from tinydb import database, storages
 from financeager.period import TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
         RecurrentEntryValidationModel
 from financeager.model import Model
-from financeager.entries import CategoryEntry
 from financeager.config import CONFIG
-from schematics.exceptions import DataError, ValidationError
+from schematics.exceptions import DataError
 import datetime as dt
-import os
 from collections import Counter
 
 DEFAULT_CATEGORY = CONFIG["DATABASE"]["default_category"]
