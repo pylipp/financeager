@@ -116,6 +116,7 @@ FUTURE FEATURES
 - [x] support 'updating' of entries
 - [ ] experiment with urwid for building TUI
 - [ ] sort `print` output acc. to entry name/value/date/category
+- [ ] support querying of standard/recurrent table with `print`
 
 IMPLEMENTED FEATURES
 ---------------
@@ -126,6 +127,7 @@ IMPLEMENTED FEATURES
 - [x] use flask for REST API
 - [x] always show entry ID when `print`ing
 - [x] specify date format as `MM-DD`
+- [x] validate user input prior to inserting to database
 
 DISCARDED FEATURE IDEAS
 -----------------------
@@ -143,9 +145,9 @@ DEVELOPER'S TODOs
 - [x] allow remove elements by ID only
 - [x] specify CL option to differ between removing standard and recurrent element
 - [ ] refactor config module (custom method to intuitively retrieve config parameters)
+- [ ] refactor `entries` module (no dependency on schematics package)
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] support `get` command
-- [ ] support querying of standard/recurrent table with `print`
 
 PERSONAL NOTE
 -------------
