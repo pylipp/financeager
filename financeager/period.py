@@ -91,10 +91,13 @@ class TinyDbPeriod(TinyDB, Period):
         :param partial: indicates whether preprocessing is performed before
             adding (False) or updating (True) the database
 
-        :raise: PeriodException if validation failed
+        :raise: PeriodException if validation failed or table name unknown
         """
 
         table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
+        if table_name not in ["recurrent", TinyDbPeriod.DEFAULT_TABLE]:
+            raise PeriodException("Unknown table name: {}".format(table_name))
+
         validated_fields = self._validate_entry(raw_data=raw_data,
                 table_name=table_name, partial=partial)
         converted_fields = self._convert_fields(**validated_fields)
@@ -147,10 +150,7 @@ class TinyDbPeriod(TinyDB, Period):
 
     @staticmethod
     def _substitute_none_fields(table_name, **fields):
-        """Substitute optional fields by defaults.
-
-        :raise: PeriodException if table_name is unknown
-        """
+        """Substitute optional fields by defaults."""
 
         substituted_fields = fields.copy()
 
@@ -164,8 +164,6 @@ class TinyDbPeriod(TinyDB, Period):
         elif table_name == TinyDbPeriod.DEFAULT_TABLE:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(DATE_FORMAT)
-        else:
-            raise PeriodException("Unknown table name: '{}'".format(table_name))
 
         return substituted_fields
 
@@ -201,6 +199,7 @@ class TinyDbPeriod(TinyDB, Period):
             :param start: start date (defaults to current date)
             :param end: end date (defaults to last day of the period's year)
 
+        :raise: PeriodException if validation failed or table name unknown
         :return: TinyDB ID of new entry (int)
         """
 
