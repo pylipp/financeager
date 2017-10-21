@@ -178,6 +178,39 @@ class TinyDbPeriod(TinyDB, Period):
 
         return substituted_fields
 
+    def _update_category_cache(self, eid=None, table_name=None, removing=False,
+            **fields):
+        """Update the category cache when adding or updating an entry. The `eid`
+        kwarg is used to distinguish the use cases.
+
+        :param eid: element ID when updating
+        :param table_name: table name when updating
+        :param removing: indicate updating cache after removing an entry
+        :param fields: preprossed entry fields to be inserted in the database
+
+        :raise: PeriodException if element not found when updating
+        """
+
+        if eid is None:
+            name = fields["name"]
+            category = fields["category"]
+            if removing:
+                self._category_cache[name][category] -= 1
+            else:
+                self._category_cache[name].update([category])
+        else:
+            # raises a PeriodException if eid is not found
+            old_entry = self.get_entry(eid=eid, table_name=table_name)
+            old_name = old_entry["name"]
+            old_category = old_entry["category"]
+
+            # update category cache if one of name or category was changed
+            if fields.get("name") is not None or \
+                    fields.get("category") is not None:
+                self._category_cache[old_name][old_category] -= 1
+                self._category_cache[fields.get("name") or old_name][
+                        fields.get("category") or old_category] += 1
+
     def add_entry(self, table_name=None, **kwargs):
         """
         Add an entry (standard or recurrent) to the database.
@@ -217,9 +250,7 @@ class TinyDbPeriod(TinyDB, Period):
         table_name = table_name or self.DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
-        name = fields["name"]
-        category = fields["category"]
-        self._category_cache[name].update([category])
+        self._update_category_cache(**fields)
 
         element_id = self.table(table_name).insert(fields)
 
@@ -265,17 +296,7 @@ class TinyDbPeriod(TinyDB, Period):
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name,
                 partial=True)
 
-        # raises a PeriodException if eid is not found
-        old_entry = self.get_entry(eid=eid, table_name=table_name)
-        old_name = old_entry["name"]
-        old_category = old_entry["category"]
-
-        # update category cache if one of name or category was changed
-        if fields.get("name") is not None or \
-                fields.get("category") is not None:
-            self._category_cache[old_name][old_category] -= 1
-            self._category_cache[fields.get("name") or old_name][
-                    fields.get("category") or old_category] += 1
+        self._update_category_cache(eid=eid, table_name=table_name, **fields)
 
         element_id = self.table(table_name).update(fields, eids=[int(eid)])[0]
 
@@ -398,7 +419,7 @@ class TinyDbPeriod(TinyDB, Period):
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
         self.table(table_name).remove(eids=[entry.eid])
-        self._category_cache[entry["name"]][entry["category"]] -= 1
+        self._update_category_cache(removing=True, **entry)
 
         return entry.eid
 
