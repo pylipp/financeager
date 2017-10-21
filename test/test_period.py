@@ -301,8 +301,9 @@ class ValidateEntryTestCase(unittest.TestCase):
 
     def test_validate_valid_recurrent_entry(self):
         raw_data = {"name": "income", "value": "1111", "frequency": "bimonthly",
-                "start": "06-01", "table_name": "recurrent"}
-        fields = self.period._preprocess_entry(raw_data=raw_data)
+                "start": "06-01"}
+        fields = self.period._preprocess_entry(raw_data=raw_data,
+                table_name="recurrent")
 
         self.assertEqual(fields["frequency"], "bimonthly")
         self.assertEqual(fields["start"], raw_data["start"])
@@ -310,9 +311,10 @@ class ValidateEntryTestCase(unittest.TestCase):
 
     def test_validate_invalid_recurrent_entry(self):
         raw_data = {"name": "income", "value": "1111", "frequency": "hourly",
-                "start": "06-01", "table_name": "recurrent", "category": ""}
+                "start": "06-01", "category": ""}
         with self.assertRaises(PeriodException) as context:
-            self.period._preprocess_entry(raw_data=raw_data)
+            self.period._preprocess_entry(raw_data=raw_data,
+                    table_name="recurrent")
         self.assertIn("frequency", str(context.exception))
         self.assertIn("category", str(context.exception))
 

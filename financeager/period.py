@@ -82,32 +82,30 @@ class TinyDbPeriod(TinyDB, Period):
         for element in self.all():
             self._category_cache[element["name"]].update([element["category"]])
 
-    def _preprocess_entry(self, raw_data=None, partial=False):
+    def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
         """Perform preprocessing steps (validation, conversion, TODO: substitution) of
         raw entry fields prior to adding it to the database.
 
         :param raw_data: dict containing raw entry fields
+        :param table_name: name of the table that the entry is passed to
         :param partial: indicates whether preprocessing is performed before
             adding (False) or updating (True) the database
 
         :raise: PeriodException if validation failed
         """
 
+        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         validated_fields = self._validate_entry(raw_data=raw_data,
-                partial=partial)
+                table_name=table_name, partial=partial)
         return self._convert_fields(**validated_fields)
 
     @staticmethod
-    def _validate_entry(raw_data, **model_kwargs):
+    def _validate_entry(raw_data, table_name, **model_kwargs):
         """Validate raw entry data acc. to ValidationModel.
 
         :return: primitive (type-correct) representation of fields
         :raise: PeriodException if validation failed
         """
-
-        # copy data to not modify original
-        raw_data = raw_data.copy() or {}
-        table_name = raw_data.pop("table_name", TinyDbPeriod.DEFAULT_TABLE)
 
         ValidationModel = RecurrentEntryValidationModel \
             if table_name == "recurrent" else StandardEntryValidationModel
@@ -175,7 +173,8 @@ class TinyDbPeriod(TinyDB, Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        fields = self._preprocess_entry(raw_data=kwargs)
+        table_name = kwargs.pop("table_name", self.DEFAULT_TABLE)
+        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
         value = fields["value"]
         name = fields["name"]
@@ -192,7 +191,6 @@ class TinyDbPeriod(TinyDB, Period):
 
         self._category_cache[name].update([category])
 
-        table_name = kwargs.get("table_name", self.DEFAULT_TABLE)
         if table_name == "recurrent":
             frequency = fields["frequency"]
             start = fields.get("start") or dt.today().strftime(DATE_FORMAT)
