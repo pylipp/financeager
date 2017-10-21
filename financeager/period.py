@@ -83,7 +83,7 @@ class TinyDbPeriod(TinyDB, Period):
             self._category_cache[element["name"]].update([element["category"]])
 
     def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
-        """Perform preprocessing steps (validation, conversion, TODO: substitution) of
+        """Perform preprocessing steps (validation, conversion, substitution) of
         raw entry fields prior to adding it to the database.
 
         :param raw_data: dict containing raw entry fields
@@ -97,7 +97,14 @@ class TinyDbPeriod(TinyDB, Period):
         table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         validated_fields = self._validate_entry(raw_data=raw_data,
                 table_name=table_name, partial=partial)
-        return self._convert_fields(**validated_fields)
+        converted_fields = self._convert_fields(**validated_fields)
+
+        if not partial:
+            converted_fields = self._substitute_none_fields(
+                    table_name=table_name, **converted_fields)
+
+        return converted_fields
+
 
     @staticmethod
     def _validate_entry(raw_data, table_name, **model_kwargs):
@@ -138,6 +145,30 @@ class TinyDbPeriod(TinyDB, Period):
 
         return converted_fields
 
+    @staticmethod
+    def _substitute_none_fields(table_name, **fields):
+        """Substitute optional fields by defaults.
+
+        :raise: PeriodException if table_name is unknown
+        """
+
+        substituted_fields = fields.copy()
+
+        if table_name == "recurrent":
+            if fields.get("start") is None:
+                substituted_fields["start"] = dt.today().strftime(DATE_FORMAT)
+            if fields.get("end") is None:
+                substituted_fields["end"] = \
+                    dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
+
+        elif table_name == TinyDbPeriod.DEFAULT_TABLE:
+            if fields.get("date") is None:
+                substituted_fields["date"] = dt.today().strftime(DATE_FORMAT)
+        else:
+            raise PeriodException("Unknown table name: '{}'".format(table_name))
+
+        return substituted_fields
+
     def add_entry(self, table_name=None, **kwargs):
         """
         Add an entry (standard or recurrent) to the database.
@@ -176,7 +207,6 @@ class TinyDbPeriod(TinyDB, Period):
         table_name = table_name or self.DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
-        value = fields["value"]
         name = fields["name"]
         category = fields.get("category")
 
@@ -188,26 +218,12 @@ class TinyDbPeriod(TinyDB, Period):
                 category = CategoryEntry.DEFAULT_NAME
         else:
             category = category.lower()
+        fields["category"] = category
 
         self._category_cache[name].update([category])
 
-        if table_name == "recurrent":
-            frequency = fields["frequency"]
-            start = fields.get("start") or dt.today().strftime(DATE_FORMAT)
-            end = fields.get("end") or \
-                dt.today().replace(month=12, day=31).strftime(DATE_FORMAT)
-            element_id = self.table("recurrent").insert(
-                    dict(
-                        name=name, value=value, category=category,
-                        frequency=frequency, start=start, end=end
-                        ))
-        elif table_name == self.DEFAULT_TABLE:
-            date = fields.get("date") or dt.today().strftime(DATE_FORMAT)
-            element_id = self.insert(
-                    dict(
-                        name=name, value=value, date=date, category=category))
-        else:
-            raise PeriodException("Unknow table name: '{}'".format(table_name))
+        element_id = self.table(table_name).insert(fields)
+
         return element_id
 
     def get_entry(self, eid=None, table_name=None):

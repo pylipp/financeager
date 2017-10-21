@@ -301,7 +301,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertEqual(fields["name"], "money")
         self.assertEqual(fields["value"], 124.5)
         # should be 4...
-        self.assertEqual(len(fields), 2)
+        self.assertEqual(len(fields), 3)
 
     def test_validate_invalid_standard_entry(self):
         raw_data = {"name": "not valid", "value": "hundred"}
@@ -317,7 +317,8 @@ class ValidateEntryTestCase(unittest.TestCase):
 
         self.assertEqual(fields["frequency"], "bimonthly")
         self.assertEqual(fields["start"], raw_data["start"])
-        self.assertEqual(len(fields), 4)
+        # should be 6 (incl. category)
+        self.assertEqual(len(fields), 5)
 
     def test_validate_invalid_recurrent_entry(self):
         raw_data = {"name": "income", "value": "1111", "frequency": "hourly",
@@ -336,6 +337,18 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertEqual(len(raw_data) - 1, len(converted_fields))
         self.assertEqual(converted_fields["name"], "camelcase")
         self.assertEqual(converted_fields["value"], 123.0)
+
+    def test_substitute_none_recurrent_fields(self):
+        fields = TinyDbPeriod._substitute_none_fields("recurrent")
+        self.assertIn("start", fields)
+        self.assertIn("end", fields)
+        self.assertEqual(len(fields), 2)
+
+    def test_substitute_none_standard_fields(self):
+        fields = TinyDbPeriod._substitute_none_fields("standard", name="foo")
+        self.assertIn("name", fields)
+        self.assertIn("date", fields)
+        self.assertEqual(len(fields), 2)
 
 if __name__ == '__main__':
     unittest.main()
