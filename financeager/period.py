@@ -138,7 +138,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         return converted_fields
 
-    def add_entry(self, **kwargs):
+    def add_entry(self, table_name=None, **kwargs):
         """
         Add an entry (standard or recurrent) to the database.
         If 'table_name' is not specified, the kwargs name, value[, category, date]
@@ -173,7 +173,7 @@ class TinyDbPeriod(TinyDB, Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        table_name = kwargs.pop("table_name", self.DEFAULT_TABLE)
+        table_name = table_name or self.DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
         value = fields["value"]
