@@ -113,9 +113,10 @@ class TinyDbPeriod(TinyDB, Period):
             if table_name == "recurrent" else StandardEntryValidationModel
 
         try:
+            # pass the kwargs twice because schematics API is inconsistent...
             validation_model = ValidationModel(raw_data=raw_data,
                     **model_kwargs)
-            validation_model.validate()
+            validation_model.validate(**model_kwargs)
             return validation_model.to_primitive()
         except (DataError, ValidationError) as e:
             raise PeriodException("Invalid input data: {}".format(
