@@ -361,6 +361,7 @@ class TinyDbPeriod(TinyDB, Period):
         end = element.get("end")
 
         if end is None:
+            # TODO this is duplicate; leave it to not have mess with database
             end = dt(self.year, 12, 31, 23, 59, 59)
             now = dt.now()
             if end > now:
@@ -389,6 +390,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         for date in rule:
             element_name = name
+            # TODO: custom names for all frequencies
             if frequency == "MONTHLY":
                 element_name = "{} {}".format(name, date.strftime("%B").lower())
             yield Element(dict(
