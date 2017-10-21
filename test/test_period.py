@@ -268,6 +268,12 @@ class ValidationModelTestCase(unittest.TestCase):
         entry = StandardEntryValidationModel({"name": "entry", "value": 5})
         self.assertIsNone(entry.date)
 
+    def test_invalid_base_entry_name(self):
+        with self.assertRaises(DataError) as context:
+            model = BaseValidationModel({"name": "", "value": 123})
+            model.validate()
+        self.assertListEqual(["name"], list(context.exception.errors.keys()))
+
     def test_invalid_base_entry_value(self):
         with self.assertRaises(DataError) as context:
             BaseValidationModel({"name": "foo", "value": "hundred"})
