@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.items import (DateItem, ExpenseItem, EmptyItem, NameItem,
+from financeager.gui.items import (DateItem, ExpenseItem, EmptyItem, NameItem,
     ValueItem, DataItem, SumItem)
 from PyQt5.QtCore import QDate, QVariant
 
