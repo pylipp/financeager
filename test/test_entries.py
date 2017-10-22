@@ -35,11 +35,8 @@ def suite():
             'test_eid'
             ]
     suite.addTest(unittest.TestSuite(map(BaseEntryFromTinyDbElementTestCase, tests)))
-    tests = ['test_invalid_entry']
-    suite.addTest(unittest.TestSuite(map(InvalidBaseEntryTestCase, tests)))
     tests = [
             'test_date',
-            'test_date_str'
             ]
     suite.addTest(unittest.TestSuite(map(CreateBaseEntryTestCase, tests)))
     tests = [
@@ -51,7 +48,9 @@ def suite():
 
 class BaseEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.entry = BaseEntry({"name": "Groceries", "value": 123.45, "date": "2016-08-10"})
+        self.date = "2016-08-10"
+        self.entry = BaseEntry(**{"name": "groceries", "value": 123.45, "date":
+            self.date})
 
     def test_name(self):
         self.assertEqual(self.entry.name, "groceries")
@@ -60,7 +59,7 @@ class BaseEntryTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.entry.value, 123.45, places=5)
 
     def test_date(self):
-        self.assertEqual(self.entry.date, dt.date(2016, 8, 10))
+        self.assertEqual(self.entry.date, self.date)
 
     def test_eid(self):
         self.assertEqual(self.entry.eid, 0)
@@ -68,8 +67,8 @@ class BaseEntryTestCase(unittest.TestCase):
 class NegativeBaseEntryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.entry = BaseEntry({"name": "VW Bully", "value": -6000, "date":
-            "2017-01-01"})
+        cls.entry = BaseEntry(**{"name": "vw bully", "value": -6000, "date":
+            "01-01"})
 
     def test_name(self):
         self.assertEqual(self.entry.name, "vw bully")
@@ -83,26 +82,18 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
             expected += "   0"
         self.assertEqual(str(self.entry), expected)
 
-class InvalidBaseEntryTestCase(unittest.TestCase):
-    def test_invalid_entry(self):
-        entry = BaseEntry({"name": "", "value": 1})
-        self.assertRaises(DataError, entry.validate)
-
 class CreateBaseEntryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.entry = create_base_entry("Chinese Büffet", -9.90)
+        cls.date = "01-12"
+        cls.entry = create_base_entry("Chinese Büffet", -9.90, cls.date)
 
     def test_date(self):
-        self.assertEqual(self.entry.date, dt.date.today())
-
-    def test_date_str(self):
-        self.assertEqual(self.entry.date_str,
-                dt.date.today().strftime(CONFIG["DATABASE"]["date_format"]))
+        self.assertEqual(self.entry.date, self.date)
 
 class CategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.entry = CategoryEntry({"name": "Gifts"})
+        self.entry = CategoryEntry(name="gifts")
 
     def test_name(self):
         self.assertEqual(self.entry.name, "gifts")
@@ -120,7 +111,7 @@ class CategoryEntryTestCase(unittest.TestCase):
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.entry = CategoryEntry({"name": "This is quite a LOOONG Category",
+        cls.entry = CategoryEntry(**{"name": "This is quite a LOOONG Category",
             "value": -100, "entries": [create_base_entry("entry", -100, "08-13")]})
 
     def test_name(self):
@@ -138,7 +129,7 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
     def setUp(self):
         self.name = "dinner for one"
         self.value = 99.9
-        self.date = "2016-12-31"
+        self.date = "12-31"
         self.eid = 1
         element = database.Element(value=dict(name=self.name, value=self.value,
             date=self.date), eid=self.eid)

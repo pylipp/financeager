@@ -1,30 +1,25 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
-from schematics.types import StringType, ListType, ModelType
-from schematics.models import Model as SchematicsModel
 from tinydb.database import Element
 
 from .entries import BaseEntry, CategoryEntry
 
 
-class Model(SchematicsModel):
+class Model(object):
     """Holds Entries in hierarchical order. First-level children are
     CategoryEntries, second-level children are BaseEntries. Generator methods
     are provided to iterate over these."""
 
-    name = StringType(default="Model")
-    categories = ListType(ModelType(CategoryEntry), default=[])
-
-    def __init__(self, *args, **kwargs):
-        super(SchematicsModel, self).__init__(*args, **kwargs)
+    def __init__(self, name="Model", categories=None):
+        self.name = name
+        self.categories = categories or []
         self._headers = [k.capitalize() for k in BaseEntry.ITEM_TYPES]
 
     @classmethod
     def from_tinydb(cls, elements, name=None):
         """Create model from tinydb.Elements or dict."""
-        model = cls(raw_data={"name": name})
+        model = cls(name=name)
         for element in elements:
             category = element.pop("category", None)
             model.add_entry(BaseEntry.from_tinydb(element), category_name=category)
@@ -60,7 +55,7 @@ class Model(SchematicsModel):
             if entry.name not in self.category_entry_names:
                 self.categories.append(entry)
         elif isinstance(entry, BaseEntry):
-            self.add_entry(CategoryEntry({"name": category_name}))
+            self.add_entry(CategoryEntry(name=category_name))
             category_item = self.find_category_entry(category_name)
             category_item.entries.append(entry)
             category_item.value += entry.value
@@ -217,8 +212,8 @@ def prettify(elements, stacked_layout=False):
         result.append((2*CategoryEntry.TOTAL_LENGTH + 3) * "=")
         result.append(
                 " | ".join(
-                    [str(CategoryEntry(dict(
-                        name="TOTAL", value=m.total_value())
+                    [str(CategoryEntry(
+                        name="TOTAL", value=m.total_value()
                         ))
                         for m in models]
                     )

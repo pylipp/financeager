@@ -1,38 +1,27 @@
 """Defines Entries (data model rows built from fields)."""
 
 from __future__ import unicode_literals
-import datetime as dt
-
-from schematics.types import ListType, ModelType, StringType, FloatType, \
-        DateType, IntType
-from schematics.models import Model as SchematicsModel
 
 from .config import CONFIG
 DATE_FORMAT = CONFIG["DATABASE"]["date_format"]
 
 
-NameItem = StringType
-CategoryItem = StringType
-ValueItem = FloatType
-SumItem = FloatType
-DateItem = DateType
-DateItem.SERIALIZED_FORMAT = DATE_FORMAT
+class Entry(object):
+    """Base class. The name field is stored in lowercase, simplifying searching
+    from the parent model."""
 
-
-class Entry(SchematicsModel):
-    """Base class storing the 'name' field in lowercase."""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = self.name.lower()
+    def __init__(self, name, value, date):
+        """:type name: str
+        :type value: float or int
+        :type date: str of valid format
+        """
+        self.name = name.lower()
+        self.value = value
+        self.date = date
 
 class BaseEntry(Entry):
     """Innermost element of the Model, child of a CategoryEntry. Holds
-    information on name, value and date."""
-    name = NameItem(min_length=1)
-    value = ValueItem()
-    # support legacy format
-    date = DateItem(formats=("%Y-%m-%d", DATE_FORMAT), default=dt.date.today())
-    eid = IntType(default=0)
+    information on name, value, date and eid."""
 
     ITEM_TYPES = ["name", "value", "date"]
 
@@ -46,10 +35,17 @@ class BaseEntry(Entry):
     TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + \
             3 if SHOW_EID else 2
 
+    def __init__(self, eid=0, **kwargs):
+        """:type eid: int
+        :param kwargs: name, value, date (all required)
+        """
+        super().__init__(**kwargs)
+        self.eid = eid
+
     @classmethod
     def from_tinydb(cls, element):
         """Create a BaseEntry from a TinyDB Element or a dict. In the first
-        case, the entry eid is copied, otherwise it defaults to -1.
+        case, the entry eid is copied, otherwise it defaults to 0.
         """
 
         try:
@@ -57,7 +53,7 @@ class BaseEntry(Entry):
         except AttributeError:
             # element is dict, not tinydb.database.Element
             pass
-        return cls(raw_data=element)
+        return cls(**element)
 
     def __str__(self):
         """Return a formatted string representing the entry. The value is
@@ -76,15 +72,13 @@ class BaseEntry(Entry):
     @property
     def date_str(self):
         """Convenience method to return formatted date."""
-        return DateItem().to_primitive(self.date)
+        # TODO not required
+        return self.date
 
 
 class CategoryEntry(Entry):
     """First child of the model, holding BaseEntries. Has a name and a value
     (i.e. the sum of its children's values)."""
-    name = CategoryItem(min_length=1)
-    value = SumItem(default=0.0)
-    entries = ListType(ModelType(BaseEntry), default=[])
 
     ITEM_TYPES = ["name", "sum", "empty"]
     DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
@@ -92,6 +86,11 @@ class CategoryEntry(Entry):
     BASE_ENTRY_INDENT = 2
     NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT
     TOTAL_LENGTH = BaseEntry.TOTAL_LENGTH + BASE_ENTRY_INDENT
+
+    def __init__(self, name, value=0.0, entries=None):
+        """:type entries: list[BaseEntry]"""
+        super().__init__(name=name, value=value, date="")
+        self.entries = entries or []
 
     def __str__(self):
         """Return a formatted string representing the entry including its
@@ -117,10 +116,12 @@ class CategoryEntry(Entry):
 
 def create_base_entry(name, value, date=None):
     """Factory method for convenience."""
+    # TODO not required
     data = {"name": name, "value": value}
-    if date is not None:
-        data["date"] = date
-    return BaseEntry(data)
+    if date is None:
+        date = "01-01"  # dummy for now
+    data["date"] = date
+    return BaseEntry(**data)
 
 
 def prettify(element, recurrent=False):
