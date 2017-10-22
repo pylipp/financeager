@@ -60,7 +60,10 @@ def suite():
             'test_base_entries'
             ]
     tests = [
-            'test_contains_an_entry'
+            'test_contains_an_entry',
+            'test_category_item_names',
+            'test_category_sums',
+            'test_base_entries'
             ]
     suite.addTest(unittest.TestSuite(map(ModelFromTinyDbTestCase, tests)))
     tests = ['test_prettify']
@@ -256,50 +259,33 @@ class RemoveEntryTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.model.category_sum(self.item_category),
                 self.item_b_value, places=5)
 
-class XmlConversionTestCase(unittest.TestCase):
-    def setUp(self):
-        return
-        self.model = Model()
-        self.item_name = "Aldi"
-        self.item_value = 66.6
-        self.item_date = (11, 8)
-        self.item_category = "Groceries"
-        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
-            "-".join([str(s) for s in self.item_date])), self.item_category)
-        model_element = self.model.convert_to_xml()
-        output = ET.tostring(model_element, "utf-8")
-        parsed_input = ET.fromstring(output)
-        self.parsed_model = Model()
-        self.parsed_model.create_from_xml(parsed_input)
-
-    def _test_category_item_names(self):
-        model_entry_names = list(self.model.category_entry_names)
-        parsed_model_entry_names = list(self.parsed_model.category_entry_names)
-        self.assertListEqual(model_entry_names, parsed_model_entry_names)
-
-    def _test_category_sums(self):
-        self.assertAlmostEqual(
-                self.model.category_sum(self.item_category),
-                self.parsed_model.category_sum(self.item_category), places=5)
-
-    def _test_base_entries(self):
-        item = self.model.find_base_entry(name=self.item_name,
-                category=self.item_category)
-        parsed_item = self.parsed_model.find_base_entry(name=self.item_name,
-                category=self.item_category)
-        self.assertEqual(item, parsed_item)
-
 class ModelFromTinyDbTestCase(unittest.TestCase):
     def setUp(self):
         self.name = "Dinner for one"
         self.value = 99.9
         self.date = "12-31"
         element = database.Element(value=dict(name=self.name, value=self.value,
-            date=self.date))
+            date=self.date), eid=0)  #tinydb sets eid=None by default
         self.model = Model.from_tinydb([element])
 
     def test_contains_an_entry(self):
         self.assertIsNotNone(self.model.find_base_entry(date=self.date))
+
+    def test_category_item_names(self):
+        parsed_model_entry_names = list(self.model.category_entry_names)
+        model_entry_names = [CategoryEntry.DEFAULT_NAME]
+        self.assertListEqual(model_entry_names, parsed_model_entry_names)
+
+    def test_category_sums(self):
+        self.assertAlmostEqual(
+                self.model.category_sum(CategoryEntry.DEFAULT_NAME),
+                self.value, places=5)
+
+    def test_base_entries(self):
+        item = self.model.find_base_entry(name=self.name,
+                category=CategoryEntry.DEFAULT_NAME)
+        self.assertEqual(str(item),
+                str(BaseEntry(self.name, self.value, self.date)))
 
 class PrettifyModelsTestCase(unittest.TestCase):
     def test_prettify_no_elements(self):
