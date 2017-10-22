@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import unittest
 
-import xml.etree.ElementTree as ET
 from tinydb import database
 from financeager.model import Model, prettify
 from financeager.entries import CategoryEntry, create_base_entry
@@ -60,7 +59,6 @@ def suite():
             'test_category_sums',
             'test_base_entries'
             ]
-    suite.addTest(unittest.TestSuite(map(XmlConversionTestCase, tests)))
     tests = [
             'test_contains_an_entry'
             ]

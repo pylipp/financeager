@@ -1,13 +1,12 @@
 #-*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import xml.etree.ElementTree as ET
 
 from schematics.types import StringType, ListType, ModelType
 from schematics.models import Model as SchematicsModel
 from tinydb.database import Element
 
-from .entries import BaseEntry, CategoryEntry, create_base_entry
+from .entries import BaseEntry, CategoryEntry
 
 
 class Model(SchematicsModel):
@@ -150,34 +149,6 @@ class Model(SchematicsModel):
             if attributes.issubset(other_attributes):
                 return base_entry
         return None
-
-    def convert_to_xml(self):
-        model_element = ET.Element("model")
-        if self.name is not None:
-            model_element.set("name", self.name)
-        for category_entry in self.categories:
-            for entry in category_entry.entries:
-                entry_element = ET.SubElement(
-                        model_element,
-                        "entry",
-                        attrib=dict(
-                            name=str(entry.name),
-                            value=str(entry.value),
-                            date=str(entry.date_str),
-                            category=str(category_entry.name)
-                            )
-                        )
-            entry_element.tail = "\n"
-        model_element.text = "\n"
-        model_element.tail = "\n"
-        return model_element
-
-    def create_from_xml(self, parent_element):
-        self.name = parent_element.get("name")
-        for child in parent_element:
-            category_name = child.attrib.pop("category")
-            self.add_entry(create_base_entry(child.attrib['name'],
-                child.attrib['value'], child.attrib['date']), category_name)
 
     def total_value(self):
         """Return total value of the model."""
