@@ -6,7 +6,7 @@ import datetime as dt
 from tinydb import database
 from schematics.exceptions import DataError
 
-from financeager.entries import BaseEntry, CategoryEntry, create_base_entry
+from financeager.entries import BaseEntry, CategoryEntry
 from financeager.entries import prettify as prettify_entry
 from financeager.config import CONFIG
 
@@ -35,10 +35,6 @@ def suite():
             'test_eid'
             ]
     suite.addTest(unittest.TestSuite(map(BaseEntryFromTinyDbElementTestCase, tests)))
-    tests = [
-            'test_date',
-            ]
-    suite.addTest(unittest.TestSuite(map(CreateBaseEntryTestCase, tests)))
     tests = [
             'test_prettify'
             ]
@@ -82,15 +78,6 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
             expected += "   0"
         self.assertEqual(str(self.entry), expected)
 
-class CreateBaseEntryTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.date = "01-12"
-        cls.entry = create_base_entry("Chinese Büffet", -9.90, cls.date)
-
-    def test_date(self):
-        self.assertEqual(self.entry.date, self.date)
-
 class CategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.entry = CategoryEntry(name="gifts")
@@ -111,8 +98,8 @@ class CategoryEntryTestCase(unittest.TestCase):
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.entry = CategoryEntry(**{"name": "This is quite a LOOONG Category",
-            "value": -100, "entries": [create_base_entry("entry", -100, "08-13")]})
+        cls.entry = CategoryEntry(name="This is quite a LOOONG Category",
+                value=-100, entries=[BaseEntry("entry", -100, "08-13")])
 
     def test_name(self):
         self.assertEqual(self.entry.name, "this is quite a looong category")

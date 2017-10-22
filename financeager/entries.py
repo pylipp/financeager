@@ -35,11 +35,10 @@ class BaseEntry(Entry):
     TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + \
             3 if SHOW_EID else 2
 
-    def __init__(self, eid=0, **kwargs):
+    def __init__(self, name, value, date, eid=0):
         """:type eid: int
-        :param kwargs: name, value, date (all required)
         """
-        super().__init__(**kwargs)
+        super().__init__(name, value, date)
         self.eid = eid
 
     @classmethod
@@ -105,16 +104,6 @@ class CategoryEntry(Entry):
             lines.append("  " + str(entry))
 
         return '\n'.join(lines)
-
-
-def create_base_entry(name, value, date=None):
-    """Factory method for convenience."""
-    # TODO not required
-    data = {"name": name, "value": value}
-    if date is None:
-        date = "01-01"  # dummy for now
-    data["date"] = date
-    return BaseEntry(**data)
 
 
 def prettify(element, recurrent=False):

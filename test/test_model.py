@@ -4,7 +4,7 @@ import unittest
 
 from tinydb import database
 from financeager.model import Model, prettify
-from financeager.entries import CategoryEntry, create_base_entry
+from financeager.entries import CategoryEntry, BaseEntry
 
 
 def suite():
@@ -96,7 +96,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = "11-08"
         self.item_category = "Groceries"
-        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
+        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             self.item_date), self.item_category)
 
     def test_base_entry_in_list(self):
@@ -121,7 +121,7 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
         self.item_value = -66.6
         self.item_date = "11-08"
         self.item_category = "Groceries"
-        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
+        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             self.item_date), self.item_category)
 
     def test_category_sum(self):
@@ -141,7 +141,7 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
         self.item_name = "Aldi"
         self.item_value = 66.6
         self.item_date = "11-08"
-        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
+        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             self.item_date))
 
     def test_default_category_in_list(self):
@@ -154,9 +154,10 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
+        self.date = "11-11"
+        self.model.add_entry(BaseEntry("Aldi", self.item_a_value, self.date),
                 self.item_category)
-        self.model.add_entry(create_base_entry("Rewe", self.item_b_value),
+        self.model.add_entry(BaseEntry("Rewe", self.item_b_value, self.date),
                 self.item_category)
 
     def test_two_entries_in_list(self):
@@ -176,7 +177,7 @@ class SetValueItemTextTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(create_base_entry("Aldi", self.item_a_value),
+        self.model.add_entry(BaseEntry("Aldi", self.item_a_value, "04-04"),
                 self.item_category)
 
     def test_category_sum_updated(self):
@@ -190,7 +191,7 @@ class FindItemByNameTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = "11-08"
         self.item_category = "Groceries"
-        self.base_entry = create_base_entry(self.item_name, self.item_value,
+        self.base_entry = BaseEntry(self.item_name, self.item_value,
             self.item_date)
         self.model.add_entry(self.base_entry, self.item_category)
 
@@ -206,7 +207,7 @@ class FindItemWrongCategoryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = "11-08"
         self.item_category = "Groceries"
-        self.base_entry = create_base_entry(self.item_name, self.item_value,
+        self.base_entry = BaseEntry(self.item_name, self.item_value,
                 self.item_date)
         self.model.add_entry(self.base_entry, self.item_category)
 
@@ -220,17 +221,19 @@ class FindItemByNameAndDateTestCase(unittest.TestCase):
         self.item_b_name = "Aldi"
         self.item_a_value = 66.6
         self.item_b_value = 1.00
-        self.item_date = "11-08"
-        self.base_entry_a = create_base_entry(self.item_a_name, self.item_a_value,
-            self.item_date)
-        self.base_entry_b = create_base_entry(self.item_b_name, self.item_b_value)
+        self.item_a_date = "11-08"
+        self.item_b_date = "12-08"
+        self.base_entry_a = BaseEntry(self.item_a_name, self.item_a_value,
+            self.item_a_date)
+        self.base_entry_b = BaseEntry(self.item_b_name, self.item_b_value,
+            self.item_b_date)
         self.model.add_entry(self.base_entry_b)
         self.model.add_entry(self.base_entry_a)
 
     def test_correct_item_is_found(self):
         self.assertEqual(self.base_entry_a,
                 self.model.find_base_entry(name=self.item_a_name,
-                    date=self.item_date))
+                    date=self.item_a_date))
 
 class RemoveEntryTestCase(unittest.TestCase):
     def setUp(self):
@@ -238,8 +241,9 @@ class RemoveEntryTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.base_entry_a = create_base_entry("Aldi", self.item_a_value)
-        self.base_entry_b = create_base_entry("Rewe", self.item_b_value)
+        self.item_date = "01-23"
+        self.base_entry_a = BaseEntry("Aldi", self.item_a_value, self.item_date)
+        self.base_entry_b = BaseEntry("Rewe", self.item_b_value, self.item_date)
         self.model.add_entry(self.base_entry_a, self.item_category)
         self.model.add_entry(self.base_entry_b, self.item_category)
         self.model.remove_entry(self.base_entry_a, category=self.item_category)
@@ -260,7 +264,7 @@ class XmlConversionTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = (11, 8)
         self.item_category = "Groceries"
-        self.model.add_entry(create_base_entry(self.item_name, self.item_value,
+        self.model.add_entry(BaseEntry(self.item_name, self.item_value,
             "-".join([str(s) for s in self.item_date])), self.item_category)
         model_element = self.model.convert_to_xml()
         output = ET.tostring(model_element, "utf-8")
