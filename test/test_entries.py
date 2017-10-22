@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import unittest
-import datetime as dt
 
 from tinydb import database
-from schematics.exceptions import DataError
 
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.entries import prettify as prettify_entry
-from financeager.config import CONFIG
 
 
 def suite():

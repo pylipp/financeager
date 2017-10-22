@@ -94,7 +94,8 @@ class CategoryEntry(Entry):
         capitalized_name = capitalize_words(self.name)
         lines = [
                 "{name:{0}.{0}} {value:>{1}.{2}f}".format(
-                    self.NAME_LENGTH, BaseEntry.VALUE_LENGTH, BaseEntry.VALUE_DIGITS,
+                    self.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
+                    BaseEntry.VALUE_DIGITS,
                     name=capitalized_name,
                     value=abs(self.value)
                     ).ljust(self.TOTAL_LENGTH)

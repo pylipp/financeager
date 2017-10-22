@@ -153,6 +153,7 @@ class Model(object):
         return result
 
 
+#pylint: disable=too-many-locals
 def prettify(elements, stacked_layout=False):
     """Sort the given elements (type acc. to Period._search_all_tables) by
     positive and negative value and return pretty string build from the

@@ -35,8 +35,8 @@ def suite():
     suite.addTest(unittest.TestSuite(map(AddBaseEntryWithoutCategoryTestCase, tests)))
     tests = [
             'test_two_entries_in_list',
-            'test_category_sum'
-            ,'test_total_value'
+            'test_category_sum',
+            'test_total_value'
             ]
     suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
     tests = [
@@ -217,6 +217,7 @@ class FindItemWrongCategoryTestCase(unittest.TestCase):
     def test_correct_item_is_found(self):
         self.assertIsNone(self.model.find_base_entry(name=self.item_name))
 
+#pylint: disable=too-many-instance-attributes
 class FindItemByNameAndDateTestCase(unittest.TestCase):
     def setUp(self):
         self.model = Model()
