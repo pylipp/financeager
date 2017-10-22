@@ -117,6 +117,7 @@ FUTURE FEATURES
 - [ ] experiment with urwid for building TUI
 - [ ] sort `print` output acc. to entry name/value/date/category
 - [ ] support querying of standard/recurrent table with `print`
+- [ ] refactor config module (custom method to intuitively retrieve config parameters)
 
 IMPLEMENTED FEATURES
 ---------------
@@ -144,8 +145,7 @@ DEVELOPER'S TODOs
 - [x] drop PyQt dependency for schematics package
 - [x] allow remove elements by ID only
 - [x] specify CL option to differ between removing standard and recurrent element
-- [ ] refactor config module (custom method to intuitively retrieve config parameters)
-- [ ] refactor `entries` module (no dependency on schematics package)
+- [x] refactor `entries` module (no dependency on schematics package)
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] support `get` command
 
