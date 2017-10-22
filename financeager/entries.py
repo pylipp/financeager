@@ -101,7 +101,7 @@ class CategoryEntry(Entry):
                 ]
 
         for entry in self.entries:
-            lines.append("  " + str(entry))
+            lines.append(self.BASE_ENTRY_INDENT*" " + str(entry))
 
         return '\n'.join(lines)
 
