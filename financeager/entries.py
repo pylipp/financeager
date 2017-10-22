@@ -63,18 +63,11 @@ class BaseEntry(Entry):
                 self.NAME_LENGTH, self.VALUE_LENGTH, self.VALUE_DIGITS,
                 name=capitalized_name,
                 value=abs(self.value),
-                date=self.date_str
+                date=self.date
                 )
         if self.SHOW_EID:
             string += " {1:{0}d}".format(self.EID_LENGTH, self.eid)
         return string
-
-    @property
-    def date_str(self):
-        """Convenience method to return formatted date."""
-        # TODO not required
-        return self.date
-
 
 class CategoryEntry(Entry):
     """First child of the model, holding BaseEntries. Has a name and a value

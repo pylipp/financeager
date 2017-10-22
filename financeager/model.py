@@ -68,7 +68,7 @@ class Model(object):
         This method is to be removed in future releases."""
 
         item = self.find_base_entry(name=entry.name,
-                date=entry.date_str, category=category)
+                date=entry.date, category=category)
         category_item = self.find_category_entry(category)
         category_item.value -= item.value
         category_item.entries.remove(item)
@@ -140,7 +140,7 @@ class Model(object):
         for base_entry in category_entry.entries:
             other_attributes = set()
             other_attributes.add(base_entry.name)
-            other_attributes.add(base_entry.date_str)
+            other_attributes.add(base_entry.date)
             if attributes.issubset(other_attributes):
                 return base_entry
         return None
