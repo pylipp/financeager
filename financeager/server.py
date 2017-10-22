@@ -68,7 +68,7 @@ class Server(object):
             filenames = []
             for file in os.listdir(CONFIG_DIR):
                 filename, extension = os.path.splitext(file)
-                if extension in [".xml", ".json"]:
+                if extension in [".json"]:
                     filenames.append(filename)
             return {"periods": filenames}
 
