@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from .config import CONFIG
-DATE_FORMAT = CONFIG["DATABASE"]["date_format"]
 
 
 class Entry(object):
