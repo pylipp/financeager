@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from financeager.server import LocalServer
+from financeager.cli import _parse_command
 from financeager import communication
 from tinydb.storages import MemoryStorage
 
@@ -16,20 +17,22 @@ def suite():
     return suite
 
 class CommunicationTestCase(unittest.TestCase):
+    def run_command(self, args):
+        cl_kwargs = _parse_command(args=args.split())
+        command = cl_kwargs.pop("command")
+        return communication.run(self.proxy, command, **cl_kwargs)
+
     def setUp(self):
-        self.period = 0
         self.proxy = LocalServer(storage=MemoryStorage)
-        communication.run(self.proxy, "add", name="pants", value=-99,
-                period=self.period, category="clothes")
+        response = self.run_command("add pants -99 -c clothes")
+        self.assertEqual(response, "")
 
     def test_rm(self):
-        response = communication.run(self.proxy, "rm", eid=1,
-                period=self.period)
+        response = self.run_command("rm 1")
         self.assertEqual(response, "")
 
     def test_get(self):
-        response = communication.run(self.proxy, "get", eid=1,
-                period=self.period)
+        response = self.run_command("get 1")
         self.assertEqual(response, """\
 Name    : Pants
 Value   : -99.0
@@ -37,10 +40,19 @@ Date    : {}
 Category: Clothes""".format(date.today().strftime("%m-%d")))
 
     def test_erroneous_get(self):
-        response = communication.run(self.proxy, "get", eid=0,
-                period=self.period)
+        response = self.run_command("get 0")
         self.assertTrue(response.startswith(
             communication.ERROR_MESSAGE.format("get", "")))
+
+    def test_update(self):
+        response = self.run_command("update 1 -n trousers")
+        self.assertEqual(response, "")
+        response = self.run_command("get 1")
+        self.assertEqual(response, """\
+Name    : Trousers
+Value   : -99.0
+Date    : {}
+Category: Clothes""".format(date.today().strftime("%m-%d")))
 
 class RecurrentEntryCommunicationTestCase(unittest.TestCase):
     def setUp(self):
