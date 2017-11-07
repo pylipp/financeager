@@ -57,7 +57,8 @@ def suite():
             'test_validate_invalid_recurrent_entry',
             'test_convert_fields',
             'test_substitute_none_recurrent_fields',
-            'test_substitute_none_standard_fields'
+            'test_substitute_none_standard_fields',
+            'test_remove_redundant_fields',
             ]
     suite.addTest(unittest.TestSuite(map(ValidateEntryTestCase, tests)))
     return suite
@@ -368,6 +369,14 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertIn("date", fields)
         # contains name, date, category
         self.assertEqual(len(fields), 3)
+
+    def test_remove_redundant_fields(self):
+        raw_data = {field: None for field in ["date", "start", "end",
+            "frequency"]}
+        TinyDbPeriod._remove_redundant_fields(None, raw_data)
+        self.assertDictEqual(raw_data, {"date": None})
+        TinyDbPeriod._remove_redundant_fields("recurrent", raw_data)
+        self.assertDictEqual(raw_data, {})
 
 if __name__ == '__main__':
     unittest.main()
