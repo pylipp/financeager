@@ -19,7 +19,7 @@ def main(**kwargs):
     "name": "champagne", "value": "99"}.
     """
 
-    cl_kwargs = kwargs or vars(_parse_command())
+    cl_kwargs = kwargs or _parse_command()
 
     command = cl_kwargs.pop("command")
     communication_module = communication.module()
@@ -38,7 +38,9 @@ def main(**kwargs):
         offline.add(command, **cl_kwargs)
 
 
-def _parse_command():
+def _parse_command(args=None):
+    """Parse the given list of args and return the result as dict."""
+
     parser = argparse.ArgumentParser()
 
     period_args = ("-p", "--period")
@@ -121,7 +123,7 @@ least a frequency, start date and end date are optional. Default:
     list_parser.add_argument("-r", "--running", action='store_true',
             help="list only databases that are currently running")
 
-    return parser.parse_args()
+    return vars(parser.parse_args(args=args))
 
 
 if __name__ == "__main__":
