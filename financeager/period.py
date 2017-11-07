@@ -98,6 +98,8 @@ class TinyDbPeriod(TinyDB, Period):
         if table_name not in ["recurrent", TinyDbPeriod.DEFAULT_TABLE]:
             raise PeriodException("Unknown table name: {}".format(table_name))
 
+        self._remove_redundant_fields(table_name, raw_data)
+
         validated_fields = self._validate_entry(raw_data=raw_data,
                 table_name=table_name, partial=partial)
         converted_fields = self._convert_fields(**validated_fields)
@@ -107,6 +109,22 @@ class TinyDbPeriod(TinyDB, Period):
                     table_name=table_name, **converted_fields)
 
         return converted_fields
+
+    @staticmethod
+    def _remove_redundant_fields(table_name, raw_data):
+        """The raw data (e.g. parsed from the command line) might contain fields
+        that are not required by the given table type and hence, they crash the
+        schematics validation ('Rogue field' error). This method removes
+        redundant fields in `raw_data` in-place.
+        """
+
+        if table_name == "recurrent":
+            redundant_fields = ["date"]
+        else:
+            redundant_fields = ["start", "end", "frequency"]
+        
+        for field in redundant_fields:
+            raw_data.pop(field, None)
 
     #pylint: disable=no-member
     @staticmethod
