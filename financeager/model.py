@@ -167,7 +167,8 @@ def prettify(elements, stacked_layout=False):
 
     def sort_as_tinydb_element(eid, element):
         # convert to tinydb.Element and sort acc. to value
-        element = Element(value=element, eid=eid)
+        # pass eid as int (tinydb accepts any type but BaseEntry would complain)
+        element = Element(value=element, eid=int(eid))
         if element["value"] > 0:
             earnings.append(element)
         else:

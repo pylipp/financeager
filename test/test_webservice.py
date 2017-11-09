@@ -7,6 +7,7 @@ from threading import Thread
 
 from financeager.fflask import create_app, proxy, launch_server
 from financeager.config import CONFIG, CONFIG_DIR
+from financeager.model import prettify
 
 
 def suite():
@@ -46,6 +47,10 @@ class WebserviceTestCase(unittest.TestCase):
 
         entry_id = add_response["id"]
 
+        response = self.proxy.run("print", period=self.period,
+                http_config=self.http_config)
+        self.assertGreater(len(prettify(response["elements"])), 0)
+
         response = self.proxy.run("rm", period=self.period, eid=entry_id,
                 http_config=self.http_config)
         self.assertEqual(response["id"], entry_id)
@@ -69,6 +74,8 @@ class WebserviceTestCase(unittest.TestCase):
         response = self.proxy.run("print", period=self.period,
                 http_config=self.http_config)
         self.assertEqual(len(response["elements"]["standard"]), 0)
+
+        self.assertEqual(len(prettify(response["elements"])), 0)
 
     def test_get_nonexisting_entry(self):
         response = self.proxy.run("get", period=self.period, eid=-1,
