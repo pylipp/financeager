@@ -13,13 +13,15 @@ from financeager.model import prettify
 def suite():
     suite = unittest.TestSuite()
     tests = [
-        'test_add_print_rm'
-        ,'test_add_get_rm_via_eid'
-        ,'test_get_nonexisting_entry'
-        ,'test_delete_nonexisting_entry'
+        'test_add_print_rm',
+        'test_add_get_rm_via_eid',
+        'test_get_nonexisting_entry',
+        'test_delete_nonexisting_entry',
+        'test_update',
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
+
 
 class WebserviceTestCase(unittest.TestCase):
     @classmethod
@@ -76,6 +78,19 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(len(response["elements"]["standard"]), 0)
 
         self.assertEqual(len(prettify(response["elements"])), 0)
+
+    def test_update(self):
+        response = self.proxy.run("add", period=self.period, name="donuts",
+                value="-50", category="sweets", http_config=self.http_config)
+        entry_id = response["id"]
+
+        response = self.proxy.run("update", period=self.period, eid=entry_id,
+                name="bretzels", http_config=self.http_config)
+        self.assertListEqual(list(response.keys()), ["id"])
+
+        response = self.proxy.run("get", period=self.period, eid=entry_id,
+                http_config=self.http_config)
+        self.assertEqual(response["element"]["name"], "bretzels")
 
     def test_get_nonexisting_entry(self):
         response = self.proxy.run("get", period=self.period, eid=-1,
