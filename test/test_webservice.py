@@ -80,6 +80,13 @@ class WebserviceTestCase(unittest.TestCase):
                 http_config=self.http_config)
         self.assertSetEqual({"error"}, set(response.keys()))
 
+    def test_invalid_request(self):
+        http_config = self.http_config.copy()
+        http_config["host"] = "weird.foodomain.nope"
+        response = self.proxy.run("get", period=self.period, eid=1,
+                http_config=self.http_config)
+        self.assertIn("404", response["error"])
+
     def tearDown(self):
         self.proxy.run("stop")
         filepath = os.path.join(CONFIG_DIR, "0.json")
