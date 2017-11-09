@@ -31,9 +31,10 @@ class Server(object):
         if command == "list":
             return self.periods(running=kwargs.get("running", False))
         elif command == "stop":
-            # graceful shutdown, invoke closing of files
+            # graceful shutdown, invoke closing of files; delete all references
             for period in self._periods.values():
                 period.close()
+            self._periods = {}
         else:
             period_name = kwargs.pop("period", None)
             if period_name not in self._periods:
