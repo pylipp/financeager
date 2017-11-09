@@ -28,10 +28,10 @@ def create_app(config=None):
     return app
 
 
-def launch_server():
+def launch_server(**kwargs):
     """Launch flask webservice application."""
     try:
-        config = dict(
+        config = kwargs or dict(
                 debug=CONFIG["SERVICE:FLASK"].getboolean("debug"),
                 host=CONFIG["SERVICE:FLASK"]["host"]
                 )
@@ -46,23 +46,32 @@ def launch_server():
 
 
 class _Proxy(object):
-    """
-    Converts CL verbs to HTTP request, sends to webservice and returns response.
-
-    :return: dict
-    """
+    """Converts CL verbs to HTTP request, sends to webservice and returns
+    response."""
 
     PERIODS_TAIL = "/financeager/periods"
 
-    def run(self, command, **data):
+    def run(self, command, http_config=None, **data):
+        """Run the specified command. If no http_config given, it is read from
+        the user config. The data kwargs are passed to the HTTP request.
+        'period' and 'table_name' are substituted, if None.
+
+        :return: dict. See Server class for possible keys
+        """
+
         period = data.pop("period", None) or str(Period.DEFAULT_NAME)
-        url = "http://{}{}".format(
-                CONFIG["SERVICE:FLASK"]["host"], self.PERIODS_TAIL
-                )
+
+        if http_config is None:
+            http_config = {}
+
+        host = http_config.get("host", CONFIG["SERVICE:FLASK"]["host"])
+        url = "http://{}{}".format(host, self.PERIODS_TAIL)
         period_url = "{}/{}".format(url, period)
 
-        username = CONFIG["SERVICE:FLASK"].get("username")
-        password = CONFIG["SERVICE:FLASK"].get("password")
+        username = http_config.get("username",
+                CONFIG["SERVICE:FLASK"].get("username"))
+        password = http_config.get("password",
+                CONFIG["SERVICE:FLASK"].get("password"))
         auth = None
         if username is not None and password is not None:
             auth = (username, password)
