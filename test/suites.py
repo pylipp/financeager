@@ -9,7 +9,7 @@ modules = [
         'test_period',
         'test_server',
         'test_webservice',
-        'test_cli',
+        # 'test_cli',
         'test_config',
         'test_offline',
         'test_communication'
