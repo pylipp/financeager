@@ -5,8 +5,8 @@ import os
 import time
 from threading import Thread
 
-from financeager.fflask import create_app, proxy, launch_server
-from financeager.config import CONFIG, CONFIG_DIR
+from financeager.fflask import proxy, launch_server
+from financeager.config import CONFIG_DIR
 from financeager.model import prettify
 
 
