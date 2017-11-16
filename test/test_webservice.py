@@ -39,7 +39,7 @@ class WebserviceTestCase(unittest.TestCase):
         time.sleep(3)
 
         cls.proxy = proxy()
-        cls.period = "0"  # choosing a value that hopefully does not exist yet
+        cls.period = "1900"  # choosing a value that hopefully does not exist yet
         cls.http_config = {"host": host_ip, "username": None, }
 
     def test_add_print_rm(self):
@@ -111,7 +111,7 @@ class WebserviceTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.proxy.run("stop")
-        filepath = os.path.join(CONFIG_DIR, "0.json")
+        filepath = os.path.join(CONFIG_DIR, "{}.json".format(self.period))
         if os.path.exists(filepath):
             os.remove(filepath)
 
