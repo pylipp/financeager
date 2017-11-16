@@ -117,6 +117,7 @@ FUTURE FEATURES
 - [ ] sort `print` output acc. to entry name/value/date/category
 - [ ] support querying of standard/recurrent table with `print`
 - [ ] refactor config module (custom method to intuitively retrieve config parameters)
+- [ ] `copy` command to transfer recurrent entries between period databases
 
 IMPLEMENTED FEATURES
 ---------------
