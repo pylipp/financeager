@@ -14,6 +14,7 @@ put_parser.add_argument("date", default=None)
 put_parser.add_argument("frequency", default=None)
 put_parser.add_argument("start", default=None)
 put_parser.add_argument("end", default=None)
+put_parser.add_argument("table_name", default=None)
 
 periods_parser = reqparse.RequestParser()
 periods_parser.add_argument("running", default=False)
