@@ -108,7 +108,6 @@ Detailed information is available from
 
 KNOWN BUGS
 ----------
-- [ ] flask config does not work reliably
 - Please. Report. Them.
 
 FUTURE FEATURES

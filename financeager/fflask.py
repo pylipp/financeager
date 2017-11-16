@@ -35,9 +35,6 @@ def launch_server(**kwargs):
                 debug=CONFIG["SERVICE:FLASK"].getboolean("debug"),
                 host=CONFIG["SERVICE:FLASK"]["host"]
                 )
-        # FIXME debug config is not taken into account, however repetitive
-        # starts are possible. This does not work when passing config kwargs to
-        # app.run()
         app = create_app(config=config)
         app.run()
     except OSError as e:
