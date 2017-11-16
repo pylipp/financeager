@@ -108,7 +108,7 @@ class WebserviceTestCase(unittest.TestCase):
         http_config["host"] = "weird.foodomain.nope"
         response = self.proxy.run("get", period=self.period, eid=1,
                 http_config=self.http_config)
-        self.assertIn("404", response["error"])
+        self.assertEqual("Element not found.", response["error"])
 
     def test_recurrent_entry(self):
         add_response = self.proxy.run("add", period=self.period, name="cookies",
