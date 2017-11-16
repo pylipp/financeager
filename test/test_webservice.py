@@ -18,6 +18,7 @@ def suite():
         'test_get_nonexisting_entry',
         'test_delete_nonexisting_entry',
         'test_update',
+        'test_recurrent_entry',
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
@@ -108,6 +109,40 @@ class WebserviceTestCase(unittest.TestCase):
         response = self.proxy.run("get", period=self.period, eid=1,
                 http_config=self.http_config)
         self.assertIn("404", response["error"])
+
+    def test_recurrent_entry(self):
+        add_response = self.proxy.run("add", period=self.period, name="cookies",
+                value="-100", category="food", table_name="recurrent",
+                frequency="half-yearly", start="01-01", end="12-31",
+                http_config=self.http_config)
+        entry_id = add_response["id"]
+        self.assertEqual(entry_id, 1)
+
+        get_response = self.proxy.run("get", period=self.period, eid=entry_id,
+                table_name="recurrent", http_config=self.http_config)
+        self.assertEqual(get_response["element"]["frequency"], "half-yearly")
+
+        update_response = self.proxy.run("update", period=self.period,
+                eid=entry_id, table_name="recurrent",
+                frequency="quarter-yearly", name="clifbars",
+                http_config=self.http_config)
+        self.assertEqual(update_response["id"], entry_id)
+
+        print_response = self.proxy.run("print", period=self.period,
+                http_config=self.http_config)
+        elements = print_response["elements"]["recurrent"]
+        self.assertEqual(len(elements), 1)
+        self.assertEqual(len(elements[str(entry_id)]), 4)
+
+        representation = prettify(print_response["elements"])
+        self.assertEqual(representation.count("Clifbars"), 4)
+
+        self.proxy.run("rm", period=self.period, eid=entry_id,
+                table_name="recurrent", http_config=self.http_config)
+
+        print_response = self.proxy.run("print", period=self.period,
+                http_config=self.http_config)
+        self.assertEqual(len(print_response["elements"]["recurrent"]), 0)
 
     def tearDown(self):
         self.proxy.run("stop")
