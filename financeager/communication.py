@@ -2,7 +2,6 @@
 Module containing top layer of backend communication.
 """
 
-import financeager.pyro
 import financeager.fflask
 import financeager.server
 from .config import CONFIG
@@ -12,13 +11,12 @@ from .entries import prettify as prettify_element
 
 def module():
     """Return the backend module specified by the configuration. Should be one
-    of 'flask', 'pyro' or 'none'.
+    of 'flask' or 'none'.
     """
     backend = CONFIG["SERVICE"]["name"]
     backend_modules = {
             "flask": "fflask",
-            "pyro": "pyro",
-            "none": "server"
+            "none": "server",
             }
     return getattr(financeager, backend_modules[backend])
 

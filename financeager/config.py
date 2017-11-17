@@ -31,12 +31,6 @@ def _load():
                 "host": "127.0.0.1",
                 "timeout": 10
                 }
-        parser["SERVICE:PYRO"] = {
-                "host": "127.0.0.1",
-                "port": 9091,
-                "ns_port": 9090
-                # hmac_key has no default value, dunno how to set it
-                }
         with open(path, "w") as f:
             parser.write(f)
 
