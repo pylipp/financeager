@@ -28,14 +28,17 @@ class BaseValidationModel(SchematicsModel):
     value = FloatType(required=True)
     category = StringType(min_length=1)
 
+
 class StandardEntryValidationModel(BaseValidationModel):
     date = DateType(formats=("%Y-%m-%d", DATE_FORMAT))
+
 
 class RecurrentEntryValidationModel(BaseValidationModel):
     frequency = StringType(choices=["yearly", "half-yearly", "quarter-yearly",
         "bimonthly", "monthly", "weekly", "daily"], required=True)
     start = DateType(formats=("%Y-%m-%d", DATE_FORMAT))
     end = DateType(formats=("%Y-%m-%d", DATE_FORMAT))
+
 
 class Period(object):
 
@@ -126,7 +129,7 @@ class TinyDbPeriod(TinyDB, Period):
         for field in redundant_fields:
             raw_data.pop(field, None)
 
-    #pylint: disable=no-member
+    # pylint: disable=no-member
     @staticmethod
     def _validate_entry(raw_data, table_name, **model_kwargs):
         """Validate raw entry data acc. to ValidationModel.
@@ -439,7 +442,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         return entry.eid
 
-    #pylint: disable=unused-argument
+    # pylint: disable=unused-argument
     @staticmethod
     def _create_query_condition(name=None, value=None, category=None, date=None):
         condition = None
@@ -453,7 +456,7 @@ class TinyDbPeriod(TinyDB, Period):
             if isinstance(item, str):
                 item = item.lower()
 
-            #TODO use tinydb.Query.search
+            # TODO use tinydb.Query.search
             new_condition = (entry[item_name].matches(".*{}.*".format(item)))
             if condition is None:
                 condition = new_condition

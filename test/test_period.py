@@ -1,4 +1,4 @@
-#pylint: disable=protected-access
+# pylint: disable=protected-access
 from __future__ import unicode_literals
 import unittest
 
@@ -14,6 +14,7 @@ from collections import Counter
 
 DEFAULT_CATEGORY = CONFIG["DATABASE"]["default_category"]
 
+
 def suite():
     suite = unittest.TestSuite()
     tests = [
@@ -25,9 +26,9 @@ def suite():
             'test_remove_entry',
             'test_create_models_query_kwargs',
             'test_category_cache',
-            'test_remove_nonexisting_entry'
-            ,'test_add_rm_via_eid'
-            ,'test_get_nonexisting_entry',
+            'test_remove_nonexisting_entry',
+            'test_add_rm_via_eid',
+            'test_get_nonexisting_entry',
             'test_update_standard_entry',
             'test_update_nonexisting_entry',
             'test_add_invalid_entry'
@@ -65,11 +66,13 @@ def suite():
     suite.addTest(unittest.TestSuite(map(ValidateEntryTestCase, tests)))
     return suite
 
+
 class CreateEmptyPeriodTestCase(unittest.TestCase):
     def test_default_name(self):
         period = TinyDbPeriod()
         self.assertEqual(period.name, "2017")
         period.close()
+
 
 class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def setUp(self):
@@ -282,6 +285,7 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
     def tearDown(self):
         self.period.close()
 
+
 class ValidationModelTestCase(unittest.TestCase):
     def test_valid_base_entry(self):
         entry = BaseValidationModel({"name": "entry", "value": "5"})
@@ -330,6 +334,7 @@ class ValidationModelTestCase(unittest.TestCase):
             model.validate()
         self.assertListEqual(["frequency"],
                 list(context.exception.errors.keys()))
+
 
 class ValidateEntryTestCase(unittest.TestCase):
     def setUp(self):
@@ -398,6 +403,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertDictEqual(raw_data, {"date": None})
         TinyDbPeriod._remove_redundant_fields("recurrent", raw_data)
         self.assertDictEqual(raw_data, {})
+
 
 if __name__ == '__main__':
     unittest.main()
