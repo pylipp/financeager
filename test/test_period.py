@@ -39,6 +39,8 @@ def suite():
             'test_update_recurrent_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodRecurrentEntryTestCase, tests)))
+    tests = ['test_no_future_elements_created', ]
+    suite.addTest(unittest.TestSuite(map(TinyDbPeriodRecurrentEntryNowTestCase, tests)))
     tests = [
             'test_valid_base_entry',
             'test_valid_standard_entry',
@@ -185,6 +187,24 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def tearDown(self):
         self.period.close()
 
+
+class TinyDbPeriodRecurrentEntryNowTestCase(unittest.TestCase):
+    def test_no_future_elements_created(self):
+        # current year
+        period = TinyDbPeriod(storage=storages.MemoryStorage)
+
+        elements = period.get_entries()
+        self.assertEqual(len(elements["standard"]), 0)
+        self.assertEqual(len(elements["recurrent"]), 0)
+
+        entry_id = period.add_entry(table_name="recurrent", name="lunch",
+                value=-5, frequency="daily", start="01-01")
+
+        day_nr = dt.date.today().timetuple().tm_yday
+        elements = period.get_entries()
+        self.assertEqual(len(elements["recurrent"][entry_id]), day_nr)
+
+
 class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
@@ -201,12 +221,12 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
 
         rep_element_names = {e["name"] for e in recurrent_elements}
         self.assertSetEqual(rep_element_names,
-                {"rent october", "rent november", "rent december"})
+                {"rent, october", "rent, november", "rent, december"})
 
         matching_elements = self.period.get_entries(date="11")["recurrent"]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(
-                matching_elements[eid][0]["name"], "rent november")
+                matching_elements[eid][0]["name"], "rent, november")
         # the eid attribute is None because a new Element instance has been
         # created in Period._create_recurrent_elements. The 'eid' entry
         # however is 1 because the parent element is the first in the
@@ -224,7 +244,8 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
 
         rep_element_names = {e["name"] for e in recurrent_elements}
         self.assertSetEqual(rep_element_names,
-                {"interest january", "interest april", "interest july", "interest october"})
+                {"interest, january", "interest, april", "interest, july",
+                    "interest, october"})
 
         recurrent_table_size = len(self.period.table("recurrent"))
         self.period.remove_entry(eid=eid, table_name="recurrent")

@@ -122,7 +122,7 @@ class TinyDbPeriod(TinyDB, Period):
             redundant_fields = ["date"]
         else:
             redundant_fields = ["start", "end", "frequency"]
-        
+
         for field in redundant_fields:
             raw_data.pop(field, None)
 
@@ -371,28 +371,22 @@ class TinyDbPeriod(TinyDB, Period):
         return elements
 
     def _create_recurrent_elements(self, element):
-        name = element["name"]
-        value = element["value"]
-        category = element.get("category")
-        frequency = element["frequency"].upper()
-        start = element["start"]
-        end = element.get("end")
+        """Generate elements (holding name, value, category, date) from the
+        information of the recurrent element being passed.
+        """
 
-        if end is None:
-            # TODO this is duplicate; leave it to not have mess with database
-            end = dt(self.year, 12, 31, 23, 59, 59)
-            now = dt.now()
-            if end > now:
-                # don't show entries that are in the future
-                end = now
-        else:
-            end = dt.strptime(end, DATE_FORMAT).replace(year=self.year)
+        # parse dates to datetime objects
+        start = dt.strptime(element["start"], DATE_FORMAT).replace(
+                year=self.year)
+        end = dt.strptime(element["end"], DATE_FORMAT).replace(year=self.year)
 
-        rrule_kwargs = dict(
-                dtstart=dt.strptime(start, DATE_FORMAT).replace(year=self.year),
-                until=end
-                )
+        now = dt.now()
+        if end > now:
+            # don't show entries that are in the future
+            end = now
+
         interval = 1
+        frequency = element["frequency"].upper()
         if frequency == "BIMONTHLY":
             frequency = "MONTHLY"
             interval = 2
@@ -403,18 +397,21 @@ class TinyDbPeriod(TinyDB, Period):
             frequency = "MONTHLY"
             interval = 6
 
-        rrule_kwargs["interval"] = interval
-        rule = rrule.rrule(getattr(rrule, frequency), **rrule_kwargs)
+        rule = rrule.rrule(getattr(rrule, frequency), dtstart=start, until=end,
+                interval=interval)
 
         for date in rule:
-            element_name = name
-            # TODO: custom names for all frequencies
+            # add date description to name
+            name = element["name"]
             if frequency == "MONTHLY":
-                element_name = "{} {}".format(name, date.strftime("%B").lower())
-            yield Element(dict(
-                name=element_name, value=value, category=category,
-                date=date.strftime(DATE_FORMAT)
-                ))
+                name = "{}, {}".format(name, date.strftime("%B").lower())
+            elif frequency == "WEEKLY":
+                name = "{}, week {}".format(name, date.strftime("%W").lower())
+            elif frequency == "DAILY":
+                name = "{}, day {}".format(name, date.strftime("%-j").lower())
+
+            yield Element(dict(name=name, value=element["value"],
+                category=element["category"], date=date.strftime(DATE_FORMAT)))
 
     def remove_entry(self, eid=None, table_name=None):
         """Remove an entry from the Period database given its ID. The category
