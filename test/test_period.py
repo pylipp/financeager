@@ -5,14 +5,14 @@ import unittest
 from tinydb import database, storages
 from financeager.period import TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
-        RecurrentEntryValidationModel
+        RecurrentEntryValidationModel, _DATE_FORMAT
 from financeager.model import Model
-from financeager.config import CONFIG
+from financeager.entries import CategoryEntry
 from schematics.exceptions import DataError
 import datetime as dt
 from collections import Counter
 
-DEFAULT_CATEGORY = CONFIG["DATABASE"]["default_category"]
+DEFAULT_CATEGORY = CategoryEntry.DEFAULT_NAME
 
 
 def suite():
@@ -137,8 +137,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         name = "new backpack"
         entry_id = self.period.add_entry(name=name, value=-49.95, date=None)
         element = self.period.get_entry(entry_id)
-        self.assertEqual(element["date"], dt.date.today().strftime(
-            CONFIG["DATABASE"]["date_format"]))
+        self.assertEqual(element["date"],
+                dt.date.today().strftime(_DATE_FORMAT))
         self.period.remove_entry(eid=entry_id)
 
     def test_update_standard_entry(self):
