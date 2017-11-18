@@ -72,7 +72,7 @@ class Server(object):
             return {"periods": filenames}
 
 
-def launch_server():
+def launch_server(**kwargs):
     print("'start' command has no effect with SERVICE.name configured as 'none'.")
 
 

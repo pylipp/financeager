@@ -27,7 +27,6 @@ def _load():
                 "offline_backup": "offline"
                 }
         parser["SERVICE:FLASK"] = {
-                "debug": False,
                 "host": "127.0.0.1",
                 "timeout": 10
                 }
@@ -35,6 +34,7 @@ def _load():
             parser.write(f)
 
     return parser
+
 
 # create directory at import
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")

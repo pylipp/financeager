@@ -28,14 +28,15 @@ def create_app(config=None):
     return app
 
 
-def launch_server(**kwargs):
-    """Launch flask webservice application."""
+def launch_server(debug=False, host=None):
+    """Launch flask webservice application. If the `host` argument is not
+    specified, it is read from the configuration.
+    """
     try:
-        config = kwargs or dict(
-                debug=CONFIG["SERVICE:FLASK"].getboolean("debug"),
-                host=CONFIG["SERVICE:FLASK"]["host"]
-                )
-        app = create_app(config=config)
+        app = create_app(config={
+            "DEBUG": debug,
+            "SERVER_NAME": host or CONFIG["SERVICE:FLASK"]["host"]
+            })
         app.run()
     except OSError as e:
         # socket binding: address already in use

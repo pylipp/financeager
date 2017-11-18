@@ -29,7 +29,7 @@ class WebserviceTestCase(unittest.TestCase):
     def setUpClass(cls):
         host_ip = "127.0.0.1:5000"
         config = dict(
-                debug=True,
+                debug=False,  # can run reloader only in main thread
                 host=host_ip
                 )
         cls.flask_thread = Thread(target=launch_server, kwargs=config)
