@@ -122,10 +122,7 @@ least a frequency, start date and end date are optional. Default:
             help="if true, display earnings and expenses in stacked layout, otherwise side-by-side")
     print_parser.add_argument(*period_args, **period_kwargs)
 
-    list_parser = subparsers.add_parser("list",
-            help="list all databases")
-    list_parser.add_argument("-r", "--running", action='store_true',
-            help="list only databases that are currently running")
+    subparsers.add_parser("list", help="list all databases")
 
     return vars(parser.parse_args(args=args))
 

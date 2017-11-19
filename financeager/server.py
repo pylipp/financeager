@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os.path
-from financeager.period import Period, TinyDbPeriod, PeriodException
-from .config import CONFIG_DIR
+
+from financeager.period import TinyDbPeriod, PeriodException
 
 
 class Server(object):
@@ -28,7 +27,7 @@ class Server(object):
         """
 
         if command == "list":
-            return self.periods(running=kwargs.get("running", False))
+            return {"periods": [p._name for p in self._periods.values()]}
         elif command == "stop":
             # graceful shutdown, invoke closing of files
             for period in self._periods.values():
@@ -59,17 +58,6 @@ class Server(object):
                 response = {"error": str(e)}
 
             return response
-
-    def periods(self, running=False):
-        if running:
-            return {"periods": [p._name for p in self._periods.values()]}
-        else:
-            filenames = []
-            for file in os.listdir(CONFIG_DIR):
-                filename, extension = os.path.splitext(file)
-                if extension in [".json"]:
-                    filenames.append(filename)
-            return {"periods": filenames}
 
 
 def launch_server(**kwargs):

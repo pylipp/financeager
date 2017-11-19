@@ -16,9 +16,6 @@ put_parser.add_argument("start", default=None)
 put_parser.add_argument("end", default=None)
 put_parser.add_argument("table_name", default=None)
 
-periods_parser = reqparse.RequestParser()
-periods_parser.add_argument("running", default=False)
-
 print_parser = reqparse.RequestParser()
 print_parser.add_argument("name", default=None)
 print_parser.add_argument("category", default=None)
@@ -36,8 +33,7 @@ update_parser.add_argument("end", default=None)
 
 class PeriodsResource(Resource):
     def post(self):
-        args = periods_parser.parse_args()
-        return SERVER.run("list", **args)
+        return SERVER.run("list")
 
 class PeriodResource(Resource):
     def get(self, period_name):

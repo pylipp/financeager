@@ -2,18 +2,19 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager.entries import CategoryEntry, BaseEntry
+from financeager.entries import CategoryEntry
 from financeager.server import Server
 from financeager.config import CONFIG_DIR
 import os.path
-from tinydb import database, storages
+from tinydb import storages
 
 
 def suite():
     suite = unittest.TestSuite()
     tests = [
             'test_period_name',
-            'test_period_file_exists'
+            'test_period_file_exists',
+            'test_list',
             ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
     tests = [
@@ -42,10 +43,15 @@ class AddEntryToServerTestCase(unittest.TestCase):
     def test_period_name(self):
         self.assertEqual("0", self.server._periods["0"]._name)
 
+    def test_list(self):
+        response = self.server.run("list")
+        self.assertListEqual(response["periods"], ["0"])
+
     @classmethod
     def tearDownClass(cls):
         cls.server.run("stop")
         os.remove(os.path.join(CONFIG_DIR, "0.json"))
+
 
 class RecurrentEntryServerTestCase(unittest.TestCase):
 

@@ -58,9 +58,8 @@ class WebserviceTestCase(unittest.TestCase):
                 http_config=self.http_config)
         self.assertEqual(response["id"], entry_id)
 
-        # FIXME deprecate 'running' arg
-        # response = self.proxy.run("list", http_config=self.http_config)
-        # self.assertIn(self.period, response["periods"])
+        response = self.proxy.run("list", http_config=self.http_config)
+        self.assertIn(self.period, response["periods"])
 
     def test_add_get_rm_via_eid(self):
         response = self.proxy.run("add", period=self.period, name="donuts",
