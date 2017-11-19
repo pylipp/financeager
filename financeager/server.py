@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import traceback
+
 from financeager.period import TinyDbPeriod, PeriodException
 
 
@@ -23,39 +25,44 @@ class Server(object):
             key is one of 'id', 'element', 'elements', 'error', 'periods'
         """
 
-        if command == "list":
-            return {"periods": [p._name for p in self._periods.values()]}
-        elif command == "stop":
-            # graceful shutdown, invoke closing of files
-            for period in self._periods.values():
-                period.close()
-        else:
-            period_name = kwargs.pop("period", None)
-            if period_name not in self._periods:
-                # default period stored with key 'None'
-                self._periods[period_name] = TinyDbPeriod(period_name,
-                        **self._period_kwargs)
+        # broad exception block to always have info returned to client
+        try:
+            if command == "list":
+                return {"periods": [p._name for p in self._periods.values()]}
+            elif command == "stop":
+                # graceful shutdown, invoke closing of files
+                for period in self._periods.values():
+                    period.close()
+            else:
+                period_name = kwargs.pop("period", None)
+                if period_name not in self._periods:
+                    # default period stored with key 'None'
+                    self._periods[period_name] = TinyDbPeriod(period_name,
+                            **self._period_kwargs)
 
-            period = self._periods[period_name]
+                period = self._periods[period_name]
 
-            try:
-                if command == "add":
-                    response = {"id": period.add_entry(**kwargs)}
-                elif command == "rm":
-                    response = {"id": period.remove_entry(**kwargs)}
-                elif command == "print":
-                    response = {"elements": period.get_entries(**kwargs)}
-                elif command == "get":
-                    response = {"element": period.get_entry(**kwargs)}
-                elif command == "update":
-                    response = {"id": period.update_entry(**kwargs)}
-                else:
-                    response = {"error":
-                                "Server: unknown command '{}'".format(command)}
-            except PeriodException as e:
-                response = {"error": str(e)}
+                try:
+                    if command == "add":
+                        response = {"id": period.add_entry(**kwargs)}
+                    elif command == "rm":
+                        response = {"id": period.remove_entry(**kwargs)}
+                    elif command == "print":
+                        response = {"elements": period.get_entries(**kwargs)}
+                    elif command == "get":
+                        response = {"element": period.get_entry(**kwargs)}
+                    elif command == "update":
+                        response = {"id": period.update_entry(**kwargs)}
+                    else:
+                        response = {"error":
+                                    "Server: unknown command '{}'".format(command)}
+                except PeriodException as e:
+                    response = {"error": str(e)}
 
-            return response
+                return response
+
+        except Exception:
+            return {"error": traceback.format_exc()}
 
 
 def launch_server(**kwargs):
