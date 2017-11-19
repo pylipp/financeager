@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from financeager.period import TinyDbPeriod, PeriodException
 
 
 class Server(object):
-    """
-    Server class holding the ``TinyDbPeriod`` databases.
+    """Server class holding the ``TinyDbPeriod`` databases.
 
     All database handling is taken care of in the underlying `TinyDbPeriod`.
     Kwargs (f.i. storage) are passed to the TinyDbPeriod member.
@@ -17,13 +15,12 @@ class Server(object):
         self._period_kwargs = kwargs
 
     def run(self, command, **kwargs):
-        """
-        The requested period is created if not yet present. The method of
+        """The requested period is created if not yet present. The method of
         `Period` corresponding to the given `command` is called. All `kwargs`
         are passed on. A json-like response is returned.
 
         :return: dict
-            key is one of 'id', 'element', 'elements', 'error'
+            key is one of 'id', 'element', 'elements', 'error', 'periods'
         """
 
         if command == "list":
@@ -53,7 +50,8 @@ class Server(object):
                 elif command == "update":
                     response = {"id": period.update_entry(**kwargs)}
                 else:
-                    response = {"error": "Server: unknown command '{}'".format(command)}
+                    response = {"error":
+                                "Server: unknown command '{}'".format(command)}
             except PeriodException as e:
                 response = {"error": str(e)}
 
@@ -61,7 +59,8 @@ class Server(object):
 
 
 def launch_server(**kwargs):
-    print("'start' command has no effect with SERVICE.name configured as 'none'.")
+    print(
+        "'start' command has no effect with SERVICE.name configured as 'none'.")
 
 
 class LocalServer(Server):
