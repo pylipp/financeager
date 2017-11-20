@@ -16,7 +16,6 @@ class Model(object):
     def __init__(self, name="Model", categories=None):
         self.name = name
         self.categories = categories or []
-        self._headers = [k.capitalize() for k in BaseEntry.ITEM_TYPES]
 
     @classmethod
     def from_tinydb(cls, elements, name=None):
@@ -31,8 +30,10 @@ class Model(object):
         """Format model (incl. name and header)."""
         result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
 
-        header_line = "{3:{0}} {4:{1}} {5:{2}}".format(CategoryEntry.NAME_LENGTH,
-                BaseEntry.VALUE_LENGTH, BaseEntry.DATE_LENGTH, *self._headers)
+        header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
+            CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
+            BaseEntry.DATE_LENGTH, *[k.capitalize() for k in
+                                     BaseEntry.ITEM_TYPES])
         if BaseEntry.SHOW_EID:
             header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
         result.append(header_line)
