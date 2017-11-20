@@ -128,7 +128,7 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
             self.item_date), self.item_category)
 
     def test_category_sum(self):
-        self.assertAlmostEqual(self.item_value,
+        self.assertAlmostEqual(abs(self.item_value),
                 self.model.category_sum(self.item_category), places=5)
 
     def test_str(self):

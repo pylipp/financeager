@@ -67,7 +67,7 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.name, "vw bully")
 
     def test_value(self):
-        self.assertEqual(self.entry.value, -6000)
+        self.assertEqual(self.entry.value, 6000)
 
     def test_str(self):
         expected = "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 01-01"
@@ -102,7 +102,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(self.entry.name, "this is quite a looong category")
 
     def test_value(self):
-        self.assertEqual(self.entry.value, -100)
+        self.assertEqual(self.entry.value, 100)
 
     def test_str(self):
         self.assertEqual(str(self.entry),

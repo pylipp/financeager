@@ -7,7 +7,7 @@ from .config import CONFIG
 
 class Entry(object):
     """Base class. The name field is stored in lowercase, simplifying searching
-    from the parent model."""
+    from the parent model. The value is rendered absolute to simplify sorting."""
 
     def __init__(self, name, value, date):
         """:type name: str
@@ -15,7 +15,7 @@ class Entry(object):
         :type date: str of valid format
         """
         self.name = name.lower()
-        self.value = value
+        self.value = abs(value)
         self.date = date
 
 class BaseEntry(Entry):
@@ -54,13 +54,13 @@ class BaseEntry(Entry):
         return cls(**element)
 
     def __str__(self):
-        """Return a formatted string representing the entry. The value is
-        rendered absolute."""
+        """Return a formatted string representing the entry."""
+
         capitalized_name = capitalize_words(self.name)
         string = "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
                 self.NAME_LENGTH, self.VALUE_LENGTH, self.VALUE_DIGITS,
                 name=capitalized_name,
-                value=abs(self.value),
+                value=self.value,
                 date=self.date
                 )
         if self.SHOW_EID:
@@ -87,7 +87,7 @@ class CategoryEntry(Entry):
         """Return a formatted string representing the entry including its
         children (i.e. BaseEntries). The category representation is supposed
         to be longer than the BaseEntry representation so that the latter is
-        indented. The value is rendered absolute.
+        indented.
         """
 
         capitalized_name = capitalize_words(self.name)
@@ -96,7 +96,7 @@ class CategoryEntry(Entry):
                     self.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
                     BaseEntry.VALUE_DIGITS,
                     name=capitalized_name,
-                    value=abs(self.value)
+                    value=self.value
                     ).ljust(self.TOTAL_LENGTH)
                 ]
 
