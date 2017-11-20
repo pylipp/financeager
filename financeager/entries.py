@@ -9,14 +9,12 @@ class Entry(object):
     """Base class. The name field is stored in lowercase, simplifying searching
     from the parent model. The value is rendered absolute to simplify sorting."""
 
-    def __init__(self, name, value, date):
+    def __init__(self, name, value):
         """:type name: str
         :type value: float or int
-        :type date: str of valid format
         """
         self.name = name.lower()
         self.value = abs(value)
-        self.date = date
 
 class BaseEntry(Entry):
     """Innermost element of the Model, child of a CategoryEntry. Holds
@@ -36,8 +34,10 @@ class BaseEntry(Entry):
 
     def __init__(self, name, value, date, eid=0):
         """:type eid: int
+        :type date: str of valid format
         """
-        super().__init__(name, value, date)
+        super().__init__(name, value)
+        self.date = date
         self.eid = eid
 
     @classmethod
@@ -82,7 +82,7 @@ class CategoryEntry(Entry):
 
     def __init__(self, name, value=0.0, entries=None):
         """:type entries: list[BaseEntry]"""
-        super().__init__(name=name, value=value, date="")
+        super().__init__(name=name, value=value)
         self.entries = entries or []
 
     def __str__(self):
