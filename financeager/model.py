@@ -68,7 +68,7 @@ class Model(object):
         attributes are a superset of the attributes of `entry`.
         The corresponding CategoryEntry's value is updated. The method fails if
         the entry is not found.
-        This method is to be removed in future releases."""
+        TODO: This method is to be removed in future releases."""
 
         item = self.find_base_entry(name=entry.name,
                 date=entry.date, category=category)

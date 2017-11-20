@@ -72,6 +72,7 @@ class CategoryEntry(Entry):
     (i.e. the sum of its children's values)."""
 
     ITEM_TYPES = ["name", "sum", "empty"]
+    # TODO hardcode instead of config
     DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
 
     BASE_ENTRY_INDENT = 2
