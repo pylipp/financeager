@@ -78,6 +78,8 @@ class CategoryEntry(Entry):
     NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT
     TOTAL_LENGTH = BaseEntry.TOTAL_LENGTH + BASE_ENTRY_INDENT
 
+    BASE_ENTRY_SORT_KEY = "name"
+
     def __init__(self, name, value=0.0, entries=None):
         """:type entries: list[BaseEntry]"""
         super().__init__(name=name, value=value, date="")
@@ -100,8 +102,9 @@ class CategoryEntry(Entry):
                     ).ljust(self.TOTAL_LENGTH)
                 ]
 
-        for entry in self.entries:
-            lines.append(self.BASE_ENTRY_INDENT*" " + str(entry))
+        sort_key = lambda e: getattr(e, CategoryEntry.BASE_ENTRY_SORT_KEY)
+        for entry in sorted(self.entries, key=sort_key):
+            lines.append(self.BASE_ENTRY_INDENT * " " + str(entry))
 
         return '\n'.join(lines)
 

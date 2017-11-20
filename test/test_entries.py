@@ -26,6 +26,13 @@ def suite():
     suite.addTest(unittest.TestSuite(map(CategoryEntryTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(LongNegativeCategoryEntryTestCase, tests)))
     tests = [
+        'test_sort_by_name',
+        'test_sort_by_value',
+        'test_sort_by_date',
+        'test_sort_by_eid',
+    ]
+    suite.addTest(unittest.TestSuite(map(SortBaseEntriesTestCase, tests)))
+    tests = [
             'test_name',
             'test_value',
             'test_str',
@@ -108,6 +115,48 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(str(self.entry),
                 "This Is Quite A Lo " + "  100.00" + 6*" " + 4*" " + "\n" +
                 "  Entry            " + "  100.00" + " 08-13 " + "  0")
+
+
+class SortBaseEntriesTestCase(unittest.TestCase):
+    def setUp(self):
+        self.entry = CategoryEntry(
+            name="letters", value=9,
+            entries=[BaseEntry(l, v, "0{}-11".format(9 - v), i)
+                     for l, v, i in zip("abc", (1, 5, 3), (7, 1, 3))])
+
+    def test_sort_by_name(self):
+        CategoryEntry.BASE_ENTRY_SORT_KEY = "name"
+        # don't let trailing whitespaces of category name row being cleaned up
+        self.assertEqual(str(self.entry), "\
+Letters                9.00          " + """
+  A                    1.00 08-11   7
+  B                    5.00 04-11   1
+  C                    3.00 06-11   3""")
+
+    def test_sort_by_value(self):
+        CategoryEntry.BASE_ENTRY_SORT_KEY = "value"
+        self.assertEqual(str(self.entry), "\
+Letters                9.00          " + """
+  A                    1.00 08-11   7
+  C                    3.00 06-11   3
+  B                    5.00 04-11   1""")
+
+    def test_sort_by_date(self):
+        CategoryEntry.BASE_ENTRY_SORT_KEY = "date"
+        self.assertEqual(str(self.entry), "\
+Letters                9.00          " + """
+  B                    5.00 04-11   1
+  C                    3.00 06-11   3
+  A                    1.00 08-11   7""")
+
+    def test_sort_by_eid(self):
+        CategoryEntry.BASE_ENTRY_SORT_KEY = "eid"
+        self.assertEqual(str(self.entry), "\
+Letters                9.00          " + """
+  B                    5.00 04-11   1
+  C                    3.00 06-11   3
+  A                    1.00 08-11   7""")
+
 
 class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
     def setUp(self):
