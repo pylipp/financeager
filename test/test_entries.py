@@ -103,7 +103,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.entry = CategoryEntry(name="This is quite a LOOONG Category",
-                value=-100, entries=[BaseEntry("entry", -100, "08-13")])
+                entries=[BaseEntry("entry", -100, "08-13")])
 
     def test_name(self):
         self.assertEqual(self.entry.name, "this is quite a looong category")
@@ -120,7 +120,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
 class SortBaseEntriesTestCase(unittest.TestCase):
     def setUp(self):
         self.entry = CategoryEntry(
-            name="letters", value=9,
+            name="letters",
             entries=[BaseEntry(l, v, "0{}-11".format(9 - v), i)
                      for l, v, i in zip("abc", (1, 5, 3), (7, 1, 3))])
 

@@ -57,8 +57,7 @@ class Model(object):
         elif isinstance(entry, BaseEntry):
             self.add_entry(CategoryEntry(name=category_name))
             category_item = self.find_category_entry(category_name)
-            category_item.entries.append(entry)
-            category_item.value += entry.value
+            category_item.append(entry)
 
     def remove_entry(self, entry, category):
         """Querying the given category, remove the first BaseEntry whose
@@ -212,12 +211,13 @@ def prettify(elements, stacked_layout=False):
                 result.append(CategoryEntry.TOTAL_LENGTH*" " + " | " + row)
         # add 3 to take central separator " | " into account
         result.append((2*CategoryEntry.TOTAL_LENGTH + 3) * "=")
-        result.append(
-                " | ".join(
-                    [str(CategoryEntry(
-                        name="TOTAL", value=m.total_value()
-                        ))
-                        for m in models]
-                    )
-                )
+
+        # add total value of earnings and expenses as final line
+        total_values = []
+        for m in models:
+            total_entry = CategoryEntry(name="TOTAL")
+            total_entry.value = m.total_value()
+            total_values.append(str(total_entry))
+        result.append(" | ".join(total_values))
+
         return '\n'.join(result)

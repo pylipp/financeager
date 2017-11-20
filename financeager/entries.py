@@ -80,10 +80,19 @@ class CategoryEntry(Entry):
 
     BASE_ENTRY_SORT_KEY = "name"
 
-    def __init__(self, name, value=0.0, entries=None):
+    def __init__(self, name, entries=None):
         """:type entries: list[BaseEntry]"""
-        super().__init__(name=name, value=value)
-        self.entries = entries or []
+        super().__init__(name=name, value=0.0)
+
+        self.entries = []
+        if entries is not None:
+            for base_entry in entries:
+                self.append(base_entry)
+
+    def append(self, base_entry):
+        """Append a BaseEntry to the category and update the value."""
+        self.entries.append(base_entry)
+        self.value += base_entry.value
 
     def __str__(self):
         """Return a formatted string representing the entry including its
