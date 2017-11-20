@@ -5,8 +5,9 @@ Module containing top layer of backend communication.
 import financeager.fflask
 import financeager.server
 from .config import CONFIG
-from .model import prettify
+from .model import prettify, Model
 from .entries import prettify as prettify_element
+from .entries import CategoryEntry
 
 
 def module():
@@ -28,7 +29,11 @@ def run(proxy, command, **kwargs):
     """Run a command on the given proxy. The kwargs are passed on. This might
     raise a CommunicationError. Returns formatted server response.
     """
+    # pop kwargs that are for formatting at the frontend, not for the server
     stacked_layout = kwargs.pop("stacked_layout", False)
+    entry_sort_key = kwargs.pop("entry_sort", CategoryEntry.BASE_ENTRY_SORT_KEY)
+    category_sort_key = kwargs.pop("category_sort",
+                                   Model.CATEGORY_ENTRY_SORT_KEY)
     response = proxy.run(command, **kwargs)
 
     if not isinstance(response, dict):
@@ -40,6 +45,8 @@ def run(proxy, command, **kwargs):
 
     elements = response.get("elements")
     if elements is not None:
+        CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort_key
+        Model.CATEGORY_ENTRY_SORT_KEY = category_sort_key
         return prettify(elements, stacked_layout)
 
     element = response.get("element")

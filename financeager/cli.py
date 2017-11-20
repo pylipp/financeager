@@ -8,6 +8,8 @@ import argparse
 import traceback
 
 from financeager import offline, communication
+from .entries import CategoryEntry
+from .model import Model
 
 
 def main(**kwargs):
@@ -119,7 +121,14 @@ least a frequency, start date and end date are optional. Default:
     print_parser.add_argument("-d", "--date", default=None,
             help="only entries containing 'date'")
     print_parser.add_argument("-s", "--stacked-layout", action="store_true",
-            help="if true, display earnings and expenses in stacked layout, otherwise side-by-side")
+            help="if true, display earnings and expenses in stacked layout, "
+                              "otherwise side-by-side")
+    print_parser.add_argument("--entry-sort",
+                              choices=["name", "value", "date", "eid"],
+                              default=CategoryEntry.BASE_ENTRY_SORT_KEY)
+    print_parser.add_argument("--category-sort",
+                              choices=["name", "value"],
+                              default=Model.CATEGORY_ENTRY_SORT_KEY)
     print_parser.add_argument(*period_args, **period_kwargs)
 
     subparsers.add_parser("list", help="list all databases")

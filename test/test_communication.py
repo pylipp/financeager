@@ -14,6 +14,7 @@ def suite():
             'test_erroneous_get',
             'test_update',
             'test_print',
+            'test_print_with_sorting',
             ]
     suite.addTest(unittest.TestSuite(map(CommunicationTestCase, tests)))
     tests = [
@@ -67,6 +68,31 @@ Category: Clothes""".format(date.today().strftime("%m-%d")))
         response = self.run_command("print")
         self.assertNotIn(communication.ERROR_MESSAGE.format("print", ""),
                 response)
+
+    def test_print_with_sorting(self):
+        response = self.run_command("add shirt -199 -c clothes")
+        self.assertEqual(response, "")
+        response = self.run_command("add lunch -20 -c food")
+        self.assertEqual(response, "")
+
+        response = self.run_command(
+            "print --entry-sort value --category-sort name --stacked-layout")
+        self.assertEqual(response,
+"\
+              Earnings               " + "\n\
+Name               Value    Date  ID " + """
+
+-------------------------------------
+
+""" + "\
+              Expenses               " + "\n\
+Name               Value    Date  ID " + "\n\
+Clothes              298.00          " + """
+  Pants               99.00 11-20   1
+  Shirt              199.00 11-20   2""" + "\n\
+Food                  20.00          " + """
+  Lunch               20.00 11-20   3""")
+
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
