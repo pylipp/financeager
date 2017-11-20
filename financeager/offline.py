@@ -25,7 +25,7 @@ def add(command, **cl_kwargs):
 
     Non-modifying request commands such as 'print' or 'list' are not stored.
     """
-    if command not in ["add", "rm"]:
+    if command not in ["add", "rm", "update"]:
         return
 
     offline_filepath = os.path.join(CONFIG_DIR,
