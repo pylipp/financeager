@@ -30,6 +30,11 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(AddNegativeBaseEntryTestCase, tests)))
     tests = [
+        'test_sort_by_name',
+        'test_sort_by_value',
+    ]
+    suite.addTest(unittest.TestSuite(map(SortCategoryEntriesTestCase, tests)))
+    tests = [
             'test_default_category_in_list'
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryWithoutCategoryTestCase, tests)))
@@ -116,6 +121,35 @@ class AddBaseEntryTestCase(unittest.TestCase):
                 "Name               Value    Date  ID ",
                 "Groceries             66.60" + 10*" ",
                 "  Aldi                66.60 11-08   0"]))
+
+
+class SortCategoryEntriesTestCase(unittest.TestCase):
+    def setUp(self):
+        self.model = Model()
+        for c, v in zip("ab", [20, 10]):
+            self.model.add_entry(BaseEntry("foo", v, "01-01"), c)
+
+    def test_sort_by_name(self):
+        Model.CATEGORY_ENTRY_SORT_KEY = "name"
+        self.assertEqual(str(self.model), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+                "Name               Value    Date  ID ",
+                "A                     20.00" + 10 * " ",
+                "  Foo                 20.00 01-01   0",
+                "B                     10.00" + 10 * " ",
+                "  Foo                 10.00 01-01   0",
+        ]))
+
+    def test_sort_by_value(self):
+        Model.CATEGORY_ENTRY_SORT_KEY = "value"
+        self.assertEqual(str(self.model), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+                "Name               Value    Date  ID ",
+                "B                     10.00" + 10 * " ",
+                "  Foo                 10.00 01-01   0",
+                "A                     20.00" + 10 * " ",
+                "  Foo                 20.00 01-01   0",
+        ]))
 
 class AddNegativeBaseEntryTestCase(unittest.TestCase):
     def setUp(self):

@@ -11,6 +11,8 @@ class Model(object):
     CategoryEntries, second-level children are BaseEntries. Generator methods
     are provided to iterate over these."""
 
+    CATEGORY_ENTRY_SORT_KEY = "value"
+
     def __init__(self, name="Model", categories=None):
         self.name = name
         self.categories = categories or []
@@ -35,7 +37,8 @@ class Model(object):
             header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
         result.append(header_line)
 
-        for category in self.categories:
+        sort_key = lambda e: getattr(e, Model.CATEGORY_ENTRY_SORT_KEY)
+        for category in sorted(self.categories, key=sort_key):
             result.append(str(category))
 
         return '\n'.join(result)
