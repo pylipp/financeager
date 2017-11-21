@@ -85,8 +85,8 @@ class LocalServer(Server):
         return response
 
 
-def proxy():
-    return LocalServer()
+def proxy(**kwargs):
+    return LocalServer(**kwargs)
 
 
 CommunicationError = Exception

@@ -9,6 +9,10 @@ from .config import CONFIG_DIR, CONFIG
 from .communication import run, module
 
 
+OFFLINE_FILEPATH = os.path.join(CONFIG_DIR,
+        CONFIG["DATABASE"]["offline_backup"] + ".json")
+
+
 def _load(filepath):
     if os.path.exists(filepath):
         with open(filepath, "r") as file:
@@ -19,52 +23,75 @@ def _load(filepath):
     return content
 
 
-def add(command, **cl_kwargs):
+def _write(content, filepath):
+    with open(filepath, "w") as file:
+        json.dump(content, file)
+
+
+def _recover_data(proxy, content):
+    """Recover the data items in the content list by running the commands via
+    the proxy. If a CommunicationError occurs during recovery, the data being
+    currently processed is returned.
+    The content list is modified in-place.
+    """
+
+    while len(content):
+        data = content.pop()
+        command = data.pop("command")
+        try:
+            run(proxy, command, **data)
+        except module().CommunicationError as e:
+            return data
+
+
+class OfflineRecoveryError(Exception):
+    pass
+
+
+def add(command, offline_filepath=None, **cl_kwargs):
     """Add a command and optional kwargs passed from the command line to the
     offline backup database.
 
     Non-modifying request commands such as 'print' or 'list' are not stored.
+
+    :return: if anything was added
     """
+
     if command not in ["add", "rm", "update"]:
-        return
+        return False
 
-    offline_filepath = os.path.join(CONFIG_DIR,
-            CONFIG["DATABASE"]["offline_backup"] + ".json")
-
+    offline_filepath = offline_filepath or OFFLINE_FILEPATH
     content = _load(offline_filepath)
-    data = {"command": command, "kwargs": cl_kwargs}
-    content.append(data)
+    cl_kwargs.update({"command": command})
+    content.append(cl_kwargs)
+    _write(content, offline_filepath)
 
-    with open(offline_filepath, "w") as file:
-        json.dump(content, file)
-        print("Stored '{}' request in offline backup.".format(command))
+    return True
 
 
-def recover(proxy):
+def recover(proxy, offline_filepath=None):
     """Recover the offline backup by passing its content to the given proxy.
-    The recovery will be aborted if a CommunicationError occurs. 
+    The recovery will be aborted if a CommunicationError occurs.
 
-    If the recovery succeeded, the backup file is deleted. 
+    If the recovery succeeded, the backup file is deleted.
+
+    :return: if anything was recovered
+    :raises: OfflineRecoveryError if recovery failed
     """
-    offline_filepath = os.path.join(CONFIG_DIR,
-            CONFIG["DATABASE"]["offline_backup"] + ".json")
+
+    offline_filepath = offline_filepath or OFFLINE_FILEPATH
 
     content = _load(offline_filepath)
     if not content:
-        return 
+        return False
 
-    print("Recovering {} item(s) in offline backup...".format(len(content)))
+    failed_recovery_data = _recover_data(proxy, content)
 
-    while len(content):
-        item = content.pop()
-        try:
-            run(proxy, item["command"], **item["kwargs"])
-        except module().CommunicationError as e:
-            print("Aborting offline backup recovery: {}".format(e))
+    if failed_recovery_data is None:
+        os.remove(offline_filepath)
+    else:
+        content.append(failed_recovery_data)
+        _write(content, offline_filepath)
+        raise OfflineRecoveryError()
 
-            content.append(item)
-            with open(offline_filepath, "w") as file:
-                json.dump(content, file)
-            return 
-
-    os.remove(offline_filepath)
+    return True
