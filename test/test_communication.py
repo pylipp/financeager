@@ -25,6 +25,11 @@ def suite():
     suite.addTest(unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
     return suite
 
+
+def today():
+    return date.today().strftime("%m-%d")
+
+
 class CommunicationTestFixture(unittest.TestCase):
     def run_command(self, args):
         cl_kwargs = _parse_command(args=args.split())
@@ -47,7 +52,7 @@ class CommunicationTestCase(CommunicationTestFixture):
 Name    : Pants
 Value   : -99.0
 Date    : {}
-Category: Clothes""".format(date.today().strftime("%m-%d")))
+Category: Clothes""".format(today()))
 
     def test_erroneous_get(self):
         response = self.run_command("get 0")
@@ -62,7 +67,7 @@ Category: Clothes""".format(date.today().strftime("%m-%d")))
 Name    : Trousers
 Value   : -99.0
 Date    : {}
-Category: Clothes""".format(date.today().strftime("%m-%d")))
+Category: Clothes""".format(today()))
 
     def test_print(self):
         response = self.run_command("print")
@@ -70,9 +75,9 @@ Category: Clothes""".format(date.today().strftime("%m-%d")))
                 response)
 
     def test_print_with_sorting(self):
-        response = self.run_command("add shirt -199 -c clothes")
+        response = self.run_command("add shirt -199 -c clothes -d 04-01")
         self.assertEqual(response, "")
-        response = self.run_command("add lunch -20 -c food")
+        response = self.run_command("add lunch -20 -c food -d 04-01")
         self.assertEqual(response, "")
 
         response = self.run_command(
@@ -88,10 +93,10 @@ Name               Value    Date  ID " + """
               Expenses               " + "\n\
 Name               Value    Date  ID " + "\n\
 Clothes              298.00          " + """
-  Pants               99.00 11-20   1
-  Shirt              199.00 11-20   2""" + "\n\
+  Pants               99.00 {}   1
+  Shirt              199.00 04-01   2""".format(today()) + "\n\
 Food                  20.00          " + """
-  Lunch               20.00 11-20   3""")
+  Lunch               20.00 04-01   3""")
 
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
