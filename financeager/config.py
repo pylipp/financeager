@@ -17,10 +17,9 @@ class Configuration(object):
         self._parser["SERVICE"] = {
             "name": "none",
         }
-        self._parser["DATABASE"] = {
+        self._parser["FRONTEND"] = {
             "default_category": "unspecified",
             "date_format": "%%m-%%d",
-            "offline_backup": "offline",
         }
         self._parser["SERVICE:FLASK"] = {
             "host": "127.0.0.1",

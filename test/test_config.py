@@ -22,7 +22,7 @@ class ConfigTestCase(unittest.TestCase):
 
     def test_sections(self):
         config = Configuration()
-        self.assertSetEqual(set(config.sections()), {"SERVICE", "DATABASE",
+        self.assertSetEqual(set(config.sections()), {"SERVICE", "FRONTEND",
             "SERVICE:FLASK"})
 
     def test_load_custom_config_file(self):

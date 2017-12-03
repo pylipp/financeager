@@ -73,7 +73,7 @@ class CategoryEntry(Entry):
 
     ITEM_TYPES = ["name", "sum", "empty"]
     # TODO hardcode instead of config
-    DEFAULT_NAME = get_option("DATABASE", "default_category")
+    DEFAULT_NAME = get_option("FRONTEND", "default_category")
 
     BASE_ENTRY_INDENT = 2
     NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT

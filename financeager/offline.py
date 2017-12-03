@@ -5,12 +5,11 @@ Module for handling requests when server not available.
 import os.path
 import json
 
-from .config import CONFIG_DIR, get_option
+from .config import CONFIG_DIR
 from .communication import run, module
 
 
-OFFLINE_FILEPATH = os.path.join(CONFIG_DIR,
-        get_option("DATABASE", "offline_backup") + ".json")
+OFFLINE_FILEPATH = os.path.join(CONFIG_DIR, "offline.json")
 
 
 def _load(filepath):
