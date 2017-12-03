@@ -8,7 +8,7 @@ from flask import Flask
 from flask_restful import Api
 
 from .period import Period, TinyDbPeriod
-from .config import CONFIG
+from .config import get_option
 from .resources import (PeriodsResource, PeriodResource,
         EntryResource, ShutdownResource)
 
@@ -35,7 +35,7 @@ def launch_server(debug=False, host=None):
     try:
         app = create_app(config={
             "DEBUG": debug,
-            "SERVER_NAME": host or CONFIG["SERVICE:FLASK"]["host"]
+            "SERVER_NAME": host or get_option("SERVICE:FLASK", "host")
             })
         app.run()
     except OSError as e:
@@ -62,20 +62,20 @@ class _Proxy(object):
         if http_config is None:
             http_config = {}
 
-        host = http_config.get("host", CONFIG["SERVICE:FLASK"]["host"])
+        host = http_config.get("host", get_option("SERVICE:FLASK", "host"))
         url = "http://{}{}".format(host, self.PERIODS_TAIL)
         period_url = "{}/{}".format(url, period)
 
         username = http_config.get("username",
-                CONFIG["SERVICE:FLASK"].get("username"))
+                                   get_option("SERVICE:FLASK", "username"))
         password = http_config.get("password",
-                CONFIG["SERVICE:FLASK"].get("password"))
+                                   get_option("SERVICE:FLASK", "password"))
         auth = None
-        if username is not None and password is not None:
+        if username and password:
             auth = (username, password)
 
         kwargs = dict(data=data or None, auth=auth,
-                timeout=CONFIG["SERVICE:FLASK"].getint("timeout"))
+                      timeout=int(get_option("SERVICE:FLASK", "timeout")))
 
         if command == "print":
             response = requests.get(period_url, **kwargs)

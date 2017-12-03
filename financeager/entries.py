@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-from .config import CONFIG
+from .config import get_option
 
 
 class Entry(object):
@@ -73,7 +73,7 @@ class CategoryEntry(Entry):
 
     ITEM_TYPES = ["name", "sum", "empty"]
     # TODO hardcode instead of config
-    DEFAULT_NAME = CONFIG["DATABASE"]["default_category"]
+    DEFAULT_NAME = get_option("DATABASE", "default_category")
 
     BASE_ENTRY_INDENT = 2
     NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT

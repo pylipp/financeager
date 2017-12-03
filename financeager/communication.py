@@ -4,7 +4,7 @@ Module containing top layer of backend communication.
 
 import financeager.fflask
 import financeager.server
-from .config import CONFIG
+from .config import get_option
 from .model import prettify, Model
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
@@ -14,7 +14,7 @@ def module():
     """Return the backend module specified by the configuration. Should be one
     of 'flask' or 'none'.
     """
-    backend = CONFIG["SERVICE"]["name"]
+    backend = get_option("SERVICE", "name")
     backend_modules = {
             "flask": "fflask",
             "none": "server",
