@@ -5,7 +5,8 @@ import unittest
 from tinydb import database, storages
 from financeager.period import TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
-        RecurrentEntryValidationModel, _DATE_FORMAT
+        RecurrentEntryValidationModel
+from financeager import PERIOD_DATE_FORMAT
 from financeager.model import Model
 from financeager.entries import CategoryEntry
 from schematics.exceptions import DataError
@@ -138,7 +139,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         entry_id = self.period.add_entry(name=name, value=-49.95, date=None)
         element = self.period.get_entry(entry_id)
         self.assertEqual(element["date"],
-                dt.date.today().strftime(_DATE_FORMAT))
+                dt.date.today().strftime(PERIOD_DATE_FORMAT))
         self.period.remove_entry(eid=entry_id)
 
     def test_update_standard_entry(self):

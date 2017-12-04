@@ -14,3 +14,11 @@ __license__     = 'GPL'
 # maintanence information
 __maintainer__  = 'Philipp Metzner'
 __email__       = 'beth.aleph@yahoo.de'
+
+
+#
+# Global constants
+#
+
+# fixed date format for database
+PERIOD_DATE_FORMAT = "%m-%d"

@@ -13,14 +13,13 @@ from schematics.models import Model as SchematicsModel
 from schematics.types import StringType, FloatType, DateType
 from schematics.exceptions import DataError, ValidationError
 
+from . import PERIOD_DATE_FORMAT
 from .config import CONFIG_DIR
 from .entries import CategoryEntry
 
 
-# fixed date format for database
-_DATE_FORMAT = "%m-%d"
 # format for ValidationModel.to_primitive() call
-DateType.SERIALIZED_FORMAT = _DATE_FORMAT
+DateType.SERIALIZED_FORMAT = PERIOD_DATE_FORMAT
 
 
 class BaseValidationModel(SchematicsModel):
@@ -30,14 +29,14 @@ class BaseValidationModel(SchematicsModel):
 
 
 class StandardEntryValidationModel(BaseValidationModel):
-    date = DateType(formats=("%Y-%m-%d", _DATE_FORMAT))
+    date = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
 
 
 class RecurrentEntryValidationModel(BaseValidationModel):
     frequency = StringType(choices=["yearly", "half-yearly", "quarter-yearly",
         "bimonthly", "monthly", "weekly", "daily"], required=True)
-    start = DateType(formats=("%Y-%m-%d", _DATE_FORMAT))
-    end = DateType(formats=("%Y-%m-%d", _DATE_FORMAT))
+    start = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
+    end = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
 
 
 class Period(object):
@@ -175,14 +174,14 @@ class TinyDbPeriod(TinyDB, Period):
 
         if table_name == "recurrent":
             if fields.get("start") is None:
-                substituted_fields["start"] = dt.today().strftime(_DATE_FORMAT)
+                substituted_fields["start"] = dt.today().strftime(PERIOD_DATE_FORMAT)
             if fields.get("end") is None:
                 substituted_fields["end"] = \
-                    dt.today().replace(month=12, day=31).strftime(_DATE_FORMAT)
+                    dt.today().replace(month=12, day=31).strftime(PERIOD_DATE_FORMAT)
 
         elif table_name == TinyDbPeriod.DEFAULT_TABLE:
             if fields.get("date") is None:
-                substituted_fields["date"] = dt.today().strftime(_DATE_FORMAT)
+                substituted_fields["date"] = dt.today().strftime(PERIOD_DATE_FORMAT)
 
         if fields.get("category") is None:
             name = fields["name"]
@@ -253,7 +252,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         The following kwarg is optional for standard entries:
             :param date: entry date. If not specified, the current date is assigned
-            :type date: str of ``_DATE_FORMAT``
+            :type date: str of ``PERIOD_DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
             :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
@@ -379,9 +378,9 @@ class TinyDbPeriod(TinyDB, Period):
         """
 
         # parse dates to datetime objects
-        start = dt.strptime(element["start"], _DATE_FORMAT).replace(
+        start = dt.strptime(element["start"], PERIOD_DATE_FORMAT).replace(
                 year=self.year)
-        end = dt.strptime(element["end"], _DATE_FORMAT).replace(year=self.year)
+        end = dt.strptime(element["end"], PERIOD_DATE_FORMAT).replace(year=self.year)
 
         now = dt.now()
         if end > now:
@@ -414,7 +413,7 @@ class TinyDbPeriod(TinyDB, Period):
                 name = "{}, day {}".format(name, date.strftime("%-j").lower())
 
             yield Element(dict(name=name, value=element["value"],
-                category=element["category"], date=date.strftime(_DATE_FORMAT)))
+                category=element["category"], date=date.strftime(PERIOD_DATE_FORMAT)))
 
     def remove_entry(self, eid=None, table_name=None):
         """Remove an entry from the Period database given its ID. The category
