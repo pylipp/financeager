@@ -1,3 +1,5 @@
+[https://travis-ci.org/pylipp/financeager](https://travis-ci.org/pylipp/financeager.svg?branch=master)
+
 FINANCEAGER
 ===========
 
