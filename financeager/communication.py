@@ -1,9 +1,11 @@
 """
 Module containing top layer of backend communication.
 """
+from datetime import datetime
 
 import financeager.fflask
 import financeager.server
+from . import PERIOD_DATE_FORMAT
 from .config import get_option
 from .model import prettify, Model
 from .entries import prettify as prettify_element
@@ -34,6 +36,7 @@ def run(proxy, command, **kwargs):
     entry_sort_key = kwargs.pop("entry_sort", CategoryEntry.BASE_ENTRY_SORT_KEY)
     category_sort_key = kwargs.pop("category_sort",
                                    Model.CATEGORY_ENTRY_SORT_KEY)
+    _preprocess(kwargs)
     response = proxy.run(command, **kwargs)
 
     if not isinstance(response, dict):
@@ -59,3 +62,21 @@ def run(proxy, command, **kwargs):
         return "\n".join([p for p in periods])
 
     return ""
+
+
+def _preprocess(data):
+    """Preprocess data to be passed to server (e.g. convert date format). Raises
+    PreprocessError if preprocessing failed.
+    """
+    date = data.get("date")
+    if date is not None:
+        try:
+            date = datetime.strptime(date, get_option("FRONTEND", "date_format")
+                                     ).strftime(PERIOD_DATE_FORMAT)
+            data["date"] = date
+        except ValueError:
+            raise PreprocessingError("Invalid date format.")
+
+
+class PreprocessingError(Exception):
+    pass

@@ -35,13 +35,15 @@ def main(**kwargs):
         print(communication.run(proxy, command, **cl_kwargs))
         if offline.recover(proxy):
             print("Recovered offline backup.")
+    except offline.OfflineRecoveryError:
+        print("Offline backup recovery failed!")
+    except communication.PreprocessingError as e:
+        print(e)
     except (communication_module.CommunicationError) as e:
         print("Error running command '{}':\n{}".format(
             command, traceback.format_exc()))
         if offline.add(command, **cl_kwargs):
             print("Stored '{}' request in offline backup.".format(command))
-    except offline.OfflineRecoveryError:
-        print("Offline backup recovery failed!")
 
 
 def _parse_command(args=None):

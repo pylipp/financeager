@@ -48,7 +48,7 @@ def suite():
 
 class BaseEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.date = "2016-08-10"
+        self.date = "08-10"
         self.entry = BaseEntry(**{"name": "groceries", "value": 123.45, "date":
             self.date})
 

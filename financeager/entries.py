@@ -1,8 +1,10 @@
 """Defines Entries (data model rows built from fields)."""
 
 from __future__ import unicode_literals
+from datetime import datetime
 
 from .config import get_option
+from .import PERIOD_DATE_FORMAT
 
 
 class Entry(object):
@@ -37,7 +39,8 @@ class BaseEntry(Entry):
         :type date: str of valid format
         """
         super().__init__(name, value)
-        self.date = date
+        self.date = datetime.strptime(date, PERIOD_DATE_FORMAT).strftime(
+            get_option("FRONTEND", "date_format"))
         self.eid = eid
 
     @classmethod
