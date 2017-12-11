@@ -32,9 +32,9 @@ Install
     cd financeager
     make install
 
-Alternatively, you can omit the first step and install `financeager` to `~/.local` with 
+Alternatively, you can omit the first step and install `financeager` to `~/.local` with (requires `pip3`)
 
-    pip install -r requirements.txt . --user
+    pip3 install -r requirements.txt . --user
 
 ### Testing
 
