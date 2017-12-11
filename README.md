@@ -3,18 +3,17 @@
 FINANCEAGER
 ===========
 
-A command line application that helps you administering your daily expenses and receipts.
+A command line application (possibly interacting with a Flask webservice) that helps you administering your daily expenses and earnings.
+
+The `financeager` backend holds a database containing 'periods'. A period consists of entries of a certain year.
 
 Who is this for?
 ----------------
-You might be someone who wants to organize finances with a simple software
-because you're tired of Excel and the like.
-
-DISCLAIMER: Defs not BUG-FREE!
+You might be someone who wants to organize finances with a simple software because you're tired of Excel and the like. And you like the command line. And Python.
 
 NOTE
 ----
-You're currently on the `master` branch which is under active development.
+You're currently on the `master` branch which is under active development. I'm planning to have a versioning and packaging scheme ... soon.
 
 GENERAL USAGE
 -------------
@@ -22,16 +21,20 @@ GENERAL USAGE
 
 Create a virtual environment
 
-    mkvirtualenv --python=/usr/bin/python3 financeager
+    mkvirtualenv --python=$(which python3) financeager
 
 Clone the repo
 
     git clone https://github.com/pylipp/financeager.git
 
-Install (uses pip)
+Install
 
     cd financeager
     make install
+
+Alternatively, you can omit the first step and install `financeager` to `~/.local` with 
+
+    pip install -r requirements.txt . --user
 
 ### Testing
 
@@ -41,19 +44,57 @@ You're invited to run the tests from the root directory:
 
 ### Client-server or serverless mode?
 
-You can run `financeager` as a client-server or a serverless application (default).
+You can run `financeager` as a client-server or a serverless application (default). This can be controlled by the configuration file at `~/.config/financeager/config`.
 
-In the first case, specify `SERVICE.name = flask` in the config file at `~/.config/financeager`.
+In either mode, you can configure frontend options, that is the name of the default category (assigned when omitting the category option when e.g. adding an entry) and the date format (string that `datetime.strptime` understands; note the double percent).
 
-Launch the server via
+Default config:
 
-    > financeager start
+    [FRONTEND]
+    default_category = unspecified
+    date_format = %%m-%%d
 
-Host IP and debug mode are read from the configuration. Personally I run a financeager server on my Raspi, making it accessible via local network by setting `host=0.0.0.0`. Another option is to use a hosting platform like `pythonanywhere.com`.
+To run `financeager` as client-server application, specify a the server-sided configuration like this
 
-On the client side, specify the host in the config (defaults to localhost, so rather put the server IP). Specify username and password in the section `SERVICE:FLASK` if you have basic HTTP auth enabled.
+    [SERVICE]
+    name = flask
+
+    [SERVICE:FLASK]
+    host = 0.0.0.0
+
+You can launch the server via `financeager start` or by wrapping the `app = fflask.create_app()` in a WSGI.
+
+On the server side, you want to put something along the lines of
+
+    [SERVICE]
+    name = flask
+
+    [SERVICE:FLASK]
+    host = foo.pythonanywhere.com
+    timeout = 10
+    username = foouser
+    password = S3cr3t
+
+This specifies the timeout for HTTP requests and username/password for basic auth, if required by the server.
 
 ### Command line usage
+
+```
+usage: financeager [-h] {add,get,rm,update,print,list} ...
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+subcommands:
+  {add,start,get,rm,update,print,list}
+                        list of available subcommands
+    add                 add an entry to the database
+    get                 show information about single entry
+    rm                  remove an entry from the database
+    update              update one or more fields of an database entry
+    print               show the period database
+    list                list all databases
+```
 
 On the client side, `financeager` provides the following commands to interact with the database: `add`, `update`, `rm`, `get`, `print`, `list`.
 
@@ -108,6 +149,10 @@ Detailed information is available from
 
 - `financeager` will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is online available when running financeager with flask.
 
+### Expansion
+
+Want to use a different database? Should be straightforward by deriving from `Period` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new period type.
+
 KNOWN BUGS
 ----------
 - Please. Report. Them.
@@ -141,7 +186,7 @@ DEVELOPER'S TODOs
 - [x] refactor TinyDbPeriod (return Model strings)
 - [x] improve documentation (period module)
 - [ ] create Python package
-- [ ] set up Travis CI
+- [x] set up Travis CI
 - [ ] use asynchronous calls
 - [ ] use logging module instead of print
 - [x] drop PyQt dependency for schematics package
@@ -155,4 +200,4 @@ PERSONAL NOTE
 -------------
 This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development.
 
-Feel free to browse the project and give feedback (comments, issues, PRs).
+Feel free to browse the project and give feedback (comments, issues, pull requests).
