@@ -29,6 +29,8 @@ class Server(object):
         try:
             if command == "list":
                 return {"periods": [p._name for p in self._periods.values()]}
+            elif command == "copy":
+                return {"id": self._copy_entry(**kwargs)}
             elif command == "stop":
                 # graceful shutdown, invoke closing of files
                 for period in self._periods.values():
@@ -37,25 +39,23 @@ class Server(object):
                 period_name = kwargs.pop("period", None)
                 period = self._get_period(period_name)
 
-                try:
-                    if command == "add":
-                        response = {"id": period.add_entry(**kwargs)}
-                    elif command == "rm":
-                        response = {"id": period.remove_entry(**kwargs)}
-                    elif command == "print":
-                        response = {"elements": period.get_entries(**kwargs)}
-                    elif command == "get":
-                        response = {"element": period.get_entry(**kwargs)}
-                    elif command == "update":
-                        response = {"id": period.update_entry(**kwargs)}
-                    else:
-                        response = {"error":
-                                    "Server: unknown command '{}'".format(command)}
-                except PeriodException as e:
-                    response = {"error": str(e)}
-
+                if command == "add":
+                    response = {"id": period.add_entry(**kwargs)}
+                elif command == "rm":
+                    response = {"id": period.remove_entry(**kwargs)}
+                elif command == "print":
+                    response = {"elements": period.get_entries(**kwargs)}
+                elif command == "get":
+                    response = {"element": period.get_entry(**kwargs)}
+                elif command == "update":
+                    response = {"id": period.update_entry(**kwargs)}
+                else:
+                    response = {"error":
+                                "Server: unknown command '{}'".format(command)}
                 return response
 
+        except PeriodException as e:
+            return {"error": str(e)}
         except Exception:
             return {"error": traceback.format_exc()}
 
@@ -75,6 +75,21 @@ class Server(object):
             self._periods[period.name] = period
 
         return period
+
+    def _copy_entry(self, source_period_name=None, destination_period_name=None,
+                    **kwargs):
+        """Copy an entry (specified by ID and table_name) from the source period
+        to the destination period.
+
+        :type _period_name: str
+        :return: ID of copied entry
+        :raises: PeriodException if the source entry does not exist
+        """
+        source_period = self._get_period(source_period_name)
+        entry_to_copy = source_period.get_entry(**kwargs)
+
+        destination_period = self._get_period(destination_period_name)
+        return destination_period.add_entry(**entry_to_copy)
 
 
 def launch_server(**kwargs):

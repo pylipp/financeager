@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import unittest
+import os.path
+
+from tinydb import storages
 
 from financeager.entries import CategoryEntry
 from financeager.server import Server
@@ -118,6 +121,28 @@ class FindEntryServerTestCase(unittest.TestCase):
         element = self.server.run("get", eid=self.entry_id,
                 period=self.period)["element"]
         self.assertEqual(element["category"], new_category.lower())
+
+    def test_copy(self):
+        destination_period_name = "1"
+        response = self.server.run(
+            "copy", source_period_name=self.period,
+            destination_period_name=destination_period_name, eid=self.entry_id)
+        copied_entry_id = response["id"]
+        # copied and added as first element, hence ID 1
+        self.assertEqual(copied_entry_id, 1)
+
+        source_entry = self.server.run("get", period=self.period,
+                                       eid=self.entry_id)["element"]
+        destination_entry = self.server.run("get",
+                                            period=destination_period_name,
+                                            eid=copied_entry_id)["element"]
+        self.assertDictEqual(source_entry, destination_entry)
+
+    def test_unsuccessful_copy(self):
+        self.assertRaises(PeriodException, self.server._copy_entry,
+                          source_period_name=self.period,
+                          destination_period_name="1", eid=42)
+
 
 if __name__ == '__main__':
     unittest.main()
