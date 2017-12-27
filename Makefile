@@ -1,10 +1,5 @@
 VERSION=$(shell python -c "import pydartz; print(pydartz.__version__)")
 
-# Make sure we're on the master branch
-ifneq "$(shell git rev-parse --abbrev-ref HEAD)" "master"
-$(error Not on master branch)
-endif
-
 .PHONY: all test install tags upload tag publish coverage coverage-html
 
 all:
@@ -29,6 +24,11 @@ upload: README.rst setup.py
 	twine upload dist/*
 
 tag:
+	# Make sure we're on the master branch
+	ifneq "$(shell git rev-parse --abbrev-ref HEAD)" "master"
+	$(error Not on master branch)
+	endif
+
 	git tag v$(VERSION)
 	git push --tags
 
