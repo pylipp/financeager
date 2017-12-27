@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import traceback
 
-from financeager.period import TinyDbPeriod, PeriodException
+from financeager.period import Period, TinyDbPeriod, PeriodException
 
 
 class Server(object):
@@ -35,12 +35,7 @@ class Server(object):
                     period.close()
             else:
                 period_name = kwargs.pop("period", None)
-                if period_name not in self._periods:
-                    # default period stored with key 'None'
-                    self._periods[period_name] = TinyDbPeriod(period_name,
-                            **self._period_kwargs)
-
-                period = self._periods[period_name]
+                period = self._get_period(period_name)
 
                 try:
                     if command == "add":
@@ -63,6 +58,23 @@ class Server(object):
 
         except Exception:
             return {"error": traceback.format_exc()}
+
+    def _get_period(self, name):
+        """Get the Period identified by 'name' from the Periods dictionary. If
+        the Period does not exist, it is created and returned. If 'name' is
+        None, 'Period.DEFAULT_NAME' is used.
+
+        :type name: str or None
+        :return: Period object
+        """
+        name = name or str(Period.DEFAULT_NAME)
+        try:
+            period = self._periods[name]
+        except KeyError:
+            period = TinyDbPeriod(name, **self._period_kwargs)
+            self._periods[period.name] = period
+
+        return period
 
 
 def launch_server(**kwargs):

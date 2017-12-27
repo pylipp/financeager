@@ -25,7 +25,8 @@ class AddTestCase(unittest.TestCase):
         cls.filepath = os.path.join(CONFIG_DIR, "offline_test.json")
 
     def test_add_recover(self):
-        kwargs = dict(name="money", value=111, period=123)
+        period_name = "123"
+        kwargs = dict(name="money", value=111, period=period_name)
         self.assertTrue(add("add", offline_filepath=self.filepath, **kwargs))
 
         content = _load(self.filepath)
@@ -39,7 +40,7 @@ class AddTestCase(unittest.TestCase):
         proxy = local_proxy(storage=MemoryStorage)
         self.assertTrue(recover(proxy, offline_filepath=self.filepath))
 
-        element = proxy.run("get", eid=1, period=123)["element"]
+        element = proxy.run("get", eid=1, period=period_name)["element"]
         self.assertEqual(element["name"], "money")
         self.assertEqual(element["value"], 111)
 

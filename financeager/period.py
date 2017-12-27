@@ -44,7 +44,10 @@ class Period(object):
     DEFAULT_NAME = dt.today().year
 
     def __init__(self, name=None):
-        self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
+        """Create Period object. Its name defaults to the current year if not
+        specified.
+        """
+        self._name = "{}".format(name or Period.DEFAULT_NAME)
 
     @property
     def name(self):
