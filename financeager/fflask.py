@@ -74,7 +74,7 @@ class _Proxy(object):
         if username and password:
             auth = (username, password)
 
-        kwargs = dict(data=data or {}, auth=auth,
+        kwargs = dict(data=data or None, auth=auth,
                       timeout=int(get_option("SERVICE:FLASK", "timeout")))
 
         if command == "print":
@@ -87,7 +87,6 @@ class _Proxy(object):
         elif command == "add":
             response = requests.post(period_url, **kwargs)
         elif command == "list":
-            kwargs["data"]["command"] = command
             response = requests.post(url, **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(

@@ -6,9 +6,6 @@ from .server import Server
 
 SERVER = Server()
 
-periods_post_parser = reqparse.RequestParser()
-periods_post_parser.add_argument("command", required=True)
-
 put_parser = reqparse.RequestParser()
 put_parser.add_argument("name", required=True)
 put_parser.add_argument("value", required=True, type=float)
@@ -36,9 +33,7 @@ update_parser.add_argument("end", default=None)
 
 class PeriodsResource(Resource):
     def post(self):
-        args = periods_post_parser.parse_args()
-        command = args.pop("command")
-        return SERVER.run(command, **args)
+        return SERVER.run("list")
 
 class PeriodResource(Resource):
     def get(self, period_name):
