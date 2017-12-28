@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from financeager.server import LocalServer
+from financeager.period import Period
 from financeager.cli import _parse_command
 from financeager import communication
 from tinydb.storages import MemoryStorage
@@ -12,6 +13,7 @@ def suite():
             'test_rm',
             'test_get',
             'test_erroneous_get',
+            'test_copy',
             'test_update',
             'test_print',
             'test_print_with_sorting',
@@ -58,6 +60,11 @@ Category: Clothes""".format(today()))
         response = self.run_command("get 0")
         self.assertTrue(response.startswith(
             communication.ERROR_MESSAGE.format("get", "")))
+
+    def test_copy(self):
+        response = self.run_command("copy 1 -s {0} -d {0}".format(
+            Period.DEFAULT_NAME))
+        self.assertEqual(response, "")
 
     def test_update(self):
         response = self.run_command("update 1 -n trousers")

@@ -118,6 +118,18 @@ least a frequency, start date and end date are optional. Default:
             help="new end date (for recurrent entries only)")
     update_parser.add_argument(*period_args, **period_kwargs)
 
+    copy_parser = subparsers.add_parser("copy",
+            help="copy an entry from one period to another")
+    copy_parser.add_argument("eid", help="entry ID")
+    copy_parser.add_argument(
+        "-s", "--source", default=None, dest="source_period_name",
+        help="period to copy the entry from")
+    copy_parser.add_argument(
+        "-d", "--destination", default=None, dest="destination_period_name",
+        help="period to copy the entry to")
+    copy_parser.add_argument("-t", "--table-name", default=None,
+            help="Table to copy the entry from/to. Default: 'standard'.")
+
     print_parser = subparsers.add_parser("print",
             help="show the period database")
     print_parser.add_argument("name", nargs="?", default=None,
