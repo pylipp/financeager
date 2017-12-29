@@ -20,6 +20,7 @@ def suite():
         'test_update',
         'test_copy',
         'test_recurrent_entry',
+        'test_parser_error'
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
@@ -170,6 +171,12 @@ class WebserviceTestCase(unittest.TestCase):
             eid=destination_entry_id, http_config=self.http_config)
         self.assertTrue(set(fields.items()).issubset(
             set(get_response["element"].items())))
+
+    def test_parser_error(self):
+        # missing name and value in request, parser will complain
+        response = self.proxy.run("add", period=self.period,
+                                  http_config=self.http_config)
+        self.assertIn("name", response["error"])
 
 
 if __name__ == "__main__":
