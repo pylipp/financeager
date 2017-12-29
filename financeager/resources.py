@@ -6,6 +6,12 @@ from .server import Server
 
 SERVER = Server()
 
+copy_parser = reqparse.RequestParser()
+copy_parser.add_argument("destination_period_name", required=True)
+copy_parser.add_argument("source_period_name", required=True)
+copy_parser.add_argument("eid", required=True, type=int)
+copy_parser.add_argument("table_name")
+
 put_parser = reqparse.RequestParser()
 put_parser.add_argument("name", required=True)
 put_parser.add_argument("value", required=True, type=float)
@@ -35,6 +41,7 @@ class PeriodsResource(Resource):
     def post(self):
         return SERVER.run("list")
 
+
 class PeriodResource(Resource):
     def get(self, period_name):
         args = print_parser.parse_args()
@@ -43,6 +50,7 @@ class PeriodResource(Resource):
     def post(self, period_name):
         args = put_parser.parse_args()
         return SERVER.run("add", period=period_name, **args)
+
 
 class EntryResource(Resource):
     def get(self, period_name, table_name, eid):
@@ -72,6 +80,18 @@ class EntryResource(Resource):
             response = (response, 400)
 
         return response
+
+
+class CopyResource(Resource):
+    def post(self):
+        args = copy_parser.parse_args()
+        response = SERVER.run("copy", **args)
+
+        if "error" in response:
+            response = (response, 404)
+
+        return response
+
 
 class ShutdownResource(Resource):
     def post(self):

@@ -9,8 +9,8 @@ from flask_restful import Api
 
 from .period import Period, TinyDbPeriod
 from .config import get_option
-from .resources import (PeriodsResource, PeriodResource,
-        EntryResource, ShutdownResource)
+from .resources import (PeriodsResource, PeriodResource, EntryResource,
+                        CopyResource)
 
 
 def create_app(config=None):
@@ -20,6 +20,7 @@ def create_app(config=None):
     api = Api(app)
 
     api.add_resource(PeriodsResource, _Proxy.PERIODS_TAIL)
+    api.add_resource(CopyResource, _Proxy.COPY_TAIL)
     api.add_resource(PeriodResource,
             "{}/<period_name>".format(_Proxy.PERIODS_TAIL))
     api.add_resource(EntryResource,
@@ -48,6 +49,7 @@ class _Proxy(object):
     response."""
 
     PERIODS_TAIL = "/financeager/periods"
+    COPY_TAIL = PERIODS_TAIL + "/copy"
 
     def run(self, command, http_config=None, **data):
         """Run the specified command. If no http_config given, it is read from
@@ -88,6 +90,9 @@ class _Proxy(object):
             response = requests.post(period_url, **kwargs)
         elif command == "list":
             response = requests.post(url, **kwargs)
+        elif command == "copy":
+            response = requests.post(
+                url.replace(self.PERIODS_TAIL, self.COPY_TAIL), **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
                 period_url,

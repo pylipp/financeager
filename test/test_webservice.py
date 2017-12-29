@@ -18,6 +18,7 @@ def suite():
         'test_get_nonexisting_entry',
         'test_delete_nonexisting_entry',
         'test_update',
+        'test_copy',
         'test_recurrent_entry',
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
@@ -25,6 +26,7 @@ def suite():
 
 
 class WebserviceTestCase(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         host_ip = "127.0.0.1:5000"
@@ -41,6 +43,7 @@ class WebserviceTestCase(unittest.TestCase):
 
         cls.proxy = proxy()
         cls.period = "1900"  # choosing a value that hopefully does not exist yet
+        cls.destination_period_name = "1901"
         cls.http_config = {"host": host_ip, "username": None, }
 
     def test_add_print_rm(self):
@@ -145,9 +148,28 @@ class WebserviceTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.proxy.run("stop")
-        filepath = os.path.join(CONFIG_DIR, "{}.json".format(self.period))
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        for p in [self.period, self.destination_period_name]:
+            filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+    def test_copy(self):
+        fields = dict(name="donuts", value=-50.0, category="sweets")
+        response = self.proxy.run("add", period=self.period,
+                                  http_config=self.http_config, **fields)
+        source_entry_id = response["id"]
+
+        response = self.proxy.run(
+            "copy", source_period_name=self.period,
+            destination_period_name=self.destination_period_name,
+            eid=source_entry_id, http_config=self.http_config)
+        destination_entry_id = response["id"]
+
+        get_response = self.proxy.run(
+            "get", period=self.destination_period_name,
+            eid=destination_entry_id, http_config=self.http_config)
+        self.assertTrue(set(fields.items()).issubset(
+            set(get_response["element"].items())))
 
 
 if __name__ == "__main__":
