@@ -59,7 +59,7 @@ class Server(object):
         except Exception:
             return {"error": traceback.format_exc()}
 
-    def _get_period(self, name):
+    def _get_period(self, name=None):
         """Get the Period identified by 'name' from the Periods dictionary. If
         the Period does not exist, it is created and returned. If 'name' is
         None, 'Period.DEFAULT_NAME' is used.
@@ -67,7 +67,7 @@ class Server(object):
         :type name: str or None
         :return: Period object
         """
-        name = name or str(Period.DEFAULT_NAME)
+        name = name or Period.DEFAULT_NAME
         try:
             period = self._periods[name]
         except KeyError:

@@ -89,7 +89,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertEqual(period.name, another_period)
 
         period = self.server._get_period(None)
-        self.assertEqual(period.name, str(Period.DEFAULT_NAME))
+        self.assertEqual(period.name, Period.DEFAULT_NAME)
 
     def test_query_and_reset_response(self):
         category = CategoryEntry.DEFAULT_NAME

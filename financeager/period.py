@@ -41,7 +41,8 @@ class RecurrentEntryValidationModel(BaseValidationModel):
 
 class Period(object):
 
-    DEFAULT_NAME = dt.today().year
+    DEFAULT_YEAR = dt.today().year
+    DEFAULT_NAME = str(DEFAULT_YEAR)
 
     def __init__(self, name=None):
         """Create Period object. Its name defaults to the current year if not

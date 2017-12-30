@@ -59,7 +59,7 @@ class _Proxy(object):
         :return: dict. See Server class for possible keys
         """
 
-        period = data.pop("period", None) or str(Period.DEFAULT_NAME)
+        period = data.pop("period", None) or Period.DEFAULT_NAME
 
         if http_config is None:
             http_config = {}
