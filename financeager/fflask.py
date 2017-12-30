@@ -67,6 +67,7 @@ class _Proxy(object):
         host = http_config.get("host", get_option("SERVICE:FLASK", "host"))
         url = "http://{}{}".format(host, self.PERIODS_TAIL)
         period_url = "{}/{}".format(url, period)
+        copy_url = "{}/copy".format(url)
 
         username = http_config.get("username",
                                    get_option("SERVICE:FLASK", "username"))
@@ -91,8 +92,7 @@ class _Proxy(object):
         elif command == "list":
             response = requests.post(url, **kwargs)
         elif command == "copy":
-            response = requests.post(
-                url.replace(self.PERIODS_TAIL, self.COPY_TAIL), **kwargs)
+            response = requests.post(copy_url, **kwargs)
         elif command == "get":
             response = requests.get("{}/{}/{}".format(
                 period_url,
