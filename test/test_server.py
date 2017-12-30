@@ -84,9 +84,9 @@ class FindEntryServerTestCase(unittest.TestCase):
         period = self.server._get_period(self.period)
         self.assertEqual(period.name, self.period)
 
-        another_period_name = "foo"
-        period = self.server._get_period(another_period_name)
-        self.assertEqual(period.name, another_period_name)
+        another_period = "foo"
+        period = self.server._get_period(another_period)
+        self.assertEqual(period.name, another_period)
 
         period = self.server._get_period(None)
         self.assertEqual(period.name, str(Period.DEFAULT_NAME))
@@ -123,10 +123,10 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertEqual(element["category"], new_category.lower())
 
     def test_copy(self):
-        destination_period_name = "1"
+        destination_period = "1"
         response = self.server.run(
-            "copy", source_period_name=self.period,
-            destination_period_name=destination_period_name, eid=self.entry_id)
+            "copy", source_period=self.period,
+            destination_period=destination_period, eid=self.entry_id)
         copied_entry_id = response["id"]
         # copied and added as first element, hence ID 1
         self.assertEqual(copied_entry_id, 1)
@@ -134,14 +134,14 @@ class FindEntryServerTestCase(unittest.TestCase):
         source_entry = self.server.run("get", period=self.period,
                                        eid=self.entry_id)["element"]
         destination_entry = self.server.run("get",
-                                            period=destination_period_name,
+                                            period=destination_period,
                                             eid=copied_entry_id)["element"]
         self.assertDictEqual(source_entry, destination_entry)
 
     def test_unsuccessful_copy(self):
         self.assertRaises(PeriodException, self.server._copy_entry,
-                          source_period_name=self.period,
-                          destination_period_name="1", eid=42)
+                          source_period=self.period,
+                          destination_period="1", eid=42)
 
 
 if __name__ == '__main__':

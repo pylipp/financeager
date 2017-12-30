@@ -76,19 +76,19 @@ class Server(object):
 
         return period
 
-    def _copy_entry(self, source_period_name=None, destination_period_name=None,
+    def _copy_entry(self, source_period=None, destination_period=None,
                     **kwargs):
         """Copy an entry (specified by ID and table_name) from the source period
         to the destination period.
 
-        :type _period_name: str
+        :type _period: str
         :return: ID of copied entry
         :raises: PeriodException if the source entry does not exist
         """
-        source_period = self._get_period(source_period_name)
+        source_period = self._get_period(source_period)
         entry_to_copy = source_period.get_entry(**kwargs)
 
-        destination_period = self._get_period(destination_period_name)
+        destination_period = self._get_period(destination_period)
         return destination_period.add_entry(**entry_to_copy)
 
 

@@ -7,8 +7,8 @@ from .server import Server
 SERVER = Server()
 
 copy_parser = reqparse.RequestParser()
-copy_parser.add_argument("destination_period_name", required=True)
-copy_parser.add_argument("source_period_name", required=True)
+copy_parser.add_argument("destination_period", required=True)
+copy_parser.add_argument("source_period", required=True)
 copy_parser.add_argument("eid", required=True, type=int)
 copy_parser.add_argument("table_name")
 

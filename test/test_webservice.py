@@ -44,7 +44,7 @@ class WebserviceTestCase(unittest.TestCase):
 
         cls.proxy = proxy()
         cls.period = "1900"  # choosing a value that hopefully does not exist yet
-        cls.destination_period_name = "1901"
+        cls.destination_period = "1901"
         cls.http_config = {"host": host_ip, "username": None, }
 
     def test_add_print_rm(self):
@@ -149,7 +149,7 @@ class WebserviceTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.proxy.run("stop")
-        for p in [self.period, self.destination_period_name]:
+        for p in [self.period, self.destination_period]:
             filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
             if os.path.exists(filepath):
                 os.remove(filepath)
@@ -161,13 +161,13 @@ class WebserviceTestCase(unittest.TestCase):
         source_entry_id = response["id"]
 
         response = self.proxy.run(
-            "copy", source_period_name=self.period,
-            destination_period_name=self.destination_period_name,
+            "copy", source_period=self.period,
+            destination_period=self.destination_period,
             eid=source_entry_id, http_config=self.http_config)
         destination_entry_id = response["id"]
 
         get_response = self.proxy.run(
-            "get", period=self.destination_period_name,
+            "get", period=self.destination_period,
             eid=destination_entry_id, http_config=self.http_config)
         self.assertTrue(set(fields.items()).issubset(
             set(get_response["element"].items())))

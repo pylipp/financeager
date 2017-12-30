@@ -122,10 +122,10 @@ least a frequency, start date and end date are optional. Default:
             help="copy an entry from one period to another")
     copy_parser.add_argument("eid", help="entry ID")
     copy_parser.add_argument(
-        "-s", "--source", default=None, dest="source_period_name",
+        "-s", "--source", default=None, dest="source_period",
         help="period to copy the entry from")
     copy_parser.add_argument(
-        "-d", "--destination", default=None, dest="destination_period_name",
+        "-d", "--destination", default=None, dest="destination_period",
         help="period to copy the entry to")
     copy_parser.add_argument("-t", "--table-name", default=None,
             help="Table to copy the entry from/to. Default: 'standard'.")
