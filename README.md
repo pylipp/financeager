@@ -136,9 +136,13 @@ Show a side-by-side *overview* of earnings and expenses (filter date and/or cate
 	=============================================================================
 	Total                123.45           | Total               1500.00
 
-All financeager command operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
+The aforementioned `financeager` commands operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 
 	> financeager add xmas-gifts -42 --date 12-23 --period 2016
+
+*Copy* an entry from one database to another by specifying entry ID and source/destination period:
+
+    > financeager copy 1 --source 2017 --destination 2018
 
 Detailed information is available from
 
@@ -159,12 +163,8 @@ KNOWN BUGS
 
 FUTURE FEATURES
 ---------------
-- [x] support 'updating' of entries
 - [ ] experiment with urwid for building TUI
-- [x] sort `print` output acc. to entry name/value/date/category
 - [ ] support querying of standard/recurrent table with `print`
-- [x] refactor config module (custom method to intuitively retrieve config parameters)
-- [ ] `copy` command to transfer recurrent entries between period databases
 
 IMPLEMENTED FEATURES
 ---------------
@@ -176,6 +176,11 @@ IMPLEMENTED FEATURES
 - [x] always show entry ID when `print`ing
 - [x] specify date format as `MM-DD`
 - [x] validate user input prior to inserting to database
+- [x] support `get` command
+- [x] support 'updating' of entries
+- [x] sort `print` output acc. to entry name/value/date/category
+- [x] refactor config module (custom method to intuitively retrieve config parameters)
+- [x] `copy` command to transfer recurrent entries between period databases
 
 DISCARDED FEATURE IDEAS
 -----------------------
@@ -194,7 +199,7 @@ DEVELOPER'S TODOs
 - [x] specify CL option to differ between removing standard and recurrent element
 - [x] refactor `entries` module (no dependency on schematics package)
 - [x] consistent naming (recurrent instead of repetitive)
-- [x] support `get` command
+- [ ] increase code coverage
 
 PERSONAL NOTE
 -------------
