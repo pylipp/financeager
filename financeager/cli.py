@@ -17,11 +17,17 @@ if not os.path.isdir(CONFIG_DIR):
     os.makedirs(CONFIG_DIR)
 
 
-def get_option(section, option):
-    """Get an option of the financeager configuration."""
+def get_option(section, option=None):
+    """Get an option of the financeager configuration or a dictionary of section
+    contents if no option given.
+    """
     config_filepath = os.path.join(CONFIG_DIR, "config")
     _config = Configuration(filepath=config_filepath)
-    return _config.get(section, option)
+
+    if option is None:
+        return dict(_config._parser.items(section))
+    else:
+        return _config.get(section, option)
 
 
 def main(**kwargs):
@@ -46,12 +52,7 @@ def main(**kwargs):
         return
 
     if backend_name == "flask":
-        cl_kwargs["http_config"] = {
-            "host": get_option("SERVICE:FLASK", "host"),
-            "timeout": get_option("SERVICE:FLASK", "timeout"),
-            "username": get_option("SERVICE:FLASK", "username"),
-            "password": get_option("SERVICE:FLASK", "password"),
-        }
+        cl_kwargs["http_config"] = get_option("SERVICE:FLASK")
 
     proxy = communication_module.proxy()
     try:
