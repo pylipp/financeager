@@ -24,7 +24,8 @@ def main(**kwargs):
     cl_kwargs = kwargs or _parse_command()
 
     command = cl_kwargs.pop("command")
-    communication_module = communication.module()
+    backend_name = get_option("SERVICE", "name")
+    communication_module = communication.module(backend_name)
 
     if command == "start":
         communication_module.launch_server(**cl_kwargs)

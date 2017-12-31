@@ -6,7 +6,7 @@ import os.path
 import json
 
 from . import CONFIG_DIR
-from .communication import run, module
+from .communication import run
 
 
 OFFLINE_FILEPATH = os.path.join(CONFIG_DIR, "offline.json")
@@ -39,7 +39,7 @@ def _recover_data(proxy, content):
         command = data.pop("command")
         try:
             run(proxy, command, **data)
-        except module().CommunicationError as e:
+        except Exception as e:
             return data
 
 

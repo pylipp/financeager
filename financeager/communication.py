@@ -12,16 +12,13 @@ from .entries import prettify as prettify_element
 from .entries import CategoryEntry
 
 
-def module(name=None):
-    """Return the backend module specified by the configuration. Should be one
-    of 'flask' or 'none'.
-    """
-    backend = name or get_option("SERVICE", "name")
+def module(name):
+    """Return the backend module specified by 'name' ('flask' or 'none')."""
     backend_modules = {
             "flask": "fflask",
             "none": "server",
             }
-    return getattr(financeager, backend_modules[backend])
+    return getattr(financeager, backend_modules[name])
 
 
 ERROR_MESSAGE = "Command '{}' returned an error: {}"
