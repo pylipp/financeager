@@ -10,6 +10,7 @@ import traceback
 from financeager import offline, communication
 from .entries import CategoryEntry
 from .model import Model
+from .config import get_option
 
 
 def main(**kwargs):
@@ -33,7 +34,11 @@ def main(**kwargs):
 
     proxy = communication_module.proxy()
     try:
-        print(communication.run(proxy, command, **cl_kwargs))
+        print(communication.run(
+            proxy, command,
+            default_category=get_option("FRONTEND", "default_category"),
+            date_format=get_option("FRONTEND", "date_format"),
+            **cl_kwargs))
         if offline.recover(proxy):
             print("Recovered offline backup.")
     except offline.OfflineRecoveryError:

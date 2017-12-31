@@ -1,6 +1,7 @@
 import unittest
 from datetime import date
 
+from financeager.entries import BaseEntry
 from financeager.server import LocalServer
 from financeager.period import Period
 from financeager.cli import _parse_command
@@ -40,7 +41,8 @@ class CommunicationTestFixture(unittest.TestCase):
     def run_command(self, args):
         cl_kwargs = _parse_command(args=args.split())
         command = cl_kwargs.pop("command")
-        return communication.run(self.proxy, command, **cl_kwargs)
+        return communication.run(self.proxy, command,
+                                 date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
 
 
 class CommunicationTestCase(CommunicationTestFixture):
