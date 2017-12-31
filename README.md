@@ -80,18 +80,19 @@ This specifies the timeout for HTTP requests and username/password for basic aut
 ### Command line usage
 
 ```
-usage: financeager [-h] {add,get,rm,update,print,list} ...
+usage: financeager [-h] {add,get,rm,update,copy,print,list} ...
 
 optional arguments:
   -h, --help            show this help message and exit
 
 subcommands:
-  {add,start,get,rm,update,print,list}
+  {add,start,get,rm,update,copy,print,list}
                         list of available subcommands
     add                 add an entry to the database
     get                 show information about single entry
     rm                  remove an entry from the database
     update              update one or more fields of an database entry
+    copy                copy an entry from one period to another
     print               show the period database
     list                list all databases
 ```
