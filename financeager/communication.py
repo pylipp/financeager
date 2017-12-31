@@ -46,6 +46,7 @@ def run(proxy, command, **kwargs):
     elements = response.get("elements")
     if elements is not None:
         CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort_key
+        CategoryEntry.DEFAULT_NAME = get_option("FRONTEND", "default_category")
         Model.CATEGORY_ENTRY_SORT_KEY = category_sort_key
         return prettify(elements, stacked_layout)
 

@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 from datetime import datetime
 
-from .config import get_option
 from .import PERIOD_DATE_FORMAT
 
 
@@ -28,6 +27,7 @@ class BaseEntry(Entry):
     NAME_LENGTH = 16
     VALUE_LENGTH = 8  # 00000.00
     VALUE_DIGITS = 2
+    DATE_FORMAT = "%m-%d"
     DATE_LENGTH = 5  # mm-dd
     SHOW_EID = True
     EID_LENGTH = 3 if SHOW_EID else 0
@@ -40,8 +40,8 @@ class BaseEntry(Entry):
         :type date: str of valid format
         """
         super().__init__(name, value)
-        self.date = datetime.strptime(date, PERIOD_DATE_FORMAT).strftime(
-            get_option("FRONTEND", "date_format"))
+        self.date = datetime.strptime(
+            date, PERIOD_DATE_FORMAT).strftime(self.DATE_FORMAT)
         self.eid = eid
 
     @classmethod
@@ -71,8 +71,7 @@ class CategoryEntry(Entry):
     (i.e. the sum of its children's values)."""
 
     ITEM_TYPES = ["name", "sum", "empty"]
-    # TODO hardcode instead of config
-    DEFAULT_NAME = get_option("FRONTEND", "default_category")
+    DEFAULT_NAME = "unspecified"
 
     BASE_ENTRY_INDENT = 2
     NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT

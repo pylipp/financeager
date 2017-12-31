@@ -2,6 +2,8 @@
 import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
+from .entries import CategoryEntry, BaseEntry
+
 
 class Configuration(object):
     """Wrapper around a ConfigParser object holding configuration. The default
@@ -18,8 +20,8 @@ class Configuration(object):
             "name": "none",
         }
         self._parser["FRONTEND"] = {
-            "default_category": "unspecified",
-            "date_format": "%%m-%%d",
+            "default_category": CategoryEntry.DEFAULT_NAME,
+            "date_format": BaseEntry.DATE_FORMAT.replace("%", "%%"),
         }
         self._parser["SERVICE:FLASK"] = {
             "host": "127.0.0.1",
