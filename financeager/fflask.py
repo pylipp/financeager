@@ -8,7 +8,6 @@ from flask import Flask
 from flask_restful import Api
 
 from .period import Period, TinyDbPeriod
-from .config import get_option
 from .resources import (PeriodsResource, PeriodResource, EntryResource,
                         CopyResource)
 
@@ -34,10 +33,7 @@ def launch_server(debug=False, host=None):
     specified, it is read from the configuration.
     """
     try:
-        app = create_app(config={
-            "DEBUG": debug,
-            "SERVER_NAME": host or get_option("SERVICE:FLASK", "host")
-            })
+        app = create_app(config={"DEBUG": debug, "SERVER_NAME": host})
         app.run()
     except OSError as e:
         # socket binding: address already in use
@@ -50,6 +46,9 @@ class _Proxy(object):
 
     PERIODS_TAIL = "/financeager/periods"
     COPY_TAIL = PERIODS_TAIL + "/copy"
+
+    DEFAULT_HOST = "127.0.0.1"
+    DEFAULT_TIMEOUT = 10
 
     def run(self, command, http_config=None, **data):
         """Run the specified command. If no http_config given, it is read from
@@ -64,21 +63,19 @@ class _Proxy(object):
         if http_config is None:
             http_config = {}
 
-        host = http_config.get("host", get_option("SERVICE:FLASK", "host"))
+        host = http_config.get("host", self.DEFAULT_HOST)
         url = "http://{}{}".format(host, self.PERIODS_TAIL)
         period_url = "{}/{}".format(url, period)
         copy_url = "{}/copy".format(url)
 
-        username = http_config.get("username",
-                                   get_option("SERVICE:FLASK", "username"))
-        password = http_config.get("password",
-                                   get_option("SERVICE:FLASK", "password"))
+        username = http_config.get("username")
+        password = http_config.get("password")
         auth = None
         if username and password:
             auth = (username, password)
 
         kwargs = dict(data=data or None, auth=auth,
-                      timeout=int(get_option("SERVICE:FLASK", "timeout")))
+                      timeout=self.DEFAULT_TIMEOUT)
 
         if command == "print":
             response = requests.get(period_url, **kwargs)

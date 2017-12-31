@@ -29,8 +29,18 @@ def main(**kwargs):
     communication_module = communication.module(backend_name)
 
     if command == "start":
+        if cl_kwargs.get("host") is None:
+            cl_kwargs["host"] = get_option("SERVICE:FLASK", "host")
         communication_module.launch_server(**cl_kwargs)
         return
+
+    if backend_name == "flask":
+        cl_kwargs["http_config"] = {
+            "host": get_option("SERVICE:FLASK", "host"),
+            "timeout": get_option("SERVICE:FLASK", "timeout"),
+            "username": get_option("SERVICE:FLASK", "username"),
+            "password": get_option("SERVICE:FLASK", "password"),
+        }
 
     proxy = communication_module.proxy()
     try:

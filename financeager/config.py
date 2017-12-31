@@ -4,6 +4,7 @@ from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from . import CONFIG_DIR
 from .entries import CategoryEntry, BaseEntry
+from .fflask import _Proxy as Flask_Proxy
 
 
 class Configuration(object):
@@ -25,8 +26,8 @@ class Configuration(object):
             "date_format": BaseEntry.DATE_FORMAT.replace("%", "%%"),
         }
         self._parser["SERVICE:FLASK"] = {
-            "host": "127.0.0.1",
-            "timeout": 10,
+            "host": Flask_Proxy.DEFAULT_HOST,
+            "timeout": Flask_Proxy.DEFAULT_TIMEOUT,
             "username": "",
             "password": "",
         }
