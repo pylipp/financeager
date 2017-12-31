@@ -1,10 +1,11 @@
 import unittest
+from unittest import mock
 import os.path
 
 from tinydb.storages import MemoryStorage
 
 from financeager.config import CONFIG_DIR
-from financeager.offline import add, _load, recover
+from financeager.offline import add, _load, recover, OfflineRecoveryError
 from financeager.server import proxy as local_proxy
 
 
@@ -14,6 +15,7 @@ def suite():
         'test_add_recover',
         'test_no_add',
         'test_no_recover',
+        'test_failed_recover',
     ]
     suite.addTest(unittest.TestSuite(map(AddTestCase, tests)))
     return suite
@@ -49,6 +51,18 @@ class AddTestCase(unittest.TestCase):
 
     def test_no_recover(self):
         self.assertFalse(recover(None, offline_filepath=self.filepath))
+
+    @mock.patch('financeager.offline.run')
+    def test_failed_recover(self, run_mock):
+        run_mock.side_effect = Exception()
+
+        period_name = "123"
+        kwargs = dict(name="money", value=111, period=period_name)
+        self.assertTrue(add("add", offline_filepath=self.filepath, **kwargs))
+
+        proxy = local_proxy(storage=MemoryStorage)
+        self.assertRaises(OfflineRecoveryError, recover, proxy,
+                          offline_filepath=self.filepath)
 
     def tearDown(self):
         if os.path.exists(self.filepath):
