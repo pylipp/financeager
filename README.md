@@ -200,7 +200,7 @@ DEVELOPER'S TODOs
 - [x] specify CL option to differ between removing standard and recurrent element
 - [x] refactor `entries` module (no dependency on schematics package)
 - [x] consistent naming (recurrent instead of repetitive)
-- [ ] increase code coverage
+- [x] increase code coverage
 
 PERSONAL NOTE
 -------------
