@@ -6,7 +6,7 @@ import time
 from threading import Thread
 
 from financeager.fflask import proxy, launch_server
-from financeager.config import CONFIG_DIR
+from financeager import CONFIG_DIR
 from financeager.model import prettify
 
 

@@ -2,7 +2,8 @@ import unittest
 import os.path
 import time
 
-from financeager.config import CONFIG_DIR, Configuration
+from financeager import CONFIG_DIR
+from financeager.config import Configuration
 
 
 def suite():

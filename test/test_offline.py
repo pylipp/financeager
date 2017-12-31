@@ -4,7 +4,7 @@ import os.path
 
 from tinydb.storages import MemoryStorage
 
-from financeager.config import CONFIG_DIR
+from financeager import CONFIG_DIR
 from financeager.offline import add, _load, recover, OfflineRecoveryError
 from financeager.server import proxy as local_proxy
 

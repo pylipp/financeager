@@ -7,7 +7,7 @@ from tinydb import storages
 
 from financeager.entries import CategoryEntry
 from financeager.server import Server
-from financeager.config import CONFIG_DIR
+from financeager import CONFIG_DIR
 from financeager.period import PeriodException, Period
 
 
