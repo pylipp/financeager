@@ -1,7 +1,7 @@
 import unittest
 
 from tinydb import database, storages
-from financeager.period import TinyDbPeriod, PeriodException,\
+from financeager.period import Period, TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
         RecurrentEntryValidationModel
 from financeager import PERIOD_DATE_FORMAT
@@ -69,9 +69,8 @@ def suite():
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
     def test_default_name(self):
-        period = TinyDbPeriod()
+        period = Period()
         self.assertEqual(period.name, "2017")
-        period.close()
 
 
 class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
