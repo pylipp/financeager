@@ -5,7 +5,7 @@ Module for handling requests when server not available.
 import os.path
 import json
 
-from .config import CONFIG_DIR
+from . import CONFIG_DIR
 from .communication import run, module
 
 

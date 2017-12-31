@@ -1,3 +1,5 @@
+import os.path
+
 # authorship information
 __authors__ = ['Philipp Metzner']
 __author__ = ','.join(__authors__)
@@ -15,3 +17,6 @@ __email__ = 'beth.aleph@yahoo.de'
 
 # fixed date format for database
 PERIOD_DATE_FORMAT = "%m-%d"
+
+# directory for application data
+CONFIG_DIR = os.path.expanduser("~/.config/financeager")

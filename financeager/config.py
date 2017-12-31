@@ -2,6 +2,7 @@
 import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
+from . import CONFIG_DIR
 from .entries import CategoryEntry, BaseEntry
 
 
@@ -63,7 +64,6 @@ class Configuration(object):
 
 # Load configuration from file. Create directory if it does not exist. This
 # happens at first import of this module
-CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 if not os.path.isdir(CONFIG_DIR):
     os.makedirs(CONFIG_DIR)
 

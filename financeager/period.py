@@ -13,8 +13,7 @@ from schematics.models import Model as SchematicsModel
 from schematics.types import StringType, FloatType, DateType
 from schematics.exceptions import DataError, ValidationError
 
-from . import PERIOD_DATE_FORMAT
-from .config import CONFIG_DIR
+from . import PERIOD_DATE_FORMAT, CONFIG_DIR
 from .entries import CategoryEntry
 
 
