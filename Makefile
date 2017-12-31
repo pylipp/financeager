@@ -40,7 +40,6 @@ coverage:
 
 coverage-html: coverage
 	coverage html
-	xdg-open htmlcov/index.html
 
 lint:
 	flake8 financeager test
