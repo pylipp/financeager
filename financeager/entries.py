@@ -46,15 +46,9 @@ class BaseEntry(Entry):
 
     @classmethod
     def from_tinydb(cls, element):
-        """Create a BaseEntry from a TinyDB Element or a dict. In the first
-        case, the entry eid is copied, otherwise it defaults to 0.
+        """Create a BaseEntry from a TinyDB Element. The ID is copied.
         """
-
-        try:
-            element.update({"eid": element.eid})
-        except AttributeError:
-            # element is dict, not tinydb.database.Element
-            pass
+        element.update({"eid": element.eid})
         return cls(**element)
 
     def __str__(self):
