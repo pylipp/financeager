@@ -7,6 +7,7 @@ from financeager.cli import _parse_command
 from financeager import communication
 from tinydb.storages import MemoryStorage
 
+
 def suite():
     suite = unittest.TestSuite()
     tests = [
@@ -37,6 +38,7 @@ class CommunicationTestFixture(unittest.TestCase):
         cl_kwargs = _parse_command(args=args.split())
         command = cl_kwargs.pop("command")
         return communication.run(self.proxy, command, **cl_kwargs)
+
 
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
@@ -138,6 +140,7 @@ Frequency: Bimonthly
 Start    : 01-01
 End      : 12-31
 Category : N.a.""")
+
 
 if __name__ == '__main__':
     unittest.main()

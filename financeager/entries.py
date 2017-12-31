@@ -18,6 +18,7 @@ class Entry(object):
         self.name = name.lower()
         self.value = abs(value)
 
+
 class BaseEntry(Entry):
     """Innermost element of the Model, child of a CategoryEntry. Holds
     information on name, value, date and eid."""
@@ -25,14 +26,14 @@ class BaseEntry(Entry):
     ITEM_TYPES = ["name", "value", "date"]
 
     NAME_LENGTH = 16
-    VALUE_LENGTH = 8 # 00000.00
+    VALUE_LENGTH = 8  # 00000.00
     VALUE_DIGITS = 2
-    DATE_LENGTH = 5 # mm-dd
+    DATE_LENGTH = 5  # mm-dd
     SHOW_EID = True
     EID_LENGTH = 3 if SHOW_EID else 0
     # add spaces separating name/value, value/date and date/eid
     TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + \
-            3 if SHOW_EID else 2
+        3 if SHOW_EID else 2
 
     def __init__(self, name, value, date, eid=0):
         """:type eid: int
@@ -69,6 +70,7 @@ class BaseEntry(Entry):
         if self.SHOW_EID:
             string += " {1:{0}d}".format(self.EID_LENGTH, self.eid)
         return string
+
 
 class CategoryEntry(Entry):
     """First child of the model, holding BaseEntries. Has a name and a value

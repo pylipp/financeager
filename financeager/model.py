@@ -1,6 +1,3 @@
-#-*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from tinydb.database import Element
 
 from .entries import BaseEntry, CategoryEntry
@@ -156,7 +153,6 @@ class Model(object):
         return result
 
 
-#pylint: disable=too-many-locals
 def prettify(elements, stacked_layout=False):
     """Sort the given elements (type acc. to Period._search_all_tables) by
     positive and negative value and return pretty string build from the
@@ -212,9 +208,9 @@ def prettify(elements, stacked_layout=False):
                 result.append(row + " | ")
         else:
             for row in models_str[1][earnings_size:]:
-                result.append(CategoryEntry.TOTAL_LENGTH*" " + " | " + row)
+                result.append(CategoryEntry.TOTAL_LENGTH * " " + " | " + row)
         # add 3 to take central separator " | " into account
-        result.append((2*CategoryEntry.TOTAL_LENGTH + 3) * "=")
+        result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
 
         # add total value of earnings and expenses as final line
         total_values = []

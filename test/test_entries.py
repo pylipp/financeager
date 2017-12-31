@@ -46,6 +46,7 @@ def suite():
     suite.addTest(unittest.TestSuite(map(PrettifyRecurrentElementTestCase, tests)))
     return suite
 
+
 class BaseEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.date = "08-10"
@@ -63,6 +64,7 @@ class BaseEntryTestCase(unittest.TestCase):
 
     def test_eid(self):
         self.assertEqual(self.entry.eid, 0)
+
 
 class NegativeBaseEntryTestCase(unittest.TestCase):
     @classmethod
@@ -82,6 +84,7 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
             expected += "   0"
         self.assertEqual(str(self.entry), expected)
 
+
 class CategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.entry = CategoryEntry(name="gifts")
@@ -96,8 +99,9 @@ class CategoryEntryTestCase(unittest.TestCase):
         self.assertEqual(str(self.entry),
                 "Gifts".ljust(CategoryEntry.NAME_LENGTH) + " " +
                 "0.00".rjust(BaseEntry.VALUE_LENGTH) + " " +
-                BaseEntry.DATE_LENGTH*" " +
-                (BaseEntry.EID_LENGTH + 1)*" " if BaseEntry.SHOW_EID else "")
+                BaseEntry.DATE_LENGTH * " " +
+                (BaseEntry.EID_LENGTH + 1) * " " if BaseEntry.SHOW_EID else "")
+
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     @classmethod
@@ -113,7 +117,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(str(self.entry),
-                "This Is Quite A Lo " + "  100.00" + 6*" " + 4*" " + "\n" +
+                "This Is Quite A Lo " + "  100.00" + 6 * " " + 4 * " " + "\n" +
                 "  Entry            " + "  100.00" + " 08-13 " + "  0")
 
 
@@ -180,6 +184,7 @@ class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
     def test_eid(self):
         self.assertEqual(self.entry.eid, self.eid)
 
+
 class PrettifyBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.element = database.Element(value=dict(
@@ -193,6 +198,7 @@ Name    : Soccer Shoes
 Value   : -123.45
 Date    : 04-01
 Category: Sport Equipment""")
+
 
 class PrettifyRecurrentElementTestCase(unittest.TestCase):
     def setUp(self):

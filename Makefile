@@ -1,9 +1,9 @@
 VERSION=$(shell python -c "import pydartz; print(pydartz.__version__)")
 
-.PHONY: all test install tags upload tag publish coverage coverage-html
+.PHONY: all test install tags upload tag publish coverage coverage-html lint
 
 all:
-	@echo "Available targets: install, test, upload, tag, publish, coverage, coverage-html"
+	@echo "Available targets: install, test, upload, tag, publish, coverage, coverage-html, lint"
 
 install:
 	pip install -U -r requirements.txt -e .
@@ -41,3 +41,6 @@ coverage:
 coverage-html: coverage
 	coverage html
 	xdg-open htmlcov/index.html
+
+lint:
+	flake8 financeager test

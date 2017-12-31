@@ -132,7 +132,6 @@ class TinyDbPeriod(TinyDB, Period):
         for field in redundant_fields:
             raw_data.pop(field, None)
 
-    # pylint: disable=no-member
     @staticmethod
     def _validate_entry(raw_data, table_name, **model_kwargs):
         """Validate raw entry data acc. to ValidationModel.
@@ -445,7 +444,6 @@ class TinyDbPeriod(TinyDB, Period):
 
         return entry.eid
 
-    # pylint: disable=unused-argument
     @staticmethod
     def _create_query_condition(name=None, value=None, category=None, date=None):
         condition = None

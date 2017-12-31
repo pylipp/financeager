@@ -1,5 +1,3 @@
-# pylint: disable=protected-access
-from __future__ import unicode_literals
 import unittest
 
 from tinydb import database, storages

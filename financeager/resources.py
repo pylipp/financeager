@@ -1,4 +1,3 @@
-#pylint: disable=R0201
 from flask_restful import Resource, reqparse
 
 from .server import Server
