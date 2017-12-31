@@ -6,11 +6,22 @@ from __future__ import unicode_literals, print_function
 
 import argparse
 import traceback
+import os
 
-from financeager import offline, communication
+from financeager import offline, communication, CONFIG_DIR
 from .entries import CategoryEntry
 from .model import Model
-from .config import get_option
+from .config import Configuration
+
+if not os.path.isdir(CONFIG_DIR):
+    os.makedirs(CONFIG_DIR)
+
+
+def get_option(section, option):
+    """Get an option of the financeager configuration."""
+    config_filepath = os.path.join(CONFIG_DIR, "config")
+    _config = Configuration(filepath=config_filepath)
+    return _config.get(section, option)
 
 
 def main(**kwargs):

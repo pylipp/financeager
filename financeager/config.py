@@ -2,7 +2,6 @@
 import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
-from . import CONFIG_DIR
 from .entries import CategoryEntry, BaseEntry
 from .fflask import _Proxy as Flask_Proxy
 
@@ -61,17 +60,3 @@ class Configuration(object):
     def __getattr__(self, name):
         """Forward unknown member names to underlying ConfigParser."""
         return getattr(self._parser, name)
-
-
-# Load configuration from file. Create directory if it does not exist. This
-# happens at first import of this module
-if not os.path.isdir(CONFIG_DIR):
-    os.makedirs(CONFIG_DIR)
-
-CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
-
-
-def get_option(section, option):
-    """Get an option of the financeager configuration."""
-    _config = Configuration(filepath=CONFIG_FILEPATH)
-    return _config.get(section, option)
