@@ -12,11 +12,11 @@ from .entries import prettify as prettify_element
 from .entries import CategoryEntry
 
 
-def module():
+def module(name=None):
     """Return the backend module specified by the configuration. Should be one
     of 'flask' or 'none'.
     """
-    backend = get_option("SERVICE", "name")
+    backend = name or get_option("SERVICE", "name")
     backend_modules = {
             "flask": "fflask",
             "none": "server",
@@ -38,9 +38,6 @@ def run(proxy, command, **kwargs):
                                    Model.CATEGORY_ENTRY_SORT_KEY)
     _preprocess(kwargs)
     response = proxy.run(command, **kwargs)
-
-    if not isinstance(response, dict):
-        return ""
 
     error = response.get("error")
     if error is not None:

@@ -4,7 +4,7 @@ from datetime import date
 from financeager.server import LocalServer
 from financeager.period import Period
 from financeager.cli import _parse_command
-from financeager import communication
+from financeager import communication, server, fflask
 from tinydb.storages import MemoryStorage
 
 
@@ -18,6 +18,7 @@ def suite():
             'test_update',
             'test_print',
             'test_print_with_sorting',
+            'test_list',
             ]
     suite.addTest(unittest.TestSuite(map(CommunicationTestCase, tests)))
     tests = [
@@ -26,6 +27,8 @@ def suite():
             'test_update',
             ]
     suite.addTest(unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
+    tests = ['test_modules']
+    suite.addTest(unittest.TestSuite(map(CommunicationModuleTestCase, tests)))
     return suite
 
 
@@ -77,6 +80,10 @@ Name    : Trousers
 Value   : -99.0
 Date    : {}
 Category: Clothes""".format(today()))
+
+    def test_list(self):
+        response = self.run_command("list")
+        self.assertEqual(response, "{}".format(date.today().year))
 
     def test_print(self):
         response = self.run_command("print")
@@ -140,6 +147,14 @@ Frequency: Bimonthly
 Start    : 01-01
 End      : 12-31
 Category : N.a.""")
+
+
+class CommunicationModuleTestCase(unittest.TestCase):
+    def test_modules(self):
+        module = communication.module("flask")
+        self.assertEqual(module, fflask)
+        module = communication.module("none")
+        self.assertEqual(module, server)
 
 
 if __name__ == '__main__':
