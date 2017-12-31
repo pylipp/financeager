@@ -36,6 +36,7 @@ def suite():
     tests = [
             'test_recurrent_entries',
             'test_recurrent_quarter_yearly_entries',
+            'test_recurrent_weekly_entries',
             'test_update_recurrent_entry'
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodRecurrentEntryTestCase, tests)))
@@ -253,6 +254,14 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.period.remove_entry(eid=eid, table_name="recurrent")
         self.assertEqual(len(self.period.table("recurrent")),
                 recurrent_table_size - 1)
+
+    def test_recurrent_weekly_entries(self):
+        eid = self.period.add_entry(name="interest", value=25,
+                table_name="recurrent", frequency="weekly",
+                start="01-08", end="01-14")
+        recurrent_elements = self.period.get_entries()["recurrent"][eid]
+        self.assertEqual(len(recurrent_elements), 1)
+        self.assertEqual(recurrent_elements[0]["name"], "interest, week 01")
 
     def test_update_recurrent_entry(self):
         eid = self.period.add_entry(name="interest", value=25,
