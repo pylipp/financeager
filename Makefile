@@ -1,4 +1,4 @@
-VERSION=$(shell python -c "import pydartz; print(pydartz.__version__)")
+VERSION=$(shell python -c "import financeager; print(financeager.__version__)")
 
 .PHONY: all test install tags upload tag publish coverage coverage-html lint
 
@@ -16,7 +16,7 @@ tags:
 
 README.rst: README.md
 	pandoc README.md -o README.rst
-	python setup.py check -r
+	python setup.py check -rs
 
 upload: README.rst setup.py
 	rm -f dist/*
