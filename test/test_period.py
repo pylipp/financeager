@@ -70,7 +70,9 @@ def suite():
 class CreateEmptyPeriodTestCase(unittest.TestCase):
     def test_default_name(self):
         period = Period()
-        self.assertEqual(period.name, "2017")
+        year = dt.date.today().year
+        self.assertEqual(period.year, year)
+        self.assertEqual(period.name, str(year))
 
 
 class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
