@@ -13,11 +13,17 @@ You might be someone who wants to organize finances with a simple software becau
 
 NOTE
 ----
-You're currently on the `master` branch which is under active development. I'm planning to have a versioning and packaging scheme ... soon.
+You're currently on the `master` branch which is under active development.
 
 GENERAL USAGE
 -------------
-### Installation
+## Installation
+
+### From PyPI package
+
+    pip install financeager
+
+### From source
 
 Create a virtual environment
 
@@ -25,7 +31,7 @@ Create a virtual environment
 
 Clone the repo
 
-    git clone https://github.com/pylipp/financeager.git
+    git clone https://github.com/pylipp/financeager
 
 Install
 
@@ -36,10 +42,12 @@ Alternatively, you can omit the first step and install `financeager` to `~/.loca
 
     pip3 install -r requirements.txt . --user
 
-### Testing
+## Testing
 
 You're invited to run the tests from the root directory:
 
+    git clone https://github.com/pylipp/financeager
+    cd financeager
     make test
 
 ### Client-server or serverless mode?
@@ -64,7 +72,7 @@ To run `financeager` as client-server application, specify a the server-sided co
 
 You can launch the server via `financeager start` or by wrapping the `app = fflask.create_app()` in a WSGI.
 
-On the server side, you want to put something along the lines of
+On the client side, you want to put something along the lines of
 
     [SERVICE]
     name = flask
@@ -191,9 +199,8 @@ DEVELOPER'S TODOs
 -----------------
 - [x] refactor TinyDbPeriod (return Model strings)
 - [x] improve documentation (period module)
-- [ ] create Python package
+- [x] create Python package
 - [x] set up Travis CI
-- [ ] use asynchronous calls
 - [ ] use logging module instead of print
 - [x] drop PyQt dependency for schematics package
 - [x] allow remove elements by ID only
