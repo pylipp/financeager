@@ -2,6 +2,6 @@ language: python
 python:
   - "3.5"
 install:
-  - pip install -r requirements.txt
+  - pip install financeager
 script:
   - python -m test.suites
