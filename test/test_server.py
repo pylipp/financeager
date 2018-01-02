@@ -21,6 +21,7 @@ def suite():
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
     tests = [
         'test_recurrent_entries',
+        'test_recurrent_copy',
     ]
     suite.addTest(unittest.TestSuite(map(RecurrentEntryServerTestCase, tests)))
     tests = [
@@ -71,6 +72,23 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
         elements = self.server.run("print", period=self.period,
                 name="rent")["elements"]["recurrent"][self.entry_id]
         self.assertEqual(len(elements), 6)
+
+    def test_recurrent_copy(self):
+        destination_period = "2001"
+        response = self.server.run(
+            "copy", source_period=self.period, table_name="recurrent",
+            destination_period=destination_period, eid=self.entry_id)
+        copied_entry_id = response["id"]
+        # copied and added as first element, hence ID 1
+        self.assertEqual(copied_entry_id, 1)
+
+        source_entry = self.server.run("get", period=self.period,
+                                       table_name="recurrent",
+                                       eid=self.entry_id)["element"]
+        destination_entry = self.server.run("get", table_name="recurrent",
+                                            period=destination_period,
+                                            eid=copied_entry_id)["element"]
+        self.assertDictEqual(source_entry, destination_entry)
 
 
 class FindEntryServerTestCase(unittest.TestCase):

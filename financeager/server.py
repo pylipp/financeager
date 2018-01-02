@@ -89,7 +89,8 @@ class Server(object):
         entry_to_copy = source_period.get_entry(**kwargs)
 
         destination_period = self._get_period(destination_period)
-        return destination_period.add_entry(**entry_to_copy)
+        return destination_period.add_entry(table_name=kwargs.get("table_name"),
+                                            **entry_to_copy)
 
 
 def launch_server(**kwargs):
