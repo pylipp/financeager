@@ -24,11 +24,6 @@ upload: README.rst setup.py
 	twine upload dist/*
 
 tag:
-	# Make sure we're on the master branch
-	ifneq "$(shell git rev-parse --abbrev-ref HEAD)" "master"
-	$(error Not on master branch)
-	endif
-
 	git tag v$(VERSION)
 	git push --tags
 
