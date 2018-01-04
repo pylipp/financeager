@@ -19,8 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from setuptools import setup, find_packages
 from financeager import __version__
 
-with open("README.rst") as readme:
-    long_description = readme.read()
+try:
+    with open("README.rst") as readme:
+        long_description = readme.read()
+except FileNotFoundError:
+    with open("README.md") as readme:
+        long_description = readme.read()
 
 setup(
     name="financeager",
