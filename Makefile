@@ -9,7 +9,7 @@ install:
 	pip install -U -r requirements.txt -e .
 
 test:
-	@[ -z $$VIRTUAL_ENV ] && echo "Acticate financeager virtualenv." || python -m test.suites
+	python setup.py test
 
 tags:
 	ctags -R .
@@ -30,7 +30,7 @@ tag:
 publish: tag upload
 
 coverage:
-	@for f in test/test_*.py; do coverage run --source financeager --append $$f; done
+	coverage run --source financeager setup.py test
 	coverage report
 
 coverage-html: coverage
