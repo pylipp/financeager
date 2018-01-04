@@ -1,15 +1,12 @@
 import unittest
-import os.path
 import time
 
-from financeager import CONFIG_DIR
 from financeager.config import Configuration
 
 
 def suite():
     suite = unittest.TestSuite()
     tests = [
-            'test_config_dir_exists',
             'test_sections',
             'test_load_custom_config_file',
             ]
@@ -18,9 +15,6 @@ def suite():
 
 
 class ConfigTestCase(unittest.TestCase):
-    def test_config_dir_exists(self):
-        self.assertTrue(os.path.isdir(CONFIG_DIR))
-
     def test_sections(self):
         config = Configuration()
         self.assertSetEqual(set(config.sections()), {"SERVICE", "FRONTEND",

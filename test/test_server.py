@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import unittest
-import os.path
 
 from tinydb import storages
 
 from financeager.entries import CategoryEntry
 from financeager.server import Server
-from financeager import CONFIG_DIR
 from financeager.period import PeriodException, Period
 
 
@@ -15,7 +13,6 @@ def suite():
     suite = unittest.TestSuite()
     tests = [
         'test_period_name',
-        'test_period_file_exists',
         'test_list',
     ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
@@ -39,15 +36,12 @@ def suite():
 class AddEntryToServerTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = Server()
+        cls.server = Server(storage=storages.MemoryStorage)
         cls.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors", period="0")
 
-    def test_period_file_exists(self):
-        self.assertTrue(os.path.isfile(os.path.join(CONFIG_DIR, "0.json")))
-
     def test_period_name(self):
-        self.assertEqual("0", self.server._periods["0"]._name)
+        self.assertEqual("0", self.server._periods["0"].name)
 
     def test_list(self):
         response = self.server.run("list")
@@ -56,7 +50,6 @@ class AddEntryToServerTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.server.run("stop")
-        os.remove(os.path.join(CONFIG_DIR, "0.json"))
 
 
 class RecurrentEntryServerTestCase(unittest.TestCase):

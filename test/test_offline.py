@@ -4,7 +4,6 @@ import os.path
 
 from tinydb.storages import MemoryStorage
 
-from financeager import CONFIG_DIR
 from financeager.offline import add, _load, recover, OfflineRecoveryError
 from financeager.server import proxy as local_proxy
 
@@ -24,7 +23,7 @@ def suite():
 class AddTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.filepath = os.path.join(CONFIG_DIR, "offline_test.json")
+        cls.filepath = os.path.join(os.path.expanduser("~"), "offline_test.json")
 
     def test_add_recover(self):
         period_name = "123"
