@@ -10,6 +10,11 @@ from financeager import CONFIG_DIR
 from financeager.model import prettify
 
 
+# Periods are stored to disk. The CONFIG_DIR is expected to exist
+if not os.path.isdir(CONFIG_DIR):
+    os.makedirs(CONFIG_DIR)
+
+
 def suite():
     suite = unittest.TestSuite()
     tests = [

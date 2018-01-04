@@ -74,6 +74,7 @@ class TinyDbPeriod(TinyDB, Period):
 
         self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
         if kwargs.get("storage", JSONStorage) == JSONStorage:
+            # TODO: find a nicer way around this
             args = list(args) + [os.path.join(CONFIG_DIR, "{}.json".format(self._name))]
         super(TinyDbPeriod, self).__init__(*args, **kwargs)
         self._create_category_cache()
