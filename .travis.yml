@@ -3,5 +3,8 @@ python:
   - "3.5"
 install:
   - pip install financeager
+  - pip install coveralls
 script:
   - python -m test.suites
+after_success:
+  - coveralls
