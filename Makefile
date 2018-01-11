@@ -1,9 +1,9 @@
 VERSION=$(shell python -c "import financeager; print(financeager.__version__)")
 
-.PHONY: all test install tags upload tag publish coverage coverage-html lint
+.PHONY: all test install tags upload tag publish coverage lint
 
 all:
-	@echo "Available targets: install, test, upload, tag, publish, coverage, coverage-html, lint"
+	@echo "Available targets: install, test, upload, tag, publish, coverage, lint"
 
 install:
 	pip install -U -r requirements.txt -e .
@@ -32,8 +32,6 @@ publish: tag upload
 coverage:
 	coverage run --source financeager setup.py test
 	coverage report
-
-coverage-html: coverage
 	coverage html
 
 lint:
