@@ -23,15 +23,15 @@ def module(name):
 ERROR_MESSAGE = "Command '{}' returned an error: {}"
 
 
-def run(proxy, command, default_category=None, date_format=None, **kwargs):
-    """Run a command on the given proxy. The kwargs are passed on. This might
-    raise a CommunicationError. Returns formatted server response.
+def run(proxy, command, default_category=None, date_format=None,
+        stacked_layout=False, entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+        category_sort=Model.CATEGORY_ENTRY_SORT_KEY, **kwargs):
+    """Run a command on the given proxy. The kwargs are preprocessed and passed
+    on.
+
+    :raises: CommunicationError
+    :return: str (formatted server response)
     """
-    # pop kwargs that are for formatting at the frontend, not for the server
-    stacked_layout = kwargs.pop("stacked_layout", False)
-    entry_sort_key = kwargs.pop("entry_sort", CategoryEntry.BASE_ENTRY_SORT_KEY)
-    category_sort_key = kwargs.pop("category_sort",
-                                   Model.CATEGORY_ENTRY_SORT_KEY)
     _preprocess(kwargs, date_format)
     response = proxy.run(command, **kwargs)
 
@@ -41,9 +41,9 @@ def run(proxy, command, default_category=None, date_format=None, **kwargs):
 
     elements = response.get("elements")
     if elements is not None:
-        CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort_key
+        CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort
         CategoryEntry.DEFAULT_NAME = default_category
-        Model.CATEGORY_ENTRY_SORT_KEY = category_sort_key
+        Model.CATEGORY_ENTRY_SORT_KEY = category_sort
         return prettify(elements, stacked_layout)
 
     element = response.get("element")
