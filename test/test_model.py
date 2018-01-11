@@ -403,7 +403,7 @@ class PrettifyModelsTestCase(unittest.TestCase):
 "  Gold              4321.00 01-01  42 | \n"
 "=============================================================================\n"
 "Total               4620.99           | Total                100.01          "
-        )
+                         )
 
 
 if __name__ == '__main__':

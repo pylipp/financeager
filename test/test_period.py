@@ -1,6 +1,6 @@
 import unittest
 
-from tinydb import database, storages
+from tinydb import storages
 from financeager.period import Period, TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
         RecurrentEntryValidationModel
