@@ -62,8 +62,9 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
                 end="07-01", period=self.period)["id"]
 
     def test_recurrent_entries(self):
-        elements = self.server.run("print", period=self.period,
-                name="rent")["elements"]["recurrent"][self.entry_id]
+        elements = self.server.run(
+            "print", period=self.period, filters={"name": "rent"})[
+                "elements"]["recurrent"][self.entry_id]
         self.assertEqual(len(elements), 6)
 
     def test_recurrent_copy(self):
@@ -104,8 +105,8 @@ class FindEntryServerTestCase(unittest.TestCase):
 
     def test_query_and_reset_response(self):
         category = CategoryEntry.DEFAULT_NAME
-        response = self.server.run("print", period=self.period,
-                category=category)
+        response = self.server.run(
+            "print", period=self.period, filters={"category": category})
         self.assertGreater(len(response), 0)
         self.assertIsInstance(response, dict)
         self.assertIsInstance(response["elements"], dict)
@@ -120,8 +121,9 @@ class FindEntryServerTestCase(unittest.TestCase):
         response = self.server.run("rm", period=self.period, eid=self.entry_id)
         self.assertEqual(response["id"], self.entry_id)
 
-        response = self.server.run("print", period=self.period, name="Hiking boots",
-                category=CategoryEntry.DEFAULT_NAME)
+        response = self.server.run(
+            "print", period=self.period, filters={
+                "name": "Hiking boots", "category": CategoryEntry.DEFAULT_NAME})
         self.assertDictEqual(response["elements"]["standard"], {})
         self.assertDictEqual(response["elements"]["recurrent"], {})
 

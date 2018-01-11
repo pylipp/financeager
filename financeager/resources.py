@@ -22,9 +22,7 @@ put_parser.add_argument("end")
 put_parser.add_argument("table_name")
 
 print_parser = reqparse.RequestParser()
-print_parser.add_argument("name")
-print_parser.add_argument("category")
-print_parser.add_argument("date")
+print_parser.add_argument("filters", type=dict)
 
 update_parser = reqparse.RequestParser()
 update_parser.add_argument("name")

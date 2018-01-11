@@ -97,6 +97,10 @@ Category: Clothes""".format(today()))
         self.assertNotIn(communication.ERROR_MESSAGE.format("print", ""),
                 response)
 
+        response = self.run_command("print --filters date=12-")
+        self.assertNotIn(communication.ERROR_MESSAGE.format("print", ""),
+                response)
+
     def test_print_with_sorting(self):
         response = self.run_command("add shirt -199 -c clothes -d 04-01")
         self.assertEqual(response, "")

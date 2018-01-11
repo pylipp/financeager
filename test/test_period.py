@@ -82,9 +82,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
                 date="1901-01-01")
 
     def test_get_entries(self):
-        self.assertIsInstance(
-                self.period.get_entries(name="Bicycle")["standard"][1],
-                database.Element)
+        entries = self.period.get_entries(filters={"date": "01-"})
+        self.assertEqual("bicycle", entries["standard"][1]["name"])
 
     def test_remove_entry(self):
         response = self.period.remove_entry(eid=1)
@@ -93,7 +92,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_create_models_query_kwargs(self):
         eid = self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
-        standard_elements = self.period.get_entries(date="12")["standard"]
+        standard_elements = self.period.get_entries(
+            filters={"date": "12"})["standard"]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
@@ -102,7 +102,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
         standard_elements = self.period.get_entries(
-                name="xmas", date="12")["standard"]
+            filters={"name": "xmas", "date": "12"})["standard"]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
@@ -111,7 +111,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
                 category="groceries", date="1901-02-02")
         self.period.add_entry(name="walmart", value=-0.99, date="1901-02-03")
 
-        groceries_elements = self.period.get_entries(category="groceries")
+        groceries_elements = self.period.get_entries(
+            filters={"category": "groceries"})
         self.assertEqual(len(groceries_elements), 2)
         self.assertEqual(sum([e["value"] for e in
             groceries_elements["standard"].values()]), -51)
@@ -227,7 +228,8 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.assertSetEqual(rep_element_names,
                 {"rent, october", "rent, november", "rent, december"})
 
-        matching_elements = self.period.get_entries(date="11")["recurrent"]
+        matching_elements = self.period.get_entries(
+            filters={"date": "11"})["recurrent"]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(
                 matching_elements[eid][0]["name"], "rent, november")

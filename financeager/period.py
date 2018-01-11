@@ -337,10 +337,7 @@ class TinyDbPeriod(TinyDB, Period):
         :param query_impl: condition for the search. If none (default), all elements are returned.
         :type query_impl: tinydb.queries.QueryImpl
 
-        :return: dict{
-                    "standard":  dict{ int: tinydb.Element },
-                    "recurrent": dict{ int: list[tinydb.Element] }
-                    }
+        :return: dict
         """
 
         elements = {
@@ -466,18 +463,21 @@ class TinyDbPeriod(TinyDB, Period):
 
         return condition
 
-    def get_entries(self, **query_kwargs):
-        """Get list of entries that match the given query kwargs. These can be
-        empty or consist of one or more of 'name', 'date' or 'category'.
-        Constructs a condition from the given kwargs and uses it to query all
+    def get_entries(self, filters=None):
+        """Get dict of standard and recurrent entries that match the items of
+        the filters dict, if specified. Valid keys are 'name', 'date', 'value'
+        and/or 'category'.
+        Constructs a condition from the given filters and uses it to query all
         tables.
 
-        Return
-        ------
-        list[tinydb.Element]
+        :return: dict{
+                    "standard":  dict{ int: tinydb.Element },
+                    "recurrent": dict{ int: list[tinydb.Element] }
+                    }
         """
 
-        condition = self._create_query_condition(**query_kwargs)
+        filters = filters or {}
+        condition = self._create_query_condition(**filters)
         return self._search_all_tables(condition)
 
 
