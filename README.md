@@ -169,7 +169,6 @@ Want to use a different database? Should be straightforward by deriving from `Pe
 
 KNOWN BUGS
 ----------
-- `--date` option of `print` command broken due to preprocessing. Implement `--filter` option instead to avoid reusing options with different meanings for different commands.
 - Please. Report. Them.
 
 FUTURE FEATURES
@@ -212,6 +211,7 @@ DEVELOPER'S TODOs
 - [x] refactor `entries` module (no dependency on schematics package)
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] increase code coverage
+- [ ] refactor period module (separate database member of TinyDbPeriod instead of subclassing, no use of CONFIG_DIR)
 
 PERSONAL NOTE
 -------------
