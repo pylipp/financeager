@@ -173,7 +173,7 @@ KNOWN BUGS
 
 FUTURE FEATURES
 ---------------
-- [ ] experiment with urwid for building TUI
+- [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `print`
 
 IMPLEMENTED FEATURES
@@ -212,6 +212,8 @@ DEVELOPER'S TODOs
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] increase code coverage
 - [ ] refactor period module (separate database member of TinyDbPeriod instead of subclassing, no use of CONFIG_DIR)
+- [ ] use marshmallow package for keyword validation in period and webservice
+- [ ] refactor some modules (e.g. split fflask and server)
 
 PERSONAL NOTE
 -------------
