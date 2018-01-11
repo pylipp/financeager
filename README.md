@@ -106,7 +106,7 @@ subcommands:
     list                list all databases
 ```
 
-On the client side, `financeager` provides the following commands to interact with the database: `add`, `update`, `rm`, `get`, `print`, `list`.
+On the client side, `financeager` provides the following commands to interact with the database: `add`, `update`, `rm`, `get`, `print`, `list`, `copy`.
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -169,6 +169,7 @@ Want to use a different database? Should be straightforward by deriving from `Pe
 
 KNOWN BUGS
 ----------
+- `--date` option of `print` command broken due to preprocessing. Implement `--filter` option instead to avoid reusing options with different meanings for different commands.
 - Please. Report. Them.
 
 FUTURE FEATURES
@@ -191,6 +192,8 @@ IMPLEMENTED FEATURES
 - [x] sort `print` output acc. to entry name/value/date/category
 - [x] refactor config module (custom method to intuitively retrieve config parameters)
 - [x] `copy` command to transfer recurrent entries between period databases
+- [ ] return element ID as response to add/copy/update request
+- [ ] support passing multiple elements IDs to update/rm/copy/get
 
 DISCARDED FEATURE IDEAS
 -----------------------
