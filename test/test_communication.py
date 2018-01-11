@@ -30,6 +30,11 @@ def suite():
     suite.addTest(unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
     tests = ['test_modules']
     suite.addTest(unittest.TestSuite(map(CommunicationModuleTestCase, tests)))
+    tests = [
+        'test_filters',
+        'test_filters_error',
+    ]
+    suite.addTest(unittest.TestSuite(map(PreprocessTestCase, tests)))
     return suite
 
 
@@ -157,6 +162,19 @@ class CommunicationModuleTestCase(unittest.TestCase):
         self.assertEqual(module, fflask)
         module = communication.module("none")
         self.assertEqual(module, server)
+
+
+class PreprocessTestCase(unittest.TestCase):
+    def test_filters(self):
+        data = {"filters": ["name=italian", "category=Restaurants"]}
+        communication._preprocess(data)
+        self.assertEqual(data["filters"],
+                         {"name": "italian", "category": "restaurants"})
+
+    def test_filters_error(self):
+        data = {"filters": ["value-123"]}
+        self.assertRaises(communication.PreprocessingError,
+                          communication._preprocess, data)
 
 
 if __name__ == '__main__':

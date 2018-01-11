@@ -58,9 +58,10 @@ def run(proxy, command, default_category=None, date_format=None, **kwargs):
     return ""
 
 
-def _preprocess(data, date_format):
-    """Preprocess data to be passed to server (e.g. convert date format). Raises
-    PreprocessError if preprocessing failed.
+def _preprocess(data, date_format=None):
+    """Preprocess data to be passed to server (e.g. convert date format, parse
+    'filters' options passed with print command). Raises PreprocessError if
+    preprocessing failed.
     """
     date = data.get("date")
     if date is not None:
@@ -70,6 +71,19 @@ def _preprocess(data, date_format):
             data["date"] = date
         except ValueError:
             raise PreprocessingError("Invalid date format.")
+
+    filter_items = data.get("filters")
+    if filter_items is not None:
+        # convert list of "key=value" strings into dictionary
+        parsed_items = {}
+        try:
+            for item in filter_items:
+                key, value = item.split("=")
+                parsed_items[key] = value.lower()
+            data["filters"] = parsed_items
+        except ValueError:
+            # splitting returned less than two parts due to missing separator
+            raise PreprocessingError("Invalid filter format: {}".format(item))
 
 
 class PreprocessingError(Exception):
