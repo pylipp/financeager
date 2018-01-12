@@ -2,10 +2,9 @@ import unittest
 from datetime import date
 
 from financeager.entries import BaseEntry
-from financeager.server import LocalServer
 from financeager.period import Period
 from financeager.cli import _parse_command
-from financeager import communication, server, httprequests
+from financeager import communication, localserver, httprequests
 
 
 def suite():
@@ -51,7 +50,7 @@ class CommunicationTestFixture(unittest.TestCase):
 
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
-        self.proxy = LocalServer()
+        self.proxy = localserver.LocalServer()
         response = self.run_command("add pants -99 -c clothes")
         self.assertEqual(response, "")
 
@@ -127,7 +126,7 @@ Food                  20.00          " + """
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
-        self.proxy = LocalServer()
+        self.proxy = localserver.LocalServer()
         response = self.run_command(
                 "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
         self.assertEqual(response, "")
@@ -164,7 +163,7 @@ class CommunicationModuleTestCase(unittest.TestCase):
         module = communication.module("flask")
         self.assertEqual(module, httprequests)
         module = communication.module("none")
-        self.assertEqual(module, server)
+        self.assertEqual(module, localserver)
 
 
 class PreprocessTestCase(unittest.TestCase):

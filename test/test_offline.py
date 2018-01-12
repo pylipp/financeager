@@ -3,7 +3,7 @@ from unittest import mock
 import os.path
 
 from financeager.offline import add, _load, recover, OfflineRecoveryError
-from financeager.server import proxy as local_proxy
+from financeager.localserver import proxy as local_proxy
 
 
 def suite():

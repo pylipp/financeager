@@ -175,6 +175,8 @@ FUTURE FEATURES
 ---------------
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `print`
+- [ ] return element ID as response to add/copy/update request
+- [ ] support passing multiple elements IDs to update/rm/copy/get
 
 IMPLEMENTED FEATURES
 ---------------
@@ -191,8 +193,6 @@ IMPLEMENTED FEATURES
 - [x] sort `print` output acc. to entry name/value/date/category
 - [x] refactor config module (custom method to intuitively retrieve config parameters)
 - [x] `copy` command to transfer recurrent entries between period databases
-- [ ] return element ID as response to add/copy/update request
-- [ ] support passing multiple elements IDs to update/rm/copy/get
 
 DISCARDED FEATURE IDEAS
 -----------------------
@@ -213,7 +213,7 @@ DEVELOPER'S TODOs
 - [x] increase code coverage
 - [x] refactor period module (no use of CONFIG_DIR)
 - [ ] use marshmallow package for keyword validation in period and webservice
-- [ ] refactor some modules (e.g. split fflask and server)
+- [x] refactor some modules (e.g. split fflask and server)
 
 PERSONAL NOTE
 -------------

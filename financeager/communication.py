@@ -4,7 +4,7 @@ Module containing top layer of backend communication.
 from datetime import datetime
 
 import financeager.httprequests
-import financeager.server
+import financeager.localserver
 from . import PERIOD_DATE_FORMAT
 from .model import prettify, Model
 from .entries import prettify as prettify_element
@@ -17,7 +17,7 @@ def module(name):
     """
     frontend_modules = {
         "flask": "httprequests",
-        "none": "server",
+        "none": "localserver",
     }
     return getattr(financeager, frontend_modules[name])
 
