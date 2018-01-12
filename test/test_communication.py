@@ -29,6 +29,7 @@ def suite():
     tests = ['test_modules']
     suite.addTest(unittest.TestSuite(map(CommunicationModuleTestCase, tests)))
     tests = [
+        'test_date_format_error',
         'test_filters',
         'test_filters_error',
     ]
@@ -167,6 +168,11 @@ class CommunicationModuleTestCase(unittest.TestCase):
 
 
 class PreprocessTestCase(unittest.TestCase):
+    def test_date_format_error(self):
+        data = {"date": "01-01"}
+        self.assertRaises(communication.PreprocessingError,
+                          communication._preprocess, data, date_format="%d.%m")
+
     def test_filters(self):
         data = {"filters": ["name=italian", "category=Restaurants"]}
         communication._preprocess(data)

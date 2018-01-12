@@ -12,6 +12,7 @@ def suite():
     tests = [
         'test_period_name',
         'test_list',
+        'test_unknown_command',
     ]
     suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
     tests = [
@@ -45,9 +46,9 @@ class AddEntryToServerTestCase(unittest.TestCase):
         response = self.server.run("list")
         self.assertListEqual(response["periods"], ["0"])
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.server.run("stop")
+    def test_unknown_command(self):
+        response = self.server.run("peace")
+        self.assertIn("peace", response["error"])
 
 
 class RecurrentEntryServerTestCase(unittest.TestCase):

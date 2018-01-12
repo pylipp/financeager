@@ -143,7 +143,6 @@ class Model(object):
             other_attributes.add(base_entry.date)
             if attributes.issubset(other_attributes):
                 return base_entry
-        return None
 
     def total_value(self):
         """Return total value of the model."""

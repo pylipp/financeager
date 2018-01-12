@@ -11,6 +11,7 @@ modules = [
     'test_config',
     'test_offline',
     'test_communication',
+    'test_httprequests',
 ]
 
 test_runner = unittest.TextTestRunner(verbosity=2)

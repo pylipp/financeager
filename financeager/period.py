@@ -289,19 +289,16 @@ class TinyDbPeriod(Period):
 
         return element_id
 
-    def get_entry(self, eid=None, table_name=None):
+    def get_entry(self, eid, table_name=None):
         """
         Get entry specified by ``eid`` in the table ``table_name`` (defaults to
         table 'standard').
 
         :type eid: int or str
 
-        :raise: PeriodException if eid missing or element not found
+        :raise: PeriodException if element not found
         :return: found element (tinydb.Element)
         """
-
-        if eid is None:
-            raise PeriodException("No element ID specified.")
 
         table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         element = self._db.table(table_name).get(eid=int(eid))
@@ -310,7 +307,7 @@ class TinyDbPeriod(Period):
 
         return element
 
-    def update_entry(self, eid=None, table_name=None, **kwargs):
+    def update_entry(self, eid, table_name=None, **kwargs):
         """Update one or more fields of a single entry of the Period.
 
         :param eid: entry ID of the entry to be updated
@@ -319,12 +316,9 @@ class TinyDbPeriod(Period):
         :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
             'end' for recurrent entries; any of 'name', 'value', 'category' for
             either entry type
-        :raise: PeriodException if eid missing or element not found
+        :raise: PeriodException if element not found
         :return: ID of the updated entry
         """
-
-        if eid is None:
-            raise PeriodException("No element ID specified.")
 
         table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name,
@@ -428,7 +422,7 @@ class TinyDbPeriod(Period):
             yield Element(dict(name=name, value=element["value"],
                 category=element["category"], date=date.strftime(PERIOD_DATE_FORMAT)))
 
-    def remove_entry(self, eid=None, table_name=None):
+    def remove_entry(self, eid, table_name=None):
         """Remove an entry from the Period database given its ID. The category
         cache is updated.
 
@@ -441,9 +435,6 @@ class TinyDbPeriod(Period):
         :raise: PeriodException if element/ID not found.
         :return: element ID if removal was successful
         """
-
-        if eid is None:
-            raise PeriodException("No element ID specified.")
 
         table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         # might raise PeriodException if ID not existing

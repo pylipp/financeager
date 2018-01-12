@@ -37,6 +37,7 @@ def suite():
     tests = [
             'test_recurrent_entries',
             'test_recurrent_quarter_yearly_entries',
+            'test_recurrent_bimonthly_entries',
             'test_recurrent_weekly_entries',
             'test_update_recurrent_entry'
             ]
@@ -63,6 +64,7 @@ def suite():
             'test_substitute_none_recurrent_fields',
             'test_substitute_none_standard_fields',
             'test_remove_redundant_fields',
+            'test_invalid_table_name',
             ]
     suite.addTest(unittest.TestSuite(map(ValidateEntryTestCase, tests)))
     tests = [
@@ -125,7 +127,6 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_remove_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.remove_entry, eid=0)
-        self.assertRaises(PeriodException, self.period.remove_entry, eid=None)
 
     def test_add_rm_via_eid(self):
         entry_name = "penguin sale"
@@ -263,6 +264,14 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.period.remove_entry(eid=eid, table_name="recurrent")
         self.assertEqual(len(self.period._db.table("recurrent")),
                 recurrent_table_size - 1)
+
+    def test_recurrent_bimonthly_entries(self):
+        eid = self.period.add_entry(name="interest", value=25,
+                table_name="recurrent", frequency="bimonthly",
+                start="01-08", end="03-08")
+        recurrent_elements = self.period.get_entries()["recurrent"][eid]
+        self.assertEqual(len(recurrent_elements), 2)
+        self.assertEqual(recurrent_elements[0]["name"], "interest, january")
 
     def test_recurrent_weekly_entries(self):
         eid = self.period.add_entry(name="interest", value=25,
@@ -420,6 +429,10 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertDictEqual(raw_data, {"date": None})
         TinyDbPeriod._remove_redundant_fields("recurrent", raw_data)
         self.assertDictEqual(raw_data, {})
+
+    def test_invalid_table_name(self):
+        self.assertRaises(PeriodException, self.period._preprocess_entry,
+                          table_name="unknown table")
 
 
 class JsonTinyDbPeriodTestCase(unittest.TestCase):

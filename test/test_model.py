@@ -21,7 +21,8 @@ def suite():
     tests = [
             'test_base_entry_in_list',
             'test_category_sum',
-            'test_str'
+            'test_str',
+            'test_nonexisting_category_sum',
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
     tests = [
@@ -49,9 +50,11 @@ def suite():
             ]
     suite.addTest(unittest.TestSuite(map(SetValueItemTextTestCase, tests)))
     tests = [
-            'test_correct_item_is_found'
+            'test_correct_item_is_found',
+            'test_none_found',
             ]
     suite.addTest(unittest.TestSuite(map(FindItemByNameTestCase, tests)))
+    tests = ['test_correct_item_is_found']
     suite.addTest(unittest.TestSuite(map(FindItemWrongCategoryTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(FindItemByNameAndDateTestCase, tests)))
     tests = [
@@ -122,6 +125,9 @@ class AddBaseEntryTestCase(unittest.TestCase):
             self.item_value,
             self.model.category_sum(self.item_category),
             places=5)
+
+    def test_nonexisting_category_sum(self):
+        self.assertEqual(0.0, self.model.category_sum("black hole"))
 
     def test_str(self):
         self.assertEqual(
@@ -267,6 +273,9 @@ class FindItemByNameTestCase(unittest.TestCase):
                          self.model.find_base_entry(
                              name=self.item_name,
                              category=self.item_category).name)
+
+    def test_none_found(self):
+        self.assertIsNone(self.model.find_base_entry(name="fdsa"))
 
 
 class FindItemWrongCategoryTestCase(unittest.TestCase):
