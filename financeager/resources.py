@@ -1,9 +1,15 @@
 from flask_restful import Resource, reqparse
 
+import os.path
+
+from . import CONFIG_DIR
 from .server import Server
 
 
-SERVER = Server()
+if not os.path.isdir(CONFIG_DIR):
+    os.makedirs(CONFIG_DIR)
+
+SERVER = Server(data_dir=CONFIG_DIR)
 
 copy_parser = reqparse.RequestParser()
 copy_parser.add_argument("destination_period", required=True)

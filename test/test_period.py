@@ -1,15 +1,16 @@
 import unittest
+import datetime as dt
+from collections import Counter
+import os.path
 
-from tinydb import storages
+from schematics.exceptions import DataError
+
 from financeager.period import Period, TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
         RecurrentEntryValidationModel
 from financeager import PERIOD_DATE_FORMAT
 from financeager.model import Model
 from financeager.entries import CategoryEntry
-from schematics.exceptions import DataError
-import datetime as dt
-from collections import Counter
 
 DEFAULT_CATEGORY = CategoryEntry.DEFAULT_NAME
 
@@ -64,6 +65,11 @@ def suite():
             'test_remove_redundant_fields',
             ]
     suite.addTest(unittest.TestSuite(map(ValidateEntryTestCase, tests)))
+    tests = [
+        'test_add_get',
+        'test_json_file_exists',
+    ]
+    suite.addTest(unittest.TestSuite(map(JsonTinyDbPeriodTestCase, tests)))
     return suite
 
 
@@ -77,7 +83,7 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
 
 class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
+        self.period = TinyDbPeriod(name=1901)
         self.eid = self.period.add_entry(name="Bicycle", value=-999.99,
                 date="1901-01-01")
 
@@ -196,7 +202,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 class TinyDbPeriodRecurrentEntryNowTestCase(unittest.TestCase):
     def test_no_future_elements_created(self):
         # current year
-        period = TinyDbPeriod(storage=storages.MemoryStorage)
+        period = TinyDbPeriod()
 
         elements = period.get_entries()
         self.assertEqual(len(elements["standard"]), 0)
@@ -212,7 +218,7 @@ class TinyDbPeriodRecurrentEntryNowTestCase(unittest.TestCase):
 
 class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
+        self.period = TinyDbPeriod(name=1901)
 
     def test_recurrent_entries(self):
         eid = self.period.add_entry(name="rent", value=-500,
@@ -349,7 +355,7 @@ class ValidationModelTestCase(unittest.TestCase):
 
 class ValidateEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.period = TinyDbPeriod(name=1901, storage=storages.MemoryStorage)
+        self.period = TinyDbPeriod(name=1901)
 
     def test_validate_valid_standard_entry(self):
         raw_data = {"name": "MoNeY", "value": "124.5"}
@@ -414,6 +420,23 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertDictEqual(raw_data, {"date": None})
         TinyDbPeriod._remove_redundant_fields("recurrent", raw_data)
         self.assertDictEqual(raw_data, {})
+
+
+class JsonTinyDbPeriodTestCase(unittest.TestCase):
+    def setUp(self):
+        self.data_dir = "/tmp"
+        self.year = 1999
+        self.period = TinyDbPeriod(name=self.year, data_dir=self.data_dir)
+
+    def test_json_file_exists(self):
+        self.assertTrue(os.path.exists(
+            os.path.join(self.data_dir, "{}.json".format(self.year))))
+
+    def test_add_get(self):
+        name = "pineapple"
+        eid = self.period.add_entry(name=name, value=-5)
+        element = self.period.get_entry(eid=eid)
+        self.assertEqual(name, element["name"])
 
 
 if __name__ == '__main__':

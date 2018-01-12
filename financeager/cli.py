@@ -51,10 +51,13 @@ def main(**kwargs):
         communication_module.launch_server(**cl_kwargs)
         return
 
+    proxy_kwargs = {}
     if backend_name == "flask":
         cl_kwargs["http_config"] = get_option("SERVICE:FLASK")
+    elif backend_name == "none":
+        proxy_kwargs["data_dir"] = CONFIG_DIR
 
-    proxy = communication_module.proxy()
+    proxy = communication_module.proxy(**proxy_kwargs)
     try:
         print(communication.run(
             proxy, command,

@@ -2,8 +2,6 @@ import unittest
 from unittest import mock
 import os.path
 
-from tinydb.storages import MemoryStorage
-
 from financeager.offline import add, _load, recover, OfflineRecoveryError
 from financeager.server import proxy as local_proxy
 
@@ -38,7 +36,7 @@ class AddTestCase(unittest.TestCase):
         self.assertEqual(data.pop("command"), "add")
         self.assertDictEqual(kwargs, data)
 
-        proxy = local_proxy(storage=MemoryStorage)
+        proxy = local_proxy()
         self.assertTrue(recover(proxy, offline_filepath=self.filepath))
 
         element = proxy.run("get", eid=1, period=period_name)["element"]
@@ -59,7 +57,7 @@ class AddTestCase(unittest.TestCase):
         kwargs = dict(name="money", value=111, period=period_name)
         self.assertTrue(add("add", offline_filepath=self.filepath, **kwargs))
 
-        proxy = local_proxy(storage=MemoryStorage)
+        proxy = local_proxy()
         self.assertRaises(OfflineRecoveryError, recover, proxy,
                           offline_filepath=self.filepath)
 

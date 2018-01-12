@@ -7,13 +7,13 @@ from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 
-from tinydb import TinyDB, Query, JSONStorage
+from tinydb import TinyDB, Query, storages
 from tinydb.database import Element
 from schematics.models import Model as SchematicsModel
 from schematics.types import StringType, FloatType, DateType
 from schematics.exceptions import DataError, ValidationError
 
-from . import PERIOD_DATE_FORMAT, CONFIG_DIR
+from . import PERIOD_DATE_FORMAT
 from .entries import CategoryEntry
 
 
@@ -67,17 +67,25 @@ class TinyDbPeriod(Period):
 
     DEFAULT_TABLE = "standard"
 
-    def __init__(self, name=None, *args, **kwargs):
-        """
-        Create a period with a TinyDB database backend, identified by ``name``.
-        The filepath arg for tinydb.JSONStorage is derived from the name.
-        Keyword args are passed to the TinyDB constructor (f.i. storage type).
+    def __init__(self, name=None, data_dir=None, **kwargs):
+        """Create a period with a TinyDB database backend, identified by 'name'.
+        If 'data_dir' is given, the database storage type is JSON (the storage
+        filepath is derived from the Period's name). Otherwise the data is
+        stored in memory.
+        Keyword args are passed to the TinyDB constructor. See the respective
+        docs for detailed information.
         """
 
         super().__init__(name=name)
 
-        if kwargs.get("storage", JSONStorage) == JSONStorage:
-            args = list(args) + [os.path.join(CONFIG_DIR, "{}.json".format(self._name))]
+        # evaluate args/kwargs for TinyDB constructor. This overwrites the
+        # 'storage' kwarg if explicitly passed
+        if data_dir is None:
+            args = []
+            kwargs["storage"] = storages.MemoryStorage
+        else:
+            args = [os.path.join(data_dir, "{}.json".format(self.name))]
+            kwargs["storage"] = storages.JSONStorage
 
         self._db = TinyDB(*args, **kwargs)
         self._create_category_cache()

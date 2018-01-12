@@ -6,7 +6,6 @@ from financeager.server import LocalServer
 from financeager.period import Period
 from financeager.cli import _parse_command
 from financeager import communication, server, fflask
-from tinydb.storages import MemoryStorage
 
 
 def suite():
@@ -52,7 +51,7 @@ class CommunicationTestFixture(unittest.TestCase):
 
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
-        self.proxy = LocalServer(storage=MemoryStorage)
+        self.proxy = LocalServer()
         response = self.run_command("add pants -99 -c clothes")
         self.assertEqual(response, "")
 
@@ -128,7 +127,7 @@ Food                  20.00          " + """
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
-        self.proxy = LocalServer(storage=MemoryStorage)
+        self.proxy = LocalServer()
         response = self.run_command(
                 "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
         self.assertEqual(response, "")

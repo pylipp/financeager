@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 import unittest
 
-from tinydb import storages
-
 from financeager.entries import CategoryEntry
 from financeager.server import Server
 from financeager.period import PeriodException, Period
@@ -36,7 +34,7 @@ def suite():
 class AddEntryToServerTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = Server(storage=storages.MemoryStorage)
+        cls.server = Server()
         cls.server.run("add", name="Hiking boots", value=-111.11,
                 category="outdoors", period="0")
 
@@ -55,7 +53,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
 class RecurrentEntryServerTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.server = Server(storage=storages.MemoryStorage)
+        self.server = Server()
         self.period = "2000"
         self.entry_id = self.server.run("add", name="rent", value=-1000,
                 table_name="recurrent", frequency="monthly", start="01-02",
@@ -87,7 +85,7 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
 
 class FindEntryServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = Server(storage=storages.MemoryStorage)
+        self.server = Server()
         self.period = "0"
         self.entry_id = self.server.run("add", name="Hiking boots", value=-111.11,
                 period=self.period)["id"]
