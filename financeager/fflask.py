@@ -31,9 +31,5 @@ def launch_server(debug=False, host=None):
     """Create and launch flask webservice application. Debug mode and host name
     are optional.
     """
-    try:
-        app = create_app(config={"DEBUG": debug, "SERVER_NAME": host})
-        app.run()
-    except OSError as e:
-        # socket binding: address already in use
-        print("The financeager server has already been started.")
+    app = create_app(config={"DEBUG": debug, "SERVER_NAME": host})
+    app.run()

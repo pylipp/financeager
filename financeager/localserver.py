@@ -4,8 +4,8 @@ from .server import Server
 
 
 def launch_server(**kwargs):
-    print(
-        "'start' command has no effect with SERVICE.name configured as 'none'.")
+    """Stub to provide uniform interface of communication modules. Has no
+    effect."""
 
 
 class LocalServer(Server):
