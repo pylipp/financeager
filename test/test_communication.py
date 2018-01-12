@@ -5,7 +5,7 @@ from financeager.entries import BaseEntry
 from financeager.server import LocalServer
 from financeager.period import Period
 from financeager.cli import _parse_command
-from financeager import communication, server, fflask
+from financeager import communication, server, httprequests
 
 
 def suite():
@@ -162,7 +162,7 @@ Category : N.a.""")
 class CommunicationModuleTestCase(unittest.TestCase):
     def test_modules(self):
         module = communication.module("flask")
-        self.assertEqual(module, fflask)
+        self.assertEqual(module, httprequests)
         module = communication.module("none")
         self.assertEqual(module, server)
 

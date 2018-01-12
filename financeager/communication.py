@@ -3,7 +3,7 @@ Module containing top layer of backend communication.
 """
 from datetime import datetime
 
-import financeager.fflask
+import financeager.httprequests
 import financeager.server
 from . import PERIOD_DATE_FORMAT
 from .model import prettify, Model
@@ -12,12 +12,14 @@ from .entries import CategoryEntry
 
 
 def module(name):
-    """Return the backend module specified by 'name' ('flask' or 'none')."""
-    backend_modules = {
-            "flask": "fflask",
-            "none": "server",
-            }
-    return getattr(financeager, backend_modules[name])
+    """Return the client module corresponding to the backend specified by 'name'
+    ('flask' or 'none').
+    """
+    frontend_modules = {
+        "flask": "httprequests",
+        "none": "server",
+    }
+    return getattr(financeager, frontend_modules[name])
 
 
 ERROR_MESSAGE = "Command '{}' returned an error: {}"

@@ -3,7 +3,7 @@ import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from .entries import CategoryEntry, BaseEntry
-from .fflask import _Proxy as Flask_Proxy
+from .httprequests import _Proxy as Flask_Proxy
 
 
 class Configuration(object):
