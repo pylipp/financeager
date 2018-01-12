@@ -1,7 +1,7 @@
 import os.path
 
 # versioning information
-__version__ = "0.3"
+__version__ = "0.4"
 
 #
 # Global constants
