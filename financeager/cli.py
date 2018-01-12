@@ -53,7 +53,7 @@ def main(**kwargs):
 
     proxy_kwargs = {}
     if backend_name == "flask":
-        cl_kwargs["http_config"] = get_option("SERVICE:FLASK")
+        proxy_kwargs["http_config"] = get_option("SERVICE:FLASK")
     elif backend_name == "none":
         proxy_kwargs["data_dir"] = CONFIG_DIR
 

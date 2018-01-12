@@ -50,7 +50,13 @@ class _Proxy(object):
     DEFAULT_HOST = "127.0.0.1"
     DEFAULT_TIMEOUT = 10
 
-    def run(self, command, http_config=None, **data):
+    def __init__(self, http_config=None):
+        """http_config: dict specifying host and (optionally) username/password
+        for basic auth
+        """
+        self.http_config = http_config or {}
+
+    def run(self, command, **data):
         """Run the specified command. If no http_config given, it is read from
         the user config. The data kwargs are passed to the HTTP request.
         'period' and 'table_name' are substituted, if None.
@@ -60,16 +66,13 @@ class _Proxy(object):
 
         period = data.pop("period", None) or Period.DEFAULT_NAME
 
-        if http_config is None:
-            http_config = {}
-
-        host = http_config.get("host", self.DEFAULT_HOST)
+        host = self.http_config.get("host", self.DEFAULT_HOST)
         url = "http://{}{}".format(host, self.PERIODS_TAIL)
         period_url = "{}/{}".format(url, period)
         copy_url = "{}/copy".format(url)
 
-        username = http_config.get("username")
-        password = http_config.get("password")
+        username = self.http_config.get("username")
+        password = self.http_config.get("password")
         auth = None
         if username and password:
             auth = (username, password)
@@ -111,9 +114,9 @@ class _Proxy(object):
                 (str(v) for v in response.json().values()))}
 
 
-def proxy():
+def proxy(**kwargs):
     # all communication modules require this function
-    return _Proxy()
+    return _Proxy(**kwargs)
 
 
 # catch all exceptions when running proxy in Cli
