@@ -211,7 +211,7 @@ DEVELOPER'S TODOs
 - [x] refactor `entries` module (no dependency on schematics package)
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] increase code coverage
-- [ ] refactor period module (separate database member of TinyDbPeriod instead of subclassing, no use of CONFIG_DIR)
+- [ ] refactor period module (no use of CONFIG_DIR)
 - [ ] use marshmallow package for keyword validation in period and webservice
 - [ ] refactor some modules (e.g. split fflask and server)
 

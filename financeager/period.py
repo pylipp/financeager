@@ -63,7 +63,9 @@ class PeriodException(Exception):
     pass
 
 
-class TinyDbPeriod(TinyDB, Period):
+class TinyDbPeriod(Period):
+
+    DEFAULT_TABLE = "standard"
 
     def __init__(self, name=None, *args, **kwargs):
         """
@@ -72,11 +74,12 @@ class TinyDbPeriod(TinyDB, Period):
         Keyword args are passed to the TinyDB constructor (f.i. storage type).
         """
 
-        self._name = "{}".format(Period.DEFAULT_NAME if name is None else name)
+        super().__init__(name=name)
+
         if kwargs.get("storage", JSONStorage) == JSONStorage:
-            # TODO: find a nicer way around this
             args = list(args) + [os.path.join(CONFIG_DIR, "{}.json".format(self._name))]
-        super(TinyDbPeriod, self).__init__(*args, **kwargs)
+
+        self._db = TinyDB(*args, **kwargs)
         self._create_category_cache()
 
     def _create_category_cache(self):
@@ -85,7 +88,7 @@ class TinyDbPeriod(TinyDB, Period):
         categories the element was labeled with. This allows deriving the
         category of an element if not explicitly given."""
         self._category_cache = defaultdict(Counter)
-        for element in self.all():
+        for element in self._db.all():
             self._category_cache[element["name"]].update([element["category"]])
 
     def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
@@ -269,12 +272,12 @@ class TinyDbPeriod(TinyDB, Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        table_name = table_name or self.DEFAULT_TABLE
+        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
         self._update_category_cache(**fields)
 
-        element_id = self.table(table_name).insert(fields)
+        element_id = self._db.table(table_name).insert(fields)
 
         return element_id
 
@@ -292,7 +295,8 @@ class TinyDbPeriod(TinyDB, Period):
         if eid is None:
             raise PeriodException("No element ID specified.")
 
-        element = self.table(table_name or TinyDB.DEFAULT_TABLE).get(eid=int(eid))
+        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
+        element = self._db.table(table_name).get(eid=int(eid))
         if element is None:
             raise PeriodException("Element not found.")
 
@@ -314,13 +318,14 @@ class TinyDbPeriod(TinyDB, Period):
         if eid is None:
             raise PeriodException("No element ID specified.")
 
-        table_name = table_name or TinyDB.DEFAULT_TABLE
+        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name,
                 partial=True)
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
 
-        element_id = self.table(table_name).update(fields, eids=[int(eid)])[0]
+        element_id = self._db.table(table_name).update(
+            fields, eids=[int(eid)])[0]
 
         return element_id
 
@@ -346,9 +351,9 @@ class TinyDbPeriod(TinyDB, Period):
                 }
 
         if query_impl is None:
-            matching_standard_elements = self.all()
+            matching_standard_elements = self._db.all()
         else:
-            matching_standard_elements = self.search(query_impl)
+            matching_standard_elements = self._db.search(query_impl)
 
         for element in matching_standard_elements:
             elements["standard"][element.eid] = element
@@ -356,7 +361,7 @@ class TinyDbPeriod(TinyDB, Period):
         # all recurrent elements are generated, and the ones matching the
         # query are appended to a list that is stored under their generating
         # element's eid in the 'recurrent' subdictionary
-        for element in self.table("recurrent").all():
+        for element in self._db.table("recurrent").all():
             for e in self._create_recurrent_elements(element):
                 matching_recurrent_element = None
 
@@ -432,11 +437,11 @@ class TinyDbPeriod(TinyDB, Period):
         if eid is None:
             raise PeriodException("No element ID specified.")
 
-        table_name = table_name or TinyDB.DEFAULT_TABLE
+        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
         # might raise PeriodException if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-        self.table(table_name).remove(eids=[entry.eid])
+        self._db.table(table_name).remove(eids=[entry.eid])
         self._update_category_cache(removing=True, **entry)
 
         return entry.eid
@@ -481,4 +486,4 @@ class TinyDbPeriod(TinyDB, Period):
         return self._search_all_tables(condition)
 
 
-TinyDB.DEFAULT_TABLE = "standard"
+TinyDB.DEFAULT_TABLE = TinyDbPeriod.DEFAULT_TABLE
