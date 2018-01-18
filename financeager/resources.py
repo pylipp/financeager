@@ -94,13 +94,3 @@ class CopyResource(Resource):
             response = (response, 404)
 
         return response
-
-
-class ShutdownResource(Resource):
-    def post(self):
-        SERVER.run("stop")
-        from flask import request
-        f = request.environ.get("werkzeug.server.shutdown")
-        if f is None:
-            return {"error": "Not running with the Werkzeug Server"}, 500
-        f()
