@@ -71,7 +71,7 @@ To run `financeager` as client-server application, specify a the server-sided co
     [SERVICE:FLASK]
     host = 0.0.0.0
 
-You can launch the server via `financeager start` or by wrapping the `app = fflask.create_app()` in a WSGI.
+You can launch the server by running `python examples/start_webservice.py` (pass `--help` for more info) or by wrapping the `app = fflask.create_app()` in a WSGI.
 
 On the client side, you want to put something along the lines of
 
@@ -95,7 +95,7 @@ optional arguments:
   -h, --help            show this help message and exit
 
 subcommands:
-  {add,start,get,rm,update,copy,print,list}
+  {add,get,rm,update,copy,print,list}
                         list of available subcommands
     add                 add an entry to the database
     get                 show information about single entry

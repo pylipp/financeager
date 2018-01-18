@@ -45,12 +45,6 @@ def main(**kwargs):
     backend_name = get_option("SERVICE", "name")
     communication_module = communication.module(backend_name)
 
-    if command == "start":
-        if cl_kwargs.get("host") is None:
-            cl_kwargs["host"] = get_option("SERVICE:FLASK", "host")
-        communication_module.launch_server(**cl_kwargs)
-        return
-
     proxy_kwargs = {}
     if backend_name == "flask":
         proxy_kwargs["http_config"] = get_option("SERVICE:FLASK")
@@ -110,12 +104,6 @@ least a frequency, start date and end date are optional. Default:
             help="end date of recurrent entry")
 
     add_parser.add_argument(*period_args, **period_kwargs)
-
-    start_parser = subparsers.add_parser("start", help="start period server")
-    start_parser.add_argument("-d", "--debug", action="store_true",
-            help="start webservice in debug mode")
-    start_parser.add_argument("-i", "--host-ip", default=None, dest="host",
-            help="IP address and port of server, format 'XXX.XXX.XXX.XXX:port'")
 
     get_parser = subparsers.add_parser("get",
             help="show information about single entry")
