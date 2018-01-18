@@ -63,7 +63,7 @@ Default config:
     default_category = unspecified
     date_format = %%m-%%d
 
-To run `financeager` as client-server application, specify a the server-sided configuration like this
+To run `financeager` as client-server application, specify a server-sided configuration like this
 
     [SERVICE]
     name = flask
@@ -133,7 +133,7 @@ This would remove the recurrent rent entries (ID is also 1 because standard and 
 
     > financeager rm 1 --table-name recurrent
 
-Show a side-by-side *overview* of earnings and expenses (filter date and/or category by providing the `-d` and `-c` flag and/or filter the name by providing a positional argument)
+Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filters` option, e.g. `--filters category=food` to show entries in the categories `food`)
 
     > financeager print
 
@@ -161,7 +161,7 @@ Detailed information is available from
 
 ### More Goodies
 
-- `financeager` will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is online available when running financeager with flask.
+- `financeager` will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is only available when running financeager with flask.
 
 ### Expansion
 
@@ -177,6 +177,7 @@ FUTURE FEATURES
 - [ ] support querying of standard/recurrent table with `print`
 - [ ] return element ID as response to add/copy/update request
 - [ ] support passing multiple elements IDs to update/rm/copy/get
+- [ ] support specifying custom flask host/config with all cli commands
 
 IMPLEMENTED FEATURES
 ---------------
