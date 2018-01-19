@@ -53,7 +53,7 @@ You're invited to run the tests from the root directory:
 
 ### Client-server or serverless mode?
 
-You can run `financeager` as a client-server or a serverless application (default). This can be controlled by the configuration file at `~/.config/financeager/config`.
+You can run `financeager` as a client-server or a serverless application (default). This can be controlled by a configuration file (default path is `~/.config/financeager/config`, however you can specify a custom path by passing it along with the `-C`/`--config` command line option).
 
 In either mode, you can configure frontend options, that is the name of the default category (assigned when omitting the category option when e.g. adding an entry) and the date format (string that `datetime.strptime` understands; note the double percent).
 
@@ -178,6 +178,8 @@ FUTURE FEATURES
 - [ ] support querying of standard/recurrent table with `print`
 - [ ] return element data as response to add/copy/update request
 - [ ] support passing multiple elements IDs to update/rm/copy/get (maybe together with asynchronous HTTP requests)
+- [ ] extended period names (something along `2018-personal`)
+- [ ] support `print` at date other than today
 
 IMPLEMENTED FEATURES
 ---------------
@@ -217,6 +219,7 @@ DEVELOPER'S TODOs
 - [ ] use marshmallow package for keyword validation in period and webservice
 - [ ] use logging module instead of print
 - [ ] integration test of cli module
+- [ ] move data dir to ~/.local/share/financeager
 
 PERSONAL NOTE
 -------------
