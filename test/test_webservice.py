@@ -24,7 +24,9 @@ def suite():
         'test_get_nonexisting_entry',
         'test_delete_nonexisting_entry',
         'test_update',
+        'test_update_nonexisting_entry',
         'test_copy',
+        'test_copy_nonexisting_entry',
         'test_recurrent_entry',
         'test_parser_error'
         ]
@@ -93,6 +95,10 @@ class WebserviceTestCase(unittest.TestCase):
 
         response = self.proxy.run("get", period=self.period, eid=entry_id)
         self.assertEqual(response["element"]["name"], "bretzels")
+
+    def test_update_nonexisting_entry(self):
+        response = self.proxy.run("update", period=self.period, eid=0, name="a")
+        self.assertSetEqual({"error"}, set(response.keys()))
 
     def test_get_nonexisting_entry(self):
         response = self.proxy.run("get", period=self.period, eid=-1)
@@ -164,6 +170,12 @@ class WebserviceTestCase(unittest.TestCase):
             "get", period=self.destination_period, eid=destination_entry_id)
         self.assertTrue(set(fields.items()).issubset(
             set(get_response["element"].items())))
+
+    def test_copy_nonexisting_entry(self):
+        response = self.proxy.run("copy", source_period=self.period,
+                                  destination_period=self.destination_period,
+                                  eid=0)
+        self.assertSetEqual({"error"}, set(response.keys()))
 
     def test_parser_error(self):
         # missing name and value in request, parser will complain

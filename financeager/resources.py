@@ -6,8 +6,7 @@ from . import CONFIG_DIR
 from .server import Server
 
 
-if not os.path.isdir(CONFIG_DIR):
-    os.makedirs(CONFIG_DIR)
+os.makedirs(CONFIG_DIR, exist_ok=True)  # pragma: no cover
 
 SERVER = Server(data_dir=CONFIG_DIR)
 
