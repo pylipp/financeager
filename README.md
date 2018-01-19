@@ -169,14 +169,15 @@ Want to use a different database? Should be straightforward by deriving from `Pe
 
 KNOWN BUGS
 ----------
+- see [issues](https://github.com/pylipp/financeager/issues)
 - Please. Report. Them.
 
 FUTURE FEATURES
 ---------------
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `print`
-- [ ] return element ID as response to add/copy/update request
-- [ ] support passing multiple elements IDs to update/rm/copy/get
+- [ ] return element data as response to add/copy/update request
+- [ ] support passing multiple elements IDs to update/rm/copy/get (maybe together with asynchronous HTTP requests)
 - [ ] support specifying custom flask host/config with all cli commands
 
 IMPLEMENTED FEATURES
@@ -205,7 +206,6 @@ DEVELOPER'S TODOs
 - [x] improve documentation (period module)
 - [x] create Python package
 - [x] set up Travis CI
-- [ ] use logging module instead of print
 - [x] drop PyQt dependency for schematics package
 - [x] allow remove elements by ID only
 - [x] specify CL option to differ between removing standard and recurrent element
@@ -213,8 +213,10 @@ DEVELOPER'S TODOs
 - [x] consistent naming (recurrent instead of repetitive)
 - [x] increase code coverage
 - [x] refactor period module (no use of CONFIG_DIR)
-- [ ] use marshmallow package for keyword validation in period and webservice
 - [x] refactor some modules (e.g. split fflask and server)
+- [ ] use marshmallow package for keyword validation in period and webservice
+- [ ] use logging module instead of print
+- [ ] integration test of cli module
 
 PERSONAL NOTE
 -------------
