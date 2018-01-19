@@ -178,7 +178,6 @@ FUTURE FEATURES
 - [ ] support querying of standard/recurrent table with `print`
 - [ ] return element data as response to add/copy/update request
 - [ ] support passing multiple elements IDs to update/rm/copy/get (maybe together with asynchronous HTTP requests)
-- [ ] support specifying custom flask host/config with all cli commands
 
 IMPLEMENTED FEATURES
 ---------------
@@ -195,6 +194,7 @@ IMPLEMENTED FEATURES
 - [x] sort `print` output acc. to entry name/value/date/category
 - [x] refactor config module (custom method to intuitively retrieve config parameters)
 - [x] `copy` command to transfer recurrent entries between period databases
+- [x] support specifying custom flask host/config with all cli commands
 
 DISCARDED FEATURE IDEAS
 -----------------------

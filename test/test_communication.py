@@ -45,6 +45,11 @@ class CommunicationTestFixture(unittest.TestCase):
     def run_command(self, args):
         cl_kwargs = _parse_command(args=args.split())
         command = cl_kwargs.pop("command")
+
+        # this option is popped early in the CLI, hence here it's also removed
+        # to not confuse the backend (i.e. validation in period module)
+        cl_kwargs.pop("config")
+
         return communication.run(self.proxy, command,
                                  date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
 
