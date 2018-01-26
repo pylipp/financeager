@@ -13,23 +13,25 @@ from .config import Configuration
 os.makedirs(CONFIG_DIR, exist_ok=True)
 
 
-def main(**kwargs):
-    """Main entry point of the application. If used from the command line, all
-    arguments and options are parsed and passed.
-    On the other hand this method can be used in scripts. Kwargs have to be
-    passed analogously to what the command line interface would accept (consult
-    the help via `financeager [command] --help`), e.g. `{"command": "add",
-    "name": "champagne", "value": "99"}.
+def main():
+    """Main command line entry point of the application. All arguments and
+    options are parsed and passed to 'run()'.
     """
-    cl_kwargs = kwargs or _parse_command()
+    run(**_parse_command())
 
+
+def run(command=None, config=None, **cl_kwargs):
+    """High-level API entry point, useful for scripts. Run 'command' passing
+    'cl_kwargs' according to what the command line interface accepts (consult
+    help via `financeager [command] --help`), e.g. {"command": "add", "name":
+    "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
+    'config' specifies the path to a custom config file (optional).
+    """
     def get_option(section, option=None):
         """Get an option of the financeager configuration or a dictionary of
         section contents if no option given.
         """
-        config_filepath = cl_kwargs.pop("config", None)
-        if config_filepath is None:
-            config_filepath = os.path.join(CONFIG_DIR, "config")
+        config_filepath = config or os.path.join(CONFIG_DIR, "config")
         _config = Configuration(filepath=config_filepath)
 
         if option is None:
@@ -37,7 +39,6 @@ def main(**kwargs):
         else:
             return _config.get(section, option)
 
-    command = cl_kwargs.pop("command")
     backend_name = get_option("SERVICE", "name")
     communication_module = communication.module(backend_name)
 

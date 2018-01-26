@@ -8,7 +8,7 @@ import sys
 from datetime import datetime as dt
 import csv
 
-from financeager.cli import main
+from financeager.cli import run
 from financeager import PERIOD_DATE_FORMAT
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +50,7 @@ for row in data:
     for word in trigger_words:
         if word in name:
             print("{} {}: {}".format(date, word, value))
-            main(
+            run(
                     command="add",
                     name=word,
                     value=value,
