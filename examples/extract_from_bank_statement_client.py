@@ -26,7 +26,7 @@ data = csv.DictReader(f, dialect=SemicolonDialect)
 
 # all supermarket shopping shall go to the database
 trigger_words = [
-    "lidl", "rewe", "aldi", "dm", "denns", "kaufland", "tengelmann", "edeka",
+    "lidl", "rewe", "aldi", "dm fil", "denns", "kaufland", "tengelmann", "edeka",
 ]
 
 # when adding an unknown entry, you might want to specify the corresponding
@@ -56,7 +56,7 @@ for row in data:
                     value=value,
                     date=date,
                     period=None,
-                    category=categories.get(word)
+                    category=categories.get(word, "groceries")
                     )
             break
     else:
