@@ -66,7 +66,9 @@ def _preprocess(data, date_format=None):
     preprocessing failed.
     """
     date = data.get("date")
-    if date is not None:
+    # recovering offline data does not bring any date format because the data
+    # has already been converted
+    if date is not None and date_format is not None:
         try:
             date = datetime.strptime(date, date_format).strftime(
                 PERIOD_DATE_FORMAT)

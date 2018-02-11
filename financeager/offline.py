@@ -1,9 +1,10 @@
-"""
-Module for handling requests when server not available.
+"""Module for storing client requests when server not available, and recovering
+of such.
 """
 
 import os.path
 import json
+import traceback
 
 from . import CONFIG_DIR
 from .communication import run
@@ -36,10 +37,10 @@ def _recover_data(proxy, content):
 
     while len(content):
         data = content.pop()
-        command = data.pop("command")
         try:
-            run(proxy, command, **data)
+            run(proxy, **data)
         except Exception as e:
+            traceback.print_exc()
             return data
 
 
@@ -61,7 +62,8 @@ def add(command, offline_filepath=None, **cl_kwargs):
 
     offline_filepath = offline_filepath or OFFLINE_FILEPATH
     content = _load(offline_filepath)
-    cl_kwargs.update({"command": command})
+
+    cl_kwargs["command"] = command
     content.append(cl_kwargs)
     _write(content, offline_filepath)
 

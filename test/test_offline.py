@@ -25,7 +25,7 @@ class AddTestCase(unittest.TestCase):
 
     def test_add_recover(self):
         period_name = "123"
-        kwargs = dict(name="money", value=111, period=period_name)
+        kwargs = dict(name="money", value=111, date="01-31", period=period_name)
         self.assertTrue(add("add", offline_filepath=self.filepath, **kwargs))
 
         content = _load(self.filepath)
@@ -55,11 +55,18 @@ class AddTestCase(unittest.TestCase):
 
         period_name = "123"
         kwargs = dict(name="money", value=111, period=period_name)
-        self.assertTrue(add("add", offline_filepath=self.filepath, **kwargs))
+        command = "add"
+        self.assertTrue(add(command, offline_filepath=self.filepath, **kwargs))
+        self.assertTrue(add(command, offline_filepath=self.filepath, **kwargs))
 
         proxy = local_proxy()
         self.assertRaises(OfflineRecoveryError, recover, proxy,
                           offline_filepath=self.filepath)
+
+        content = _load(self.filepath)
+        kwargs["command"] = command
+        self.assertDictEqual(content[0], kwargs)
+        self.assertDictEqual(content[1], kwargs)
 
     def tearDown(self):
         if os.path.exists(self.filepath):
