@@ -73,8 +73,7 @@ class _Proxy(object):
             return response.json()
         else:
             # bundle all returned messages in one key
-            return {"error": '\n'.join(
-                (str(v) for v in response.json().values()))}
+            return {"error": str(response.status_code)}
 
 
 def proxy(**kwargs):
