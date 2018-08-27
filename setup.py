@@ -55,7 +55,7 @@ setup(
     install_requires=[
         "tinydb==3.2.1",
         "python-dateutil==2.6.0",
-        "Flask==0.12.1",
+        "Flask==1.0.2",
         "Flask-RESTful==0.3.5",
         "requests==2.12.4",
         "schematics==2.0.1",
