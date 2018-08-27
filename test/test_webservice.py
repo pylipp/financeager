@@ -180,7 +180,7 @@ class WebserviceTestCase(unittest.TestCase):
     def test_parser_error(self):
         # missing name and value in request, parser will complain
         response = self.proxy.run("add", period=self.period)
-        self.assertIn("name", response["error"])
+        self.assertIn("400", response["error"])
 
 
 if __name__ == "__main__":
