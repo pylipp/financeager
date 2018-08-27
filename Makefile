@@ -6,7 +6,7 @@ all:
 	@echo "Available targets: install, test, upload, tag, publish, coverage, lint"
 
 install:
-	pip install -U -r requirements.txt -e .
+	pip install -U -e .
 
 test:
 	python setup.py test

@@ -41,7 +41,7 @@ Install
 
 Alternatively, you can omit the first step and install `financeager` to `~/.local` with (requires `pip3`)
 
-    pip3 install -r requirements.txt . --user
+    pip3 install . --user
 
 ## Testing
 
