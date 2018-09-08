@@ -10,13 +10,12 @@ from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
 
-os.makedirs(CONFIG_DIR, exist_ok=True)
-
 
 def main():
-    """Main command line entry point of the application. All arguments and
-    options are parsed and passed to 'run()'.
+    """Main command line entry point of the application. The config directory is
+    created. All arguments and options are parsed and passed to 'run()'.
     """
+    os.makedirs(CONFIG_DIR, exist_ok=True)
     run(**_parse_command())
 
 
