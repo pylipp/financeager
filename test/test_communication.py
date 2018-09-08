@@ -73,9 +73,9 @@ Date    : {}
 Category: Clothes""".format(today()))
 
     def test_erroneous_get(self):
-        response = self.run_command("get 0")
-        self.assertTrue(response.startswith(
-            communication.ERROR_MESSAGE.format("get", "")))
+        with self.assertRaises(communication.ServerError) as cm:
+            self.run_command("get 0")
+        self.assertTrue(cm.exception.args[0].endswith("Element not found."))
 
     def test_copy(self):
         response = self.run_command("copy 1 -s {0} -d {0}".format(
@@ -98,12 +98,10 @@ Category: Clothes""".format(today()))
 
     def test_print(self):
         response = self.run_command("print")
-        self.assertNotIn(communication.ERROR_MESSAGE.format("print", ""),
-                response)
+        self.assertNotEqual("", response)
 
         response = self.run_command("print --filters date=12-")
-        self.assertNotIn(communication.ERROR_MESSAGE.format("print", ""),
-                response)
+        self.assertEqual("", response)
 
     def test_print_with_sorting(self):
         response = self.run_command("add shirt -199 -c clothes -d 04-01")

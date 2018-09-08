@@ -25,6 +25,8 @@ class _Proxy(object):
         'period' and 'table_name' are substituted, if None.
 
         :return: dict. See Server class for possible keys
+        :raise: ValueError if invalid command given
+        :raise: CommunicationError if HTTP response not ok
         """
 
         period = data.pop("period", None) or Period.DEFAULT_NAME
@@ -67,13 +69,14 @@ class _Proxy(object):
                 data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
                 data.get("eid")), **kwargs)
         else:
-            return {"error": "Unknown command: {}".format(command)}
+            raise ValueError("Unknown command: {}".format(command))
 
         if response.ok:
             return response.json()
         else:
-            # bundle all returned messages in one key
-            return {"error": str(response.status_code)}
+            raise CommunicationError(
+                "Error making request. Server returned {}".format(
+                    response.status_code))
 
 
 def proxy(**kwargs):
@@ -81,5 +84,5 @@ def proxy(**kwargs):
     return _Proxy(**kwargs)
 
 
-# catch all exceptions when running proxy in Cli
-CommunicationError = Exception
+class CommunicationError(Exception):
+    pass

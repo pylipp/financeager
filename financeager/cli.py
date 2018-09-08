@@ -48,7 +48,11 @@ def run(command=None, config=None, **cl_kwargs):
     elif backend_name == "none":
         proxy_kwargs["data_dir"] = CONFIG_DIR
 
+    # Indicate whether to store request offline, if failed
+    store_offline = False
+
     proxy = communication_module.proxy(**proxy_kwargs)
+
     try:
         print(communication.run(
             proxy, command,
@@ -59,13 +63,19 @@ def run(command=None, config=None, **cl_kwargs):
             print("Recovered offline backup.")
     except offline.OfflineRecoveryError:
         print("Offline backup recovery failed!")
-    except communication.PreprocessingError as e:
+    except (communication.PreprocessingError,
+            communication.ServerError) as e:
+        # Command is erroneous and hence not stored offline
         print(e)
-    except (communication_module.CommunicationError) as e:
-        print("Error running command '{}':\n{}".format(
-            command, traceback.format_exc()))
-        if offline.add(command, **cl_kwargs):
-            print("Stored '{}' request in offline backup.".format(command))
+    except communication_module.CommunicationError as e:
+        print(e)
+        store_offline = True
+    except Exception:
+        print("Unexpected error:\n{}".format(traceback.format_exc()))
+        store_offline = True
+
+    if store_offline and offline.add(command, **cl_kwargs):
+        print("Stored '{}' request in offline backup.".format(command))
 
 
 def _parse_command(args=None):

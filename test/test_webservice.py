@@ -6,7 +6,7 @@ import time
 from threading import Thread
 
 from financeager.fflask import launch_server
-from financeager.httprequests import proxy
+from financeager.httprequests import proxy, CommunicationError
 from financeager import CONFIG_DIR
 from financeager.model import prettify
 
@@ -28,7 +28,8 @@ def suite():
         'test_copy',
         'test_copy_nonexisting_entry',
         'test_recurrent_entry',
-        'test_parser_error'
+        'test_parser_error',
+        'test_unknown_command',
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
@@ -97,16 +98,19 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(response["element"]["name"], "bretzels")
 
     def test_update_nonexisting_entry(self):
-        response = self.proxy.run("update", period=self.period, eid=0, name="a")
-        self.assertSetEqual({"error"}, set(response.keys()))
+        with self.assertRaises(CommunicationError) as cm:
+            self.proxy.run("update", period=self.period, eid=-1, name="a")
+        self.assertTrue(cm.exception.args[0].endswith("400"))
 
     def test_get_nonexisting_entry(self):
-        response = self.proxy.run("get", period=self.period, eid=-1)
-        self.assertSetEqual({"error"}, set(response.keys()))
+        with self.assertRaises(CommunicationError) as cm:
+            self.proxy.run("get", period=self.period, eid=-1)
+        self.assertTrue(cm.exception.args[0].endswith("404"))
 
     def test_delete_nonexisting_entry(self):
-        response = self.proxy.run("rm", period=self.period, eid=0)
-        self.assertSetEqual({"error"}, set(response.keys()))
+        with self.assertRaises(CommunicationError) as cm:
+            self.proxy.run("rm", period=self.period, eid=0)
+        self.assertTrue(cm.exception.args[0].endswith("404"))
 
     def test_invalid_request(self):
         # insert invalid host, reset to original in the end
@@ -149,7 +153,6 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(len(print_response["elements"]["recurrent"]), 0)
 
     def tearDown(self):
-        self.proxy.run("stop")
         for p in [self.period, self.destination_period]:
             filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
             if os.path.exists(filepath):
@@ -172,15 +175,19 @@ class WebserviceTestCase(unittest.TestCase):
             set(get_response["element"].items())))
 
     def test_copy_nonexisting_entry(self):
-        response = self.proxy.run("copy", source_period=self.period,
-                                  destination_period=self.destination_period,
-                                  eid=0)
-        self.assertSetEqual({"error"}, set(response.keys()))
+        with self.assertRaises(CommunicationError) as cm:
+            self.proxy.run("copy", source_period=self.period,
+                           destination_period=self.destination_period, eid=0)
+        self.assertTrue(cm.exception.args[0].endswith("404"))
 
     def test_parser_error(self):
         # missing name and value in request, parser will complain
-        response = self.proxy.run("add", period=self.period)
-        self.assertIn("400", response["error"])
+        with self.assertRaises(CommunicationError) as cm:
+            self.proxy.run("add", period=self.period)
+        self.assertTrue(cm.exception.args[0].endswith("400"))
+
+    def test_unknown_command(self):
+        self.assertRaises(ValueError, self.proxy.run, "derp")
 
 
 if __name__ == "__main__":

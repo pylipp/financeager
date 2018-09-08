@@ -22,16 +22,13 @@ def module(name):
     return getattr(financeager, frontend_modules[name])
 
 
-ERROR_MESSAGE = "Command '{}' returned an error: {}"
-
-
 def run(proxy, command, default_category=None, date_format=None,
         stacked_layout=False, entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
         category_sort=Model.CATEGORY_ENTRY_SORT_KEY, **kwargs):
     """Run a command on the given proxy. The kwargs are preprocessed and passed
     on.
 
-    :raises: CommunicationError
+    :raises: communication_module.CommunicationError, ServerError
     :return: str (formatted server response)
     """
     _preprocess(kwargs, date_format)
@@ -39,7 +36,7 @@ def run(proxy, command, default_category=None, date_format=None,
 
     error = response.get("error")
     if error is not None:
-        return ERROR_MESSAGE.format(command, error)
+        raise ServerError("Server-side error: {}".format(error))
 
     elements = response.get("elements")
     if elements is not None:
@@ -91,4 +88,8 @@ def _preprocess(data, date_format=None):
 
 
 class PreprocessingError(Exception):
+    pass
+
+
+class ServerError(Exception):
     pass
