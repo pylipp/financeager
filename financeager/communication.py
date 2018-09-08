@@ -26,10 +26,12 @@ def run(proxy, command, default_category=None, date_format=None,
         stacked_layout=False, entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
         category_sort=Model.CATEGORY_ENTRY_SORT_KEY, **kwargs):
     """Run a command on the given proxy. The kwargs are preprocessed and passed
-    on.
+    on. The server response is formatted and returned. If the response does not
+    contain any of the fields 'error', 'elements', 'element', or 'periods', the
+    empty string is returned.
 
     :raises: communication_module.CommunicationError, ServerError
-    :return: str (formatted server response)
+    :return: str
     """
     _preprocess(kwargs, date_format)
     response = proxy.run(command, **kwargs)
