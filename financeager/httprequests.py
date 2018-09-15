@@ -1,4 +1,6 @@
 """Running HTTP requests to communicate with webservice."""
+import http
+import json
 
 import requests
 
@@ -74,9 +76,16 @@ class _Proxy(object):
         if response.ok:
             return response.json()
         else:
+            try:
+                # Get further information about error (see Server.run)
+                error = response.json()["error"]
+            except (json.JSONDecodeError, KeyError):
+                error = "-"
+
             raise CommunicationError(
-                "Error making request. Server returned {}".format(
-                    response.status_code))
+                "Error making request. Server returned '{} ({}): {}'".format(
+                    http.HTTPStatus(response.status_code).phrase,
+                    response.status_code, error))
 
 
 def proxy(**kwargs):

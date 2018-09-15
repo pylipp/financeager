@@ -100,17 +100,17 @@ class WebserviceTestCase(unittest.TestCase):
     def test_update_nonexisting_entry(self):
         with self.assertRaises(CommunicationError) as cm:
             self.proxy.run("update", period=self.period, eid=-1, name="a")
-        self.assertTrue(cm.exception.args[0].endswith("400"))
+        self.assertIn("400", cm.exception.args[0])
 
     def test_get_nonexisting_entry(self):
         with self.assertRaises(CommunicationError) as cm:
             self.proxy.run("get", period=self.period, eid=-1)
-        self.assertTrue(cm.exception.args[0].endswith("404"))
+        self.assertIn("404", cm.exception.args[0])
 
     def test_delete_nonexisting_entry(self):
         with self.assertRaises(CommunicationError) as cm:
             self.proxy.run("rm", period=self.period, eid=0)
-        self.assertTrue(cm.exception.args[0].endswith("404"))
+        self.assertIn("404", cm.exception.args[0])
 
     def test_invalid_request(self):
         # insert invalid host, reset to original in the end
@@ -178,13 +178,13 @@ class WebserviceTestCase(unittest.TestCase):
         with self.assertRaises(CommunicationError) as cm:
             self.proxy.run("copy", source_period=self.period,
                            destination_period=self.destination_period, eid=0)
-        self.assertTrue(cm.exception.args[0].endswith("404"))
+        self.assertIn("404", cm.exception.args[0])
 
     def test_parser_error(self):
         # missing name and value in request, parser will complain
         with self.assertRaises(CommunicationError) as cm:
             self.proxy.run("add", period=self.period)
-        self.assertTrue(cm.exception.args[0].endswith("400"))
+        self.assertIn("400", cm.exception.args[0])
 
     def test_unknown_command(self):
         self.assertRaises(ValueError, self.proxy.run, "derp")
