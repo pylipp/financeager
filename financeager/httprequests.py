@@ -34,9 +34,13 @@ class _Proxy(object):
         period = data.pop("period", None) or Period.DEFAULT_NAME
 
         host = self.http_config.get("host", self.DEFAULT_HOST)
-        url = "http://{}{}".format(host, PERIODS_TAIL)
-        period_url = "{}/{}".format(url, period)
+        base_url = "http://{}{}".format(host, PERIODS_TAIL)
+        period_url = "{}/{}".format(base_url, period)
         copy_url = "http://{}{}".format(host, COPY_TAIL)
+        eid_url = "{}/{}/{}".format(
+            period_url,
+            data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
+            data.get("eid"))
 
         username = self.http_config.get("username")
         password = self.http_config.get("password")
@@ -48,30 +52,34 @@ class _Proxy(object):
                       timeout=self.DEFAULT_TIMEOUT)
 
         if command == "print":
-            response = requests.get(period_url, **kwargs)
+            url = period_url
+            function = requests.get
         elif command == "rm":
-            response = requests.delete("{}/{}/{}".format(
-                period_url,
-                data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
-                data.get("eid")), **kwargs)
+            url = eid_url
+            function = requests.delete
         elif command == "add":
-            response = requests.post(period_url, **kwargs)
+            url = period_url
+            function = requests.post
         elif command == "list":
-            response = requests.post(url, **kwargs)
+            url = base_url
+            function = requests.post
         elif command == "copy":
-            response = requests.post(copy_url, **kwargs)
+            url = copy_url
+            function = requests.post
         elif command == "get":
-            response = requests.get("{}/{}/{}".format(
-                period_url,
-                data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
-                data.get("eid")), **kwargs)
+            url = eid_url
+            function = requests.get
         elif command == "update":
-            response = requests.patch("{}/{}/{}".format(
-                period_url,
-                data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
-                data.get("eid")), **kwargs)
+            url = eid_url
+            function = requests.patch
         else:
             raise ValueError("Unknown command: {}".format(command))
+
+        try:
+            response = function(url, **kwargs)
+        except requests.RequestException as e:
+            raise CommunicationError(
+                "Error sending request: {}".format(e))
 
         if response.ok:
             return response.json()
@@ -83,7 +91,7 @@ class _Proxy(object):
                 error = "-"
 
             raise CommunicationError(
-                "Error making request. Server returned '{} ({}): {}'".format(
+                "Error handling request. Server returned '{} ({}): {}'".format(
                     http.HTTPStatus(response.status_code).phrase,
                     response.status_code, error))
 
