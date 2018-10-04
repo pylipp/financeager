@@ -6,6 +6,7 @@ import requests
 
 from .period import Period, TinyDbPeriod
 from .fflask import COPY_TAIL, PERIODS_TAIL
+from .exceptions import CommunicationError
 
 
 class _Proxy(object):
@@ -99,7 +100,3 @@ class _Proxy(object):
 def proxy(**kwargs):
     # all communication modules require this function
     return _Proxy(**kwargs)
-
-
-class CommunicationError(Exception):
-    pass

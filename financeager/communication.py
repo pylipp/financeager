@@ -9,6 +9,7 @@ from . import PERIOD_DATE_FORMAT
 from .model import prettify, Model
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
+from .exceptions import ServerError, PreprocessingError
 
 
 def module(name):
@@ -30,7 +31,7 @@ def run(proxy, command, default_category=None, date_format=None,
     contain any of the fields 'error', 'elements', 'element', or 'periods', the
     empty string is returned.
 
-    :raises: communication_module.CommunicationError, ServerError
+    :raises: CommunicationError, ServerError
     :return: str
     """
     _preprocess(kwargs, date_format)
@@ -87,11 +88,3 @@ def _preprocess(data, date_format=None):
         except ValueError:
             # splitting returned less than two parts due to missing separator
             raise PreprocessingError("Invalid filter format: {}".format(item))
-
-
-class PreprocessingError(Exception):
-    pass
-
-
-class ServerError(Exception):
-    pass

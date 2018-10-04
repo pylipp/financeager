@@ -20,7 +20,3 @@ class LocalServer(Server):
 
 def proxy(**kwargs):
     return LocalServer(**kwargs)
-
-
-class CommunicationError(Exception):
-    pass

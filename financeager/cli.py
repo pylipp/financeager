@@ -9,6 +9,8 @@ from financeager import offline, communication, CONFIG_DIR
 from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
+from .exceptions import PreprocessingError, ServerError, CommunicationError,\
+    OfflineRecoveryError
 
 
 def main():
@@ -60,13 +62,12 @@ def run(command=None, config=None, **cl_kwargs):
             **cl_kwargs))
         if offline.recover(proxy):
             print("Recovered offline backup.")
-    except offline.OfflineRecoveryError:
+    except OfflineRecoveryError:
         print("Offline backup recovery failed!")
-    except (communication.PreprocessingError,
-            communication.ServerError) as e:
+    except (PreprocessingError, ServerError) as e:
         # Command is erroneous and hence not stored offline
         print(e)
-    except communication_module.CommunicationError as e:
+    except CommunicationError as e:
         print(e)
         store_offline = True
     except Exception:

@@ -8,6 +8,7 @@ import traceback
 
 from . import CONFIG_DIR
 from .communication import run
+from .exceptions import OfflineRecoveryError
 
 
 OFFLINE_FILEPATH = os.path.join(CONFIG_DIR, "offline.json")
@@ -42,10 +43,6 @@ def _recover_data(proxy, content):
         except Exception as e:
             traceback.print_exc()
             return data
-
-
-class OfflineRecoveryError(Exception):
-    pass
 
 
 def add(command, offline_filepath=None, **cl_kwargs):
