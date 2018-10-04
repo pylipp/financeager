@@ -1,6 +1,7 @@
-from flask_restful import Resource, reqparse
-
 import os.path
+import traceback
+
+from flask_restful import Resource, reqparse
 
 from . import CONFIG_DIR
 from .server import Server
@@ -39,67 +40,54 @@ update_parser.add_argument("start")
 update_parser.add_argument("end")
 
 
+def run_safely(command, error_code=500, **kwargs):
+    """Wrapper function for running commands on server. Returns server response,
+    if erroneous, including an appropriate error code. Catches any unexpected
+    exceptions, prints them to stdout and returns an internal server error.
+    """
+    try:
+        response = SERVER.run(command, **kwargs)
+
+        if "error" in response:
+            response = (response, error_code)
+    except Exception:
+        print(traceback.format_exc())
+        response = ({"error": "unexpected error"}, 500)
+
+    return response
+
+
 class PeriodsResource(Resource):
     def post(self):
-        return SERVER.run("list")
+        return run_safely("list")
 
 
 class PeriodResource(Resource):
     def get(self, period_name):
         args = print_parser.parse_args()
-        response = SERVER.run("print", period=period_name, **args)
-
-        if "error" in response:
-            response = (response, 400)
-
-        return response
+        return run_safely("print", error_code=400, period=period_name, **args)
 
     def post(self, period_name):
         args = put_parser.parse_args()
-        response = SERVER.run("add", period=period_name, **args)
-
-        if "error" in response:
-            response = (response, 400)
-
-        return response
+        return run_safely("add", error_code=400, period=period_name, **args)
 
 
 class EntryResource(Resource):
     def get(self, period_name, table_name, eid):
-        response = SERVER.run("get", period=period_name, table_name=table_name,
-                eid=eid)
-
-        if "error" in response:
-            response = (response, 404)
-
-        return response
+        return run_safely("get", error_code=404, period=period_name,
+                          table_name=table_name, eid=eid)
 
     def delete(self, period_name, table_name, eid):
-        response = SERVER.run("rm", period=period_name, table_name=table_name,
-                eid=eid)
-
-        if "error" in response:
-            response = (response, 404)
-
-        return response
+        return run_safely("rm", error_code=404, period=period_name,
+                          table_name=table_name, eid=eid)
 
     def patch(self, period_name, table_name, eid):
         args = update_parser.parse_args()
-        response = SERVER.run("update", period=period_name,
-                table_name=table_name, eid=eid, **args)
-
-        if "error" in response:
-            response = (response, 400)
-
-        return response
+        return run_safely("update", error_code=400, period=period_name,
+                          table_name=table_name, eid=eid, **args)
 
 
 class CopyResource(Resource):
     def post(self):
         args = copy_parser.parse_args()
-        response = SERVER.run("copy", **args)
-
-        if "error" in response:
-            response = (response, 404)
-
-        return response
+        return run_safely("copy", error_code=404, **args)
