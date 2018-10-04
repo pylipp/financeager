@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
 import unittest
+from unittest import mock
 import os
 import time
 from threading import Thread
 
+from requests import Response
+
 from financeager.fflask import launch_server
-from financeager.httprequests import proxy, CommunicationError
+from financeager.httprequests import proxy, ServerError, CommunicationError
 from financeager import CONFIG_DIR
 from financeager.model import prettify
 
@@ -30,6 +33,7 @@ def suite():
         'test_recurrent_entry',
         'test_parser_error',
         'test_unknown_command',
+        'test_communication_error',
         ]
     suite.addTest(unittest.TestSuite(map(WebserviceTestCase, tests)))
     return suite
@@ -98,17 +102,17 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(response["element"]["name"], "bretzels")
 
     def test_update_nonexisting_entry(self):
-        with self.assertRaises(CommunicationError) as cm:
+        with self.assertRaises(ServerError) as cm:
             self.proxy.run("update", period=self.period, eid=-1, name="a")
         self.assertIn("400", cm.exception.args[0])
 
     def test_get_nonexisting_entry(self):
-        with self.assertRaises(CommunicationError) as cm:
+        with self.assertRaises(ServerError) as cm:
             self.proxy.run("get", period=self.period, eid=-1)
         self.assertIn("404", cm.exception.args[0])
 
     def test_delete_nonexisting_entry(self):
-        with self.assertRaises(CommunicationError) as cm:
+        with self.assertRaises(ServerError) as cm:
             self.proxy.run("rm", period=self.period, eid=0)
         self.assertIn("404", cm.exception.args[0])
 
@@ -175,19 +179,26 @@ class WebserviceTestCase(unittest.TestCase):
             set(get_response["element"].items())))
 
     def test_copy_nonexisting_entry(self):
-        with self.assertRaises(CommunicationError) as cm:
+        with self.assertRaises(ServerError) as cm:
             self.proxy.run("copy", source_period=self.period,
                            destination_period=self.destination_period, eid=0)
         self.assertIn("404", cm.exception.args[0])
 
     def test_parser_error(self):
         # missing name and value in request, parser will complain
-        with self.assertRaises(CommunicationError) as cm:
+        with self.assertRaises(ServerError) as cm:
             self.proxy.run("add", period=self.period)
         self.assertIn("400", cm.exception.args[0])
 
     def test_unknown_command(self):
         self.assertRaises(ValueError, self.proxy.run, "derp")
+
+    def test_communication_error(self):
+        with mock.patch("requests.get") as mocked_get:
+            response = Response()
+            response.status_code = 500
+            mocked_get.return_value = response
+            self.assertRaises(CommunicationError, self.proxy.run, "print")
 
 
 if __name__ == "__main__":
