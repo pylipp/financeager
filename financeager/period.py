@@ -484,5 +484,9 @@ class TinyDbPeriod(Period):
         condition = self._create_query_condition(**filters)
         return self._search_all_tables(condition)
 
+    def close(self):
+        """Close underlying database."""
+        self._db.close()
+
 
 TinyDB.DEFAULT_TABLE = TinyDbPeriod.DEFAULT_TABLE
