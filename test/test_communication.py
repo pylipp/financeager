@@ -5,6 +5,7 @@ from financeager.entries import BaseEntry
 from financeager.period import Period
 from financeager.cli import _parse_command
 from financeager import communication, localserver, httprequests
+from financeager.exceptions import ServerError
 
 
 def suite():
@@ -73,7 +74,7 @@ Date    : {}
 Category: Clothes""".format(today()))
 
     def test_erroneous_get(self):
-        with self.assertRaises(communication.ServerError) as cm:
+        with self.assertRaises(ServerError) as cm:
             self.run_command("get 0")
         self.assertTrue(cm.exception.args[0].endswith("Element not found."))
 

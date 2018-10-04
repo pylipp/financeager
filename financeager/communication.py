@@ -9,7 +9,7 @@ from . import PERIOD_DATE_FORMAT
 from .model import prettify, Model
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
-from .exceptions import ServerError, PreprocessingError
+from .exceptions import PreprocessingError
 
 
 def module(name):
@@ -28,18 +28,14 @@ def run(proxy, command, default_category=None, date_format=None,
         category_sort=Model.CATEGORY_ENTRY_SORT_KEY, **kwargs):
     """Run a command on the given proxy. The kwargs are preprocessed and passed
     on. The server response is formatted and returned. If the response does not
-    contain any of the fields 'error', 'elements', 'element', or 'periods', the
-    empty string is returned.
+    contain any of the fields 'elements', 'element', or 'periods', the empty
+    string is returned.
 
     :raises: CommunicationError, ServerError
     :return: str
     """
     _preprocess(kwargs, date_format)
     response = proxy.run(command, **kwargs)
-
-    error = response.get("error")
-    if error is not None:
-        raise ServerError("Server-side error: {}".format(error))
 
     elements = response.get("elements")
     if elements is not None:

@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-import traceback
-
 from financeager.period import Period, TinyDbPeriod, PeriodException
 
 
@@ -21,11 +19,10 @@ class Server(object):
         `Period` corresponding to the given `command` is called. All `kwargs`
         are passed on. A json-like response is returned.
 
+        Wrap this in a 'broad' try-except block to catch any server-side errors.
         :return: dict
             key is one of 'id', 'element', 'elements', 'error', 'periods'
         """
-
-        # broad exception block to always have info returned to client
         try:
             if command == "list":
                 return {"periods": [p._name for p in self._periods.values()]}
@@ -56,8 +53,6 @@ class Server(object):
 
         except PeriodException as e:
             return {"error": str(e)}
-        except Exception:
-            return {"error": traceback.format_exc()}
 
     def _get_period(self, name=None):
         """Get the Period identified by 'name' from the Periods dictionary. If

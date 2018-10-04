@@ -1,19 +1,27 @@
 """Local server proxy for direct communication."""
 
 from .server import Server
+from .exceptions import ServerError
 
 
 class LocalServer(Server):
-    """Subclass mocking a locally running server that shuts down (i.e. closes
-    opened files) right after running a command.
-    """
+    """Subclass mocking a locally running server. Convenient for testing"""
 
     def run(self, command, **kwargs):
+        """Run command on local server, and shut it down immediately. Any
+        unexpected exceptions will be propagated upwards.
+
+        :raises: ServerError on invalid request
+        """
         response = super().run(command, **kwargs)
 
         if command != "stop":
             # don't shutdown twice
             super().run("stop")
+
+        if "error" in response:
+            raise ServerError(
+                "Invalid request: {}".format(response["error"]))
 
         return response
 

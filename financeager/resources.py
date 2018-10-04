@@ -47,11 +47,21 @@ class PeriodsResource(Resource):
 class PeriodResource(Resource):
     def get(self, period_name):
         args = print_parser.parse_args()
-        return SERVER.run("print", period=period_name, **args)
+        response = SERVER.run("print", period=period_name, **args)
+
+        if "error" in response:
+            response = (response, 400)
+
+        return response
 
     def post(self, period_name):
         args = put_parser.parse_args()
-        return SERVER.run("add", period=period_name, **args)
+        response = SERVER.run("add", period=period_name, **args)
+
+        if "error" in response:
+            response = (response, 400)
+
+        return response
 
 
 class EntryResource(Resource):

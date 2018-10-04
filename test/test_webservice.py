@@ -24,6 +24,8 @@ def suite():
     tests = [
         'test_add_print_rm',
         'test_add_get_rm_via_eid',
+        'test_add_invalid_entry',
+        'test_add_invalid_entry_table_name',
         'test_get_nonexisting_entry',
         'test_delete_nonexisting_entry',
         'test_update',
@@ -88,6 +90,17 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(len(response["elements"]["standard"]), 0)
 
         self.assertEqual(len(prettify(response["elements"])), 0)
+
+    def test_add_invalid_entry(self):
+        with self.assertRaises(ServerError) as cm:
+            self.proxy.run("add", period=self.period, name="")
+        self.assertIn("400", cm.exception.args[0])
+
+    def test_add_invalid_entry_table_name(self):
+        with self.assertRaises(ServerError) as cm:
+            self.proxy.run("add", period=self.period, name="stuff",
+                           value="11.11", table_name="unknown")
+        self.assertIn("400", cm.exception.args[0])
 
     def test_update(self):
         response = self.proxy.run("add", period=self.period, name="donuts",
