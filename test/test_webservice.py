@@ -9,7 +9,7 @@ from threading import Thread
 from requests import Response
 
 from financeager.fflask import launch_server
-from financeager.httprequests import proxy, ServerError, CommunicationError
+from financeager.httprequests import proxy, InvalidRequest, CommunicationError
 from financeager import CONFIG_DIR
 from financeager.model import prettify
 
@@ -92,12 +92,12 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(len(prettify(response["elements"])), 0)
 
     def test_add_invalid_entry(self):
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("add", period=self.period, name="")
         self.assertIn("400", cm.exception.args[0])
 
     def test_add_invalid_entry_table_name(self):
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("add", period=self.period, name="stuff",
                            value="11.11", table_name="unknown")
         self.assertIn("400", cm.exception.args[0])
@@ -115,17 +115,17 @@ class WebserviceTestCase(unittest.TestCase):
         self.assertEqual(response["element"]["name"], "bretzels")
 
     def test_update_nonexisting_entry(self):
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("update", period=self.period, eid=-1, name="a")
         self.assertIn("400", cm.exception.args[0])
 
     def test_get_nonexisting_entry(self):
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("get", period=self.period, eid=-1)
         self.assertIn("404", cm.exception.args[0])
 
     def test_delete_nonexisting_entry(self):
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("rm", period=self.period, eid=0)
         self.assertIn("404", cm.exception.args[0])
 
@@ -192,14 +192,14 @@ class WebserviceTestCase(unittest.TestCase):
             set(get_response["element"].items())))
 
     def test_copy_nonexisting_entry(self):
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("copy", source_period=self.period,
                            destination_period=self.destination_period, eid=0)
         self.assertIn("404", cm.exception.args[0])
 
     def test_parser_error(self):
         # missing name and value in request, parser will complain
-        with self.assertRaises(ServerError) as cm:
+        with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("add", period=self.period)
         self.assertIn("400", cm.exception.args[0])
 

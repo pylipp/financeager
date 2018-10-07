@@ -9,8 +9,8 @@ class PreprocessingError(FinanceagerException):
     """Error raised during preprocessing of user input."""
 
 
-class ServerError(FinanceagerException):
-    """Server-side error, indicated on client side."""
+class InvalidRequest(FinanceagerException):
+    """Server indicated invalid request."""
 
 
 class CommunicationError(FinanceagerException):

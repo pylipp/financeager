@@ -1,7 +1,7 @@
 """Local server proxy for direct communication."""
 
 from .server import Server
-from .exceptions import ServerError
+from .exceptions import InvalidRequest
 
 
 class LocalServer(Server):
@@ -11,7 +11,7 @@ class LocalServer(Server):
         """Run command on local server, and shut it down immediately. Any
         unexpected exceptions will be propagated upwards.
 
-        :raises: ServerError on invalid request
+        :raises: InvalidRequest on invalid request
         """
         response = super().run(command, **kwargs)
 
@@ -20,7 +20,7 @@ class LocalServer(Server):
             super().run("stop")
 
         if "error" in response:
-            raise ServerError(
+            raise InvalidRequest(
                 "Invalid request: {}".format(response["error"]))
 
         return response

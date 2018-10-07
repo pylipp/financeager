@@ -31,7 +31,7 @@ def run(proxy, command, default_category=None, date_format=None,
     contain any of the fields 'elements', 'element', or 'periods', the empty
     string is returned.
 
-    :raises: CommunicationError, ServerError
+    :raises: CommunicationError, InvalidRequest
     :return: str
     """
     _preprocess(kwargs, date_format)

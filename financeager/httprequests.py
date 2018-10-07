@@ -6,7 +6,7 @@ import requests
 
 from .period import Period, TinyDbPeriod
 from .fflask import COPY_TAIL, PERIODS_TAIL
-from .exceptions import CommunicationError, ServerError
+from .exceptions import CommunicationError, InvalidRequest
 
 
 class _Proxy(object):
@@ -30,7 +30,7 @@ class _Proxy(object):
         :return: dict. See Server class for possible keys
         :raise: ValueError if invalid command given
         :raise: CommunicationError on e.g. timeouts or server-side errors,
-            ServerError on invalid requests
+            InvalidRequest on invalid requests
         """
 
         period = data.pop("period", None) or Period.DEFAULT_NAME
@@ -94,7 +94,7 @@ class _Proxy(object):
 
             status_code = response.status_code
             if 400 <= status_code < 500:
-                error_class = ServerError
+                error_class = InvalidRequest
             else:
                 error_class = CommunicationError
 
