@@ -206,13 +206,15 @@ The following diagram sketches the relationship between financeager's modules. S
     |                period               |
     +-------------------------------------+
 
-KNOWN BUGS
-----------
+## Known bugs
+
 - see [issues](https://github.com/pylipp/financeager/issues)
 - Please. Report. Them.
 
-FUTURE FEATURES
----------------
+## `financeager` features
+
+### Future features
+
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `print`
 - [ ] return element data as response to add/copy/update request
@@ -220,8 +222,8 @@ FUTURE FEATURES
 - [ ] extended period names (something along `2018-personal`)
 - [ ] support `print` at date other than today
 
-IMPLEMENTED FEATURES
----------------
+### Implemented features
+
 - [x] recurrent entries
 - [x] stacked layout for `print`
 - [x] detect category from entry name (category cache)
@@ -237,12 +239,12 @@ IMPLEMENTED FEATURES
 - [x] `copy` command to transfer recurrent entries between period databases
 - [x] support specifying custom flask host/config with all cli commands
 
-DISCARDED FEATURE IDEAS
------------------------
+### Discarded feature ideas
+
 - select from multiple options if possible (e.g. when searching or deleting an entry): breaks the concept of having a single request-response action. Instead, the user is expected to know which element he wants to delete (by using the element ID) and can give a precise command
 
-DEVELOPER'S TODOs
------------------
+## Developer's TODOs
+
 - [x] refactor TinyDbPeriod (return Model strings)
 - [x] improve documentation (period module)
 - [x] create Python package
@@ -257,8 +259,48 @@ DEVELOPER'S TODOs
 - [x] refactor some modules (e.g. split fflask and server)
 - [ ] use marshmallow package for keyword validation in period and webservice
 - [ ] use logging module instead of print
+
+## Roadmap for release of version 1.0
+
+This requires some restructuring of the software architecture. Motivation and goals are outlined below.
+
+### Status quo
+
+- module functionalities and responsibilities particularly overlap
+- also apparent in test code: no clear distinction between integration and unit tests
+
+### Goals
+
+- three separated top modules: core, backend, client
+- responsibilities:
+    1. core:
+        - constants
+        - configuration (maybe move to client)
+        - exceptions
+    2. backend:
+        - interfaces (localserver, fflask)
+        - REST API (resources)
+        - database management (server, period)
+    3. client
+        - CLI
+        - communication pre-/post-processing
+        - HTTP requests
+        - response formatting (entries, model)
+- consistent, modular test structure
+- pave way for terminal user interface
+
+### TODOs
+
+- [ ] remove TinyDB usage from model and entries
+- [ ] remove period and fflask imports from httprequests
+- [ ] remove entries import from period
+- [ ] remove httprequests import from config, consider client-side-only config (if flask is to be used, the webservice is started with a script that allows configuring the host port. The service name is redundant)
+- consider validation at CL interface
+- consider Server._get_period creating a new table if not existing (maybe 404 instead)
+- consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [ ] integration test of cli module
 - [ ] move data dir to ~/.local/share/financeager
+- [ ] format and lint code
 
 PERSONAL NOTE
 -------------
