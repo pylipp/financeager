@@ -1,3 +1,5 @@
+"""Top-level backend organization of databases."""
+
 from __future__ import unicode_literals
 
 from financeager.period import Period, TinyDbPeriod, PeriodException

@@ -1,6 +1,5 @@
-"""
-Module containing top layer of backend communication.
-"""
+"""Backend-agnostic communication-related routines (preprocessing of requests,
+formatting of responses)."""
 from datetime import datetime
 
 import financeager.httprequests

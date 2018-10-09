@@ -1,4 +1,5 @@
-"""Local server proxy for direct communication."""
+"""Local server proxy for direct communication (client and server reside in
+common process)."""
 
 from .server import Server
 from .exceptions import InvalidRequest

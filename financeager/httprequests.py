@@ -1,4 +1,4 @@
-"""Running HTTP requests to communicate with webservice."""
+"""Construction and handling of HTTP requests to communicate with webservice."""
 import http
 import json
 

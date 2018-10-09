@@ -16,8 +16,6 @@ NOTE
 ----
 You're currently on the `master` branch which is under active development.
 
-GENERAL USAGE
--------------
 ## Installation
 
 ### From PyPI package
@@ -50,6 +48,8 @@ You're invited to run the tests from the root directory:
     git clone https://github.com/pylipp/financeager
     cd financeager
     make test
+
+## Usage
 
 ### Client-server or serverless mode?
 
@@ -86,7 +86,7 @@ On the client side, you want to put something along the lines of
 
 This specifies the timeout for HTTP requests and username/password for basic auth, if required by the server.
 
-### Command line usage
+### Command line client
 
 ```
 usage: financeager [-h] {add,get,rm,update,copy,print,list} ...
@@ -166,6 +166,45 @@ Detailed information is available from
 ### Expansion
 
 Want to use a different database? Should be straightforward by deriving from `Period` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new period type.
+
+## Architecture
+
+The following diagram sketches the relationship between financeager's modules. See the module docstrings for more information.
+
+    +--------+   +-----------+   +---------+
+    | config |-->|    cli    |<->| offline |
+    +--------+   +-----------+   +---------+
+                     ¦   Λ
+                     V   ¦
+    +-------------------------------------+
+    |             communication           |
+    +-------------------------------------+
+                                               +---------+     +---------+
+      [pre-processing]      [formatting]  <--  |  model  | <-- | entries |
+                                               +---------+     +---------+
+            ¦                     Λ
+            V                     ¦
+
+    +--------------+   |   +--------------+
+    | httprequests |   |   |              |     FRONTEND
+    +--------------+   |   |              |
+    ================   |   |              |    ==========
+    +--------------+   |   | localserver  |
+    |    fflask    |   |   |              |     BACKEND
+    +--------------+   |   |              |
+    |  resources   |   |   |              |
+    +--------------+   |   +--------------+
+
+            ¦                     Λ
+            V                     ¦
+    +-------------------------------------+
+    |                server               |
+    +-------------------------------------+
+            ¦                     Λ
+            V                     ¦
+    +-------------------------------------+
+    |                period               |
+    +-------------------------------------+
 
 KNOWN BUGS
 ----------

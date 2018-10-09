@@ -1,4 +1,5 @@
-"""Defines Entries (data model rows built from fields)."""
+"""Data structures for smallest elements of frontend representation of database
+query results."""
 
 from __future__ import unicode_literals
 from datetime import datetime
@@ -7,8 +8,10 @@ from .import PERIOD_DATE_FORMAT
 
 
 class Entry(object):
-    """Base class. The name field is stored in lowercase, simplifying searching
-    from the parent model. The value is rendered absolute to simplify sorting."""
+    """Base class. An entry represents a row in the table that is built from a
+    Model.
+    The name field is stored in lowercase, simplifying searching from the parent
+    model. The value is rendered absolute to simplify sorting."""
 
     def __init__(self, name, value):
         """:type name: str

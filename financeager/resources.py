@@ -1,3 +1,4 @@
+"""Webservice resources as end points of financeager REST API."""
 import os.path
 import traceback
 

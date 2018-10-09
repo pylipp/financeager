@@ -1,3 +1,4 @@
+"""Tabular, frontend-representation of financeager period."""
 from tinydb.database import Element
 
 from .entries import BaseEntry, CategoryEntry
