@@ -161,7 +161,13 @@ class TinyDbPeriod(Period):
             validation_model.validate(**model_kwargs)
             return validation_model.to_primitive()
         except (DataError, ValidationError) as e:
-            raise PeriodException("Invalid input data: {}".format(e.messages))
+            # Get error information from nested data structures
+            infos = []
+            for field in e.errors:
+                info = [message.summary for message in e.errors[field]]
+                infos.append("{}: {}".format(field, "; ".join(info)))
+            raise PeriodException(
+                "Invalid input data:\n{}".format("\n".join(infos)))
 
     @staticmethod
     def _convert_fields(**fields):
