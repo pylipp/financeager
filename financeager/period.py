@@ -13,7 +13,7 @@ from schematics.models import Model as SchematicsModel
 from schematics.types import StringType, FloatType, DateType
 from schematics.exceptions import DataError, ValidationError
 
-from . import PERIOD_DATE_FORMAT
+from . import PERIOD_DATE_FORMAT, default_period_name
 from .entries import CategoryEntry
 
 
@@ -40,14 +40,11 @@ class RecurrentEntryValidationModel(BaseValidationModel):
 
 class Period(object):
 
-    DEFAULT_YEAR = dt.today().year
-    DEFAULT_NAME = str(DEFAULT_YEAR)
-
     def __init__(self, name=None):
         """Create Period object. Its name defaults to the current year if not
         specified.
         """
-        self._name = "{}".format(name or Period.DEFAULT_NAME)
+        self._name = "{}".format(name or default_period_name())
 
     @property
     def name(self):

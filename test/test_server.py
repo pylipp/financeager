@@ -2,9 +2,10 @@
 from __future__ import unicode_literals
 import unittest
 
+from financeager import default_period_name
 from financeager.entries import CategoryEntry
 from financeager.server import Server
-from financeager.period import PeriodException, Period
+from financeager.period import PeriodException
 
 
 def suite():
@@ -100,7 +101,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertEqual(period.name, another_period)
 
         period = self.server._get_period(None)
-        self.assertEqual(period.name, Period.DEFAULT_NAME)
+        self.assertEqual(period.name, default_period_name())
 
     def test_query_and_reset_response(self):
         category = CategoryEntry.DEFAULT_NAME

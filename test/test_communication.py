@@ -1,8 +1,8 @@
 import unittest
 from datetime import date
 
+from financeager import default_period_name
 from financeager.entries import BaseEntry
-from financeager.period import Period
 from financeager.cli import _parse_command
 from financeager import communication, localserver, httprequests
 from financeager.exceptions import InvalidRequest
@@ -80,7 +80,7 @@ Category: Clothes""".format(today()))
 
     def test_copy(self):
         response = self.run_command("copy 1 -s {0} -d {0}".format(
-            Period.DEFAULT_NAME))
+            default_period_name()))
         self.assertEqual(response, "")
 
     def test_update(self):

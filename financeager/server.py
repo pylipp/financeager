@@ -2,7 +2,8 @@
 
 from __future__ import unicode_literals
 
-from financeager.period import Period, TinyDbPeriod, PeriodException
+from . import default_period_name
+from .period import TinyDbPeriod, PeriodException
 
 
 class Server(object):
@@ -59,12 +60,12 @@ class Server(object):
     def _get_period(self, name=None):
         """Get the Period identified by 'name' from the Periods dictionary. If
         the Period does not exist, it is created and returned. If 'name' is
-        None, 'Period.DEFAULT_NAME' is used.
+        None, the default period name is used as defined in __init__.py
 
         :type name: str or None
         :return: Period object
         """
-        name = name or Period.DEFAULT_NAME
+        name = name or default_period_name()
         try:
             period = self._periods[name]
         except KeyError:

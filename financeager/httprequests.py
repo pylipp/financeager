@@ -4,7 +4,8 @@ import json
 
 import requests
 
-from .period import Period, TinyDbPeriod
+from . import default_period_name
+from .period import TinyDbPeriod
 from .fflask import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
@@ -33,7 +34,7 @@ class _Proxy(object):
             InvalidRequest on invalid requests
         """
 
-        period = data.pop("period", None) or Period.DEFAULT_NAME
+        period = data.pop("period", default_period_name())
 
         host = self.http_config.get("host", self.DEFAULT_HOST)
         base_url = "http://{}{}".format(host, PERIODS_TAIL)
