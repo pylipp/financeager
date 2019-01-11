@@ -18,15 +18,18 @@ if not os.path.isabs(data_file):
 else:
     filepath = os.path.expanduser(data_file)
 
+
 class SemicolonDialect(csv.excel):
     delimiter = ';'
+
 
 f = open(filepath, encoding="windows-1252")
 data = csv.DictReader(f, dialect=SemicolonDialect)
 
 # all supermarket shopping shall go to the database
 trigger_words = [
-    "lidl", "rewe", "aldi", "dm fil", "denns", "kaufland", "tengelmann", "edeka",
+    "lidl", "rewe", "aldi", "dm fil", "denns", "kaufland", "tengelmann",
+    "edeka", "denn.s", "alnatura", "bioladen",
 ]
 
 # when adding an unknown entry, you might want to specify the corresponding
@@ -44,23 +47,23 @@ for row in data:
         continue
 
     value = row["Betrag"].replace(",", ".")
-    date = dt.strptime(row["Buchungstag"], "%d.%m.%y"
-                       ).strftime(PERIOD_DATE_FORMAT)
+    date = dt.strptime(row["Buchungstag"], "%d.%m.%y")
+    month_day = date.strftime(PERIOD_DATE_FORMAT)
 
     for word in trigger_words:
         if word in name:
-            print("{} {}: {}".format(date, word, value))
+            print("{} {}: {}".format(month_day, word, value))
             run(
                     command="add",
                     name=word,
                     value=value,
-                    date=date,
-                    period=None,
+                    date=month_day,
+                    period=date.year,
                     category=categories.get(word, "groceries")
                     )
             break
     else:
-        entries_rest.append((date, name, value))
+        entries_rest.append((month_day, name, value))
 
 f.close()
 
