@@ -39,20 +39,13 @@ class BaseEntry(Entry):
         3 if SHOW_EID else 2
 
     def __init__(self, name, value, date, eid=0):
-        """:type eid: int
+        """:type eid: int or string, will be converted to int
         :type date: str of valid format
         """
         super().__init__(name, value)
         self.date = datetime.strptime(
             date, PERIOD_DATE_FORMAT).strftime(self.DATE_FORMAT)
-        self.eid = eid
-
-    @classmethod
-    def from_tinydb(cls, element):
-        """Create a BaseEntry from a TinyDB Element. The ID is copied.
-        """
-        element.update({"eid": element.eid})
-        return cls(**element)
+        self.eid = int(eid)
 
     def __str__(self):
         """Return a formatted string representing the entry."""
@@ -123,7 +116,7 @@ class CategoryEntry(Entry):
 def prettify(element, recurrent=False):
     """Return element properties formatted as list.
 
-    :type element: tinydb.database.Element
+    :type element: dict
     """
 
     if recurrent:

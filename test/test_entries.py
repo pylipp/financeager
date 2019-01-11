@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 import unittest
 
-from tinydb import database
-
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.entries import prettify as prettify_entry
 
@@ -32,13 +30,6 @@ def suite():
         'test_sort_by_eid',
     ]
     suite.addTest(unittest.TestSuite(map(SortBaseEntriesTestCase, tests)))
-    tests = [
-            'test_name',
-            'test_value',
-            'test_str',
-            'test_eid'
-            ]
-    suite.addTest(unittest.TestSuite(map(BaseEntryFromTinyDbElementTestCase, tests)))
     tests = [
             'test_prettify'
             ]
@@ -162,35 +153,10 @@ Letters                9.00          " + """
   A                    1.00 08-11   7""")
 
 
-class BaseEntryFromTinyDbElementTestCase(unittest.TestCase):
-    def setUp(self):
-        self.name = "dinner for one"
-        self.value = 99.9
-        self.date = "12-31"
-        self.eid = 1
-        element = database.Element(value=dict(name=self.name, value=self.value,
-            date=self.date), eid=self.eid)
-        self.entry = BaseEntry.from_tinydb(element)
-
-    def test_name(self):
-        self.assertEqual(self.entry.name, "dinner for one")
-
-    def test_value(self):
-        self.assertAlmostEqual(self.entry.value, self.value, places=5)
-
-    def test_str(self):
-        self.assertEqual(str(self.entry), "Dinner For One      99.90 12-31   1")
-
-    def test_eid(self):
-        self.assertEqual(self.entry.eid, self.eid)
-
-
 class PrettifyBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.element = database.Element(value=dict(
-            name="soccer shoes", value=-123.45, date="04-01",
-            category="sport equipment")
-            )
+        self.element = dict(name="soccer shoes", value=-123.45, date="04-01",
+                            category="sport equipment")
 
     def test_prettify(self):
         self.assertEqual(prettify_entry(self.element), """\
@@ -202,10 +168,9 @@ Category: Sport Equipment""")
 
 class PrettifyRecurrentElementTestCase(unittest.TestCase):
     def setUp(self):
-        self.element = database.Element(value=dict(
-                name="retirement money", value=567.0,
-                category="income", frequency="monthly", start="01-01",
-                end="12-31"))
+        self.element = dict(name="retirement money", value=567.0,
+                            category="income", frequency="monthly",
+                            start="01-01", end="12-31")
 
     def test_prettify(self):
         self.assertEqual(prettify_entry(self.element, True), """\

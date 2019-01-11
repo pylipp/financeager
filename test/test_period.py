@@ -10,7 +10,7 @@ from financeager.period import Period, TinyDbPeriod, PeriodException,\
         RecurrentEntryValidationModel
 from financeager import PERIOD_DATE_FORMAT
 from financeager.model import Model
-from financeager.entries import CategoryEntry
+from financeager.entries import CategoryEntry, BaseEntry
 
 DEFAULT_CATEGORY = CategoryEntry.DEFAULT_NAME
 
@@ -105,7 +105,11 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
-        model = Model.from_tinydb(standard_elements.values())
+        model = Model()
+        for eid, content in standard_elements.items():
+            category = content.pop("category", None)
+            model.add_entry(BaseEntry(eid=eid, **content),
+                            category_name=category)
         self.assertEqual(model.categories[0].entries[0].eid, eid)
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")

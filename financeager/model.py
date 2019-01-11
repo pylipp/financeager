@@ -1,6 +1,4 @@
 """Tabular, frontend-representation of financeager period."""
-from tinydb.database import Element
-
 from .entries import BaseEntry, CategoryEntry
 
 
@@ -16,12 +14,12 @@ class Model(object):
         self.categories = categories or []
 
     @classmethod
-    def from_tinydb(cls, elements, name=None):
-        """Create model from tinydb.Elements or dict."""
+    def from_elements(cls, elements, name=None):
+        """Create model from list of element dictionaries"""
         model = cls(name=name)
         for element in elements:
             category = element.pop("category", None)
-            model.add_entry(BaseEntry.from_tinydb(element), category_name=category)
+            model.add_entry(BaseEntry(**element), category_name=category)
         return model
 
     def __str__(self):
@@ -164,29 +162,31 @@ def prettify(elements, stacked_layout=False):
     earnings = []
     expenses = []
 
-    def sort_as_tinydb_element(eid, element):
-        # convert to tinydb.Element and sort acc. to value
-        # pass eid as int (tinydb accepts any type but BaseEntry would complain)
-        element = Element(value=element, eid=int(eid))
-        if element["value"] > 0:
-            earnings.append(element)
+    def _sort(eid, element):
+        # Copying avoids modifying the original element. Flattening is in order
+        # to distinguish recurrent entries (they have the same element ID which
+        # thus can't be used as dict key)
+        flat_element = element.copy()
+        flat_element["eid"] = eid
+        if flat_element["value"] > 0:
+            earnings.append(flat_element)
         else:
-            expenses.append(element)
+            expenses.append(flat_element)
 
     # process standard elements
     for eid, element in elements["standard"].items():
-        sort_as_tinydb_element(eid, element)
+        _sort(eid, element)
 
     # process recurrent elements, i.e. for each eid iterate list
     for eid, recurrent_elements in elements["recurrent"].items():
         for element in recurrent_elements:
-            sort_as_tinydb_element(eid, element)
+            _sort(eid, element)
 
     if not earnings and not expenses:
         return ""
 
-    model_earnings = Model.from_tinydb(earnings, "Earnings")
-    model_expenses = Model.from_tinydb(expenses, "Expenses")
+    model_earnings = Model.from_elements(earnings, name="Earnings")
+    model_expenses = Model.from_elements(expenses, name="Expenses")
 
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(

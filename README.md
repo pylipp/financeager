@@ -291,7 +291,7 @@ This requires some restructuring of the software architecture. Motivation and go
 
 ### TODOs
 
-- [ ] remove TinyDB usage from model and entries
+- [x] remove TinyDB usage from model and entries
 - [ ] remove period and fflask imports from httprequests
 - [ ] remove entries import from period
 - [ ] remove httprequests import from config, consider client-side-only config (if flask is to be used, the webservice is started with a script that allows configuring the host port. The service name is redundant)

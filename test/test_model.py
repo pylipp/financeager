@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import unittest
 
-from tinydb import database
 from financeager.model import Model, prettify
 from financeager.entries import CategoryEntry, BaseEntry
 
@@ -73,7 +72,7 @@ def suite():
             'test_category_sums',
             'test_base_entries'
             ]
-    suite.addTest(unittest.TestSuite(map(ModelFromTinyDbTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(ModelFromElementsTestCase, tests)))
     tests = ['test_prettify']
     suite.addTest(unittest.TestSuite(map(PrettifyModelsTestCase, tests)))
     return suite
@@ -342,15 +341,13 @@ class RemoveEntryTestCase(unittest.TestCase):
             places=5)
 
 
-class ModelFromTinyDbTestCase(unittest.TestCase):
+class ModelFromElementsTestCase(unittest.TestCase):
     def setUp(self):
         self.name = "Dinner for one"
         self.value = 99.9
         self.date = "12-31"
-        element = database.Element(
-            value=dict(name=self.name, value=self.value, date=self.date),
-            eid=0)  # tinydb sets eid=None by default
-        self.model = Model.from_tinydb([element])
+        self.model = Model.from_elements([
+            dict(name=self.name, value=self.value, date=self.date, eid=0)])
 
     def test_contains_an_entry(self):
         self.assertIsNotNone(self.model.find_base_entry(date=self.date))
@@ -403,7 +400,8 @@ class PrettifyModelsTestCase(unittest.TestCase):
             }
         }
         self.maxDiff = None
-        self.assertEqual(prettify(elements),
+        elements_copy = elements.copy()
+        self.assertEqual(prettify(elements_copy),
 "              Earnings                |               Expenses               \n"
 "Name               Value    Date  ID  | Name               Value    Date  ID \n"
 "Unspecified          299.99           | Groceries            100.01          \n"
@@ -413,6 +411,8 @@ class PrettifyModelsTestCase(unittest.TestCase):
 "=============================================================================\n"
 "Total               4620.99           | Total                100.01          "
                          )
+        # Assert that original data was not modified
+        self.assertDictEqual(elements, elements_copy)
 
 
 if __name__ == '__main__':
