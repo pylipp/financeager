@@ -4,8 +4,7 @@ import json
 
 import requests
 
-from . import default_period_name
-from .period import TinyDbPeriod
+from . import default_period_name, DEFAULT_TABLE
 from .fflask import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
@@ -42,7 +41,7 @@ class _Proxy(object):
         copy_url = "http://{}{}".format(host, COPY_TAIL)
         eid_url = "{}/{}/{}".format(
             period_url,
-            data.get("table_name") or TinyDbPeriod.DEFAULT_TABLE,
+            data.get("table_name") or DEFAULT_TABLE,
             data.get("eid"))
 
         username = self.http_config.get("username")

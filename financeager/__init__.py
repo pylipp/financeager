@@ -11,6 +11,9 @@ __version__ = "0.12"
 # fixed date format for database
 PERIOD_DATE_FORMAT = "%m-%d"
 
+# default table name of database
+DEFAULT_TABLE = "standard"
+
 # directory for application data
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 

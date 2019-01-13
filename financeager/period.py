@@ -13,7 +13,7 @@ from schematics.models import Model as SchematicsModel
 from schematics.types import StringType, FloatType, DateType
 from schematics.exceptions import DataError, ValidationError
 
-from . import PERIOD_DATE_FORMAT, default_period_name
+from . import PERIOD_DATE_FORMAT, default_period_name, DEFAULT_TABLE
 from .entries import CategoryEntry
 
 
@@ -62,8 +62,6 @@ class PeriodException(Exception):
 
 class TinyDbPeriod(Period):
 
-    DEFAULT_TABLE = "standard"
-
     def __init__(self, name=None, data_dir=None, **kwargs):
         """Create a period with a TinyDB database backend, identified by 'name'.
         If 'data_dir' is given, the database storage type is JSON (the storage
@@ -108,8 +106,8 @@ class TinyDbPeriod(Period):
         :raise: PeriodException if validation failed or table name unknown
         """
 
-        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
-        if table_name not in ["recurrent", TinyDbPeriod.DEFAULT_TABLE]:
+        table_name = table_name or DEFAULT_TABLE
+        if table_name not in ["recurrent", DEFAULT_TABLE]:
             raise PeriodException("Unknown table name: {}".format(table_name))
 
         self._remove_redundant_fields(table_name, raw_data)
@@ -196,7 +194,7 @@ class TinyDbPeriod(Period):
                 substituted_fields["end"] = \
                     dt.today().replace(month=12, day=31).strftime(PERIOD_DATE_FORMAT)
 
-        elif table_name == TinyDbPeriod.DEFAULT_TABLE:
+        elif table_name == DEFAULT_TABLE:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(PERIOD_DATE_FORMAT)
 
@@ -283,7 +281,7 @@ class TinyDbPeriod(Period):
         :return: TinyDB ID of new entry (int)
         """
 
-        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
+        table_name = table_name or DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
 
         self._update_category_cache(**fields)
@@ -303,7 +301,7 @@ class TinyDbPeriod(Period):
         :return: found element (tinydb.Element)
         """
 
-        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
+        table_name = table_name or DEFAULT_TABLE
         element = self._db.table(table_name).get(eid=int(eid))
         if element is None:
             raise PeriodException("Element not found.")
@@ -323,7 +321,7 @@ class TinyDbPeriod(Period):
         :return: ID of the updated entry
         """
 
-        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
+        table_name = table_name or DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name,
                 partial=True)
 
@@ -432,14 +430,14 @@ class TinyDbPeriod(Period):
         :param eid: ID of the element to be deleted.
         :type eid: int or str
         :param table_name: name of the table that contains the element.
-            Default: TinyDbPeriod.DEFAULT_TABLE
+            Default: 'standard'
         :type table_name: str
 
         :raise: PeriodException if element/ID not found.
         :return: element ID if removal was successful
         """
 
-        table_name = table_name or TinyDbPeriod.DEFAULT_TABLE
+        table_name = table_name or DEFAULT_TABLE
         # might raise PeriodException if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
@@ -492,4 +490,4 @@ class TinyDbPeriod(Period):
         self._db.close()
 
 
-TinyDB.DEFAULT_TABLE = TinyDbPeriod.DEFAULT_TABLE
+TinyDB.DEFAULT_TABLE = DEFAULT_TABLE
