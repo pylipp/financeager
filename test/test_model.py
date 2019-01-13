@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
+from financeager import DEFAULT_TABLE
 from financeager.model import Model, prettify
 from financeager.entries import CategoryEntry, BaseEntry
 
@@ -372,12 +373,12 @@ class ModelFromElementsTestCase(unittest.TestCase):
 
 class PrettifyModelsTestCase(unittest.TestCase):
     def test_prettify_no_elements(self):
-        elements = {"standard": {}, "recurrent": {}}
+        elements = {DEFAULT_TABLE: {}, "recurrent": {}}
         self.assertEqual(prettify(elements), "")
 
     def test_prettify(self):
         elements = {
-            "standard": {
+            DEFAULT_TABLE: {
                 1: {
                     "name": "food",
                     "value": -100.01,

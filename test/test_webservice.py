@@ -8,6 +8,7 @@ from threading import Thread
 
 from requests import Response
 
+from financeager import DEFAULT_TABLE
 from financeager.fflask import launch_server
 from financeager.httprequests import proxy, InvalidRequest, CommunicationError
 from financeager import CONFIG_DIR
@@ -63,7 +64,7 @@ class WebserviceTestCase(unittest.TestCase):
 
     def test_add_print_rm(self):
         add_response = self.proxy.run("add", period=self.period, name="cookies",
-                value="-100", category="food", table_name="standard")
+                value="-100", category="food", table_name=DEFAULT_TABLE)
 
         entry_id = add_response["id"]
 
@@ -87,7 +88,7 @@ class WebserviceTestCase(unittest.TestCase):
         response = self.proxy.run("rm", period=self.period, eid=entry_id)
 
         response = self.proxy.run("print", period=self.period)
-        self.assertEqual(len(response["elements"]["standard"]), 0)
+        self.assertEqual(len(response["elements"][DEFAULT_TABLE]), 0)
 
         self.assertEqual(len(prettify(response["elements"])), 0)
 

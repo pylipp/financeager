@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import unittest
 
-from financeager import default_period_name
+from financeager import default_period_name, DEFAULT_TABLE
 from financeager.entries import CategoryEntry
 from financeager.server import Server
 from financeager.period import PeriodException
@@ -110,7 +110,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertGreater(len(response), 0)
         self.assertIsInstance(response, dict)
         self.assertIsInstance(response["elements"], dict)
-        self.assertIsInstance(response["elements"]["standard"], dict)
+        self.assertIsInstance(response["elements"][DEFAULT_TABLE], dict)
         self.assertIsInstance(response["elements"]["recurrent"], dict)
 
     def test_response_is_none(self):
@@ -124,7 +124,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         response = self.server.run(
             "print", period=self.period, filters={
                 "name": "Hiking boots", "category": CategoryEntry.DEFAULT_NAME})
-        self.assertDictEqual(response["elements"]["standard"], {})
+        self.assertDictEqual(response["elements"][DEFAULT_TABLE], {})
         self.assertDictEqual(response["elements"]["recurrent"], {})
 
     def test_update(self):

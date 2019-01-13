@@ -1,4 +1,5 @@
 """Tabular, frontend-representation of financeager period."""
+from . import DEFAULT_TABLE
 from .entries import BaseEntry, CategoryEntry
 
 
@@ -174,7 +175,7 @@ def prettify(elements, stacked_layout=False):
             expenses.append(flat_element)
 
     # process standard elements
-    for eid, element in elements["standard"].items():
+    for eid, element in elements[DEFAULT_TABLE].items():
         _sort(eid, element)
 
     # process recurrent elements, i.e. for each eid iterate list

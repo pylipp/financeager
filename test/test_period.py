@@ -8,7 +8,7 @@ from schematics.exceptions import DataError
 from financeager.period import Period, TinyDbPeriod, PeriodException,\
         BaseValidationModel, StandardEntryValidationModel,\
         RecurrentEntryValidationModel
-from financeager import PERIOD_DATE_FORMAT
+from financeager import PERIOD_DATE_FORMAT, DEFAULT_TABLE
 from financeager.model import Model
 from financeager.entries import CategoryEntry, BaseEntry
 
@@ -91,7 +91,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_get_entries(self):
         entries = self.period.get_entries(filters={"date": "01-"})
-        self.assertEqual("bicycle", entries["standard"][1]["name"])
+        self.assertEqual("bicycle", entries[DEFAULT_TABLE][1]["name"])
 
     def test_remove_entry(self):
         response = self.period.remove_entry(eid=1)
@@ -101,7 +101,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def test_create_models_query_kwargs(self):
         eid = self.period.add_entry(name="Xmas gifts", value=500, date="1901-12-23")
         standard_elements = self.period.get_entries(
-            filters={"date": "12"})["standard"]
+            filters={"date": "12"})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
@@ -114,7 +114,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
         standard_elements = self.period.get_entries(
-            filters={"name": "xmas", "date": "12"})["standard"]
+            filters={"name": "xmas", "date": "12"})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
@@ -127,7 +127,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
             filters={"category": "groceries"})
         self.assertEqual(len(groceries_elements), 2)
         self.assertEqual(sum([e["value"] for e in
-            groceries_elements["standard"].values()]), -51)
+            groceries_elements[DEFAULT_TABLE].values()]), -51)
 
     def test_remove_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.remove_entry, eid=0)
@@ -210,7 +210,7 @@ class TinyDbPeriodRecurrentEntryNowTestCase(unittest.TestCase):
         period = TinyDbPeriod()
 
         elements = period.get_entries()
-        self.assertEqual(len(elements["standard"]), 0)
+        self.assertEqual(len(elements[DEFAULT_TABLE]), 0)
         self.assertEqual(len(elements["recurrent"]), 0)
 
         entry_id = period.add_entry(table_name="recurrent", name="lunch",
@@ -228,7 +228,7 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
     def test_recurrent_entries(self):
         eid = self.period.add_entry(name="rent", value=-500,
                 table_name="recurrent", frequency="monthly", start="10-01")
-        self.assertSetEqual({"standard", "recurrent"}, self.period._db.tables())
+        self.assertSetEqual({DEFAULT_TABLE, "recurrent"}, self.period._db.tables())
 
         self.assertEqual(len(self.period._db.table("recurrent").all()), 1)
         element = self.period._db.table("recurrent").all()[0]
@@ -420,7 +420,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertEqual(len(fields), 4)
 
     def test_substitute_none_standard_fields(self):
-        fields = self.period._substitute_none_fields("standard", name="foo")
+        fields = self.period._substitute_none_fields(DEFAULT_TABLE, name="foo")
         self.assertIn("name", fields)
         self.assertIn("date", fields)
         # contains name, date, category

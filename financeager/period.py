@@ -349,7 +349,7 @@ class TinyDbPeriod(Period):
         """
 
         elements = {
-                "standard": {},
+                DEFAULT_TABLE: {},
                 "recurrent": defaultdict(list)
                 }
 
@@ -359,7 +359,7 @@ class TinyDbPeriod(Period):
             matching_standard_elements = self._db.search(query_impl)
 
         for element in matching_standard_elements:
-            elements["standard"][element.eid] = element
+            elements[DEFAULT_TABLE][element.eid] = element
 
         # all recurrent elements are generated, and the ones matching the
         # query are appended to a list that is stored under their generating
@@ -476,7 +476,7 @@ class TinyDbPeriod(Period):
         tables.
 
         :return: dict{
-                    "standard":  dict{ int: tinydb.Element },
+                    DEFAULT_TABLE:  dict{ int: tinydb.Element },
                     "recurrent": dict{ int: list[tinydb.Element] }
                     }
         """
