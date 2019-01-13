@@ -3,7 +3,7 @@ import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from .entries import CategoryEntry, BaseEntry
-from .httprequests import _Proxy as Flask_Proxy
+from . import DEFAULT_HOST, DEFAULT_TIMEOUT
 
 
 class Configuration(object):
@@ -25,8 +25,8 @@ class Configuration(object):
             "date_format": BaseEntry.DATE_FORMAT.replace("%", "%%"),
         }
         self._parser["SERVICE:FLASK"] = {
-            "host": Flask_Proxy.DEFAULT_HOST,
-            "timeout": Flask_Proxy.DEFAULT_TIMEOUT,
+            "host": DEFAULT_HOST,
+            "timeout": DEFAULT_TIMEOUT,
             "username": "",
             "password": "",
         }

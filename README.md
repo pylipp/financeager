@@ -293,7 +293,6 @@ This requires some restructuring of the software architecture. Motivation and go
 
 - [x] remove TinyDB usage from model and entries
 - [ ] remove entries import from period
-- [ ] remove httprequests import from config, consider client-side-only config (if flask is to be used, the webservice is started with a script that allows configuring the host port. The service name is redundant)
 - consider validation at CL interface
 - consider Server._get_period creating a new table if not existing (maybe 404 instead)
 - consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)

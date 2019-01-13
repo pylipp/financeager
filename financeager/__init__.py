@@ -21,6 +21,10 @@ CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 PERIODS_TAIL = "/financeager/periods"
 COPY_TAIL = PERIODS_TAIL + "/copy"
 
+# HTTP communication defaults
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_TIMEOUT = 10
+
 
 def default_period_name():
     """The current year as string (format YYYY)."""

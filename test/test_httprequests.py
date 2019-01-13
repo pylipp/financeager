@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from financeager.httprequests import _Proxy
-from financeager import PERIODS_TAIL
+from financeager import PERIODS_TAIL, DEFAULT_HOST, DEFAULT_TIMEOUT
 
 
 def suite():
@@ -33,11 +33,11 @@ class HttpRequestProxyTestCase(unittest.TestCase):
 
             proxy.run("list")
 
-            url = "http://{}{}".format(_Proxy.DEFAULT_HOST, PERIODS_TAIL)
+            url = "http://{}{}".format(DEFAULT_HOST, PERIODS_TAIL)
             kwargs = {
                 "data": None,
                 "auth": (username, password),
-                "timeout": _Proxy.DEFAULT_TIMEOUT,
+                "timeout": DEFAULT_TIMEOUT,
             }
             post_patch.assert_called_once_with(url, **kwargs)
 

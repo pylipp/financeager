@@ -4,7 +4,7 @@ import json
 
 import requests
 
-from . import default_period_name, DEFAULT_TABLE
+from . import default_period_name, DEFAULT_TABLE, DEFAULT_HOST, DEFAULT_TIMEOUT
 from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
@@ -12,9 +12,6 @@ from .exceptions import CommunicationError, InvalidRequest
 class _Proxy(object):
     """Converts CL verbs to HTTP request, sends to webservice and returns
     response."""
-
-    DEFAULT_HOST = "127.0.0.1"
-    DEFAULT_TIMEOUT = 10
 
     def __init__(self, http_config=None):
         """http_config: dict specifying host and (optionally) username/password
@@ -35,7 +32,7 @@ class _Proxy(object):
 
         period = data.pop("period", default_period_name())
 
-        host = self.http_config.get("host", self.DEFAULT_HOST)
+        host = self.http_config.get("host", DEFAULT_HOST)
         base_url = "http://{}{}".format(host, PERIODS_TAIL)
         period_url = "{}/{}".format(base_url, period)
         copy_url = "http://{}{}".format(host, COPY_TAIL)
@@ -50,8 +47,7 @@ class _Proxy(object):
         if username and password:
             auth = (username, password)
 
-        kwargs = dict(data=data or None, auth=auth,
-                      timeout=self.DEFAULT_TIMEOUT)
+        kwargs = dict(data=data or None, auth=auth, timeout=DEFAULT_TIMEOUT)
 
         if command == "print":
             url = period_url
