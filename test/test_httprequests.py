@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from financeager.httprequests import _Proxy
-from financeager.fflask import PERIODS_TAIL
+from financeager import PERIODS_TAIL
 
 
 def suite():

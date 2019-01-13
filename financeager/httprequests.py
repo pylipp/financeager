@@ -5,7 +5,7 @@ import json
 import requests
 
 from . import default_period_name, DEFAULT_TABLE
-from .fflask import COPY_TAIL, PERIODS_TAIL
+from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
 

@@ -17,6 +17,10 @@ DEFAULT_TABLE = "standard"
 # directory for application data
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 
+# URL endpoints
+PERIODS_TAIL = "/financeager/periods"
+COPY_TAIL = PERIODS_TAIL + "/copy"
+
 
 def default_period_name():
     """The current year as string (format YYYY)."""

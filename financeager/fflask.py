@@ -3,12 +3,9 @@
 from flask import Flask
 from flask_restful import Api
 
+from . import PERIODS_TAIL, COPY_TAIL
 from .resources import (PeriodsResource, PeriodResource, EntryResource,
                         CopyResource)
-
-# URL endpoints
-PERIODS_TAIL = "/financeager/periods"
-COPY_TAIL = PERIODS_TAIL + "/copy"
 
 
 def create_app(config=None):
