@@ -24,20 +24,21 @@ You're currently on the `master` branch which is under active development.
 
 ### From source
 
-Create a virtual environment
-
-    mkvirtualenv --python=$(which python3) financeager
-
 Clone the repo
 
     git clone https://github.com/pylipp/financeager
+    cd financeager
+
+Create a virtual environment
+
+    python -m virtualenv --python=$(which python3) .venv
+    source .venv/bin/activate
 
 Install
 
-    cd financeager
-    make install
+    pip install --upgrade --editable .
 
-Alternatively, you can omit the first step and install `financeager` to `~/.local` with (requires `pip3`)
+Alternatively, you can omit the second and third step and install `financeager` to `~/.local` with (requires `pip3`)
 
     pip3 install . --user
 
@@ -294,7 +295,6 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] remove TinyDB usage from model and entries
 - [ ] remove entries import from period
 - consider validation at CL interface
-- consider Server._get_period creating a new table if not existing (maybe 404 instead)
 - consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [ ] integration test of cli module
 - [ ] move data dir to ~/.local/share/financeager
