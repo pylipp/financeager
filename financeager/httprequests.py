@@ -30,7 +30,7 @@ class _Proxy(object):
             InvalidRequest on invalid requests
         """
 
-        period = data.pop("period", default_period_name())
+        period = data.pop("period", None) or default_period_name()
 
         host = self.http_config.get("host", DEFAULT_HOST)
         base_url = "http://{}{}".format(host, PERIODS_TAIL)
