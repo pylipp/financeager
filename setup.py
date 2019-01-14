@@ -57,7 +57,7 @@ setup(
         "python-dateutil==2.6.0",
         "Flask==1.0.2",
         "Flask-RESTful==0.3.5",
-        "requests==2.12.4",
+        "requests>=2.20.0",
         "schematics==2.0.1",
    ],
 )
