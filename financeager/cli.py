@@ -17,7 +17,6 @@ def main():
     """Main command line entry point of the application. The config directory is
     created. All arguments and options are parsed and passed to 'run()'.
     """
-    # pragma: no cover
     os.makedirs(CONFIG_DIR, exist_ok=True)
     run(**_parse_command())
 
