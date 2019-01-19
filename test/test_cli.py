@@ -7,7 +7,7 @@ import time
 from threading import Thread
 import re
 
-from requests import Response
+from requests import Response, RequestException
 
 from financeager.fflask import launch_server
 from financeager.httprequests import InvalidRequest
@@ -36,6 +36,7 @@ def suite():
         'test_recurrent_entry',
         # 'test_parser_error',
         'test_communication_error',
+        'test_offline_feature',
         ]
     suite.addTest(unittest.TestSuite(map(CliTestCase, tests)))
     return suite
@@ -101,8 +102,10 @@ host = {}
 
         with mock.patch("builtins.print") as mocked_print:
             run(**_parse_command(args))
-            # Get first of the args
-            printed_content = mocked_print.call_args[0][0]
+            # Record for optional detailed analysis in test methods
+            self.print_call_args_list = mocked_print.call_args_list
+            # Get first of the args of the first call
+            printed_content = self.print_call_args_list[0][0][0]
 
         if command in ["add", "update", "rm", "copy"] and\
                 isinstance(printed_content, str):
@@ -249,6 +252,55 @@ host = {}
             mocked_get.return_value = response
             printed_content = self.cli_run("print")
             self.assertIn("500", printed_content)
+
+    @mock.patch("financeager.offline.OFFLINE_FILEPATH",
+                "/tmp/financeager-test-offline.json")
+    def test_offline_feature(self):
+        with mock.patch("requests.post") as mocked_post:
+            # Try do add an item but provoke CommunicationError
+            mocked_post.side_effect = RequestException("did not work")
+
+            try:
+                self.cli_run("add veggies -33")
+            except AssertionError:
+                # The regex matching is expected to fail
+                pass
+
+            # Output from caught CommunicationError
+            self.assertEqual("Error sending request: did not work",
+                             str(self.print_call_args_list[0][0][0]))
+            self.assertEqual("Stored 'add' request in offline backup.",
+                             self.print_call_args_list[1][0][0])
+
+            # Now request a print, and try to recover the offline backup
+            # But adding is still expected to fail
+            mocked_post.side_effect = RequestException("still no works")
+            self.cli_run("print")
+            # Output from print; expect empty database
+            self.assertEqual("", self.print_call_args_list[0][0][0])
+
+            # Output from offline recovery traceback not checked
+
+            # Output from caught CommunicationError
+            self.assertIn("Error sending request: still no works",
+                          str(self.print_call_args_list[-2][0][0]))
+
+            # Output from cli module
+            self.assertEqual("Offline backup recovery failed!",
+                             self.print_call_args_list[-1][0][0])
+
+        # Without side effects, recover the offline backup
+        self.cli_run("print")
+
+        self.assertEqual("", self.print_call_args_list[0][0][0])
+        # TODO: adjust offline module implementation
+        # self.assertEqual("Added element 1.",
+        #                  self.print_call_args_list[1][0][0])
+        self.assertEqual("Recovered offline backup.",
+                         self.print_call_args_list[1][0][0])
+
+        # Cleanup (sigh...)
+        self.cli_run("rm 1")
 
 
 if __name__ == "__main__":
