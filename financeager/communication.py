@@ -80,12 +80,12 @@ def _preprocess(data, date_format=None):
     filter_items = data.get("filters")
     if filter_items is not None:
         # convert list of "key=value" strings into comma-separated string
-        parsed_items = []
+        parsed_items = {}
         try:
             for item in filter_items:
                 key, value = item.split("=")
-                parsed_items.append("{}={}".format(key, value.lower()))
-            data["filters"] = ",".join(parsed_items)
+                parsed_items[key] = value.lower()
+            data["filters"] = parsed_items
         except ValueError:
             # splitting returned less than two parts due to missing separator
             raise PreprocessingError("Invalid filter format: {}".format(item))

@@ -47,7 +47,13 @@ class _Proxy(object):
         if username and password:
             auth = (username, password)
 
-        kwargs = dict(data=data or None, auth=auth, timeout=DEFAULT_TIMEOUT)
+        kwargs = dict(auth=auth, timeout=DEFAULT_TIMEOUT)
+
+        if command == "print":
+            # Correctly send filters; allowing for server-side deserialization
+            kwargs["json"] = json.dumps(data)
+        else:
+            kwargs["data"] = data or None
 
         if command == "print":
             url = period_url

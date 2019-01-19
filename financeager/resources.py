@@ -1,7 +1,9 @@
 """Webservice resources as end points of financeager REST API."""
 import os.path
 import traceback
+import json
 
+import flask
 from flask_restful import Resource, reqparse
 
 from . import CONFIG_DIR
@@ -65,19 +67,7 @@ class PeriodsResource(Resource):
 
 class PeriodResource(Resource):
     def get(self, period_name):
-        args = print_parser.parse_args()
-
-        # Sophisticated deserialization...
-        filter_items = args.get("filters")
-        if filter_items is not None:
-            filter_items = filter_items.split(",")
-            # convert list of "key=value" strings into dictionary
-            parsed_items = {}
-            for item in filter_items:
-                key, value = item.split("=")
-                parsed_items[key] = value.lower()
-            args["filters"] = parsed_items
-
+        args = json.loads(flask.request.json)
         return run_safely("print", error_code=400, period=period_name, **args)
 
     def post(self, period_name):
