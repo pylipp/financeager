@@ -1,1 +1,25 @@
-README.rst
+# Python related
+*.pyc
+__pycache__/
+*.egg-info
+dist/
+build/
+.coverage
+htmlcov/
+
+# Editor related
+*.swp
+*.swo
+*~
+.~lock.*
+
+# Git related
+*.orig
+
+# Tags
+tags
+.notags
+.gutctags
+
+# Miscellaneous
+.envrc
