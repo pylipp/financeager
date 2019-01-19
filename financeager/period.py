@@ -187,14 +187,14 @@ class TinyDbPeriod(Period):
 
         substituted_fields = fields.copy()
 
+        # table_name is either of two values; verified in _preprocess_entry
         if table_name == "recurrent":
             if fields.get("start") is None:
                 substituted_fields["start"] = dt.today().strftime(PERIOD_DATE_FORMAT)
             if fields.get("end") is None:
                 substituted_fields["end"] = \
                     dt.today().replace(month=12, day=31).strftime(PERIOD_DATE_FORMAT)
-
-        elif table_name == DEFAULT_TABLE:
+        else:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(PERIOD_DATE_FORMAT)
 
@@ -456,8 +456,7 @@ class TinyDbPeriod(Period):
             if item is None:
                 continue
 
-            if isinstance(item, str):
-                item = item.lower()
+            item = item.lower()
 
             # TODO use tinydb.Query.search
             new_condition = (entry[item_name].matches(".*{}.*".format(item)))

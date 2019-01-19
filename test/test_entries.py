@@ -20,9 +20,10 @@ def suite():
             'test_value',
             'test_str'
             ]
-    suite.addTest(unittest.TestSuite(map(NegativeBaseEntryTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(CategoryEntryTestCase, tests)))
     suite.addTest(unittest.TestSuite(map(LongNegativeCategoryEntryTestCase, tests)))
+    tests.append('test_str_no_eid')
+    suite.addTest(unittest.TestSuite(map(NegativeBaseEntryTestCase, tests)))
     tests = [
         'test_sort_by_name',
         'test_sort_by_value',
@@ -71,9 +72,14 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         expected = "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 01-01"
-        if BaseEntry.SHOW_EID:
-            expected += "   0"
+        expected += "   0"
         self.assertEqual(str(self.entry), expected)
+
+    def test_str_no_eid(self):
+        expected = "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 01-01"
+        BaseEntry.SHOW_EID = False
+        self.assertEqual(str(self.entry), expected)
+        BaseEntry.SHOW_EID = True
 
 
 class CategoryEntryTestCase(unittest.TestCase):

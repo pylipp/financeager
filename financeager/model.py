@@ -47,7 +47,10 @@ class Model(object):
         with identical name (case INsensitive) already exists.
         When adding a BaseEntry, the parent CategoryEntry is created if it does
         not exist. If no category is specified, the BaseEntry is added to the
-        default category. The CategoryEntry's value is updated."""
+        default category. The CategoryEntry's value is updated.
+
+        :raises: TypeError if neither CategoryEntry nor BaseEntry given
+        """
 
         if category_name is None:
             category_name = CategoryEntry.DEFAULT_NAME
@@ -59,6 +62,8 @@ class Model(object):
             self.add_entry(CategoryEntry(name=category_name))
             category_item = self.find_category_entry(category_name)
             category_item.append(entry)
+        else:
+            raise TypeError("Invalid entry type: {}".format(entry))
 
     def remove_entry(self, entry, category):
         """Querying the given category, remove the first BaseEntry whose

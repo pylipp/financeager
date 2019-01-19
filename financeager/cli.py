@@ -48,6 +48,9 @@ def run(command=None, config=None, **cl_kwargs):
         proxy_kwargs["http_config"] = get_option("SERVICE:FLASK")
     elif backend_name == "none":
         proxy_kwargs["data_dir"] = CONFIG_DIR
+    else:
+        raise SystemExit(
+            "Invalid configuration of service name: {}".format(backend_name))
 
     # Indicate whether to store request offline, if failed
     store_offline = False

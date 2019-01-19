@@ -22,7 +22,9 @@ def suite():
             'test_base_entry_in_list',
             'test_category_sum',
             'test_str',
+            'test_str_no_eid',
             'test_nonexisting_category_sum',
+            'test_add_invalid_entry',
             ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
     tests = [
@@ -137,6 +139,21 @@ class AddBaseEntryTestCase(unittest.TestCase):
                 "Groceries             66.60" + 10 * " ",
                 "  Aldi                66.60 11-08   0"
             ]))
+
+    def test_str_no_eid(self):
+        BaseEntry.SHOW_EID = False
+        self.assertEqual(
+            str(self.model), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+                "Name               Value    Date ",
+                # TODO: fix this; category entry line has to be shorter
+                "Groceries             66.60          ",
+                "  Aldi                66.60 11-08"
+            ]))
+        BaseEntry.SHOW_EID = True
+
+    def test_add_invalid_entry(self):
+        self.assertRaises(TypeError, self.model.add_entry, None)
 
 
 class SortCategoryEntriesTestCase(unittest.TestCase):

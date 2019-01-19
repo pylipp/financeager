@@ -20,7 +20,8 @@ class LocalServer(Server):
             # don't shutdown twice
             super().run("stop")
 
-        if "error" in response:
+        # stop-command is expected to return None
+        if response is not None and "error" in response:
             raise InvalidRequest(
                 "Invalid request: {}".format(response["error"]))
 

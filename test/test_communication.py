@@ -19,6 +19,7 @@ def suite():
             'test_print',
             'test_print_with_sorting',
             'test_list',
+            'test_stop',
             ]
     suite.addTest(unittest.TestSuite(map(CommunicationTestCase, tests)))
     tests = [
@@ -54,10 +55,13 @@ class CommunicationTestFixture(unittest.TestCase):
         return communication.run(self.proxy, command,
                                  date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
 
+    def setUp(self):
+        self.proxy = localserver.LocalServer()
+
 
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
-        self.proxy = localserver.LocalServer()
+        super().setUp()
         response = self.run_command("add pants -99 -c clothes")
         self.assertEqual(response, "Added element 1.")
 
@@ -128,10 +132,14 @@ Clothes              298.00          " + """
 Food                  20.00          " + """
   Lunch               20.00 04-01   3""")
 
+    def test_stop(self):
+        # For completeness, directly shutdown the localserver
+        self.assertIsNone(self.proxy.run("stop"))
+
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
-        self.proxy = localserver.LocalServer()
+        super().setUp()
         response = self.run_command(
                 "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
         self.assertEqual(response, "Added element 1.")
