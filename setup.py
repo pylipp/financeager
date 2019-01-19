@@ -19,18 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from setuptools import setup, find_packages
 from financeager import __version__
 
-try:
-    with open("README.rst") as readme:
-        long_description = readme.read()
-except FileNotFoundError:
-    with open("README.md") as readme:
-        long_description = readme.read()
+with open("README.md") as readme:
+    long_description = readme.read()
 
 setup(
     name="financeager",
     version=__version__,
     description="command line tool for organizing finances",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/pylipp/financeager",
     author="Philipp Metzner",
     author_email="beth.aleph@yahoo.de",
@@ -59,5 +56,12 @@ setup(
         "Flask-RESTful==0.3.5",
         "requests>=2.20.0",
         "schematics==2.0.1",
-   ],
+    ],
+    extras_require={
+        "develop": [
+            "twine>=1.11.0",
+            "flake8>=3.5.0",
+            "coverage>=4.4.2",
+        ],
+    },
 )

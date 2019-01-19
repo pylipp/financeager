@@ -2,7 +2,7 @@ import os.path
 from datetime import datetime as dt
 
 # versioning information
-__version__ = "0.14"
+__version__ = "0.15"
 
 #
 # Global constants

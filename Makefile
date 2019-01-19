@@ -14,11 +14,7 @@ test:
 tags:
 	ctags -R .
 
-README.rst: README.md
-	pandoc README.md -o README.rst
-	python setup.py check -rs
-
-upload: README.rst setup.py
+upload: README.md setup.py
 	rm -f dist/*
 	python setup.py bdist_wheel --universal
 	twine upload dist/*
