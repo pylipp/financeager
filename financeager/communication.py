@@ -58,7 +58,7 @@ def run(proxy, command, default_category=None, date_format=None,
     if periods is not None:
         return "\n".join([p for p in periods])
 
-    return ""
+    return ""  # pragma: no cover
 
 
 def _preprocess(data, date_format=None):
