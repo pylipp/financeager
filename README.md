@@ -258,8 +258,6 @@ The following diagram sketches the relationship between financeager's modules. S
 - [x] increase code coverage
 - [x] refactor period module (no use of CONFIG_DIR)
 - [x] refactor some modules (e.g. split fflask and server)
-- [ ] use marshmallow package for keyword validation in period and webservice
-- [ ] use logging module instead of print
 
 ## Roadmap for release of version 1.0
 
@@ -298,7 +296,9 @@ This requires some restructuring of the software architecture. Motivation and go
 - consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [x] integration test of cli module
 - [ ] move data dir to ~/.local/share/financeager
-- [ ] format and lint code
+- [ ] format and lint code (use pre-commit)
+- [ ] use logging module instead of print
+- [ ] use marshmallow package for keyword validation/serialization in period and resources
 
 PERSONAL NOTE
 -------------
