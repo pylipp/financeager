@@ -10,8 +10,8 @@ class Model(object):
 
     CATEGORY_ENTRY_SORT_KEY = "value"
 
-    def __init__(self, name="Model", categories=None):
-        self.name = name
+    def __init__(self, name=None, categories=None):
+        self.name = name or "Model"
         self.categories = categories or []
 
     @classmethod
@@ -65,19 +65,6 @@ class Model(object):
         else:
             raise TypeError("Invalid entry type: {}".format(entry))
 
-    def remove_entry(self, entry, category):
-        """Querying the given category, remove the first BaseEntry whose
-        attributes are a superset of the attributes of `entry`.
-        The corresponding CategoryEntry's value is updated. The method fails if
-        the entry is not found.
-        TODO: This method is to be removed in future releases."""
-
-        item = self.find_base_entry(name=entry.name,
-                date=entry.date, category=category)
-        category_item = self.find_category_entry(category)
-        category_item.value -= item.value
-        category_item.entries.remove(item)
-
     def category_fields(self, field_type):
         """Generator iterating over the field specified by `field_type` of the
         first-level children (CategoryEntries) of the model.
@@ -125,29 +112,6 @@ class Model(object):
         if category_entry is not None:
             return category_entry.value
         return 0.0
-
-    def find_base_entry(self, **kwargs):
-        """Find a BaseEntry by explicitely passing keyword arguments `name`
-        and/or `value` and/or `date` and/or `category`. The first BaseEntry
-        meeting the search requirements is returned. If no match is found,
-        `None` is returned. The matching is performed case-INsensitive. If no
-        category specified, the `CategoryEntry.DEFAULT_NAME` category is
-        queried.
-        kwargs values must be of type str or None."""
-
-        category_name = kwargs.pop("category", CategoryEntry.DEFAULT_NAME)
-        attributes = {v.lower() for v in kwargs.values() if v is not None}
-
-        category_entry = self.find_category_entry(category_name)
-        if category_entry is None:
-            return None
-
-        for base_entry in category_entry.entries:
-            other_attributes = set()
-            other_attributes.add(base_entry.name)
-            other_attributes.add(base_entry.date)
-            if attributes.issubset(other_attributes):
-                return base_entry
 
     def total_value(self):
         """Return total value of the model."""
