@@ -36,6 +36,12 @@ def run(proxy, command, default_category=None, date_format=None,
     _preprocess(kwargs, date_format)
     response = proxy.run(command, **kwargs)
 
+    eid = response.get("id")
+    if eid is not None:
+        verb = {"add": "Added", "update": "Updated", "rm": "Removed", "copy":
+                "Copied"}[command]
+        return "{} element {}.".format(verb, eid)
+
     elements = response.get("elements")
     if elements is not None:
         CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort

@@ -7,7 +7,10 @@ from financeager import PERIODS_TAIL, DEFAULT_HOST, DEFAULT_TIMEOUT
 
 def suite():
     suite = unittest.TestSuite()
-    tests = ['test_username_password']
+    tests = [
+        'test_username_password',
+        'test_unknown_command',
+    ]
     suite.addTest(unittest.TestSuite(map(HttpRequestProxyTestCase, tests)))
     return suite
 
@@ -40,6 +43,9 @@ class HttpRequestProxyTestCase(unittest.TestCase):
                 "timeout": DEFAULT_TIMEOUT,
             }
             post_patch.assert_called_once_with(url, **kwargs)
+
+    def test_unknown_command(self):
+        self.assertRaises(ValueError, _Proxy().run, "derp")
 
 
 if __name__ == "__main__":

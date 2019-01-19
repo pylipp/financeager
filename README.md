@@ -218,7 +218,7 @@ The following diagram sketches the relationship between financeager's modules. S
 
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `print`
-- [ ] return element data as response to add/copy/update request
+- [x] return element data as response to add/copy/update request
 - [ ] support passing multiple elements IDs to update/rm/copy/get (maybe together with asynchronous HTTP requests)
 - [ ] extended period names (something along `2018-personal`)
 - [ ] support `print` at date other than today
@@ -296,7 +296,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ] remove entries import from period
 - consider validation at CL interface
 - consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
-- [ ] integration test of cli module
+- [x] integration test of cli module
 - [ ] move data dir to ~/.local/share/financeager
 - [ ] format and lint code
 

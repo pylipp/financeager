@@ -59,11 +59,11 @@ class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         self.proxy = localserver.LocalServer()
         response = self.run_command("add pants -99 -c clothes")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
         response = self.run_command("rm 1")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
         response = self.run_command("get 1")
@@ -81,11 +81,11 @@ Category: Clothes""".format(today()))
     def test_copy(self):
         response = self.run_command("copy 1 -s {0} -d {0}".format(
             default_period_name()))
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Copied element 2.")
 
     def test_update(self):
         response = self.run_command("update 1 -n trousers")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Updated element 1.")
         response = self.run_command("get 1")
         self.assertEqual(response, """\
 Name    : Trousers
@@ -106,9 +106,9 @@ Category: Clothes""".format(today()))
 
     def test_print_with_sorting(self):
         response = self.run_command("add shirt -199 -c clothes -d 04-01")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Added element 2.")
         response = self.run_command("add lunch -20 -c food -d 04-01")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Added element 3.")
 
         response = self.run_command(
             "print --entry-sort value --category-sort name --stacked-layout")
@@ -134,11 +134,11 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
         self.proxy = localserver.LocalServer()
         response = self.run_command(
                 "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
         response = self.run_command("rm 1 -t recurrent")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
         response = self.run_command("get 1 -t recurrent")
@@ -152,7 +152,7 @@ Category : Income""")
 
     def test_update(self):
         response = self.run_command("update 1 -f bimonthly -c n.a. -t recurrent")
-        self.assertEqual(response, "")
+        self.assertEqual(response, "Updated element 1.")
         response = self.run_command("get 1 -t recurrent")
         self.assertEqual(response, """\
 Name     : Retirement
