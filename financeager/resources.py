@@ -67,7 +67,7 @@ class PeriodsResource(Resource):
 
 class PeriodResource(Resource):
     def get(self, period_name):
-        args = json.loads(flask.request.json)
+        args = json.loads(flask.request.json or "{}")
         return run_safely("print", error_code=400, period=period_name, **args)
 
     def post(self, period_name):
