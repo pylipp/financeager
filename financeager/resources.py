@@ -29,7 +29,7 @@ put_parser.add_argument("end")
 put_parser.add_argument("table_name")
 
 print_parser = reqparse.RequestParser()
-print_parser.add_argument("filters", type=dict)
+print_parser.add_argument("filters")
 
 update_parser = reqparse.RequestParser()
 update_parser.add_argument("name")
@@ -66,6 +66,18 @@ class PeriodsResource(Resource):
 class PeriodResource(Resource):
     def get(self, period_name):
         args = print_parser.parse_args()
+
+        # Sophisticated deserialization...
+        filter_items = args.get("filters")
+        if filter_items is not None:
+            filter_items = filter_items.split(",")
+            # convert list of "key=value" strings into dictionary
+            parsed_items = {}
+            for item in filter_items:
+                key, value = item.split("=")
+                parsed_items[key] = value.lower()
+            args["filters"] = parsed_items
+
         return run_safely("print", error_code=400, period=period_name, **args)
 
     def post(self, period_name):
