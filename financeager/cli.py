@@ -5,7 +5,7 @@ import argparse
 import traceback
 import os
 
-from financeager import offline, communication, CONFIG_DIR
+from financeager import offline, communication, CONFIG_DIR, __version__
 from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
@@ -85,6 +85,10 @@ def _parse_command(args=None):
     """Parse the given list of args and return the result as dict."""
 
     parser = argparse.ArgumentParser()
+
+    parser.add_argument("-V", "--version", action="version",
+                        version="financeager version {}".format(__version__),
+                        help="display version info and exit")   # pragma: no cover
 
     period_args = ("-p", "--period")
     period_kwargs = dict(default=None, help="name of period to modify or query")
