@@ -9,6 +9,7 @@ def suite():
     tests = [
             'test_sections',
             'test_load_custom_config_file',
+            'test_get_option',
             ]
     suite.addTest(unittest.TestSuite(map(ConfigTestCase, tests)))
     return suite
@@ -30,6 +31,11 @@ class ConfigTestCase(unittest.TestCase):
 
         config = Configuration(filepath=filepath)
         self.assertEqual(config.get("SERVICE", "name"), "flask")
+
+    def test_get_option(self):
+        config = Configuration()
+        self.assertEqual(config.get_option("SERVICE", "name"), "none")
+        self.assertDictEqual(config.get_option("SERVICE"), {"name": "none"})
 
 
 if __name__ == "__main__":

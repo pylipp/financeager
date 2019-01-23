@@ -28,24 +28,15 @@ def run(command=None, config=None, **cl_kwargs):
     "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
     'config' specifies the path to a custom config file (optional).
     """
-    def get_option(section, option=None):
-        """Get an option of the financeager configuration or a dictionary of
-        section contents if no option given.
-        """
-        config_filepath = config or os.path.join(CONFIG_DIR, "config")
-        _config = Configuration(filepath=config_filepath)
+    config_filepath = config or os.path.join(CONFIG_DIR, "config")
+    configuration = Configuration(filepath=config_filepath)
 
-        if option is None:
-            return dict(_config._parser.items(section))
-        else:
-            return _config.get(section, option)
-
-    backend_name = get_option("SERVICE", "name")
+    backend_name = configuration.get_option("SERVICE", "name")
     communication_module = communication.module(backend_name)
 
     proxy_kwargs = {}
     if backend_name == "flask":
-        proxy_kwargs["http_config"] = get_option("SERVICE:FLASK")
+        proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
     elif backend_name == "none":
         proxy_kwargs["data_dir"] = CONFIG_DIR
     else:
@@ -60,8 +51,8 @@ def run(command=None, config=None, **cl_kwargs):
     try:
         print(communication.run(
             proxy, command,
-            default_category=get_option("FRONTEND", "default_category"),
-            date_format=get_option("FRONTEND", "date_format"),
+            default_category=configuration.get_option("FRONTEND", "default_category"),
+            date_format=configuration.get_option("FRONTEND", "date_format"),
             **cl_kwargs))
         if offline.recover(proxy):
             print("Recovered offline backup.")

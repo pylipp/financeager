@@ -60,3 +60,12 @@ class Configuration(object):
     def __getattr__(self, name):
         """Forward unknown member names to underlying ConfigParser."""
         return getattr(self._parser, name)
+
+    def get_option(self, section, option=None):
+        """Get an option of the configuration or a dictionary of section
+        contents if no option given.
+        """
+        if option is None:
+            return dict(self._parser.items(section))
+        else:
+            return self.get(section, option)
