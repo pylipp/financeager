@@ -1,5 +1,4 @@
 """Configuration of the financeager application."""
-import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from .entries import CategoryEntry, BaseEntry
@@ -41,9 +40,15 @@ class Configuration(object):
 
     def _load_custom_config(self):
         """Update config values according to customization in config file."""
-        custom_config = self._read_custom_config_from_file()
-        if not custom_config:
+        if self._filepath is None:
             return
+
+        custom_config = ConfigParser()
+        # read() silently ignores non-existing paths but returns list of paths
+        # that were successfully read
+        used_filepaths = custom_config.read(self._filepath)
+        if len(used_filepaths) < 1 or used_filepaths[0] != self._filepath:
+            raise InvalidConfigError("Config filepath does not exist!")
 
         for section in self._parser.sections():
             for item in self._parser.options(section):
@@ -55,15 +60,6 @@ class Configuration(object):
                     # section or option not specified by user
                     continue
                 self._parser[section][item] = custom_value
-
-    def _read_custom_config_from_file(self):
-        if self._filepath is None:
-            return
-
-        custom_config_parser = ConfigParser()
-        if os.path.isfile(self._filepath):
-            custom_config_parser.read(self._filepath)
-        return custom_config_parser
 
     def __getattr__(self, name):
         """Forward unknown member names to underlying ConfigParser."""

@@ -11,6 +11,7 @@ def suite():
             'test_load_custom_config_file',
             'test_get_option',
             'test_invalid_config',
+            'test_nonexisting_config_filepath',
             ]
     suite.addTest(unittest.TestSuite(map(ConfigTestCase, tests)))
     return suite
@@ -48,6 +49,13 @@ class ConfigTestCase(unittest.TestCase):
                 file.write(content)
             self.assertRaises(
                 InvalidConfigError, Configuration, filepath=filepath)
+
+    def test_nonexisting_config_filepath(self):
+        filepath = "/tmp/{}".format(time.time())
+        with self.assertRaises(InvalidConfigError) as cm:
+            Configuration(filepath=filepath)
+        self.assertTrue(cm.exception.args[0].endswith(
+            "Config filepath does not exist!"))
 
 
 if __name__ == "__main__":
