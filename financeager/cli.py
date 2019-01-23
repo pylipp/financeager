@@ -10,7 +10,7 @@ from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
-    OfflineRecoveryError
+    OfflineRecoveryError, InvalidConfigError
 
 
 def main():
@@ -29,7 +29,11 @@ def run(command=None, config=None, **cl_kwargs):
     'config' specifies the path to a custom config file (optional).
     """
     config_filepath = config or os.path.join(CONFIG_DIR, "config")
-    configuration = Configuration(filepath=config_filepath)
+    try:
+        configuration = Configuration(filepath=config_filepath)
+    except InvalidConfigError as e:
+        print("Invalid configuration: {}".format(e))
+        return
 
     backend_name = configuration.get_option("SERVICE", "name")
     communication_module = communication.module(backend_name)
@@ -37,11 +41,8 @@ def run(command=None, config=None, **cl_kwargs):
     proxy_kwargs = {}
     if backend_name == "flask":
         proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
-    elif backend_name == "none":
+    else:  # 'none' is the only other option
         proxy_kwargs["data_dir"] = CONFIG_DIR
-    else:
-        raise SystemExit(
-            "Invalid configuration of service name: {}".format(backend_name))
 
     # Indicate whether to store request offline, if failed
     store_offline = False

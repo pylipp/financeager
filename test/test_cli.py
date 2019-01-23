@@ -27,6 +27,10 @@ def suite():
     ]
     suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
     tests = [
+        'test_print',
+    ]
+    suite.addTest(unittest.TestSuite(map(CliInvalidConfigTestCase, tests)))
+    tests = [
         'test_add_print_rm',
         'test_add_get_rm_via_eid',
         # 'test_add_invalid_entry',
@@ -105,6 +109,20 @@ class CliTestCase(unittest.TestCase):
             filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
             if os.path.exists(filepath):
                 os.remove(filepath)
+
+
+class CliInvalidConfigTestCase(CliTestCase):
+
+    CONFIG_FILE_CONTENT = """\
+[SERVICE]
+name = heroku"""
+
+    def test_print(self):
+        # using a command that won't try to parse the element ID from the print
+        # call in cli_run()...
+        printed_content = self.cli_run("print")
+        self.assertEqual(printed_content,
+                         "Invalid configuration: Unknown service name!")
 
 
 class CliLocalServerTestCase(CliTestCase):
