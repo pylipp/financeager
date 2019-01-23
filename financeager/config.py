@@ -3,6 +3,7 @@ import os
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from .entries import CategoryEntry, BaseEntry
+from .exceptions import InvalidConfigError
 from . import DEFAULT_HOST, DEFAULT_TIMEOUT
 
 
@@ -11,10 +12,17 @@ class Configuration(object):
     configuration is customizable via a config file."""
 
     def __init__(self, filepath=None):
+        """Initialize the default configuration, overwrite with custom
+        configuration from file if available, and eventually validate the loaded
+        configuration.
+
+        :raises: InvalidConfigError if validation fails
+        """
         self._filepath = filepath
         self._parser = ConfigParser()
         self._init_defaults()
         self._load_custom_config()
+        self._validate()
 
     def _init_defaults(self):
         self._parser["SERVICE"] = {
@@ -69,3 +77,21 @@ class Configuration(object):
             return dict(self._parser.items(section))
         else:
             return self.get(section, option)
+
+    def _validate(self):
+        """Validate certain fields of the configuration.
+        :raises: InvalidConfigError
+        """
+        if self.get_option("SERVICE", "name") not in ("flask", "none"):
+            raise InvalidConfigError("Unknown service name!")
+
+        if len(self.get_option("FRONTEND", "default_category")) < 1:
+            raise InvalidConfigError("Default category name too short!")
+
+        if len(self.get_option("SERVICE:FLASK", "host")) < 1:
+            raise InvalidConfigError("Host name too short!")
+
+        try:
+            float(self.get_option("SERVICE:FLASK", "timeout"))
+        except ValueError:
+            raise InvalidConfigError("Timeout is not a number!")

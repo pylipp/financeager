@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from financeager.config import Configuration
+from financeager.config import Configuration, InvalidConfigError
 
 
 def suite():
@@ -10,6 +10,7 @@ def suite():
             'test_sections',
             'test_load_custom_config_file',
             'test_get_option',
+            'test_invalid_config',
             ]
     suite.addTest(unittest.TestSuite(map(ConfigTestCase, tests)))
     return suite
@@ -24,10 +25,8 @@ class ConfigTestCase(unittest.TestCase):
     def test_load_custom_config_file(self):
         # create custom config file, modify service name
         filepath = "/tmp/{}".format(int(time.time()))
-        custom_config = Configuration(filepath=filepath)
-        custom_config.set("SERVICE", "name", "flask")
-        with open(filepath, "w") as f:
-            custom_config.write(f)
+        with open(filepath, "w") as file:
+            file.write("[SERVICE]\nname = flask\n")
 
         config = Configuration(filepath=filepath)
         self.assertEqual(config.get("SERVICE", "name"), "flask")
@@ -36,6 +35,19 @@ class ConfigTestCase(unittest.TestCase):
         config = Configuration()
         self.assertEqual(config.get_option("SERVICE", "name"), "none")
         self.assertDictEqual(config.get_option("SERVICE"), {"name": "none"})
+
+    def test_invalid_config(self):
+        filepath = "/tmp/{}".format(int(time.time()))
+
+        for content in ("[SERVICE]\nname = sillyservice\n",
+                        "[FRONTEND]\ndefault_category = ",
+                        "[SERVICE:FLASK]\ntimeout = foo",
+                        "[SERVICE:FLASK]\nhost = ",
+                        ):
+            with open(filepath, "w") as file:
+                file.write(content)
+            self.assertRaises(
+                InvalidConfigError, Configuration, filepath=filepath)
 
 
 if __name__ == "__main__":
