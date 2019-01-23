@@ -23,6 +23,10 @@ if not os.path.isdir(CONFIG_DIR):
 def suite():
     suite = unittest.TestSuite()
     tests = [
+        'test_add_entry',
+    ]
+    suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
+    tests = [
         'test_add_print_rm',
         'test_add_get_rm_via_eid',
         # 'test_add_invalid_entry',
@@ -38,41 +42,21 @@ def suite():
         'test_communication_error',
         'test_offline_feature',
         ]
-    suite.addTest(unittest.TestSuite(map(CliTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(CliFlaskTestCase, tests)))
     return suite
+
+
+TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 
 
 class CliTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        host_ip = "127.0.0.1:5000"
-        config = dict(
-                debug=False,  # can run reloader only in main thread
-                host=host_ip
-                )
-        cls.flask_thread = Thread(target=launch_server, kwargs=config)
-        cls.flask_thread.daemon = True
-        cls.flask_thread.start()
-
-        # wait for flask server being launched
-        time.sleep(3)
-
         # Create test config file for client
-        cls.config_filepath = "/tmp/financeager-test-config"
-        with open(cls.config_filepath, "w") as file:
-            file.write("""\
-[SERVICE]
-name = flask
+        with open(TEST_CONFIG_FILEPATH, "w") as file:
+            file.write(cls.CONFIG_FILE_CONTENT)
 
-[FRONTEND]
-default_category = unspecified
-date_format = %%m-%%d
-
-[SERVICE:FLASK]
-host = {}
-""".format(host_ip)
-                       )
         cls.period = "1900"  # choosing a value that hopefully does not exist yet
         cls.destination_period = "1901"
 
@@ -98,7 +82,7 @@ host = {}
         if command not in ["copy", "list"]:
             args.extend(["--period", self.period])
 
-        args.extend(["--config", self.config_filepath])
+        args.extend(["--config", TEST_CONFIG_FILEPATH])
 
         with mock.patch("builtins.print") as mocked_print:
             run(**_parse_command(args))
@@ -115,6 +99,53 @@ host = {}
 
         # Convert Exceptions to string
         return str(printed_content)
+
+    def tearDown(self):
+        for p in [self.period, self.destination_period]:
+            filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+
+class CliLocalServerTestCase(CliTestCase):
+
+    CONFIG_FILE_CONTENT = """\
+[SERVICE]
+name = none"""
+
+    def test_add_entry(self):
+        entry_id = self.cli_run("add entry 42")
+        self.assertEqual(entry_id, 1)
+
+
+class CliFlaskTestCase(CliTestCase):
+
+    HOST_IP = "127.0.0.1:5000"
+    CONFIG_FILE_CONTENT = """\
+[SERVICE]
+name = flask
+
+[FRONTEND]
+default_category = unspecified
+date_format = %%m-%%d
+
+[SERVICE:FLASK]
+host = {}
+""".format(HOST_IP)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        config = dict(
+                debug=False,  # can run reloader only in main thread
+                host=cls.HOST_IP
+                )
+        cls.flask_thread = Thread(target=launch_server, kwargs=config)
+        cls.flask_thread.daemon = True
+        cls.flask_thread.start()
+
+        # wait for flask server being launched
+        time.sleep(3)
 
     def test_add_print_rm(self):
         entry_id = self.cli_run("add cookies -100 -c food")
@@ -204,12 +235,6 @@ host = {}
 
         printed_content = self.cli_run("print")
         self.assertEqual(printed_content, "")
-
-    def tearDown(self):
-        for p in [self.period, self.destination_period]:
-            filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
-            if os.path.exists(filepath):
-                os.remove(filepath)
 
     def test_copy(self):
         source_entry_id = self.cli_run("add donuts -50 -c sweets")
