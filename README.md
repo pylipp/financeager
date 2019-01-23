@@ -287,6 +287,7 @@ This requires some restructuring of the software architecture. Motivation and go
         - response formatting (entries, model)
 - consistent, modular test structure
 - pave way for terminal user interface
+- avoid test code interfering with actual file system content
 
 ### TODOs
 
@@ -300,6 +301,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
 - [ ] have return codes in cli.run
+- [ ] introduce `use_https` config/cli option
 
 PERSONAL NOTE
 -------------
