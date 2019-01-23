@@ -4,6 +4,7 @@
 import argparse
 import traceback
 import os
+import sys
 
 from financeager import offline, communication, CONFIG_DIR, __version__
 from .entries import CategoryEntry
@@ -18,7 +19,8 @@ def main():
     created. All arguments and options are parsed and passed to 'run()'.
     """
     os.makedirs(CONFIG_DIR, exist_ok=True)
-    run(**_parse_command())
+    # Most runs return None which evaluates to return code 0
+    sys.exit(run(**_parse_command()))
 
 
 def run(command=None, config=None, **cl_kwargs):
@@ -33,7 +35,7 @@ def run(command=None, config=None, **cl_kwargs):
         configuration = Configuration(filepath=config_filepath)
     except InvalidConfigError as e:
         print("Invalid configuration: {}".format(e))
-        return
+        return 1
 
     backend_name = configuration.get_option("SERVICE", "name")
     communication_module = communication.module(backend_name)

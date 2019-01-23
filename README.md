@@ -299,6 +299,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ] format and lint code (use pre-commit)
 - [ ] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
+- [ ] have return codes in cli.run
 
 PERSONAL NOTE
 -------------
