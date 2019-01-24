@@ -39,7 +39,8 @@ def suite():
             'test_recurrent_quarter_yearly_entries',
             'test_recurrent_bimonthly_entries',
             'test_recurrent_weekly_entries',
-            'test_update_recurrent_entry'
+            'test_recurrent_yearly_entry',
+            'test_update_recurrent_entry',
             ]
     suite.addTest(unittest.TestSuite(map(TinyDbPeriodRecurrentEntryTestCase, tests)))
     tests = ['test_no_future_elements_created', ]
@@ -311,6 +312,14 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
             self.period.update_entry(eid=eid, end="Dec-24",
                     table_name="recurrent")
         self.assertIn("end", str(context.exception))
+
+    def test_recurrent_yearly_entry(self):
+        eid = self.period.add_entry(name="Fee", value=-100, start="01-01",
+                                    table_name="recurrent", frequency="yearly")
+        recurrent_entries = self.period.get_entries()["recurrent"][eid]
+        self.assertEqual(len(recurrent_entries), 1)
+        self.assertEqual(recurrent_entries[0]["date"], "01-01")
+        self.assertEqual(recurrent_entries[0]["name"], "fee")
 
     def tearDown(self):
         self.period._db.close()
