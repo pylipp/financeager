@@ -202,7 +202,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
                 value="hundred")
 
     def tearDown(self):
-        self.period._db.close()
+        self.period.close()
 
 
 class TinyDbPeriodRecurrentEntryNowTestCase(unittest.TestCase):
@@ -322,7 +322,7 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.assertEqual(recurrent_entries[0]["name"], "fee")
 
     def tearDown(self):
-        self.period._db.close()
+        self.period.close()
 
 
 class ValidationModelTestCase(unittest.TestCase):
@@ -463,6 +463,9 @@ class JsonTinyDbPeriodTestCase(unittest.TestCase):
         eid = self.period.add_entry(name=name, value=-5)
         element = self.period.get_entry(eid=eid)
         self.assertEqual(name, element["name"])
+
+    def tearDown(self):
+        self.period.close()
 
 
 if __name__ == '__main__':
