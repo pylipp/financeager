@@ -6,8 +6,8 @@ import os.path
 from schematics.exceptions import DataError
 
 from financeager.period import Period, TinyDbPeriod, PeriodException,\
-        BaseValidationModel, StandardEntryValidationModel,\
-        RecurrentEntryValidationModel
+    BaseValidationModel, StandardEntryValidationModel,\
+    RecurrentEntryValidationModel
 from financeager import PERIOD_DATE_FORMAT, DEFAULT_TABLE
 from financeager.model import Model
 from financeager.entries import CategoryEntry, BaseEntry

@@ -195,7 +195,8 @@ class TinyDbPeriod(Period):
                     PERIOD_DATE_FORMAT)
             if fields.get("end") is None:
                 substituted_fields["end"] = \
-                    dt.today().replace(month=12, day=31).strftime(PERIOD_DATE_FORMAT)
+                    dt.today().replace(month=12,
+                                       day=31).strftime(PERIOD_DATE_FORMAT)
         else:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(
@@ -208,8 +209,8 @@ class TinyDbPeriod(Period):
             if len(self._category_cache[name]) == 1:
                 category = self._category_cache[name].most_common(1)[0][0]
             else:
-                # assign default name (must be str), s.t. category field can be queried
-                # TODO: reconsider this
+                # assign default name (must be str), s.t. category field can be
+                # queried TODO: reconsider this
                 category = CategoryEntry.DEFAULT_NAME
             substituted_fields["category"] = category
 
@@ -255,10 +256,11 @@ class TinyDbPeriod(Period):
     def add_entry(self, table_name=None, **kwargs):
         """
         Add an entry (standard or recurrent) to the database.
-        If 'table_name' is not specified, the kwargs name, value[, category, date]
-        are used to insert a unique entry in the standard table.
-        With 'table_name' as 'recurrent', the kwargs name, value, frequency[, start,
-        end, category] are used to insert a template entry in the recurrent table.
+        If 'table_name' is not specified, the kwargs name, value[, category,
+        date] are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency
+        [, start, end, category] are used to insert a template entry in the
+        recurrent table.
 
         Two kwargs are mandatory:
             :param name: entry name
@@ -273,7 +275,7 @@ class TinyDbPeriod(Period):
             :type category: str
 
         The following kwarg is optional for standard entries:
-            :param date: entry date. If not specified, the current date is assigned
+            :param date: entry date. Defaults to current date
             :type date: str of ``PERIOD_DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
@@ -349,7 +351,8 @@ class TinyDbPeriod(Period):
         JSON response returned drops the Element.eid attribute s.t. it's not
         available when calling prettify on the client side).
 
-        :param query_impl: condition for the search. If none (default), all elements are returned.
+        :param query_impl: condition for the search. If none (default), all
+            elements are returned.
         :type query_impl: tinydb.queries.QueryImpl
 
         :return: dict

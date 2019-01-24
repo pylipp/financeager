@@ -59,7 +59,7 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        cls.period = "1900"  # choosing a value that hopefully does not exist yet
+        cls.period = "1900"  # choosing a year that hopefully does not exist yet
         cls.destination_period = "1901"
 
         cls.eid_pattern = re.compile(
@@ -260,10 +260,12 @@ host = {}
                                             self.destination_period)
 
         # Swap period to trick cli_run()
-        self.period, self.destination_period = self.destination_period, self.period
+        self.period, self.destination_period = self.destination_period, \
+            self.period
         destination_printed_content = self.cli_run(
             "get {}", destination_entry_id).splitlines()
-        self.period, self.destination_period = self.destination_period, self.period
+        self.period, self.destination_period = self.destination_period, \
+            self.period
 
         source_printed_content = self.cli_run("get {}",
                                               source_entry_id).splitlines()
