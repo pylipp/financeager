@@ -50,8 +50,9 @@ class Server(object):
                 elif command == "update":
                     response = {"id": period.update_entry(**kwargs)}
                 else:
-                    response = {"error":
-                                "Server: unknown command '{}'".format(command)}
+                    response = {
+                        "error": "Server: unknown command '{}'".format(command)
+                    }
                 return response
 
         except PeriodException as e:
@@ -87,5 +88,5 @@ class Server(object):
         entry_to_copy = source_period.get_entry(**kwargs)
 
         destination_period = self._get_period(destination_period)
-        return destination_period.add_entry(table_name=kwargs.get("table_name"),
-                                            **entry_to_copy)
+        return destination_period.add_entry(
+            table_name=kwargs.get("table_name"), **entry_to_copy)

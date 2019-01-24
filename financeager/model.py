@@ -29,8 +29,8 @@ class Model(object):
 
         header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
             CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
-            BaseEntry.DATE_LENGTH, *[k.capitalize() for k in
-                                     BaseEntry.ITEM_TYPES])
+            BaseEntry.DATE_LENGTH,
+            *[k.capitalize() for k in BaseEntry.ITEM_TYPES])
         if BaseEntry.SHOW_EID:
             header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
         result.append(header_line)
@@ -160,10 +160,8 @@ def prettify(elements, stacked_layout=False):
 
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(
-                str(model_earnings),
-                CategoryEntry.TOTAL_LENGTH * "-",
-                str(model_expenses)
-                )
+            str(model_earnings), CategoryEntry.TOTAL_LENGTH * "-",
+            str(model_expenses))
     else:
         result = []
         models = [model_earnings, model_expenses]

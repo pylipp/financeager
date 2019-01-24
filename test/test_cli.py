@@ -14,7 +14,6 @@ from financeager.httprequests import InvalidRequest
 from financeager import CONFIG_DIR
 from financeager.cli import _parse_command, run
 
-
 # Periods are stored to disk. The CONFIG_DIR is expected to exist
 if not os.path.isdir(CONFIG_DIR):
     os.makedirs(CONFIG_DIR)
@@ -45,7 +44,7 @@ def suite():
         # 'test_parser_error',
         'test_communication_error',
         'test_offline_feature',
-        ]
+    ]
     suite.addTest(unittest.TestSuite(map(CliFlaskTestCase, tests)))
     return suite
 
@@ -54,7 +53,6 @@ TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 
 
 class CliTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         # Create test config file for client
@@ -64,7 +62,8 @@ class CliTestCase(unittest.TestCase):
         cls.period = "1900"  # choosing a value that hopefully does not exist yet
         cls.destination_period = "1901"
 
-        cls.eid_pattern = re.compile(r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
+        cls.eid_pattern = re.compile(
+            r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
 
     def cli_run(self, command_line, *format_args):
         """Wrapper around cli.run() function. Adds convenient command line
@@ -155,9 +154,8 @@ host = {}
     def setUpClass(cls):
         super().setUpClass()
         config = dict(
-                debug=False,  # can run reloader only in main thread
-                host=cls.HOST_IP
-                )
+            debug=False,  # can run reloader only in main thread
+            host=cls.HOST_IP)
         cls.flask_thread = Thread(target=launch_server, kwargs=config)
         cls.flask_thread.daemon = True
         cls.flask_thread.start()
@@ -257,9 +255,9 @@ host = {}
     def test_copy(self):
         source_entry_id = self.cli_run("add donuts -50 -c sweets")
 
-        destination_entry_id = self.cli_run(
-            "copy {} -s {} -d {}", source_entry_id, self.period,
-            self.destination_period)
+        destination_entry_id = self.cli_run("copy {} -s {} -d {}",
+                                            source_entry_id, self.period,
+                                            self.destination_period)
 
         # Swap period to trick cli_run()
         self.period, self.destination_period = self.destination_period, self.period

@@ -16,7 +16,6 @@ from schematics.exceptions import DataError, ValidationError
 from . import PERIOD_DATE_FORMAT, default_period_name, DEFAULT_TABLE
 from .entries import CategoryEntry
 
-
 # format for ValidationModel.to_primitive() call
 DateType.SERIALIZED_FORMAT = PERIOD_DATE_FORMAT
 
@@ -32,14 +31,17 @@ class StandardEntryValidationModel(BaseValidationModel):
 
 
 class RecurrentEntryValidationModel(BaseValidationModel):
-    frequency = StringType(choices=["yearly", "half-yearly", "quarter-yearly",
-        "bimonthly", "monthly", "weekly", "daily"], required=True)
+    frequency = StringType(
+        choices=[
+            "yearly", "half-yearly", "quarter-yearly", "bimonthly", "monthly",
+            "weekly", "daily"
+        ],
+        required=True)
     start = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
     end = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
 
 
 class Period(object):
-
     def __init__(self, name=None):
         """Create Period object. Its name defaults to the current year if not
         specified.
@@ -61,7 +63,6 @@ class PeriodException(Exception):
 
 
 class TinyDbPeriod(Period):
-
     def __init__(self, name=None, data_dir=None, **kwargs):
         """Create a period with a TinyDB database backend, identified by 'name'.
         If 'data_dir' is given, the database storage type is JSON (the storage
@@ -112,13 +113,13 @@ class TinyDbPeriod(Period):
 
         self._remove_redundant_fields(table_name, raw_data)
 
-        validated_fields = self._validate_entry(raw_data=raw_data,
-                table_name=table_name, partial=partial)
+        validated_fields = self._validate_entry(
+            raw_data=raw_data, table_name=table_name, partial=partial)
         converted_fields = self._convert_fields(**validated_fields)
 
         if not partial:
             converted_fields = self._substitute_none_fields(
-                    table_name=table_name, **converted_fields)
+                table_name=table_name, **converted_fields)
 
         return converted_fields
 
@@ -151,8 +152,8 @@ class TinyDbPeriod(Period):
 
         try:
             # pass the kwargs twice because schematics API is inconsistent...
-            validation_model = ValidationModel(raw_data=raw_data,
-                    **model_kwargs)
+            validation_model = ValidationModel(
+                raw_data=raw_data, **model_kwargs)
             validation_model.validate(**model_kwargs)
             return validation_model.to_primitive()
         except (DataError, ValidationError) as e:
@@ -161,8 +162,8 @@ class TinyDbPeriod(Period):
             for field in e.errors:
                 info = [message.summary for message in e.errors[field]]
                 infos.append("{}: {}".format(field, "; ".join(info)))
-            raise PeriodException(
-                "Invalid input data:\n{}".format("\n".join(infos)))
+            raise PeriodException("Invalid input data:\n{}".format(
+                "\n".join(infos)))
 
     @staticmethod
     def _convert_fields(**fields):
@@ -190,13 +191,15 @@ class TinyDbPeriod(Period):
         # table_name is either of two values; verified in _preprocess_entry
         if table_name == "recurrent":
             if fields.get("start") is None:
-                substituted_fields["start"] = dt.today().strftime(PERIOD_DATE_FORMAT)
+                substituted_fields["start"] = dt.today().strftime(
+                    PERIOD_DATE_FORMAT)
             if fields.get("end") is None:
                 substituted_fields["end"] = \
                     dt.today().replace(month=12, day=31).strftime(PERIOD_DATE_FORMAT)
         else:
             if fields.get("date") is None:
-                substituted_fields["date"] = dt.today().strftime(PERIOD_DATE_FORMAT)
+                substituted_fields["date"] = dt.today().strftime(
+                    PERIOD_DATE_FORMAT)
 
         if fields.get("category") is None:
             name = fields["name"]
@@ -212,8 +215,11 @@ class TinyDbPeriod(Period):
 
         return substituted_fields
 
-    def _update_category_cache(self, eid=None, table_name=None, removing=False,
-            **fields):
+    def _update_category_cache(self,
+                               eid=None,
+                               table_name=None,
+                               removing=False,
+                               **fields):
         """Update the category cache when adding or updating an entry. The `eid`
         kwarg is used to distinguish the use cases.
 
@@ -242,8 +248,9 @@ class TinyDbPeriod(Period):
             if fields.get("name") is not None or \
                     fields.get("category") is not None:
                 self._category_cache[old_name][old_category] -= 1
-                self._category_cache[fields.get("name") or old_name][
-                        fields.get("category") or old_category] += 1
+                self._category_cache[fields.get("name") or
+                                     old_name][fields.get("category") or
+                                               old_category] += 1
 
     def add_entry(self, table_name=None, **kwargs):
         """
@@ -322,8 +329,8 @@ class TinyDbPeriod(Period):
         """
 
         table_name = table_name or DEFAULT_TABLE
-        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name,
-                partial=True)
+        fields = self._preprocess_entry(
+            raw_data=kwargs, table_name=table_name, partial=True)
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
 
@@ -348,10 +355,7 @@ class TinyDbPeriod(Period):
         :return: dict
         """
 
-        elements = {
-                DEFAULT_TABLE: {},
-                "recurrent": defaultdict(list)
-                }
+        elements = {DEFAULT_TABLE: {}, "recurrent": defaultdict(list)}
 
         if query_impl is None:
             matching_standard_elements = self._db.all()
@@ -376,7 +380,7 @@ class TinyDbPeriod(Period):
 
                 if matching_recurrent_element is not None:
                     elements["recurrent"][element.eid].append(
-                            matching_recurrent_element)
+                        matching_recurrent_element)
 
         return elements
 
@@ -386,9 +390,10 @@ class TinyDbPeriod(Period):
         """
 
         # parse dates to datetime objects
-        start = dt.strptime(element["start"], PERIOD_DATE_FORMAT).replace(
-                year=self.year)
-        end = dt.strptime(element["end"], PERIOD_DATE_FORMAT).replace(year=self.year)
+        start = dt.strptime(element["start"],
+                            PERIOD_DATE_FORMAT).replace(year=self.year)
+        end = dt.strptime(element["end"],
+                          PERIOD_DATE_FORMAT).replace(year=self.year)
 
         now = dt.now()
         if end > now:
@@ -407,8 +412,11 @@ class TinyDbPeriod(Period):
             frequency = "MONTHLY"
             interval = 6
 
-        rule = rrule.rrule(getattr(rrule, frequency), dtstart=start, until=end,
-                interval=interval)
+        rule = rrule.rrule(
+            getattr(rrule, frequency),
+            dtstart=start,
+            until=end,
+            interval=interval)
 
         for date in rule:
             # add date description to name
@@ -420,8 +428,12 @@ class TinyDbPeriod(Period):
             elif frequency == "DAILY":
                 name = "{}, day {}".format(name, date.strftime("%-j").lower())
 
-            yield Element(dict(name=name, value=element["value"],
-                category=element["category"], date=date.strftime(PERIOD_DATE_FORMAT)))
+            yield Element(
+                dict(
+                    name=name,
+                    value=element["value"],
+                    category=element["category"],
+                    date=date.strftime(PERIOD_DATE_FORMAT)))
 
     def remove_entry(self, eid, table_name=None):
         """Remove an entry from the Period database given its ID. The category
@@ -447,7 +459,8 @@ class TinyDbPeriod(Period):
         return entry.eid
 
     @staticmethod
-    def _create_query_condition(name=None, value=None, category=None, date=None):
+    def _create_query_condition(name=None, value=None, category=None,
+                                date=None):
         condition = None
         entry = Query()
 

@@ -4,7 +4,7 @@ query results."""
 from __future__ import unicode_literals
 from datetime import datetime
 
-from .import PERIOD_DATE_FORMAT
+from . import PERIOD_DATE_FORMAT
 
 
 class Entry(object):
@@ -43,8 +43,8 @@ class BaseEntry(Entry):
         :type date: str of valid format
         """
         super().__init__(name, value)
-        self.date = datetime.strptime(
-            date, PERIOD_DATE_FORMAT).strftime(self.DATE_FORMAT)
+        self.date = datetime.strptime(date, PERIOD_DATE_FORMAT).strftime(
+            self.DATE_FORMAT)
         self.eid = int(eid)
 
     def __str__(self):
@@ -52,11 +52,12 @@ class BaseEntry(Entry):
 
         capitalized_name = capitalize_words(self.name)
         string = "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
-                self.NAME_LENGTH, self.VALUE_LENGTH, self.VALUE_DIGITS,
-                name=capitalized_name,
-                value=self.value,
-                date=self.date
-                )
+            self.NAME_LENGTH,
+            self.VALUE_LENGTH,
+            self.VALUE_DIGITS,
+            name=capitalized_name,
+            value=self.value,
+            date=self.date)
         if self.SHOW_EID:
             string += " {1:{0}d}".format(self.EID_LENGTH, self.eid)
         return string
@@ -98,13 +99,13 @@ class CategoryEntry(Entry):
 
         capitalized_name = capitalize_words(self.name)
         lines = [
-                "{name:{0}.{0}} {value:>{1}.{2}f}".format(
-                    self.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
-                    BaseEntry.VALUE_DIGITS,
-                    name=capitalized_name,
-                    value=self.value
-                    ).ljust(self.TOTAL_LENGTH)
-                ]
+            "{name:{0}.{0}} {value:>{1}.{2}f}".format(
+                self.NAME_LENGTH,
+                BaseEntry.VALUE_LENGTH,
+                BaseEntry.VALUE_DIGITS,
+                name=capitalized_name,
+                value=self.value).ljust(self.TOTAL_LENGTH)
+        ]
 
         sort_key = lambda e: getattr(e, CategoryEntry.BASE_ENTRY_SORT_KEY)
         for entry in sorted(self.entries, key=sort_key):
@@ -132,8 +133,7 @@ def prettify(element, recurrent=False):
     for p in properties:
         lines.append("{}: {}".format(
             p.capitalize().ljust(longest_property_length),
-            capitalize_words(element[p])
-            ))
+            capitalize_words(element[p])))
 
     return "\n".join(lines)
 

@@ -10,27 +10,27 @@ from financeager.entries import CategoryEntry, BaseEntry
 def suite():
     suite = unittest.TestSuite()
     tests = [
-            'test_category_item_in_list'
-            ]
+        'test_category_item_in_list',
+    ]
     suite.addTest(unittest.TestSuite(map(AddCategoryEntryTestCase, tests)))
     tests = [
-            'test_category_item_in_list',
-            'test_single_item_in_list'
-            ]
+        'test_category_item_in_list',
+        'test_single_item_in_list',
+    ]
     suite.addTest(unittest.TestSuite(map(AddCategoryEntryTwiceTestCase, tests)))
     tests = [
-            'test_base_entry_in_list',
-            'test_category_sum',
-            'test_str',
-            'test_str_no_eid',
-            'test_nonexisting_category_sum',
-            'test_add_invalid_entry',
-            ]
+        'test_base_entry_in_list',
+        'test_category_sum',
+        'test_str',
+        'test_str_no_eid',
+        'test_nonexisting_category_sum',
+        'test_add_invalid_entry',
+    ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
     tests = [
-            'test_category_sum',
-            'test_str'
-            ]
+        'test_category_sum',
+        'test_str',
+    ]
     suite.addTest(unittest.TestSuite(map(AddNegativeBaseEntryTestCase, tests)))
     tests = [
         'test_sort_by_name',
@@ -38,26 +38,29 @@ def suite():
     ]
     suite.addTest(unittest.TestSuite(map(SortCategoryEntriesTestCase, tests)))
     tests = [
-            'test_default_category_in_list'
-            ]
-    suite.addTest(unittest.TestSuite(map(AddBaseEntryWithoutCategoryTestCase, tests)))
+        'test_default_category_in_list',
+    ]
+    suite.addTest(
+        unittest.TestSuite(map(AddBaseEntryWithoutCategoryTestCase, tests)))
     tests = [
-            'test_two_entries_in_list',
-            'test_category_sum',
-            'test_total_value'
-            ]
+        'test_two_entries_in_list',
+        'test_category_sum',
+        'test_total_value',
+    ]
     suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
     tests = [
-            'test_category_sum_updated'
-            ]
+        'test_category_sum_updated',
+    ]
     suite.addTest(unittest.TestSuite(map(SetValueItemTextTestCase, tests)))
     tests = [
-            'test_contains_an_entry',
-            'test_category_item_names',
-            'test_category_sums',
-            ]
+        'test_contains_an_entry',
+        'test_category_item_names',
+        'test_category_sums',
+    ]
     suite.addTest(unittest.TestSuite(map(ModelFromElementsTestCase, tests)))
-    tests = ['test_prettify']
+    tests = [
+        'test_prettify',
+    ]
     suite.addTest(unittest.TestSuite(map(PrettifyModelsTestCase, tests)))
     return suite
 
@@ -124,7 +127,8 @@ class AddBaseEntryTestCase(unittest.TestCase):
     def test_str_no_eid(self):
         BaseEntry.SHOW_EID = False
         self.assertEqual(
-            str(self.model), '\n'.join([
+            str(self.model),
+            '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
                 "Name               Value    Date ",
                 # TODO: fix this; category entry line has to be shorter
@@ -217,11 +221,9 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
         self.item_category = "Groceries"
         self.date = "11-11"
         self.model.add_entry(
-            BaseEntry("Aldi", self.item_a_value, self.date),
-            self.item_category)
+            BaseEntry("Aldi", self.item_a_value, self.date), self.item_category)
         self.model.add_entry(
-            BaseEntry("Rewe", self.item_b_value, self.date),
-            self.item_category)
+            BaseEntry("Rewe", self.item_b_value, self.date), self.item_category)
 
     def test_two_entries_in_list(self):
         self.assertEqual(2, len(list(self.model.base_entry_fields("name"))))
@@ -260,8 +262,8 @@ class ModelFromElementsTestCase(unittest.TestCase):
         self.name = "Dinner for one"
         self.value = 99.9
         self.date = "12-31"
-        self.model = Model.from_elements([
-            dict(name=self.name, value=self.value, date=self.date, eid=0)])
+        self.model = Model.from_elements(
+            [dict(name=self.name, value=self.value, date=self.date, eid=0)])
 
     def test_contains_an_entry(self):
         self.assertIn(self.date, str(self.model))
@@ -309,16 +311,17 @@ class PrettifyModelsTestCase(unittest.TestCase):
         }
         self.maxDiff = None
         elements_copy = elements.copy()
-        self.assertEqual(prettify(elements_copy),
-"              Earnings                |               Expenses               \n"
-"Name               Value    Date  ID  | Name               Value    Date  ID \n"
-"Unspecified          299.99           | Groceries            100.01          \n"
-"  Money              299.99 03-03 999 |   Food               100.01 03-03   1\n"
-"Bank                4321.00           | \n"
-"  Gold              4321.00 01-01  42 | \n"
-"=============================================================================\n"
-"Total               4620.99           | Total                100.01          "
-                         )
+        self.assertEqual(
+            prettify(elements_copy),
+            "              Earnings                |               Expenses               \n"
+            "Name               Value    Date  ID  | Name               Value    Date  ID \n"
+            "Unspecified          299.99           | Groceries            100.01          \n"
+            "  Money              299.99 03-03 999 |   Food               100.01 03-03   1\n"
+            "Bank                4321.00           | \n"
+            "  Gold              4321.00 01-01  42 | \n"
+            "=============================================================================\n"
+            "Total               4620.99           | Total                100.01          "
+        )
         # Assert that original data was not modified
         self.assertDictEqual(elements, elements_copy)
 

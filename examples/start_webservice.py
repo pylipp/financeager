@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """Utility script to start flask webservice. Mainly for testing purposes."""
 
 import argparse
@@ -9,19 +8,22 @@ from financeager.fflask import launch_server
 from financeager.config import Configuration
 from financeager import CONFIG_DIR
 
-
 if __name__ == "__main__":
     start_parser = argparse.ArgumentParser(description=globals()["__doc__"])
 
     start_parser.add_argument(
         "-d", "--debug", action="store_true", help="start flask in debug mode")
     start_parser.add_argument(
-        "-i", "--host-ip", default=None, dest="host",
+        "-i",
+        "--host-ip",
+        default=None,
+        dest="host",
         help="IP address and port of server, format 'XXX.XXX.XXX.XXX:port'.  "
         "If not specified, it is attempted to read the value from the config "
         "file.")
     start_parser.add_argument(
-        "-C", "--config",
+        "-C",
+        "--config",
         help="path to config file (default: {}/config".format(CONFIG_DIR))
 
     cl_options = start_parser.parse_args()

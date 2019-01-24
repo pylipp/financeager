@@ -22,8 +22,8 @@ class LocalServer(Server):
 
         # stop-command is expected to return None
         if response is not None and "error" in response:
-            raise InvalidRequest(
-                "Invalid request: {}".format(response["error"]))
+            raise InvalidRequest("Invalid request: {}".format(
+                response["error"]))
 
         return response
 

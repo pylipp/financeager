@@ -16,10 +16,9 @@ def create_app(config=None):
 
     api.add_resource(PeriodsResource, PERIODS_TAIL)
     api.add_resource(CopyResource, COPY_TAIL)
-    api.add_resource(PeriodResource,
-            "{}/<period_name>".format(PERIODS_TAIL))
+    api.add_resource(PeriodResource, "{}/<period_name>".format(PERIODS_TAIL))
     api.add_resource(EntryResource,
-        "{}/<period_name>/<table_name>/<eid>".format(PERIODS_TAIL))
+                     "{}/<period_name>/<table_name>/<eid>".format(PERIODS_TAIL))
 
     return app
 

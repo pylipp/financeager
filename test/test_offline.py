@@ -21,7 +21,8 @@ def suite():
 class AddTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.filepath = os.path.join(os.path.expanduser("~"), "offline_test.json")
+        cls.filepath = os.path.join(
+            os.path.expanduser("~"), "offline_test.json")
 
     def test_add_recover(self):
         period_name = "123"
@@ -60,8 +61,11 @@ class AddTestCase(unittest.TestCase):
         self.assertTrue(add(command, offline_filepath=self.filepath, **kwargs))
 
         proxy = local_proxy()
-        self.assertRaises(OfflineRecoveryError, recover, proxy,
-                          offline_filepath=self.filepath)
+        self.assertRaises(
+            OfflineRecoveryError,
+            recover,
+            proxy,
+            offline_filepath=self.filepath)
 
         content = _load(self.filepath)
         kwargs["command"] = command

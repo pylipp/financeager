@@ -46,9 +46,7 @@ setup(
         "Topic :: Utilities",
     ],
     packages=find_packages(exclude=["test"]),
-    entry_points={
-        "console_scripts": ["financeager = financeager.cli:main"]
-        },
+    entry_points={"console_scripts": ["financeager = financeager.cli:main"]},
     install_requires=[
         "tinydb==3.2.1",
         "python-dateutil==2.6.0",

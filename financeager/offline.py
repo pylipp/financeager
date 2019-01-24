@@ -10,7 +10,6 @@ from . import CONFIG_DIR
 from .communication import run
 from .exceptions import OfflineRecoveryError
 
-
 OFFLINE_FILEPATH = os.path.join(CONFIG_DIR, "offline.json")
 
 

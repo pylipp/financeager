@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """Script to parse monthly CSV bank statement for relevant entries to add to the
 financeager database."""
 
@@ -29,7 +28,7 @@ data = csv.DictReader(f, dialect=SemicolonDialect)
 # all supermarket shopping shall go to the database
 trigger_words = [
     "lidl", "rewe", "aldi", "dm fil", "denns", "kaufland", "tengelmann",
-    "edeka", "denn.s", "alnatura", "bioladen",
+    "edeka", "denn.s", "alnatura", "bioladen"
 ]
 
 # when adding an unknown entry, you might want to specify the corresponding
@@ -53,14 +52,12 @@ for row in data:
     for word in trigger_words:
         if word in name:
             print("{} {}: {}".format(month_day, word, value))
-            run(
-                    command="add",
-                    name=word,
-                    value=value,
-                    date=month_day,
-                    period=date.year,
-                    category=categories.get(word, "groceries")
-                    )
+            run(command="add",
+                name=word,
+                value=value,
+                date=month_day,
+                period=date.year,
+                category=categories.get(word, "groceries"))
             break
     else:
         entries_rest.append((month_day, name, value))

@@ -9,7 +9,6 @@ from flask_restful import Resource, reqparse
 from . import CONFIG_DIR
 from .server import Server
 
-
 os.makedirs(CONFIG_DIR, exist_ok=True)  # pragma: no cover
 
 SERVER = Server(data_dir=CONFIG_DIR)
@@ -77,17 +76,30 @@ class PeriodResource(Resource):
 
 class EntryResource(Resource):
     def get(self, period_name, table_name, eid):
-        return run_safely("get", error_code=404, period=period_name,
-                          table_name=table_name, eid=eid)
+        return run_safely(
+            "get",
+            error_code=404,
+            period=period_name,
+            table_name=table_name,
+            eid=eid)
 
     def delete(self, period_name, table_name, eid):
-        return run_safely("rm", error_code=404, period=period_name,
-                          table_name=table_name, eid=eid)
+        return run_safely(
+            "rm",
+            error_code=404,
+            period=period_name,
+            table_name=table_name,
+            eid=eid)
 
     def patch(self, period_name, table_name, eid):
         args = update_parser.parse_args()
-        return run_safely("update", error_code=400, period=period_name,
-                          table_name=table_name, eid=eid, **args)
+        return run_safely(
+            "update",
+            error_code=400,
+            period=period_name,
+            table_name=table_name,
+            eid=eid,
+            **args)
 
 
 class CopyResource(Resource):

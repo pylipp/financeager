@@ -1,0 +1,7 @@
+[style]
+# The column limit.
+column_limit=80
+
+# Set to True to prefer splitting before 'and' or 'or' rather than
+# after.
+split_before_logical_operator=False

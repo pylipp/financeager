@@ -16,14 +16,15 @@ def suite():
 
 
 class HttpRequestProxyTestCase(unittest.TestCase):
-
     def mock_post(*args, **kwargs):
         """Mock a Response object returned by requests.post."""
+
         class MockResponse:
             ok = True
 
             def json(self):
                 return {}
+
         return MockResponse()
 
     def test_username_password(self):
@@ -31,8 +32,9 @@ class HttpRequestProxyTestCase(unittest.TestCase):
         password = 123456
         proxy = _Proxy(http_config={"username": username, "password": password})
 
-        with patch("financeager.httprequests.requests.post",
-                   side_effect=self.mock_post) as post_patch:
+        with patch(
+                "financeager.httprequests.requests.post",
+                side_effect=self.mock_post) as post_patch:
 
             proxy.run("list")
 

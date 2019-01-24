@@ -37,10 +37,9 @@ class _Proxy(object):
         base_url = "{}{}".format(url_head, PERIODS_TAIL)
         period_url = "{}/{}".format(base_url, period)
         copy_url = "{}{}".format(url_head, COPY_TAIL)
-        eid_url = "{}/{}/{}".format(
-            period_url,
-            data.get("table_name") or DEFAULT_TABLE,
-            data.get("eid"))
+        eid_url = "{}/{}/{}".format(period_url,
+                                    data.get("table_name") or DEFAULT_TABLE,
+                                    data.get("eid"))
 
         username = self.http_config.get("username")
         password = self.http_config.get("password")
@@ -83,8 +82,7 @@ class _Proxy(object):
         try:
             response = function(url, **kwargs)
         except requests.RequestException as e:
-            raise CommunicationError(
-                "Error sending request: {}".format(e))
+            raise CommunicationError("Error sending request: {}".format(e))
 
         if response.ok:
             return response.json()

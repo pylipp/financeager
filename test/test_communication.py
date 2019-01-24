@@ -11,23 +11,24 @@ from financeager.exceptions import InvalidRequest
 def suite():
     suite = unittest.TestSuite()
     tests = [
-            'test_rm',
-            'test_get',
-            'test_erroneous_get',
-            'test_copy',
-            'test_update',
-            'test_print',
-            'test_print_with_sorting',
-            'test_list',
-            'test_stop',
-            ]
+        'test_rm',
+        'test_get',
+        'test_erroneous_get',
+        'test_copy',
+        'test_update',
+        'test_print',
+        'test_print_with_sorting',
+        'test_list',
+        'test_stop',
+    ]
     suite.addTest(unittest.TestSuite(map(CommunicationTestCase, tests)))
     tests = [
-            'test_rm',
-            'test_get',
-            'test_update',
-            ]
-    suite.addTest(unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
+        'test_rm',
+        'test_get',
+        'test_update',
+    ]
+    suite.addTest(
+        unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
     tests = ['test_modules']
     suite.addTest(unittest.TestSuite(map(CommunicationModuleTestCase, tests)))
     tests = [
@@ -52,8 +53,8 @@ class CommunicationTestFixture(unittest.TestCase):
         # to not confuse the backend (i.e. validation in period module)
         cl_kwargs.pop("config")
 
-        return communication.run(self.proxy, command,
-                                 date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
+        return communication.run(
+            self.proxy, command, date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
 
     def setUp(self):
         self.proxy = localserver.LocalServer()
@@ -116,8 +117,7 @@ Category: Clothes""".format(today()))
 
         response = self.run_command(
             "print --entry-sort value --category-sort name --stacked-layout")
-        self.assertEqual(response,
-"\
+        self.assertEqual(response, "\
               Earnings               " + "\n\
 Name               Value    Date  ID " + """
 
@@ -141,7 +141,7 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
         response = self.run_command(
-                "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
+            "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
         self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
@@ -159,7 +159,8 @@ End      : 12-31
 Category : Income""")
 
     def test_update(self):
-        response = self.run_command("update 1 -f bimonthly -c n.a. -t recurrent")
+        response = self.run_command(
+            "update 1 -f bimonthly -c n.a. -t recurrent")
         self.assertEqual(response, "Updated element 1.")
         response = self.run_command("get 1 -t recurrent")
         self.assertEqual(response, """\
@@ -182,14 +183,19 @@ class CommunicationModuleTestCase(unittest.TestCase):
 class PreprocessTestCase(unittest.TestCase):
     def test_date_format_error(self):
         data = {"date": "01-01"}
-        self.assertRaises(communication.PreprocessingError,
-                          communication._preprocess, data, date_format="%d.%m")
+        self.assertRaises(
+            communication.PreprocessingError,
+            communication._preprocess,
+            data,
+            date_format="%d.%m")
 
     def test_filters(self):
         data = {"filters": ["name=italian", "category=Restaurants"]}
         communication._preprocess(data)
-        self.assertEqual(data["filters"],
-                         {"name": "italian", "category": "restaurants"})
+        self.assertEqual(data["filters"], {
+            "name": "italian",
+            "category": "restaurants"
+        })
 
     def test_filters_error(self):
         data = {"filters": ["value-123"]}

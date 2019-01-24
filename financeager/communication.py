@@ -22,9 +22,14 @@ def module(name):
     return getattr(financeager, frontend_modules[name])
 
 
-def run(proxy, command, default_category=None, date_format=None,
-        stacked_layout=False, entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-        category_sort=Model.CATEGORY_ENTRY_SORT_KEY, **kwargs):
+def run(proxy,
+        command,
+        default_category=None,
+        date_format=None,
+        stacked_layout=False,
+        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+        category_sort=Model.CATEGORY_ENTRY_SORT_KEY,
+        **kwargs):
     """Run a command on the given proxy. The kwargs are preprocessed and passed
     on. The server response is formatted and returned. If the response does not
     contain any of the fields 'elements', 'element', or 'periods', the empty
@@ -38,8 +43,12 @@ def run(proxy, command, default_category=None, date_format=None,
 
     eid = response.get("id")
     if eid is not None:
-        verb = {"add": "Added", "update": "Updated", "rm": "Removed", "copy":
-                "Copied"}[command]
+        verb = {
+            "add": "Added",
+            "update": "Updated",
+            "rm": "Removed",
+            "copy": "Copied"
+        }[command]
         return "{} element {}.".format(verb, eid)
 
     elements = response.get("elements")
@@ -51,8 +60,8 @@ def run(proxy, command, default_category=None, date_format=None,
 
     element = response.get("element")
     if element is not None:
-        return prettify_element(element,
-                recurrent=kwargs.get("table_name") == "recurrent")
+        return prettify_element(
+            element, recurrent=kwargs.get("table_name") == "recurrent")
 
     periods = response.get("periods")
     if periods is not None:
@@ -71,8 +80,8 @@ def _preprocess(data, date_format=None):
     # has already been converted
     if date is not None and date_format is not None:
         try:
-            date = datetime.strptime(date, date_format).strftime(
-                PERIOD_DATE_FORMAT)
+            date = datetime.strptime(date,
+                                     date_format).strftime(PERIOD_DATE_FORMAT)
             data["date"] = date
         except ValueError:
             raise PreprocessingError("Invalid date format.")
