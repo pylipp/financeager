@@ -1,6 +1,6 @@
 import os.path
 from datetime import datetime as dt
-from logging import getLogger, StreamHandler, DEBUG, WARN
+from logging import getLogger, StreamHandler, DEBUG, WARN, Formatter
 
 # versioning information
 __version__ = "0.16"
@@ -39,6 +39,8 @@ LOGGER.setLevel(DEBUG)
 stream_handler = StreamHandler()
 stream_handler.setLevel(WARN)
 LOGGER.addHandler(stream_handler)
+FORMATTER = Formatter(
+    fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s')
 
 
 def init_logger(name):

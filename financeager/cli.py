@@ -4,10 +4,10 @@
 import argparse
 import os
 import sys
-from logging import handlers, Formatter, getLogger
+from logging import handlers, getLogger
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
-    init_logger, LOG_DIR
+    init_logger, FORMATTER, LOG_DIR
 from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
@@ -27,9 +27,7 @@ def main():
 
     # Adding the FileHandler here avoids cluttering the log during tests
     file_handler = handlers.RotatingFileHandler(os.path.join(LOG_DIR, "log"))
-    file_handler.setFormatter(
-        Formatter(
-            fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s'))
+    file_handler.setFormatter(FORMATTER)
     getLogger(__package__).addHandler(file_handler)
 
     # Most runs return None which evaluates to return code 0
