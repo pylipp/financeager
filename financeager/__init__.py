@@ -1,6 +1,6 @@
 import os.path
 from datetime import datetime as dt
-from logging import handlers, getLogger, StreamHandler, Formatter, DEBUG
+from logging import handlers, getLogger, StreamHandler, Formatter, DEBUG, WARN
 
 # versioning information
 __version__ = "0.16"
@@ -34,13 +34,14 @@ def default_period_name():
 
 LOGGER = getLogger(__package__)
 LOGGER.setLevel(DEBUG)
-LOGGER.addHandler(StreamHandler())
+stream_handler = StreamHandler()
+stream_handler.setLevel(WARN)
+LOGGER.addHandler(stream_handler)
 file_handler = handlers.RotatingFileHandler(os.path.expanduser("~/foo.log"))
 file_handler.setFormatter(
     Formatter(
         fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s'))
 LOGGER.addHandler(file_handler)
-print(LOGGER.name)
 
 
 def init_logger(name):
@@ -56,5 +57,5 @@ def init_logger(name):
 
     logger.propagate = True
 
-    print(logger.name)
+    LOGGER.debug("Set up logger: {}".format(name))
     return logger
