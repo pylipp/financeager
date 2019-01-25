@@ -303,7 +303,8 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ] have return codes in cli.run
 - [ ] introduce `use_https` config/cli option
 - [ ] introduce `verbose` cli option
-- [ ] add loggers to config and offline modules
+- [x] add loggers to config and offline modules
+- [ ] add loggers to resources and server
 
 PERSONAL NOTE
 -------------

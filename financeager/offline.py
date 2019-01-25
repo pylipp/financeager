@@ -4,19 +4,21 @@ of such.
 
 import os.path
 import json
-import traceback
 
-from . import CONFIG_DIR
+from . import CONFIG_DIR, init_logger
 from .communication import run
 from .exceptions import OfflineRecoveryError
 
 OFFLINE_FILEPATH = os.path.join(CONFIG_DIR, "offline.json")
+
+logger = init_logger(__name__)
 
 
 def _load(filepath):
     if os.path.exists(filepath):
         with open(filepath, "r") as file:
             content = json.load(file)
+            logger.debug("Loaded {}".format(content))
     else:
         content = []
 
@@ -25,6 +27,7 @@ def _load(filepath):
 
 def _write(content, filepath):
     with open(filepath, "w") as file:
+        logger.debug("Writing {}".format(content))
         json.dump(content, file)
 
 
@@ -34,13 +37,12 @@ def _recover_data(proxy, content):
     currently processed is returned.
     The content list is modified in-place.
     """
-
     while len(content):
         data = content.pop()
         try:
-            run(proxy, **data)
+            logger.info(run(proxy, **data))
         except Exception as e:
-            traceback.print_exc()
+            logger.exception(e)
             return data
 
 

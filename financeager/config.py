@@ -3,7 +3,9 @@ from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from .entries import CategoryEntry, BaseEntry
 from .exceptions import InvalidConfigError
-from . import DEFAULT_HOST, DEFAULT_TIMEOUT
+from . import DEFAULT_HOST, DEFAULT_TIMEOUT, init_logger
+
+logger = init_logger(__name__)
 
 
 class Configuration(object):
@@ -42,6 +44,8 @@ class Configuration(object):
         """Update config values according to customization in config file."""
         if self._filepath is None:
             return
+
+        logger.debug("Loading custom config from {}".format(self._filepath))
 
         custom_config = ConfigParser()
         # read() silently ignores non-existing paths but returns list of paths
