@@ -33,10 +33,28 @@ def default_period_name():
     return str(dt.today().year)
 
 
-logger = logzero.setup_logger(
+LOGGER = logzero.setup_logger(
     __package__,
     logfile="/home/philipp/foo.log",
     # formatter=logzero.LogFormatter(
     #     fmt='%(levelname)s %(module)s:%(lineno)d %(message)s')
 )
-print(logger.name)
+print(LOGGER.name)
+
+
+def init_logger(name):
+    """Set up module logger. Library loggers are assigned the package logger as
+    parent. All default handlers are removed. Any records are propagated to the
+    parent package logger.
+    """
+    logger = logzero.setup_logger(name)
+
+    if logger.parent.name == "root":
+        # Library logger
+        logger.parent = LOGGER
+
+    logger.handlers = []
+    logger.propagate = True
+
+    print(logger.name)
+    return logger

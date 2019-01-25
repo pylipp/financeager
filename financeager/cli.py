@@ -5,19 +5,15 @@ import argparse
 import os
 import sys
 
-import logzero
-
-from financeager import offline, communication, CONFIG_DIR, __version__
+from financeager import offline, communication, CONFIG_DIR, __version__,\
+    init_logger
 from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
     OfflineRecoveryError, InvalidConfigError
 
-logger = logzero.setup_logger(name=__name__)
-logger.propagate = True
-logger.handlers = []
-print(logger.name)
+logger = init_logger(__name__)
 
 
 def main():

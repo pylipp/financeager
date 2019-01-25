@@ -1,12 +1,11 @@
 """Construction and handling of HTTP requests to communicate with webservice."""
 import http
 import json
-import logzero
 
 import requests
 
 from . import default_period_name, DEFAULT_TABLE, DEFAULT_HOST, DEFAULT_TIMEOUT
-from . import COPY_TAIL, PERIODS_TAIL
+from . import COPY_TAIL, PERIODS_TAIL, init_logger
 from .exceptions import CommunicationError, InvalidRequest
 
 # http.client.HTTPConnection.debuglevel = 1
@@ -16,11 +15,7 @@ from .exceptions import CommunicationError, InvalidRequest
 # requests_log.setLevel(logging.DEBUG)
 # requests_log.propagate = True
 # print(logzero.logging.getLogger())
-logger = logzero.setup_logger("urllib3")
-logger.handlers = []
-logger.parent = logzero.logging.getLogger(__package__)
-logger.propagate = True
-print(logger.name)
+logger = init_logger("urllib3")
 
 
 class _Proxy(object):
