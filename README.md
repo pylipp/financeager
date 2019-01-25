@@ -297,11 +297,13 @@ This requires some restructuring of the software architecture. Motivation and go
 - consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [x] integration test of cli module
 - [ ] move data dir to ~/.local/share/financeager
-- [ ] format and lint code (use pre-commit)
+- [ ] install pre-commit framework
 - [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
 - [ ] have return codes in cli.run
 - [ ] introduce `use_https` config/cli option
+- [ ] introduce `verbose` cli option
+- [ ] add loggers to config and offline modules
 
 PERSONAL NOTE
 -------------
