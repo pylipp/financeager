@@ -15,9 +15,8 @@ from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
     OfflineRecoveryError, InvalidConfigError
 
 logger = logzero.setup_logger(name=__name__)
+logger.propagate = True
 logger.handlers = []
-for handler in logger.parent.handlers:
-    logger.addHandler(handler)
 print(logger.name)
 
 

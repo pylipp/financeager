@@ -18,9 +18,8 @@ from .exceptions import CommunicationError, InvalidRequest
 # print(logzero.logging.getLogger())
 logger = logzero.setup_logger("urllib3")
 logger.handlers = []
-# using logzero.setup_logger(__package__) fucks up the package logger
-for handler in logzero.logging.getLogger(__package__).handlers:
-    logger.addHandler(handler)
+logger.parent = logzero.logging.getLogger(__package__)
+logger.propagate = True
 print(logger.name)
 
 
