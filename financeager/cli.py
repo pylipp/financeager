@@ -5,9 +5,10 @@ import argparse
 import os
 import sys
 import logging
+from logging import handlers, Formatter, getLogger
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
-    init_logger
+    init_logger, LOG_DIR
 from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
@@ -18,11 +19,22 @@ logger = init_logger(__name__)
 
 
 def main():
-    """Main command line entry point of the application. The config directory is
-    created. All arguments and options are parsed and passed to 'run()'.
+    """Main command line entry point of the application. The config and the log
+    directory are created. A FileHandler is added to the package logger.
+    All command line arguments and options are parsed and passed to 'run()'.
     """
     logging.getLogger(__package__).handlers[0].setLevel("WARN")
+
     os.makedirs(CONFIG_DIR, exist_ok=True)
+    os.makedirs(LOG_DIR, exist_ok=True)
+
+    # Adding the FileHandler here avoids cluttering the log during tests
+    file_handler = handlers.RotatingFileHandler(os.path.join(LOG_DIR, "log"))
+    file_handler.setFormatter(
+        Formatter(
+            fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s'))
+    getLogger(__package__).addHandler(file_handler)
+
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
 

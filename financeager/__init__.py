@@ -1,6 +1,6 @@
 import os.path
 from datetime import datetime as dt
-from logging import handlers, getLogger, StreamHandler, Formatter, DEBUG, WARN
+from logging import getLogger, StreamHandler, DEBUG, WARN
 
 # versioning information
 __version__ = "0.16"
@@ -15,8 +15,9 @@ PERIOD_DATE_FORMAT = "%m-%d"
 # default table name of database
 DEFAULT_TABLE = "standard"
 
-# directory for application data
+# directories for application data and log file
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
+LOG_DIR = os.path.expanduser("~/.local/share/financeager")
 
 # URL endpoints
 PERIODS_TAIL = "/financeager/periods"
@@ -32,16 +33,12 @@ def default_period_name():
     return str(dt.today().year)
 
 
+# Set up the package logger
 LOGGER = getLogger(__package__)
 LOGGER.setLevel(DEBUG)
 stream_handler = StreamHandler()
 stream_handler.setLevel(WARN)
 LOGGER.addHandler(stream_handler)
-file_handler = handlers.RotatingFileHandler(os.path.expanduser("~/foo.log"))
-file_handler.setFormatter(
-    Formatter(
-        fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s'))
-LOGGER.addHandler(file_handler)
 
 
 def init_logger(name):
