@@ -4,7 +4,6 @@
 import argparse
 import os
 import sys
-import logging
 from logging import handlers, Formatter, getLogger
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
@@ -23,8 +22,6 @@ def main():
     directory are created. A FileHandler is added to the package logger.
     All command line arguments and options are parsed and passed to 'run()'.
     """
-    logging.getLogger(__package__).handlers[0].setLevel("WARN")
-
     os.makedirs(CONFIG_DIR, exist_ok=True)
     os.makedirs(LOG_DIR, exist_ok=True)
 
