@@ -69,7 +69,7 @@ def run(command=None, config=None, **cl_kwargs):
     proxy = communication_module.proxy(**proxy_kwargs)
 
     try:
-        print(
+        logger.info(
             communication.run(
                 proxy,
                 command,
@@ -78,12 +78,12 @@ def run(command=None, config=None, **cl_kwargs):
                 date_format=configuration.get_option("FRONTEND", "date_format"),
                 **cl_kwargs))
         if offline.recover(proxy):
-            print("Recovered offline backup.")
+            logger.info("Recovered offline backup.")
     except OfflineRecoveryError:
-        print("Offline backup recovery failed!")
+        logger.error("Offline backup recovery failed!")
     except (PreprocessingError, InvalidRequest) as e:
         # Command is erroneous and hence not stored offline
-        print(e)
+        logger.error(e)
     except CommunicationError as e:
         logger.error(e)
         store_offline = True
@@ -92,7 +92,7 @@ def run(command=None, config=None, **cl_kwargs):
         store_offline = True
 
     if store_offline and offline.add(command, **cl_kwargs):
-        print("Stored '{}' request in offline backup.".format(command))
+        logger.info("Stored '{}' request in offline backup.".format(command))
 
 
 def _parse_command(args=None):

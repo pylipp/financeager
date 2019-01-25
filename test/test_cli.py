@@ -65,19 +65,24 @@ class CliTestCase(unittest.TestCase):
         cls.eid_pattern = re.compile(
             r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
 
-    def cli_run(self, command_line, *format_args):
+    def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
         options (period and config filepath). Executes the actual run() function
-        while patching the built-in print() to catch its call arguments.
+        while patching the module logger info and error methods to catch their
+        call arguments.
 
         'command_line' is a string of the form that financeager is called from
         the command line with. 'format_args' are optional objects that are
-        formatted into the command line string.
+        formatted into the command line string. Must be passed as tuple if more
+        than one.
 
         If information about an added/update/removed/copied element was to be
-        printed, the corresponding ID is matched from the print call arguments
-        and returned. Otherwise the raw print call is returned.
+        logged, the corresponding ID is matched from the log call arguments to
+        the specified 'log_method' and returned. Otherwise the raw log call is
+        returned.
         """
+        if not isinstance(format_args, tuple):
+            format_args = (format_args, )
         args = command_line.format(*format_args).split()
         command = args[0]
 
@@ -87,12 +92,20 @@ class CliTestCase(unittest.TestCase):
 
         args.extend(["--config", TEST_CONFIG_FILEPATH])
 
-        with mock.patch("builtins.print") as mocked_print:
+        with mock.patch("financeager.cli.logger") as mocked_logger:
+            # Mock relevant methods
+            mocked_logger.info = mock.MagicMock()
+            mocked_logger.error = mock.MagicMock()
+
             run(**_parse_command(args))
+
             # Record for optional detailed analysis in test methods
-            self.print_call_args_list = mocked_print.call_args_list
-            # Get first of the args of the first call
-            printed_content = self.print_call_args_list[0][0][0]
+            self.log_call_args_list = {}
+            for method in ["info", "error"]:
+                self.log_call_args_list[method] = \
+                    getattr(mocked_logger, method).call_args_list
+            # Get first of the args of the first call of specified log method
+            printed_content = self.log_call_args_list[log_method][0][0][0]
 
         if command in ["add", "update", "rm", "copy"] and\
                 isinstance(printed_content, str):
@@ -119,7 +132,7 @@ name = heroku"""
     def test_print(self):
         # using a command that won't try to parse the element ID from the print
         # call in cli_run()...
-        printed_content = self.cli_run("print")
+        printed_content = self.cli_run("print", log_method="error")
         self.assertEqual(printed_content,
                          "Invalid configuration: Unknown service name!")
 
@@ -169,7 +182,7 @@ host = {}
         printed_content = self.cli_run("print")
         self.assertGreater(len(printed_content), 0)
 
-        rm_entry_id = self.cli_run("rm {}", entry_id)
+        rm_entry_id = self.cli_run("rm {}", format_args=entry_id)
         self.assertEqual(rm_entry_id, entry_id)
 
         printed_content = self.cli_run("list")
@@ -178,11 +191,11 @@ host = {}
     def test_add_get_rm_via_eid(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
 
-        printed_content = self.cli_run("get {}", entry_id)
+        printed_content = self.cli_run("get {}", format_args=entry_id)
         name = printed_content.split("\n")[0].split()[2]
         self.assertEqual(name, "Donuts")
 
-        self.cli_run("rm {}", entry_id)
+        self.cli_run("rm {}", format_args=entry_id)
 
         printed_content = self.cli_run("print")
         self.assertEqual(printed_content, "")
@@ -193,31 +206,33 @@ host = {}
         self.assertIn("400", cm.exception.args[0])
 
     def test_add_invalid_entry_table_name(self):
-        printed_content = self.cli_run("add stuff 11.11 -t unknown")
+        printed_content = self.cli_run(
+            "add stuff 11.11 -t unknown", log_method="error")
         self.assertIn("400", printed_content)
 
     def test_update(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
 
-        update_entry_id = self.cli_run("update {} -n bretzels", entry_id)
+        update_entry_id = self.cli_run(
+            "update {} -n bretzels", format_args=entry_id)
         self.assertEqual(entry_id, update_entry_id)
 
-        printed_content = self.cli_run("get {}", entry_id)
+        printed_content = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("Bretzels", printed_content)
 
         # Remove to have empty period
-        self.cli_run("rm {}", entry_id)
+        self.cli_run("rm {}", format_args=entry_id)
 
     def test_update_nonexisting_entry(self):
-        printed_content = self.cli_run("update -1 -n a")
+        printed_content = self.cli_run("update -1 -n a", log_method="error")
         self.assertIn("400", printed_content)
 
     def test_get_nonexisting_entry(self):
-        printed_content = self.cli_run("get -1")
+        printed_content = self.cli_run("get -1", log_method="error")
         self.assertIn("404", printed_content)
 
     def test_delete_nonexisting_entry(self):
-        printed_content = self.cli_run("rm 0")
+        printed_content = self.cli_run("rm 0", log_method="error")
         self.assertIn("404", printed_content)
 
     def test_invalid_request(self):
@@ -235,11 +250,13 @@ host = {}
                                 "half-yearly -s 01-01 -e 12-31")
         self.assertEqual(entry_id, 1)
 
-        printed_content = self.cli_run("get {} -t recurrent", entry_id)
+        printed_content = self.cli_run(
+            "get {} -t recurrent", format_args=entry_id)
         self.assertIn("Half-yearly", printed_content)
 
-        update_entry_id = self.cli_run("update {} -t recurrent -n clifbars "
-                                       "-f quarter-yearly", entry_id)
+        update_entry_id = self.cli_run(
+            "update {} -t recurrent -n clifbars -f quarter-yearly",
+            format_args=entry_id)
         self.assertEqual(update_entry_id, entry_id)
 
         printed_content = self.cli_run("print")
@@ -247,7 +264,7 @@ host = {}
         self.assertEqual(printed_content.count("{}\n".format(entry_id)), 4)
         self.assertEqual(len(printed_content.splitlines()), 9)
 
-        self.cli_run("rm {} -t recurrent", entry_id)
+        self.cli_run("rm {} -t recurrent", format_args=entry_id)
 
         printed_content = self.cli_run("print")
         self.assertEqual(printed_content, "")
@@ -255,31 +272,33 @@ host = {}
     def test_copy(self):
         source_entry_id = self.cli_run("add donuts -50 -c sweets")
 
-        destination_entry_id = self.cli_run("copy {} -s {} -d {}",
-                                            source_entry_id, self.period,
-                                            self.destination_period)
+        destination_entry_id = self.cli_run(
+            "copy {} -s {} -d {}",
+            format_args=(source_entry_id, self.period, self.destination_period))
 
         # Swap period to trick cli_run()
         self.period, self.destination_period = self.destination_period, \
             self.period
         destination_printed_content = self.cli_run(
-            "get {}", destination_entry_id).splitlines()
+            "get {}", format_args=destination_entry_id).splitlines()
         self.period, self.destination_period = self.destination_period, \
             self.period
 
-        source_printed_content = self.cli_run("get {}",
-                                              source_entry_id).splitlines()
+        source_printed_content = self.cli_run(
+            "get {}", format_args=source_entry_id).splitlines()
         # Remove date lines
         destination_printed_content.remove(destination_printed_content[2])
         source_printed_content.remove(source_printed_content[2])
         self.assertListEqual(destination_printed_content,
                              source_printed_content)
 
-        self.cli_run("rm {}", source_entry_id)
+        self.cli_run("rm {}", format_args=source_entry_id)
 
     def test_copy_nonexisting_entry(self):
-        printed_content = self.cli_run("copy 0 -s {} -d {}", self.period,
-                                       self.destination_period)
+        printed_content = self.cli_run(
+            "copy 0 -s {} -d {}",
+            log_method="error",
+            format_args=(self.period, self.destination_period))
         self.assertIn("404", printed_content)
 
     def test_parser_error(self):
@@ -293,7 +312,7 @@ host = {}
             response = Response()
             response.status_code = 500
             mocked_get.return_value = response
-            printed_content = self.cli_run("print")
+            printed_content = self.cli_run("print", log_method="error")
             self.assertIn("500", printed_content)
 
     @mock.patch("financeager.offline.OFFLINE_FILEPATH",
@@ -311,39 +330,30 @@ host = {}
 
             # Output from caught CommunicationError
             self.assertEqual("Error sending request: did not work",
-                             str(self.print_call_args_list[0][0][0]))
+                             str(self.log_call_args_list["error"][0][0][0]))
             self.assertEqual("Stored 'add' request in offline backup.",
-                             self.print_call_args_list[1][0][0])
+                             self.log_call_args_list["info"][0][0][0])
 
             # Now request a print, and try to recover the offline backup
             # But adding is still expected to fail
             mocked_post.side_effect = RequestException("still no works")
             self.cli_run("print")
             # Output from print; expect empty database
-            self.assertEqual("", self.print_call_args_list[0][0][0])
-
-            # Output from offline recovery traceback not checked
-
-            # Output from caught CommunicationError
-            self.assertIn("Error sending request: still no works",
-                          str(self.print_call_args_list[-2][0][0]))
+            self.assertEqual("", self.log_call_args_list["info"][0][0][0])
 
             # Output from cli module
             self.assertEqual("Offline backup recovery failed!",
-                             self.print_call_args_list[-1][0][0])
+                             self.log_call_args_list["error"][-1][0][0])
 
         # Without side effects, recover the offline backup
         self.cli_run("print")
 
-        self.assertEqual("", self.print_call_args_list[0][0][0])
+        self.assertEqual("", self.log_call_args_list["info"][0][0][0])
         # TODO: adjust offline module implementation
         # self.assertEqual("Added element 1.",
-        #                  self.print_call_args_list[1][0][0])
+        #                  self.log_call_args_list[][1][0][0])
         self.assertEqual("Recovered offline backup.",
-                         self.print_call_args_list[1][0][0])
-
-        # Cleanup (sigh...)
-        self.cli_run("rm 1")
+                         self.log_call_args_list["info"][1][0][0])
 
 
 if __name__ == "__main__":

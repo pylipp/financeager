@@ -298,7 +298,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] integration test of cli module
 - [ ] move data dir to ~/.local/share/financeager
 - [ ] format and lint code (use pre-commit)
-- [ ] use logging module instead of print
+- [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
 - [ ] have return codes in cli.run
 - [ ] introduce `use_https` config/cli option
