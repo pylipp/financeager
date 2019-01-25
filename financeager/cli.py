@@ -14,14 +14,17 @@ from .config import Configuration
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
     OfflineRecoveryError, InvalidConfigError
 
+logger = logzero.setup_logger(name=__name__)
+logger.handlers = []
+for handler in logger.parent.handlers:
+    logger.addHandler(handler)
+print(logger.name)
+
 
 def main():
     """Main command line entry point of the application. The config directory is
     created. All arguments and options are parsed and passed to 'run()'.
     """
-    global logger
-    logger = logzero.setup_logger(
-        "financeager", logfile="/home/philipp/foo.log")
     os.makedirs(CONFIG_DIR, exist_ok=True)
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))

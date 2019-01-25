@@ -15,9 +15,13 @@ from .exceptions import CommunicationError, InvalidRequest
 # requests_log = logging.getLogger("urllib3")
 # requests_log.setLevel(logging.DEBUG)
 # requests_log.propagate = True
+# print(logzero.logging.getLogger())
 logger = logzero.setup_logger("urllib3")
-logger.setLevel(logzero.logging.DEBUG)
-logger.propagate = True
+logger.handlers = []
+# using logzero.setup_logger(__package__) fucks up the package logger
+for handler in logzero.logging.getLogger(__package__).handlers:
+    logger.addHandler(handler)
+print(logger.name)
 
 
 class _Proxy(object):

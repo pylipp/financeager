@@ -1,6 +1,8 @@
 import os.path
 from datetime import datetime as dt
 
+import logzero
+
 # versioning information
 __version__ = "0.16"
 
@@ -29,3 +31,12 @@ DEFAULT_TIMEOUT = 10
 def default_period_name():
     """The current year as string (format YYYY)."""
     return str(dt.today().year)
+
+
+logger = logzero.setup_logger(
+    __package__,
+    logfile="/home/philipp/foo.log",
+    # formatter=logzero.LogFormatter(
+    #     fmt='%(levelname)s %(module)s:%(lineno)d %(message)s')
+)
+print(logger.name)
