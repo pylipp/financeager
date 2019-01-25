@@ -2,9 +2,10 @@
 """Command line interface of financeager application."""
 
 import argparse
-import traceback
 import os
 import sys
+
+import logzero
 
 from financeager import offline, communication, CONFIG_DIR, __version__
 from .entries import CategoryEntry
@@ -18,6 +19,9 @@ def main():
     """Main command line entry point of the application. The config directory is
     created. All arguments and options are parsed and passed to 'run()'.
     """
+    global logger
+    logger = logzero.setup_logger(
+        "financeager", logfile="/home/philipp/foo.log")
     os.makedirs(CONFIG_DIR, exist_ok=True)
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
@@ -34,7 +38,7 @@ def run(command=None, config=None, **cl_kwargs):
     try:
         configuration = Configuration(filepath=config_filepath)
     except InvalidConfigError as e:
-        print("Invalid configuration: {}".format(e))
+        logger.error("Invalid configuration: {}".format(e))
         return 1
 
     backend_name = configuration.get_option("SERVICE", "name")
@@ -68,10 +72,10 @@ def run(command=None, config=None, **cl_kwargs):
         # Command is erroneous and hence not stored offline
         print(e)
     except CommunicationError as e:
-        print(e)
+        logger.error(e)
         store_offline = True
     except Exception:
-        print("Unexpected error:\n{}".format(traceback.format_exc()))
+        logger.exception("Unexpected error")
         store_offline = True
 
     if store_offline and offline.add(command, **cl_kwargs):

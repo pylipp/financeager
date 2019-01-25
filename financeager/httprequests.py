@@ -1,12 +1,23 @@
 """Construction and handling of HTTP requests to communicate with webservice."""
 import http
 import json
+import logzero
 
 import requests
 
 from . import default_period_name, DEFAULT_TABLE, DEFAULT_HOST, DEFAULT_TIMEOUT
 from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
+
+# http.client.HTTPConnection.debuglevel = 1
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
+logger = logzero.setup_logger("urllib3")
+logger.setLevel(logzero.logging.DEBUG)
+logger.propagate = True
 
 
 class _Proxy(object):
