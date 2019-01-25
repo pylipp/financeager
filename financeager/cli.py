@@ -46,6 +46,7 @@ def run(command=None, config=None, **cl_kwargs):
 
     proxy_kwargs = {}
     if backend_name == "flask":
+        init_logger("urllib3")
         proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
     else:  # 'none' is the only other option
         proxy_kwargs["data_dir"] = CONFIG_DIR

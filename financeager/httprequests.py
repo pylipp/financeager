@@ -5,17 +5,8 @@ import json
 import requests
 
 from . import default_period_name, DEFAULT_TABLE, DEFAULT_HOST, DEFAULT_TIMEOUT
-from . import COPY_TAIL, PERIODS_TAIL, init_logger
+from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
-
-# http.client.HTTPConnection.debuglevel = 1
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-# print(logzero.logging.getLogger())
-logger = init_logger("urllib3")
 
 
 class _Proxy(object):
