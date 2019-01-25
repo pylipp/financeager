@@ -4,6 +4,7 @@
 import argparse
 import os
 import sys
+import logging
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
     init_logger
@@ -20,6 +21,7 @@ def main():
     """Main command line entry point of the application. The config directory is
     created. All arguments and options are parsed and passed to 'run()'.
     """
+    logging.getLogger(__package__).handlers[0].setLevel("WARN")
     os.makedirs(CONFIG_DIR, exist_ok=True)
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
