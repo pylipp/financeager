@@ -102,12 +102,6 @@ def _parse_command(args=None):
         version="financeager version {}".format(__version__),
         help="display version info and exit")  # pragma: no cover
 
-    period_args = ("-p", "--period")
-    period_kwargs = dict(default=None, help="name of period to modify or query")
-    config_args = ("-C", "--config")
-    config_kwargs = dict(
-        help="path to config file (default: {}/config".format(CONFIG_DIR))
-
     subparsers = parser.add_subparsers(
         title="subcommands",
         dest="command",
@@ -140,9 +134,6 @@ least a frequency, start date and end date are optional. Default:
     add_parser.add_argument(
         "-e", "--end", default=None, help="end date of recurrent entry")
 
-    add_parser.add_argument(*period_args, **period_kwargs)
-    add_parser.add_argument(*config_args, **config_kwargs)
-
     get_parser = subparsers.add_parser(
         "get", help="show information about single entry")
     get_parser.add_argument("eid", help="entry ID")
@@ -151,8 +142,6 @@ least a frequency, start date and end date are optional. Default:
         "--table-name",
         default=None,
         help="Table to get the entry from. Default: 'standard'.")
-    get_parser.add_argument(*period_args, **period_kwargs)
-    get_parser.add_argument(*config_args, **config_kwargs)
 
     rm_parser = subparsers.add_parser(
         "rm", help="remove an entry from the database")
@@ -162,8 +151,6 @@ least a frequency, start date and end date are optional. Default:
         "--table-name",
         default=None,
         help="Table to remove the entry from. Default: 'standard'.")
-    rm_parser.add_argument(*period_args, **period_kwargs)
-    rm_parser.add_argument(*config_args, **config_kwargs)
 
     update_parser = subparsers.add_parser(
         "update", help="update one or more fields of an database entry")
@@ -183,8 +170,6 @@ least a frequency, start date and end date are optional. Default:
         "-s", "--start", help="new start date (for recurrent entries only)")
     update_parser.add_argument(
         "-e", "--end", help="new end date (for recurrent entries only)")
-    update_parser.add_argument(*period_args, **period_kwargs)
-    update_parser.add_argument(*config_args, **config_kwargs)
 
     copy_parser = subparsers.add_parser(
         "copy", help="copy an entry from one period to another")
@@ -206,7 +191,6 @@ least a frequency, start date and end date are optional. Default:
         "--table-name",
         default=None,
         help="Table to copy the entry from/to. Default: 'standard'.")
-    copy_parser.add_argument(*config_args, **config_kwargs)
 
     print_parser = subparsers.add_parser(
         "print", help="show the period database")
@@ -231,11 +215,19 @@ least a frequency, start date and end date are optional. Default:
         "--category-sort",
         choices=["name", "value"],
         default=Model.CATEGORY_ENTRY_SORT_KEY)
-    print_parser.add_argument(*period_args, **period_kwargs)
-    print_parser.add_argument(*config_args, **config_kwargs)
 
     list_parser = subparsers.add_parser("list", help="list all databases")
-    list_parser.add_argument(*config_args, **config_kwargs)
+
+    # Add common options to subparsers
+    for subparser in subparsers.choices.values():
+        subparser.add_argument(
+            "-C",
+            "--config",
+            help="path to config file. Default: {}/config".format(CONFIG_DIR))
+
+        if subparser not in [list_parser, copy_parser]:
+            subparser.add_argument(
+                "-p", "--period", help="name of period to modify or query")
 
     return vars(parser.parse_args(args=args))
 
