@@ -66,9 +66,6 @@ Default config:
 
 To run `financeager` as client-server application, specify a server-sided configuration like this
 
-    [SERVICE]
-    name = flask
-
     [SERVICE:FLASK]
     host = 0.0.0.0
 
@@ -94,6 +91,7 @@ usage: financeager [-h] {add,get,rm,update,copy,print,list} ...
 
 optional arguments:
   -h, --help            show this help message and exit
+  -V, --version         display version info and exit
 
 subcommands:
   {add,get,rm,update,copy,print,list}
@@ -139,17 +137,17 @@ Show a side-by-side *overview* of earnings and expenses (filter by date/category
     > financeager print
 
                    Earnings               |                Expenses
-	Name               Value    Date  ID  | Name               Value    Date  ID
-	Unspecified          123.45           | Rent                1500.00
-	  Lottery            123.45 03-14   2 |   Rent January       500.00 01-01   1
-	                                      |   Rent February      500.00 02-01   1
+    Name               Value    Date  ID  | Name               Value    Date  ID
+    Unspecified          123.45           | Rent                1500.00
+      Lottery            123.45 03-14   2 |   Rent January       500.00 01-01   1
+                                          |   Rent February      500.00 02-01   1
                                           |   Rent March         500.00 03-01   1
-	=============================================================================
-	Total                123.45           | Total               1500.00
+    =============================================================================
+    Total                123.45           | Total               1500.00
 
 The aforementioned `financeager` commands operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 
-	> financeager add xmas-gifts -42 --date 12-23 --period 2016
+    > financeager add xmas-gifts -42 --date 12-23 --period 2016
 
 *Copy* an entry from one database to another by specifying entry ID and source/destination period:
 
@@ -157,8 +155,8 @@ The aforementioned `financeager` commands operate on the default database (named
 
 Detailed information is available from
 
-	> financeager --help
-	> financeager <subcommand> --help
+    > financeager --help
+    > financeager <subcommand> --help
 
 You can turn on printing debug messages to the terminal using the `--verbose` option, e.g.
 
@@ -305,7 +303,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
 - [ ] have return codes in cli.run
-- [ ] introduce `use_https` config/cli option
+- [ ] introduce `use_https` config option
 - [x] introduce `verbose` cli option
 - [x] add loggers to config and offline modules
 - [ ] add loggers to resources and server
