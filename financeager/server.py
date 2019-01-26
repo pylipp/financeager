@@ -2,8 +2,10 @@
 
 from __future__ import unicode_literals
 
-from . import default_period_name
+from . import default_period_name, init_logger
 from .period import TinyDbPeriod, PeriodException
+
+logger = init_logger(__name__)
 
 
 class Server(object):
@@ -26,6 +28,8 @@ class Server(object):
         :return: dict
             key is one of 'id', 'element', 'elements', 'error', 'periods'
         """
+        logger.debug("Running '{}' with {}".format(command, kwargs))
+
         try:
             if command == "list":
                 return {"periods": [p._name for p in self._periods.values()]}
@@ -70,6 +74,7 @@ class Server(object):
         try:
             period = self._periods[name]
         except KeyError:
+            logger.debug("Creating new Period '{}'".format(name))
             period = TinyDbPeriod(name, **self._period_kwargs)
             self._periods[period.name] = period
 

@@ -306,7 +306,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ] introduce `use_https` config option
 - [x] introduce `verbose` cli option
 - [x] add loggers to config and offline modules
-- [ ] add loggers to resources and server
+- [x] add loggers to resources and server
 
 PERSONAL NOTE
 -------------

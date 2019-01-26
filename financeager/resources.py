@@ -1,15 +1,16 @@
 """Webservice resources as end points of financeager REST API."""
 import os.path
-import traceback
 import json
 
 import flask
 from flask_restful import Resource, reqparse
 
-from . import CONFIG_DIR
+from . import CONFIG_DIR, init_logger
 from .server import Server
 
 os.makedirs(CONFIG_DIR, exist_ok=True)  # pragma: no cover
+
+logger = init_logger(__name__)
 
 SERVER = Server(data_dir=CONFIG_DIR)
 
@@ -53,18 +54,28 @@ def run_safely(command, error_code=500, **kwargs):
         if "error" in response:
             response = (response, error_code)
     except Exception:
-        print(traceback.format_exc())
+        logger.exception("Unexpected error")
         response = ({"error": "unexpected error"}, 500)
 
     return response
 
 
-class PeriodsResource(Resource):
+class LogResource(Resource):
+    """Custom class to log requests that are about to be dispatched."""
+
+    def dispatch_request(self, *args, **kwargs):
+        logger.debug(
+            "Dispatching {r} holding {{data: {r.data}, "
+            "values: {r.values}, json: {r.json}}}".format(r=flask.request))
+        return super().dispatch_request(*args, **kwargs)
+
+
+class PeriodsResource(LogResource):
     def post(self):
         return run_safely("list")
 
 
-class PeriodResource(Resource):
+class PeriodResource(LogResource):
     def get(self, period_name):
         args = json.loads(flask.request.json or "{}")
         return run_safely("print", error_code=400, period=period_name, **args)
@@ -74,7 +85,7 @@ class PeriodResource(Resource):
         return run_safely("add", error_code=400, period=period_name, **args)
 
 
-class EntryResource(Resource):
+class EntryResource(LogResource):
     def get(self, period_name, table_name, eid):
         return run_safely(
             "get",
@@ -102,7 +113,7 @@ class EntryResource(Resource):
             **args)
 
 
-class CopyResource(Resource):
+class CopyResource(LogResource):
     def post(self):
         args = copy_parser.parse_args()
         return run_safely("copy", error_code=404, **args)
