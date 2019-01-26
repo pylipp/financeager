@@ -1,6 +1,6 @@
 import os.path
 from datetime import datetime as dt
-from logging import getLogger, StreamHandler, DEBUG, INFO, Formatter
+from logging import getLogger, StreamHandler, DEBUG, INFO, Formatter, handlers
 
 # versioning information
 __version__ = "0.16"
@@ -60,3 +60,10 @@ def init_logger(name):
 
     LOGGER.debug("Set up logger: {}".format(name))
     return logger
+
+
+def setup_log_file_handler():
+    """Create FileHandler for package logger."""
+    file_handler = handlers.RotatingFileHandler(os.path.join(LOG_DIR, "log"))
+    file_handler.setFormatter(FORMATTER)
+    LOGGER.addHandler(file_handler)

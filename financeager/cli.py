@@ -4,10 +4,10 @@
 import argparse
 import os
 import sys
-from logging import handlers, getLogger, DEBUG
+from logging import getLogger, DEBUG
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
-    init_logger, FORMATTER, LOG_DIR
+    init_logger, FORMATTER, LOG_DIR, setup_log_file_handler
 import financeager
 from .entries import CategoryEntry
 from .model import Model
@@ -27,9 +27,7 @@ def main():
     os.makedirs(LOG_DIR, exist_ok=True)
 
     # Adding the FileHandler here avoids cluttering the log during tests
-    file_handler = handlers.RotatingFileHandler(os.path.join(LOG_DIR, "log"))
-    file_handler.setFormatter(FORMATTER)
-    getLogger(__package__).addHandler(file_handler)
+    setup_log_file_handler()
 
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
