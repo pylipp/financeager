@@ -8,6 +8,7 @@ from logging import handlers, getLogger, DEBUG
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
     init_logger, FORMATTER, LOG_DIR
+import financeager
 from .entries import CategoryEntry
 from .model import Model
 from .config import Configuration
@@ -48,7 +49,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         stream_handler.setLevel(DEBUG)
         stream_handler.setFormatter(FORMATTER)
 
-    config_filepath = config or os.path.join(CONFIG_DIR, "config")
+    config_filepath = config or financeager.CONFIG_FILEPATH
     try:
         configuration = Configuration(filepath=config_filepath)
     except InvalidConfigError as e:
@@ -230,7 +231,8 @@ least a frequency, start date and end date are optional. Default:
         subparser.add_argument(
             "-C",
             "--config",
-            help="path to config file. Default: {}/config".format(CONFIG_DIR))
+            help="path to config file. Default: {}".format(
+                financeager.CONFIG_FILEPATH))
         subparser.add_argument(
             "--verbose",
             action="store_true",

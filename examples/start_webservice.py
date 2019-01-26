@@ -6,7 +6,7 @@ import os.path
 
 from financeager.fflask import launch_server
 from financeager.config import Configuration
-from financeager import CONFIG_DIR
+from financeager import CONFIG_FILEPATH
 
 if __name__ == "__main__":
     start_parser = argparse.ArgumentParser(description=globals()["__doc__"])
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     start_parser.add_argument(
         "-C",
         "--config",
-        help="path to config file (default: {}/config".format(CONFIG_DIR))
+        help="path to config file. Default: {}".format(CONFIG_FILEPATH))
 
     cl_options = start_parser.parse_args()
 
@@ -32,8 +32,8 @@ if __name__ == "__main__":
     if host is None:
         # read variable from config file
         config_filepath = cl_options.config
-        if config_filepath is None:
-            config_filepath = os.path.join(CONFIG_DIR, "config")
+        if config_filepath is None and os.path.exists(CONFIG_FILEPATH):
+            config_filepath = CONFIG_FILEPATH
         config = Configuration(filepath=config_filepath)
         host = config.get("SERVICE:FLASK", "host")
 

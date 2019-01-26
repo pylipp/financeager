@@ -19,6 +19,8 @@ DEFAULT_TABLE = "standard"
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 LOG_DIR = os.path.expanduser("~/.local/share/financeager")
 
+CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
+
 # URL endpoints
 PERIODS_TAIL = "/financeager/periods"
 COPY_TAIL = PERIODS_TAIL + "/copy"
