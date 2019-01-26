@@ -23,6 +23,7 @@ def suite():
     suite = unittest.TestSuite()
     tests = [
         'test_add_entry',
+        'test_verbose',
     ]
     suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
     tests = [
@@ -146,6 +147,14 @@ name = none"""
     def test_add_entry(self):
         entry_id = self.cli_run("add entry 42")
         self.assertEqual(entry_id, 1)
+
+    # Interfere call to stderr (see StreamHandler implementation in
+    # python3.5/logging/__init__.py)
+    @mock.patch("sys.stderr.write")
+    def test_verbose(self, mocked_stderr):
+        self.cli_run("print --verbose")
+        self.assertTrue(mocked_stderr.call_args_list[0][0][0].endswith(
+            "Loading custom config from {}".format(TEST_CONFIG_FILEPATH)))
 
 
 class CliFlaskTestCase(CliTestCase):

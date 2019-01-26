@@ -4,7 +4,7 @@
 import argparse
 import os
 import sys
-from logging import handlers, getLogger
+from logging import handlers, getLogger, DEBUG
 
 from financeager import offline, communication, CONFIG_DIR, __version__,\
     init_logger, FORMATTER, LOG_DIR
@@ -34,13 +34,20 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config=None, **cl_kwargs):
+def run(command=None, config=None, verbose=False, **cl_kwargs):
     """High-level API entry point, useful for scripts. Run 'command' passing
     'cl_kwargs' according to what the command line interface accepts (consult
     help via `financeager [command] --help`), e.g. {"command": "add", "name":
     "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
-    'config' specifies the path to a custom config file (optional).
+    'config' specifies the path to a custom config file (optional). If 'verbose'
+    is set, debug level log messages are printed to the terminal.
     """
+    if verbose:
+        # StreamHandler was added first in __init__.py
+        stream_handler = getLogger(__package__).handlers[0]
+        stream_handler.setLevel(DEBUG)
+        stream_handler.setFormatter(FORMATTER)
+
     config_filepath = config or os.path.join(CONFIG_DIR, "config")
     try:
         configuration = Configuration(filepath=config_filepath)
@@ -224,6 +231,10 @@ least a frequency, start date and end date are optional. Default:
             "-C",
             "--config",
             help="path to config file. Default: {}/config".format(CONFIG_DIR))
+        subparser.add_argument(
+            "--verbose",
+            action="store_true",
+            help="Be verbose about internal workings")
 
         if subparser not in [list_parser, copy_parser]:
             subparser.add_argument(

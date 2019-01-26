@@ -52,6 +52,7 @@ class CommunicationTestFixture(unittest.TestCase):
         # this option is popped early in the CLI, hence here it's also removed
         # to not confuse the backend (i.e. validation in period module)
         cl_kwargs.pop("config")
+        cl_kwargs.pop("verbose")
 
         return communication.run(
             self.proxy, command, date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
