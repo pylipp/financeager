@@ -30,6 +30,7 @@ def suite():
         'test_print',
     ]
     suite.addTest(unittest.TestSuite(map(CliInvalidConfigTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(CliNoConfigTestCase, tests)))
     tests = [
         'test_add_print_rm',
         'test_add_get_rm_via_eid',
@@ -363,6 +364,28 @@ host = {}
         #                  self.log_call_args_list[][1][0][0])
         self.assertEqual("Recovered offline backup.",
                          self.log_call_args_list["info"][1][0][0])
+
+
+@mock.patch("financeager.CONFIG_FILEPATH", TEST_CONFIG_FILEPATH)
+class CliNoConfigTestCase(CliTestCase):
+
+    CONFIG_FILE_CONTENT = "[FRONTEND]\ndefault_category = wayne"
+
+    @mock.patch("financeager.cli.logger")
+    def test_print(self, mocked_logger):
+        mocked_logger.info = mock.MagicMock()
+
+        # Default config file exists; expect it to be loaded
+        run(command="print", period=self.period, config=None)
+        mocked_logger.info.assert_called_once_with("")
+        mocked_logger.info.reset_mock()
+
+        # Remove default config file
+        os.remove(TEST_CONFIG_FILEPATH)
+
+        # No config is loaded at all
+        run(command="print", period=1900, config=None)
+        mocked_logger.info.assert_called_once_with("")
 
 
 if __name__ == "__main__":

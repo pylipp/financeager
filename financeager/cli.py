@@ -49,7 +49,9 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         stream_handler.setLevel(DEBUG)
         stream_handler.setFormatter(FORMATTER)
 
-    config_filepath = config or financeager.CONFIG_FILEPATH
+    config_filepath = config
+    if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
+        config_filepath = financeager.CONFIG_FILEPATH
     try:
         configuration = Configuration(filepath=config_filepath)
     except InvalidConfigError as e:
