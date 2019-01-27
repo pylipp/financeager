@@ -9,7 +9,7 @@ import re
 
 from requests import Response, RequestException
 
-from financeager.fflask import launch_server
+from financeager.fflask import create_app
 from financeager.httprequests import InvalidRequest
 from financeager import CONFIG_DIR
 from financeager.cli import _parse_command, run
@@ -176,10 +176,16 @@ host = http://{}
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        config = dict(
-            debug=False,  # can run reloader only in main thread
-            host=cls.HOST_IP)
-        cls.flask_thread = Thread(target=launch_server, kwargs=config)
+
+        def launch_server():
+            app = create_app(
+                config={
+                    "DEBUG": False,  # reloader can only be run in main thread
+                    "SERVER_NAME": cls.HOST_IP
+                })
+            app.run()
+
+        cls.flask_thread = Thread(target=launch_server)
         cls.flask_thread.daemon = True
         cls.flask_thread.start()
 

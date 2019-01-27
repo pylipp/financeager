@@ -1,4 +1,4 @@
-"""Utilities to create and launch flask webservice."""
+"""Utilities to create flask webservice."""
 
 from flask import Flask
 from flask_restful import Api
@@ -26,11 +26,3 @@ def create_app(config=None):
     init_logger("flask.app")
 
     return app
-
-
-def launch_server(debug=False, host=None):
-    """Create and launch flask webservice application. Debug mode and host name
-    are optional.
-    """
-    app = create_app(config={"DEBUG": debug, "SERVER_NAME": host})
-    app.run()
