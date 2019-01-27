@@ -33,10 +33,9 @@ class _Proxy(object):
         period = data.pop("period", None) or default_period_name()
 
         host = self.http_config.get("host", DEFAULT_HOST)
-        url_head = "http://{}".format(host)
-        base_url = "{}{}".format(url_head, PERIODS_TAIL)
+        base_url = "{}{}".format(host, PERIODS_TAIL)
         period_url = "{}/{}".format(base_url, period)
-        copy_url = "{}{}".format(url_head, COPY_TAIL)
+        copy_url = "{}{}".format(host, COPY_TAIL)
         eid_url = "{}/{}/{}".format(period_url,
                                     data.get("table_name") or DEFAULT_TABLE,
                                     data.get("eid"))

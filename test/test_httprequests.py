@@ -38,7 +38,7 @@ class HttpRequestProxyTestCase(unittest.TestCase):
 
             proxy.run("list")
 
-            url = "http://{}{}".format(DEFAULT_HOST, PERIODS_TAIL)
+            url = "{}{}".format(DEFAULT_HOST, PERIODS_TAIL)
             kwargs = {
                 "data": None,
                 "auth": (username, password),

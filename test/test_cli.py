@@ -170,7 +170,7 @@ default_category = unspecified
 date_format = %%m-%%d
 
 [SERVICE:FLASK]
-host = {}
+host = http://{}
 """.format(HOST_IP)
 
     @classmethod

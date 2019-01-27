@@ -77,7 +77,7 @@ On the client side, you want to put something along the lines of
     name = flask
 
     [SERVICE:FLASK]
-    host = foo.pythonanywhere.com
+    host = https://foo.pythonanywhere.com
     timeout = 10
     username = foouser
     password = S3cr3t
@@ -303,7 +303,6 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
 - [ ] have return codes in cli.run
-- [ ] introduce `use_https` config option
 - [x] introduce `verbose` cli option
 - [x] add loggers to config and offline modules
 - [x] add loggers to resources and server
