@@ -9,7 +9,8 @@ from .resources import (PeriodsResource, PeriodResource, EntryResource,
 
 
 def create_app(config=None):
-    """Create web app with RESTful API built from resources."""
+    """Create web app with RESTful API built from resources. The function is
+    named such that the flask cli detects it as app factory method."""
     app = Flask(__name__)
     app.config.update(config or {})
     api = Api(app)

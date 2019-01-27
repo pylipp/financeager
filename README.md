@@ -64,12 +64,12 @@ Default config:
     default_category = unspecified
     date_format = %%m-%%d
 
-To run `financeager` as client-server application, specify a server-sided configuration like this
+To run `financeager` as client-server application, start the flask webservice by
 
-    [SERVICE:FLASK]
-    host = 0.0.0.0
+    export FLASK_APP=financeager/fflask.py
+    flask run  # --help for more info
 
-You can launch the server by running `python examples/start_webservice.py` (pass `--help` for more info) or by wrapping the `app = fflask.create_app()` in a WSGI.
+For production use, you should wrap `app = fflask.create_app()` in a WSGI.
 
 On the client side, you want to put something along the lines of
 
