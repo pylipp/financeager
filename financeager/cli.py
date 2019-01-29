@@ -6,8 +6,8 @@ import os
 import sys
 from logging import getLogger, DEBUG
 
-from financeager import offline, communication, CONFIG_DIR, __version__,\
-    init_logger, FORMATTER, LOG_DIR, setup_log_file_handler
+from financeager import offline, communication, __version__,\
+    init_logger, FORMATTER, DATA_DIR, setup_log_file_handler
 import financeager
 from .entries import CategoryEntry
 from .model import Model
@@ -23,8 +23,7 @@ def main():
     directory are created. A FileHandler is added to the package logger.
     All command line arguments and options are parsed and passed to 'run()'.
     """
-    os.makedirs(CONFIG_DIR, exist_ok=True)
-    os.makedirs(LOG_DIR, exist_ok=True)
+    os.makedirs(DATA_DIR, exist_ok=True)
 
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
@@ -64,7 +63,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         init_logger("urllib3")
         proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
     else:  # 'none' is the only other option
-        proxy_kwargs["data_dir"] = CONFIG_DIR
+        proxy_kwargs["data_dir"] = DATA_DIR
 
     # Indicate whether to store request offline, if failed
     store_offline = False

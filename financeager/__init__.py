@@ -17,7 +17,7 @@ DEFAULT_TABLE = "standard"
 
 # directories for application data and log file
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
-LOG_DIR = os.path.expanduser("~/.local/share/financeager")
+DATA_DIR = os.path.expanduser("~/.local/share/financeager")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 
@@ -64,6 +64,6 @@ def init_logger(name):
 
 def setup_log_file_handler():
     """Create FileHandler for package logger."""
-    file_handler = handlers.RotatingFileHandler(os.path.join(LOG_DIR, "log"))
+    file_handler = handlers.RotatingFileHandler(os.path.join(DATA_DIR, "log"))
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)

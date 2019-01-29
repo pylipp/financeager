@@ -11,12 +11,12 @@ from requests import Response, RequestException
 
 from financeager.fflask import create_app
 from financeager.httprequests import InvalidRequest
-from financeager import CONFIG_DIR
+from financeager import DATA_DIR
 from financeager.cli import _parse_command, run
 
-# Periods are stored to disk. The CONFIG_DIR is expected to exist
-if not os.path.isdir(CONFIG_DIR):
-    os.makedirs(CONFIG_DIR)
+# Periods are stored to disk. The DATA_DIR is expected to exist
+if not os.path.isdir(DATA_DIR):
+    os.makedirs(DATA_DIR)
 
 
 def suite():
@@ -120,7 +120,7 @@ class CliTestCase(unittest.TestCase):
 
     def tearDown(self):
         for p in [self.period, self.destination_period]:
-            filepath = os.path.join(CONFIG_DIR, "{}.json".format(p))
+            filepath = os.path.join(DATA_DIR, "{}.json".format(p))
             if os.path.exists(filepath):
                 os.remove(filepath)
 

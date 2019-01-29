@@ -5,14 +5,14 @@ import json
 import flask
 from flask_restful import Resource, reqparse
 
-from . import CONFIG_DIR, init_logger
+from . import DATA_DIR, init_logger
 from .server import Server
 
-os.makedirs(CONFIG_DIR, exist_ok=True)  # pragma: no cover
+os.makedirs(DATA_DIR, exist_ok=True)  # pragma: no cover
 
 logger = init_logger(__name__)
 
-SERVER = Server(data_dir=CONFIG_DIR)
+SERVER = Server(data_dir=DATA_DIR)
 
 copy_parser = reqparse.RequestParser()
 copy_parser.add_argument("destination_period", required=True)
