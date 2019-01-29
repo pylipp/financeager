@@ -1,18 +1,12 @@
 """Webservice resources as end points of financeager REST API."""
-import os.path
 import json
 
 import flask
 from flask_restful import Resource, reqparse
 
-from . import DATA_DIR, init_logger
-from .server import Server
-
-os.makedirs(DATA_DIR, exist_ok=True)  # pragma: no cover
+from . import init_logger
 
 logger = init_logger(__name__)
-
-SERVER = Server(data_dir=DATA_DIR)
 
 copy_parser = reqparse.RequestParser()
 copy_parser.add_argument("destination_period", required=True)
@@ -43,27 +37,34 @@ update_parser.add_argument("start")
 update_parser.add_argument("end")
 
 
-def run_safely(command, error_code=500, **kwargs):
-    """Wrapper function for running commands on server. Returns server response,
-    if erroneous, including an appropriate error code. Catches any unexpected
-    exceptions, prints them to stdout and returns an internal server error.
-    """
-    try:
-        response = SERVER.run(command, **kwargs)
-
-        if "error" in response:
-            response = (response, error_code)
-    except Exception:
-        logger.exception("Unexpected error")
-        response = ({"error": "unexpected error"}, 500)
-
-    return response
-
-
 class LogResource(Resource):
-    """Custom class to log requests that are about to be dispatched."""
+    """Custom class to facilitate request logging and safe execution of server
+    commands."""
+
+    def __init__(self, server, *args, **kwargs):
+        """Store reference to application Server object."""
+        super().__init__(*args, **kwargs)
+        self.server = server
+
+    def run_safely(self, command, error_code=500, **kwargs):
+        """Wrapper function for running commands on server. Returns server
+        response, if erroneous, including an appropriate error code.
+        If an unexpected exception is caught, the method logs it and returns an
+        internal server error.
+        """
+        try:
+            response = self.server.run(command, **kwargs)
+
+            if "error" in response:
+                response = (response, error_code)
+        except Exception:
+            logger.exception("Unexpected error")
+            response = ({"error": "unexpected error"}, 500)
+
+        return response
 
     def dispatch_request(self, *args, **kwargs):
+        """Log content of request that is about to be dispatched."""
         logger.debug(
             "Dispatching {r} holding {{data: {r.data}, "
             "values: {r.values}, json: {r.json}}}".format(r=flask.request))
@@ -72,22 +73,24 @@ class LogResource(Resource):
 
 class PeriodsResource(LogResource):
     def post(self):
-        return run_safely("list")
+        return self.run_safely("list")
 
 
 class PeriodResource(LogResource):
     def get(self, period_name):
         args = json.loads(flask.request.json or "{}")
-        return run_safely("print", error_code=400, period=period_name, **args)
+        return self.run_safely(
+            "print", error_code=400, period=period_name, **args)
 
     def post(self, period_name):
         args = put_parser.parse_args()
-        return run_safely("add", error_code=400, period=period_name, **args)
+        return self.run_safely(
+            "add", error_code=400, period=period_name, **args)
 
 
 class EntryResource(LogResource):
     def get(self, period_name, table_name, eid):
-        return run_safely(
+        return self.run_safely(
             "get",
             error_code=404,
             period=period_name,
@@ -95,7 +98,7 @@ class EntryResource(LogResource):
             eid=eid)
 
     def delete(self, period_name, table_name, eid):
-        return run_safely(
+        return self.run_safely(
             "rm",
             error_code=404,
             period=period_name,
@@ -104,7 +107,7 @@ class EntryResource(LogResource):
 
     def patch(self, period_name, table_name, eid):
         args = update_parser.parse_args()
-        return run_safely(
+        return self.run_safely(
             "update",
             error_code=400,
             period=period_name,
@@ -116,4 +119,4 @@ class EntryResource(LogResource):
 class CopyResource(LogResource):
     def post(self):
         args = copy_parser.parse_args()
-        return run_safely("copy", error_code=404, **args)
+        return self.run_safely("copy", error_code=404, **args)

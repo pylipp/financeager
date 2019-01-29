@@ -84,7 +84,7 @@ class CliTestCase(unittest.TestCase):
         returned.
         """
         if not isinstance(format_args, tuple):
-            format_args = (format_args, )
+            format_args = (format_args,)
         args = command_line.format(*format_args).split()
         command = args[0]
 
@@ -179,6 +179,7 @@ host = http://{}
 
         def launch_server():
             app = create_app(
+                data_dir=DATA_DIR,
                 config={
                     "DEBUG": False,  # reloader can only be run in main thread
                     "SERVER_NAME": cls.HOST_IP
