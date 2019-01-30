@@ -22,7 +22,7 @@ def create_app(data_dir=None, config=None):
     """
     if data_dir is not None:
         os.makedirs(data_dir, exist_ok=True)
-        setup_log_file_handler()
+        setup_log_file_handler(log_dir=data_dir)
 
     app = Flask(__name__)
     app.config.update(config or {})
