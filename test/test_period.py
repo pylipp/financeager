@@ -2,6 +2,7 @@ import unittest
 import datetime as dt
 from collections import Counter
 import os.path
+import json
 
 from schematics.exceptions import DataError
 
@@ -547,24 +548,30 @@ class ValidateEntryTestCase(unittest.TestCase):
 
 
 class JsonTinyDbPeriodTestCase(unittest.TestCase):
-    def setUp(self):
-        self.data_dir = "/tmp"
-        self.year = 1999
-        self.period = TinyDbPeriod(name=self.year, data_dir=self.data_dir)
+    @classmethod
+    def setUp(cls):
+        cls.data_dir = "/tmp"
+        cls.year = 1999
+        cls.period = TinyDbPeriod(name=cls.year, data_dir=cls.data_dir)
 
     def test_json_file_exists(self):
-        self.assertTrue(
-            os.path.exists(
-                os.path.join(self.data_dir, "{}.json".format(self.year))))
+        data_filepath = os.path.join(self.data_dir, "{}.json".format(self.year))
+        self.assertTrue(os.path.exists(data_filepath))
+
+        with open(data_filepath) as file:
+            data = json.load(file)
+        self.assertDictEqual({"standard": {}}, data)
 
     def test_add_get(self):
         name = "pineapple"
         eid = self.period.add_entry(name=name, value=-5)
         element = self.period.get_entry(eid=eid)
         self.assertEqual(name, element["name"])
+        self.period.remove_entry(eid=eid)
 
-    def tearDown(self):
-        self.period.close()
+    @classmethod
+    def tearDown(cls):
+        cls.period.close()
 
 
 if __name__ == '__main__':
