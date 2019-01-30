@@ -6,17 +6,13 @@ import os
 import time
 from threading import Thread
 import re
+import tempfile
 
 from requests import Response, RequestException
 
 from financeager.fflask import create_app
 from financeager.httprequests import InvalidRequest
-from financeager import DATA_DIR
 from financeager.cli import _parse_command, run
-
-# Periods are stored to disk. The DATA_DIR is expected to exist
-if not os.path.isdir(DATA_DIR):
-    os.makedirs(DATA_DIR)
 
 
 def suite():
@@ -57,6 +53,7 @@ def suite():
 
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
+TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
 
 
 class CliTestCase(unittest.TestCase):
@@ -125,7 +122,7 @@ class CliTestCase(unittest.TestCase):
 
     def tearDown(self):
         for p in [self.period, self.destination_period]:
-            filepath = os.path.join(DATA_DIR, "{}.json".format(p))
+            filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(p))
             if os.path.exists(filepath):
                 os.remove(filepath)
 
@@ -159,6 +156,7 @@ class CliLocalServerMemoryStorageTestCase(CliTestCase):
         }, mocked_write.call_args[0][0]["standard"][entry_id])
 
 
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CliLocalServerTestCase(CliTestCase):
 
     CONFIG_FILE_CONTENT = """\
@@ -178,6 +176,7 @@ name = none"""
             "Loading custom config from {}".format(TEST_CONFIG_FILEPATH)))
 
 
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CliFlaskTestCase(CliTestCase):
 
     HOST_IP = "127.0.0.1:5000"
@@ -199,7 +198,7 @@ host = http://{}
 
         def launch_server():
             app = create_app(
-                data_dir=DATA_DIR,
+                data_dir=TEST_DATA_DIR,
                 config={
                     "DEBUG": False,  # reloader can only be run in main thread
                     "SERVER_NAME": cls.HOST_IP
@@ -393,6 +392,7 @@ host = http://{}
                          self.log_call_args_list["info"][1][0][0])
 
 
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 @mock.patch("financeager.CONFIG_FILEPATH", TEST_CONFIG_FILEPATH)
 class CliNoConfigTestCase(CliTestCase):
 

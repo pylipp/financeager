@@ -5,11 +5,9 @@ of such.
 import os.path
 import json
 
-from . import DATA_DIR, init_logger
+from . import OFFLINE_FILEPATH, init_logger
 from .communication import run
 from .exceptions import OfflineRecoveryError
-
-OFFLINE_FILEPATH = os.path.join(DATA_DIR, "offline.json")
 
 logger = init_logger(__name__)
 

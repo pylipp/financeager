@@ -20,6 +20,7 @@ CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 DATA_DIR = os.path.expanduser("~/.local/share/financeager")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
+OFFLINE_FILEPATH = os.path.join(DATA_DIR, "offline.json")
 
 # URL endpoints
 PERIODS_TAIL = "/financeager/periods"

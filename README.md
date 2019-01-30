@@ -289,7 +289,6 @@ This requires some restructuring of the software architecture. Motivation and go
         - response formatting (entries, model)
 - consistent, modular test structure
 - pave way for terminal user interface
-- avoid test code interfering with actual file system content
 
 ### TODOs
 
@@ -306,6 +305,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] introduce `verbose` cli option
 - [x] add loggers to config and offline modules
 - [x] add loggers to resources and server
+- [x] avoid test code interfering with actual file system content
 
 PERSONAL NOTE
 -------------
