@@ -27,6 +27,11 @@ def suite():
     ]
     suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
     tests = [
+        'test_add_entry',
+    ]
+    suite.addTest(
+        unittest.TestSuite(map(CliLocalServerMemoryStorageTestCase, tests)))
+    tests = [
         'test_print',
     ]
     suite.addTest(unittest.TestSuite(map(CliInvalidConfigTestCase, tests)))
@@ -137,6 +142,21 @@ name = heroku"""
         printed_content = self.cli_run("print", log_method="error")
         self.assertEqual(printed_content,
                          "Invalid configuration: Unknown service name!")
+
+
+@mock.patch("financeager.DATA_DIR", None)
+class CliLocalServerMemoryStorageTestCase(CliTestCase):
+
+    CONFIG_FILE_CONTENT = ""  # backend 'none' is the default anyway
+
+    @mock.patch("tinydb.storages.MemoryStorage.write")
+    def test_add_entry(self, mocked_write):
+        entry_id = self.cli_run("add more 1337")
+        # Verify that data is written to memory
+        self.assertDictContainsSubset({
+            "name": "more",
+            "value": 1337.0
+        }, mocked_write.call_args[0][0]["standard"][entry_id])
 
 
 class CliLocalServerTestCase(CliTestCase):
