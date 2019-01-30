@@ -39,9 +39,9 @@ def default_period_name():
 # Set up the package logger
 LOGGER = getLogger(__package__)
 LOGGER.setLevel(DEBUG)
-stream_handler = StreamHandler()
-stream_handler.setLevel(INFO)
-LOGGER.addHandler(stream_handler)
+_stream_handler = StreamHandler()
+_stream_handler.setLevel(INFO)
+LOGGER.addHandler(_stream_handler)
 FORMATTER = Formatter(
     fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s')
 
@@ -70,3 +70,9 @@ def setup_log_file_handler(log_dir=DATA_DIR):
     file_handler = handlers.RotatingFileHandler(os.path.join(log_dir, "log"))
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
+
+
+def make_log_stream_handler_verbose():
+    """Make handler show debug messages using more informative format."""
+    _stream_handler.setLevel(DEBUG)
+    _stream_handler.setFormatter(FORMATTER)

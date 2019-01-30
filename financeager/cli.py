@@ -4,10 +4,9 @@
 import argparse
 import os
 import sys
-from logging import getLogger, DEBUG
 
 from financeager import offline, communication, __version__,\
-    init_logger, FORMATTER, setup_log_file_handler
+    init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
 from .entries import CategoryEntry
 from .model import Model
@@ -41,10 +40,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     is set, debug level log messages are printed to the terminal.
     """
     if verbose:
-        # StreamHandler was added first in __init__.py
-        stream_handler = getLogger(__package__).handlers[0]
-        stream_handler.setLevel(DEBUG)
-        stream_handler.setFormatter(FORMATTER)
+        make_log_stream_handler_verbose()
 
     config_filepath = config
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):

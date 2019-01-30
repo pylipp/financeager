@@ -4,7 +4,8 @@ import os
 from flask import Flask
 from flask_restful import Api
 
-from . import PERIODS_TAIL, COPY_TAIL, init_logger, setup_log_file_handler
+from . import PERIODS_TAIL, COPY_TAIL, init_logger, setup_log_file_handler,\
+    make_log_stream_handler_verbose
 from .server import Server
 from .resources import (PeriodsResource, PeriodResource, EntryResource,
                         CopyResource)
@@ -25,6 +26,11 @@ def create_app(data_dir=None, config=None):
     # Propagate flask log messages to financeager logs
     init_logger("flask.app")
 
+    app = Flask(__name__)
+    app.config.update(config or {})
+    if app.debug:
+        make_log_stream_handler_verbose()
+
     if data_dir is None:
         logger.warning("'data_dir' not given. Application data is stored in "
                        "memory and is lost when the flask app terminates.")
@@ -32,8 +38,6 @@ def create_app(data_dir=None, config=None):
         os.makedirs(data_dir, exist_ok=True)
         setup_log_file_handler(log_dir=data_dir)
 
-    app = Flask(__name__)
-    app.config.update(config or {})
     logger.debug("Created flask app {}".format(app.name))
 
     server = Server(data_dir=data_dir)
