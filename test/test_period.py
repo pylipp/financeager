@@ -3,6 +3,7 @@ import datetime as dt
 from collections import Counter
 import os.path
 import json
+import tempfile
 
 from schematics.exceptions import DataError
 
@@ -18,7 +19,10 @@ DEFAULT_CATEGORY = CategoryEntry.DEFAULT_NAME
 
 def suite():
     suite = unittest.TestSuite()
-    tests = ['test_default_name']
+    tests = [
+        'test_default_name',
+        'test_load_category_cache',
+    ]
     suite.addTest(unittest.TestSuite(map(CreateEmptyPeriodTestCase, tests)))
     tests = [
         'test_get_entries',
@@ -86,6 +90,23 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
         year = dt.date.today().year
         self.assertEqual(period.year, year)
         self.assertEqual(period.name, str(year))
+
+    def test_load_category_cache(self):
+        # Create data file with one entry and load it into TinyDbPeriod
+        data_dir = tempfile.mkdtemp(prefix="financeager-")
+        name = 1234
+        with open(os.path.join(data_dir, "{}.json".format(name)), "w") as file:
+            json.dump({
+                DEFAULT_TABLE: {
+                    1: {
+                        "name": "climbing",
+                        "category": "sport"
+                    }
+                }
+            }, file)
+        period = TinyDbPeriod(name=name, data_dir=data_dir)
+        # Expect that 'sport' has been counted once
+        self.assertEqual(period._category_cache["climbing"], Counter(["sport"]))
 
 
 class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
