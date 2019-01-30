@@ -12,6 +12,7 @@ modules = [
     'test_offline',
     'test_communication',
     'test_httprequests',
+    'test_fflask',
 ]
 
 test_runner = unittest.TextTestRunner(verbosity=2)
