@@ -38,10 +38,12 @@ def create_app(data_dir=None, config=None):
         os.makedirs(data_dir, exist_ok=True)
         setup_log_file_handler(log_dir=data_dir)
 
-    logger.debug("Created flask app {}".format(app.name))
+    logger.debug("Created flask app {} - {} mode".format(
+        app.name, "debug" if app.debug else "production"))
 
     server = Server(data_dir=data_dir)
-    logger.debug("Started financeager server")
+    logger.debug(
+        "Started financeager server with data dir '{}'".format(data_dir))
 
     api = Api(app)
     api.add_resource(
