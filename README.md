@@ -4,9 +4,9 @@
 FINANCEAGER
 ===========
 
-A command line application (possibly interacting with a Flask webservice) that helps you administering your daily expenses and earnings.
+An application (possibly running as Flask webservice) that helps you administering your daily expenses and earnings. Interact via the command line interface.
 
-The `financeager` backend holds a database containing 'periods'. A period consists of entries of a certain year.
+The `financeager` backend holds databases (internally referred to as 'periods'). A period contains entries of a certain year.
 
 Who is this for?
 ----------------
@@ -22,7 +22,7 @@ You're currently on the `master` branch which is under active development.
 
     pip install financeager
 
-### From source
+### From source (master branch)
 
 Clone the repo
 
@@ -48,30 +48,33 @@ You're invited to run the tests from the root directory:
 
     git clone https://github.com/pylipp/financeager
     cd financeager
-    make test
+    python setup.py test
 
 ## Usage
 
-### Client-server or serverless mode?
+You can use `financeager` as a client-server or a serverless application (default). The user interacts via the command line interface (CLI).
 
-You can run `financeager` as a client-server or a serverless application (default). This can be controlled by a configuration file (default path is `~/.config/financeager/config`, however you can specify a custom path by passing it along with the `-C`/`--config` command line option).
+### Serverless mode
 
-In either mode, you can configure frontend options, that is the name of the default category (assigned when omitting the category option when e.g. adding an entry) and the date format (string that `datetime.strptime` understands; note the double percent).
+The user request invoked from the CLI is passed to the backend which opens the appropriate database, processes the request, closes the database and returns a response. All communication happens within a single process, hence the label 'serverless'. The databases are stored in `~/.local/share/financeager`.
 
-Default config:
-
-    [FRONTEND]
-    default_category = unspecified
-    date_format = %%m-%%d
+### Client-server mode
 
 To run `financeager` as client-server application, start the flask webservice by
 
     export FLASK_APP=financeager/fflask.py
     flask run  # --help for more info
 
-For production use, you should wrap `app = fflask.create_app()` in a WSGI.
+>   This does not store data persistently! Specify the environment variable `FINANCEAGER_DATA_DIR`.
 
-On the client side, you want to put something along the lines of
+>   For production use, you should wrap `app = fflask.create_app(data_dir=...)` in a WSGI.
+
+To communicate with the webservice, the `financeager` configuration has to be adjusted. Create and open the file `~/.config/financeager/config`. If you're on the machine that runs the webservice, put the lines
+
+    [SERVICE]
+    name = flask
+
+If you're on an actual remote 'client' machine, put
 
     [SERVICE]
     name = flask
@@ -84,28 +87,28 @@ On the client side, you want to put something along the lines of
 
 This specifies the timeout for HTTP requests and username/password for basic auth, if required by the server.
 
+In any case, you're all set up! See the next section about the available client CLI commands and options.
+
 ### Command line client
 
-```
-usage: financeager [-h] {add,get,rm,update,copy,print,list} ...
+    usage: financeager [-h] {add,get,rm,update,copy,print,list} ...
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -V, --version         display version info and exit
+    optional arguments:
+      -h, --help            show this help message and exit
+      -V, --version         display version info and exit
 
-subcommands:
-  {add,get,rm,update,copy,print,list}
-                        list of available subcommands
-    add                 add an entry to the database
-    get                 show information about single entry
-    rm                  remove an entry from the database
-    update              update one or more fields of an database entry
-    copy                copy an entry from one period to another
-    print               show the period database
-    list                list all databases
-```
+    subcommands:
+      {add,get,rm,update,copy,print,list}
+                            list of available subcommands
+        add                 add an entry to the database
+        get                 show information about single entry
+        rm                  remove an entry from the database
+        update              update one or more fields of an database entry
+        copy                copy an entry from one period to another
+        print               show the period database
+        list                list all databases
 
-On the client side, `financeager` provides the following commands to interact with the database: `add`, `update`, `rm`, `get`, `print`, `list`, `copy`.
+On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `rm`, `get`, `print`, `list`, `copy`.
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -161,6 +164,18 @@ Detailed information is available from
 You can turn on printing debug messages to the terminal using the `--verbose` option, e.g.
 
     > financeager print --verbose
+
+You can find a log of interactions at `~/.local/share/financeager/log`.
+
+### More on configuration
+
+Besides specifying the backend to communicate with, you can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry) and the date format (string that `datetime.strptime` understands; note the double percent). The defaults are:
+
+    [FRONTEND]
+    default_category = unspecified
+    date_format = %%m-%%d
+
+The `financeager` command line client tries to read the configuration from `~/.config/financeager/config`. You can specify a custom path by passing it along with the `-C`/`--config` command line option.
 
 ### More Goodies
 
@@ -294,10 +309,9 @@ This requires some restructuring of the software architecture. Motivation and go
 
 - [x] remove TinyDB usage from model and entries
 - [ ] remove entries import from period
-- consider validation at CL interface
-- consider more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
+- [ ]  more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [x] integration test of cli module
-- [ ] move data dir to ~/.local/share/financeager
+- [x] move data dir to ~/.local/share/financeager
 - [ ] install pre-commit framework
 - [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
@@ -306,9 +320,12 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] add loggers to config and offline modules
 - [x] add loggers to resources and server
 - [x] avoid test code interfering with actual file system content
+- [ ] test offline feature with 'none' backend
+- [ ] rename 'model' to 'listing'
+- [ ] clean up `test_communication`
 
 PERSONAL NOTE
 -------------
-This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture and general Python development.
+This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture, programming best practices (cough) and general Python development.
 
 Feel free to browse the project and give feedback (comments, issues, pull requests).
