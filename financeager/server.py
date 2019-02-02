@@ -8,7 +8,7 @@ from .period import TinyDbPeriod, PeriodException
 logger = init_logger(__name__)
 
 
-class Server(object):
+class Server:
     """Server class holding the ``TinyDbPeriod`` databases.
 
     All database handling is taken care of in the underlying `TinyDbPeriod`.

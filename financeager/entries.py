@@ -7,7 +7,7 @@ from datetime import datetime
 from . import PERIOD_DATE_FORMAT
 
 
-class Entry(object):
+class Entry:
     """Base class. An entry represents a row in the table that is built from a
     Model.
     The name field is stored in lowercase, simplifying searching from the parent

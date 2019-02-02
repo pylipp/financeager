@@ -41,7 +41,7 @@ class RecurrentEntryValidationModel(BaseValidationModel):
     end = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
 
 
-class Period(object):
+class Period:
     def __init__(self, name=None):
         """Create Period object. Its name defaults to the current year if not
         specified.

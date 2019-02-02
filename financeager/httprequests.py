@@ -9,7 +9,7 @@ from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
 
-class _Proxy(object):
+class _Proxy:
     """Converts CL verbs to HTTP request, sends to webservice and returns
     response."""
 

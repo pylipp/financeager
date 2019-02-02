@@ -3,7 +3,7 @@ from . import DEFAULT_TABLE
 from .entries import BaseEntry, CategoryEntry
 
 
-class Model(object):
+class Model:
     """Holds Entries in hierarchical order. First-level children are
     CategoryEntries, second-level children are BaseEntries. Generator methods
     are provided to iterate over these."""

@@ -8,7 +8,7 @@ from . import DEFAULT_HOST, DEFAULT_TIMEOUT, init_logger
 logger = init_logger(__name__)
 
 
-class Configuration(object):
+class Configuration:
     """Wrapper around a ConfigParser object holding configuration. The default
     configuration is customizable via a config file."""
 
