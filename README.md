@@ -308,7 +308,7 @@ This requires some restructuring of the software architecture. Motivation and go
 ### TODOs
 
 - [x] remove TinyDB usage from model and entries
-- [ ] remove entries import from period
+- [x] remove entries import from period
 - [ ]  more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [x] integration test of cli module
 - [x] move data dir to ~/.local/share/financeager

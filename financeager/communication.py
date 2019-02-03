@@ -60,6 +60,7 @@ def run(proxy,
 
     element = response.get("element")
     if element is not None:
+        CategoryEntry.DEFAULT_NAME = default_category
         return prettify_element(
             element, recurrent=kwargs.get("table_name") == "recurrent")
 
@@ -88,12 +89,21 @@ def _preprocess(data, date_format=None):
 
     filter_items = data.get("filters")
     if filter_items is not None:
-        # convert list of "key=value" strings into comma-separated string
+        # convert list of "key=value" strings into dictionary
         parsed_items = {}
         try:
             for item in filter_items:
                 key, value = item.split("=")
                 parsed_items[key] = value.lower()
+
+            try:
+                # Substitute category default name
+                if parsed_items["category"] == CategoryEntry.DEFAULT_NAME:
+                    parsed_items["category"] = None
+            except KeyError:
+                # No 'category' field present
+                pass
+
             data["filters"] = parsed_items
         except ValueError:
             # splitting returned less than two parts due to missing separator

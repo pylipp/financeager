@@ -9,12 +9,8 @@ from schematics.exceptions import DataError
 
 from financeager.period import Period, TinyDbPeriod, PeriodException,\
     BaseValidationModel, StandardEntryValidationModel,\
-    RecurrentEntryValidationModel
+    RecurrentEntryValidationModel, _DEFAULT_CATEGORY
 from financeager import PERIOD_DATE_FORMAT, DEFAULT_TABLE
-from financeager.model import Model
-from financeager.entries import CategoryEntry, BaseEntry
-
-DEFAULT_CATEGORY = CategoryEntry.DEFAULT_NAME
 
 
 def suite():
@@ -126,19 +122,22 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_create_models_query_kwargs(self):
         eid = self.period.add_entry(
-            name="Xmas gifts", value=500, date="1901-12-23")
+            name="Xmas gifts", value=500, date="1901-12-23", category="gifts")
         standard_elements = self.period.get_entries(filters={
             "date": "12"
         })[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
-        model = Model()
-        for eid, content in standard_elements.items():
-            category = content.pop("category", None)
-            model.add_entry(
-                BaseEntry(eid=eid, **content), category_name=category)
-        self.assertEqual(model.categories[0].entries[0].eid, eid)
+        standard_elements = self.period.get_entries(filters={
+            "category": None
+        })[DEFAULT_TABLE]
+        self.assertEqual(len(standard_elements), 1)
+
+        standard_elements = self.period.get_entries(filters={
+            "category": "gi"
+        })[DEFAULT_TABLE]
+        self.assertEqual(len(standard_elements), 1)
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
         standard_elements = self.period.get_entries(filters={
@@ -177,8 +176,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         removed_entry_id = self.period.remove_entry(eid=entry_id)
         self.assertEqual(removed_entry_id, entry_id)
         self.assertEqual(len(self.period._db), nr_entries - 1)
-        self.assertEqual(self.period._category_cache[entry_name]["unspecified"],
-                         0)
+        self.assertEqual(
+            self.period._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
 
     def test_get_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.get_entry, eid=-1)
@@ -205,11 +204,11 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
         self.assertEqual(self.period._category_cache["bicycle"],
                          Counter({
-                             "unspecified": 0
+                             _DEFAULT_CATEGORY: 0
                          }))
         self.assertEqual(self.period._category_cache["trekking bicycle"],
                          Counter({
-                             "unspecified": 1
+                             _DEFAULT_CATEGORY: 1
                          }))
 
         self.period.update_entry(eid=self.eid, category="Sports")
@@ -219,7 +218,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.assertEqual(self.period._category_cache["trekking bicycle"],
                          Counter({
                              "sports": 1,
-                             "unspecified": 0
+                             _DEFAULT_CATEGORY: 0
                          }))
 
         # string-eids should be internally converted to int
@@ -233,7 +232,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.assertEqual(self.period._category_cache["trekking bicycle"],
                          Counter({
                              "sports": 0,
-                             "unspecified": 0
+                             _DEFAULT_CATEGORY: 0
                          }))
         self.assertEqual(self.period._category_cache["mtb tandem"],
                          Counter({

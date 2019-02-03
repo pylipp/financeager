@@ -13,6 +13,7 @@ from requests import Response, RequestException
 from financeager.fflask import create_app
 from financeager.httprequests import InvalidRequest
 from financeager.cli import _parse_command, run
+from financeager.entries import CategoryEntry
 
 
 def suite():
@@ -44,6 +45,7 @@ def suite():
         'test_copy',
         'test_copy_nonexisting_entry',
         'test_recurrent_entry',
+        'test_default_category',
         # 'test_parser_error',
         'test_communication_error',
         'test_offline_feature',
@@ -161,11 +163,19 @@ class CliLocalServerTestCase(CliTestCase):
 
     CONFIG_FILE_CONTENT = """\
 [SERVICE]
-name = none"""
+name = none
+
+[FRONTEND]
+default_category = no-category"""
 
     def test_add_entry(self):
         entry_id = self.cli_run("add entry 42")
         self.assertEqual(entry_id, 1)
+
+        # Verify that customized default category is used
+        printed_content = self.cli_run("get {}", format_args=entry_id)
+        self.assertEqual(printed_content.splitlines()[-1].split()[1].lower(),
+                         "no-category")
 
     # Interfere call to stderr (see StreamHandler implementation in
     # python3.5/logging/__init__.py)
@@ -213,10 +223,10 @@ host = http://{}
         time.sleep(3)
 
     def test_add_print_rm(self):
-        entry_id = self.cli_run("add cookies -100 -c food")
+        entry_id = self.cli_run("add cookies -100")
 
         printed_content = self.cli_run("print")
-        self.assertGreater(len(printed_content), 0)
+        self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
 
         rm_entry_id = self.cli_run("rm {}", format_args=entry_id)
         self.assertEqual(rm_entry_id, entry_id)
@@ -336,6 +346,28 @@ host = http://{}
             log_method="error",
             format_args=(self.period, self.destination_period))
         self.assertIn("404", printed_content)
+
+    def test_default_category(self):
+        entry_id = self.cli_run("add car -9999")
+
+        # Default category is converted for frontend display
+        printed_content = self.cli_run("print")
+        self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
+
+        # Category field is converted to 'None' and filtered for
+        printed_content = self.cli_run("print --filters category=unspecified")
+        self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
+
+        # The pattern is used for regex filtering; nothing is found
+        printed_content = self.cli_run("print --filters category=lel")
+        self.assertEqual(printed_content, "")
+
+        # Default category is converted for frontend display
+        printed_content = self.cli_run("get {}", format_args=entry_id)
+        self.assertEqual(printed_content.splitlines()[-1].split()[1].lower(),
+                         CategoryEntry.DEFAULT_NAME)
+
+        self.cli_run("rm {}", format_args=entry_id)
 
     def test_parser_error(self):
         # missing name and value in request, parser will complain

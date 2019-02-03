@@ -1,11 +1,10 @@
 """Defines Period database object holding per-year financial data."""
 
-from __future__ import unicode_literals
-
 import os.path
 from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
+import re
 
 from tinydb import TinyDB, Query, storages
 from tinydb.database import Element
@@ -14,10 +13,11 @@ from schematics.types import StringType, FloatType, DateType
 from schematics.exceptions import DataError, ValidationError
 
 from . import PERIOD_DATE_FORMAT, default_period_name, DEFAULT_TABLE
-from .entries import CategoryEntry
 
 # format for ValidationModel.to_primitive() call
 DateType.SERIALIZED_FORMAT = PERIOD_DATE_FORMAT
+
+_DEFAULT_CATEGORY = None
 
 
 class BaseValidationModel(SchematicsModel):
@@ -204,14 +204,20 @@ class TinyDbPeriod(Period):
 
         if fields.get("category") is None:
             name = fields["name"]
-            # TODO take most common, raise Exception if not clear.
-            # return element info instead of ID
-            if len(self._category_cache[name]) == 1:
-                category = self._category_cache[name].most_common(1)[0][0]
-            else:
-                # assign default name (must be str), s.t. category field can be
-                # queried TODO: reconsider this
-                category = CategoryEntry.DEFAULT_NAME
+
+            # Find the most common categories previously assigned for the given
+            # name. If there is only one OR if there is one that is used more
+            # often than any other, assign it; otherwise default to None
+            category = _DEFAULT_CATEGORY
+            most_common_categories = self._category_cache[name].most_common(2)
+            nr_most_common_categories = len(most_common_categories)
+
+            if nr_most_common_categories == 1 or \
+                    (nr_most_common_categories > 1 and
+                     most_common_categories[0][1] !=
+                     most_common_categories[1][1]):
+                category = most_common_categories[0][0]
+
             substituted_fields["category"] = category
 
         return substituted_fields
@@ -271,8 +277,8 @@ class TinyDbPeriod(Period):
         The following kwarg is optional:
             :param category: entry category. If not specified, the program
                 attempts to derive it from previous, eponymous entries. If this
-                fails, ``CategoryEntry.DEFAULT_NAME`` is assigned
-            :type category: str
+                fails, ``_DEFAULT_CATEGORY`` is assigned
+            :type category: str or None
 
         The following kwarg is optional for standard entries:
             :param date: entry date. Defaults to current date
@@ -462,20 +468,48 @@ class TinyDbPeriod(Period):
         return entry.eid
 
     @staticmethod
-    def _create_query_condition(name=None, value=None, category=None,
-                                date=None):
+    def _create_query_condition(**filters):
+        """Construct query condition according to given filters. A filter is
+        given by a key-value pair. The key indicates the field, the value the
+        pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
+        'category'. Patterns must be of type string, or None (only for the field
+        'category'; indicates filtering for all entries of the default
+        category).
+        :return: tinydb.queries.QueryImpl object or None.
+        """
+        if not filters:
+            return
+
         condition = None
         entry = Query()
 
-        for item_name in ["name", "value", "category", "date"]:
-            item = locals()[item_name]
-            if item is None:
+        try:
+            # The 'category' field is of type string or None. The condition is
+            # constructed depending on the filter pattern
+            pattern = filters["category"]
+
+            if pattern is None:
+                condition = (entry["category"] == None)  # noqa
+            else:
+                # Use regex searching of the filter pattern in the field if it
+                # is not None
+                def test(e):
+                    if e is None:
+                        return False
+                    return re.compile(pattern).search(e)
+
+                condition = (entry["category"].test(test))
+
+        except KeyError:
+            # No 'category' filter present
+            pass
+
+        for field, pattern in filters.items():
+            if pattern is None:
                 continue
 
-            item = item.lower()
+            new_condition = (entry[field].search(pattern.lower()))
 
-            # TODO use tinydb.Query.search
-            new_condition = (entry[item_name].matches(".*{}.*".format(item)))
             if condition is None:
                 condition = new_condition
             else:
@@ -485,10 +519,8 @@ class TinyDbPeriod(Period):
 
     def get_entries(self, filters=None):
         """Get dict of standard and recurrent entries that match the items of
-        the filters dict, if specified. Valid keys are 'name', 'date', 'value'
-        and/or 'category'.
-        Constructs a condition from the given filters and uses it to query all
-        tables.
+        the filters dict, if specified. Constructs a condition from the given
+        filters and uses it to query all tables.
 
         :return: dict{
                     DEFAULT_TABLE:  dict{ int: tinydb.Element },

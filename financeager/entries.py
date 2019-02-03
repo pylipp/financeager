@@ -129,6 +129,9 @@ def prettify(element, recurrent=False):
         if len(p) > longest_property_length:
             longest_property_length = len(p)
 
+    if element["category"] is None:
+        element["category"] = CategoryEntry.DEFAULT_NAME
+
     lines = []
     for p in properties:
         lines.append("{}: {}".format(
