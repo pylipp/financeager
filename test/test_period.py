@@ -103,6 +103,7 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
         period = TinyDbPeriod(name=name, data_dir=data_dir)
         # Expect that 'sport' has been counted once
         self.assertEqual(period._category_cache["climbing"], Counter(["sport"]))
+        period.close()
 
 
 class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
