@@ -298,7 +298,7 @@ host = http://{}
 
         printed_content = self.cli_run(
             "get {} -t recurrent", format_args=entry_id)
-        self.assertIn("Half-yearly", printed_content)
+        self.assertIn("Half-Yearly", printed_content)
 
         update_entry_id = self.cli_run(
             "update {} -t recurrent -n clifbars -f quarter-yearly",

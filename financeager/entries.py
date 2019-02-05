@@ -50,12 +50,11 @@ class BaseEntry(Entry):
     def __str__(self):
         """Return a formatted string representing the entry."""
 
-        capitalized_name = capitalize_words(self.name)
         string = "{name:{0}.{0}} {value:>{1}.{2}f} {date}".format(
             self.NAME_LENGTH,
             self.VALUE_LENGTH,
             self.VALUE_DIGITS,
-            name=capitalized_name,
+            name=self.name.title(),
             value=self.value,
             date=self.date)
         if self.SHOW_EID:
@@ -97,13 +96,12 @@ class CategoryEntry(Entry):
         indented.
         """
 
-        capitalized_name = capitalize_words(self.name)
         lines = [
             "{name:{0}.{0}} {value:>{1}.{2}f}".format(
                 self.NAME_LENGTH,
                 BaseEntry.VALUE_LENGTH,
                 BaseEntry.VALUE_DIGITS,
-                name=capitalized_name,
+                name=self.name.title(),
                 value=self.value).ljust(self.TOTAL_LENGTH)
         ]
 
@@ -136,12 +134,6 @@ def prettify(element, recurrent=False):
     for p in properties:
         lines.append("{}: {}".format(
             p.capitalize().ljust(longest_property_length),
-            capitalize_words(element[p])))
+            str(element[p]).title()))
 
     return "\n".join(lines)
-
-
-def capitalize_words(words):
-    """Convenience method to capitalize all words of a phrase."""
-    words = str(words)
-    return " ".join([s.capitalize() for s in words.split()])

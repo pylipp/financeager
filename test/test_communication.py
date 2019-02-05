@@ -170,7 +170,7 @@ Value    : 567.0
 Frequency: Bimonthly
 Start    : 01-01
 End      : 12-31
-Category : N.a.""")
+Category : N.A.""")
 
 
 class CommunicationModuleTestCase(unittest.TestCase):
