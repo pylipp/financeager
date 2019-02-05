@@ -19,16 +19,12 @@ def suite():
     ]
     suite.addTest(unittest.TestSuite(map(AddCategoryEntryTwiceTestCase, tests)))
     tests = [
-        'test_base_entry_in_list',
-        'test_category_sum',
         'test_str',
         'test_str_no_eid',
-        'test_nonexisting_category_sum',
         'test_add_invalid_entry',
     ]
     suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
     tests = [
-        'test_category_sum',
         'test_str',
     ]
     suite.addTest(unittest.TestSuite(map(AddNegativeBaseEntryTestCase, tests)))
@@ -43,19 +39,12 @@ def suite():
     suite.addTest(
         unittest.TestSuite(map(AddBaseEntryWithoutCategoryTestCase, tests)))
     tests = [
-        'test_two_entries_in_list',
-        'test_category_sum',
         'test_total_value',
     ]
     suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
     tests = [
-        'test_category_sum_updated',
-    ]
-    suite.addTest(unittest.TestSuite(map(SetValueItemTextTestCase, tests)))
-    tests = [
         'test_contains_an_entry',
         'test_category_item_names',
-        'test_category_sums',
     ]
     suite.addTest(unittest.TestSuite(map(ListingFromElementsTestCase, tests)))
     tests = [
@@ -101,19 +90,6 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
             self.item_category)
-
-    def test_base_entry_in_list(self):
-        base_entry_names = list(self.listing.base_entry_fields("name"))
-        self.assertIn(self.item_name.lower(), base_entry_names)
-
-    def test_category_sum(self):
-        self.assertAlmostEqual(
-            self.item_value,
-            self.listing.category_sum(self.item_category),
-            places=5)
-
-    def test_nonexisting_category_sum(self):
-        self.assertEqual(0.0, self.listing.category_sum("black hole"))
 
     def test_str(self):
         self.assertEqual(
@@ -183,12 +159,6 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
             BaseEntry(self.item_name, self.item_value, self.item_date),
             self.item_category)
 
-    def test_category_sum(self):
-        self.assertAlmostEqual(
-            abs(self.item_value),
-            self.listing.category_sum(self.item_category),
-            places=5)
-
     def test_str(self):
         self.assertEqual(
             str(self.listing), '\n'.join([
@@ -225,35 +195,10 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
         self.listing.add_entry(
             BaseEntry("Rewe", self.item_b_value, self.date), self.item_category)
 
-    def test_two_entries_in_list(self):
-        self.assertEqual(2, len(list(self.listing.base_entry_fields("name"))))
-
-    def test_category_sum(self):
-        self.assertAlmostEqual(
-            self.item_a_value + self.item_b_value,
-            self.listing.category_sum(self.item_category),
-            places=5)
-
     def test_total_value(self):
         self.assertAlmostEqual(
             self.item_a_value + self.item_b_value,
             self.listing.total_value(),
-            places=5)
-
-
-class SetValueItemTextTestCase(unittest.TestCase):
-    def setUp(self):
-        self.listing = Listing()
-        self.item_a_value = 66.6
-        self.item_b_value = 10.01
-        self.item_category = "Groceries"
-        self.listing.add_entry(
-            BaseEntry("Aldi", self.item_a_value, "04-04"), self.item_category)
-
-    def test_category_sum_updated(self):
-        self.assertAlmostEqual(
-            self.item_a_value,
-            self.listing.category_sum(self.item_category),
             places=5)
 
 
@@ -272,12 +217,6 @@ class ListingFromElementsTestCase(unittest.TestCase):
         parsed_listing_entry_names = list(self.listing.category_entry_names)
         listing_entry_names = [CategoryEntry.DEFAULT_NAME]
         self.assertListEqual(listing_entry_names, parsed_listing_entry_names)
-
-    def test_category_sums(self):
-        self.assertAlmostEqual(
-            self.listing.category_sum(CategoryEntry.DEFAULT_NAME),
-            self.value,
-            places=5)
 
 
 class PrettifyListingsTestCase(unittest.TestCase):
@@ -313,14 +252,14 @@ class PrettifyListingsTestCase(unittest.TestCase):
         elements_copy = elements.copy()
         self.assertEqual(
             prettify(elements_copy),
-            "              Earnings                |               Expenses               \n"
-            "Name               Value    Date  ID  | Name               Value    Date  ID \n"
-            "Unspecified          299.99           | Groceries            100.01          \n"
-            "  Money              299.99 03-03 999 |   Food               100.01 03-03   1\n"
-            "Bank                4321.00           | \n"
-            "  Gold              4321.00 01-01  42 | \n"
-            "=============================================================================\n"
-            "Total               4620.99           | Total                100.01          "
+            "              Earnings                |               Expenses               \n"  # noqa
+            "Name               Value    Date  ID  | Name               Value    Date  ID \n"  # noqa
+            "Unspecified          299.99           | Groceries            100.01          \n"  # noqa
+            "  Money              299.99 03-03 999 |   Food               100.01 03-03   1\n"  # noqa
+            "Bank                4321.00           | \n"  # noqa
+            "  Gold              4321.00 01-01  42 | \n"  # noqa
+            "=============================================================================\n"  # noqa
+            "Total               4620.99           | Total                100.01          "  # noqa
         )
         # Assert that original data was not modified
         self.assertDictEqual(elements, elements_copy)

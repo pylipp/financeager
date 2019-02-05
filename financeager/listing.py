@@ -77,19 +77,6 @@ class Listing:
         for category_entry in self.categories:
             yield getattr(category_entry, field_type)
 
-    def base_entry_fields(self, field_type):
-        """Generator iterating over the field specified by `field_type` of the
-        second-level children (BaseEntries) of the listing.
-
-        :param field_type: 'name', 'value' or 'date'
-
-        raises: KeyError if `field_type` not found.
-        yields: str, float or datetime.date
-        """
-        for category_entry in self.categories:
-            for base_entry in category_entry.entries:
-                yield getattr(base_entry, field_type)
-
     @property
     def category_entry_names(self):
         """Convenience generator method yielding category names."""
@@ -105,13 +92,6 @@ class Listing:
             if category_entry.name == category_name:
                 return category_entry
         return None
-
-    def category_sum(self, category_name):
-        """Return total value of category named `category_name`."""
-        category_entry = self.find_category_entry(category_name)
-        if category_entry is not None:
-            return category_entry.value
-        return 0.0
 
     def total_value(self):
         """Return total value of the listing."""
