@@ -9,7 +9,7 @@ from financeager import offline, communication, __version__,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
 from .entries import CategoryEntry
-from .model import Model
+from .listing import Listing
 from .config import Configuration
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
     OfflineRecoveryError, InvalidConfigError
@@ -217,7 +217,7 @@ least a frequency, start date and end date are optional. Default:
     print_parser.add_argument(
         "--category-sort",
         choices=["name", "value"],
-        default=Model.CATEGORY_ENTRY_SORT_KEY)
+        default=Listing.CATEGORY_ENTRY_SORT_KEY)
 
     list_parser = subparsers.add_parser("list", help="list all databases")
 

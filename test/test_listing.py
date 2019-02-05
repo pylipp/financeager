@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 
 from financeager import DEFAULT_TABLE
-from financeager.model import Model, prettify
+from financeager.listing import Listing, prettify
 from financeager.entries import CategoryEntry, BaseEntry
 
 
@@ -57,68 +57,68 @@ def suite():
         'test_category_item_names',
         'test_category_sums',
     ]
-    suite.addTest(unittest.TestSuite(map(ModelFromElementsTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(ListingFromElementsTestCase, tests)))
     tests = [
         'test_prettify',
     ]
-    suite.addTest(unittest.TestSuite(map(PrettifyModelsTestCase, tests)))
+    suite.addTest(unittest.TestSuite(map(PrettifyListingsTestCase, tests)))
     return suite
 
 
 class AddCategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.category_name = "Groceries"
-        self.model.add_entry(CategoryEntry(name=self.category_name))
+        self.listing.add_entry(CategoryEntry(name=self.category_name))
 
     def test_category_item_in_list(self):
         self.assertIn(self.category_name.lower(),
-                      self.model.category_entry_names)
+                      self.listing.category_entry_names)
 
 
 class AddCategoryEntryTwiceTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.category_name = "Groceries"
-        self.model.add_entry(CategoryEntry(name=self.category_name))
-        self.model.add_entry(CategoryEntry(name=self.category_name))
+        self.listing.add_entry(CategoryEntry(name=self.category_name))
+        self.listing.add_entry(CategoryEntry(name=self.category_name))
 
     def test_category_item_in_list(self):
         self.assertIn(self.category_name.lower(),
-                      self.model.category_entry_names)
+                      self.listing.category_entry_names)
 
     def test_single_item_in_list(self):
-        self.assertEqual(1, len(list(self.model.category_entry_names)))
+        self.assertEqual(1, len(list(self.listing.category_entry_names)))
 
 
 class AddBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.item_name = "Aldi"
         self.item_value = 66.6
         self.item_date = "11-08"
         self.item_category = "Groceries"
-        self.model.add_entry(
+        self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
             self.item_category)
 
     def test_base_entry_in_list(self):
-        base_entry_names = list(self.model.base_entry_fields("name"))
+        base_entry_names = list(self.listing.base_entry_fields("name"))
         self.assertIn(self.item_name.lower(), base_entry_names)
 
     def test_category_sum(self):
         self.assertAlmostEqual(
             self.item_value,
-            self.model.category_sum(self.item_category),
+            self.listing.category_sum(self.item_category),
             places=5)
 
     def test_nonexisting_category_sum(self):
-        self.assertEqual(0.0, self.model.category_sum("black hole"))
+        self.assertEqual(0.0, self.listing.category_sum("black hole"))
 
     def test_str(self):
         self.assertEqual(
-            str(self.model), '\n'.join([
-                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+            str(self.listing), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "Groceries             66.60" + 10 * " ",
                 "  Aldi                66.60 11-08   0"
@@ -127,9 +127,9 @@ class AddBaseEntryTestCase(unittest.TestCase):
     def test_str_no_eid(self):
         BaseEntry.SHOW_EID = False
         self.assertEqual(
-            str(self.model),
+            str(self.listing),
             '\n'.join([
-                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date ",
                 # TODO: fix this; category entry line has to be shorter
                 "Groceries             66.60          ",
@@ -138,20 +138,20 @@ class AddBaseEntryTestCase(unittest.TestCase):
         BaseEntry.SHOW_EID = True
 
     def test_add_invalid_entry(self):
-        self.assertRaises(TypeError, self.model.add_entry, None)
+        self.assertRaises(TypeError, self.listing.add_entry, None)
 
 
 class SortCategoryEntriesTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         for c, v in zip("ab", [20, 10]):
-            self.model.add_entry(BaseEntry("foo", v, "01-01"), c)
+            self.listing.add_entry(BaseEntry("foo", v, "01-01"), c)
 
     def test_sort_by_name(self):
-        Model.CATEGORY_ENTRY_SORT_KEY = "name"
+        Listing.CATEGORY_ENTRY_SORT_KEY = "name"
         self.assertEqual(
-            str(self.model), '\n'.join([
-                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+            str(self.listing), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "A                     20.00" + 10 * " ",
                 "  Foo                 20.00 01-01   0",
@@ -160,10 +160,10 @@ class SortCategoryEntriesTestCase(unittest.TestCase):
             ]))
 
     def test_sort_by_value(self):
-        Model.CATEGORY_ENTRY_SORT_KEY = "value"
+        Listing.CATEGORY_ENTRY_SORT_KEY = "value"
         self.assertEqual(
-            str(self.model), '\n'.join([
-                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+            str(self.listing), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "B                     10.00" + 10 * " ",
                 "  Foo                 10.00 01-01   0",
@@ -174,25 +174,25 @@ class SortCategoryEntriesTestCase(unittest.TestCase):
 
 class AddNegativeBaseEntryTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.item_name = "Aldi"
         self.item_value = -66.6
         self.item_date = "11-08"
         self.item_category = "Groceries"
-        self.model.add_entry(
+        self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
             self.item_category)
 
     def test_category_sum(self):
         self.assertAlmostEqual(
             abs(self.item_value),
-            self.model.category_sum(self.item_category),
+            self.listing.category_sum(self.item_category),
             places=5)
 
     def test_str(self):
         self.assertEqual(
-            str(self.model), '\n'.join([
-                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Model"),
+            str(self.listing), '\n'.join([
+                "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "Groceries             66.60" + 10 * " ",
                 "  Aldi                66.60 11-08   0"
@@ -201,86 +201,86 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
 
 class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.item_name = "Aldi"
         self.item_value = 66.6
         self.item_date = "11-08"
-        self.model.add_entry(
+        self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date))
 
     def test_default_category_in_list(self):
-        names = list(self.model.category_entry_names)
+        names = list(self.listing.category_entry_names)
         self.assertIn(CategoryEntry.DEFAULT_NAME, names)
 
 
 class AddTwoBaseEntriesTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
         self.date = "11-11"
-        self.model.add_entry(
+        self.listing.add_entry(
             BaseEntry("Aldi", self.item_a_value, self.date), self.item_category)
-        self.model.add_entry(
+        self.listing.add_entry(
             BaseEntry("Rewe", self.item_b_value, self.date), self.item_category)
 
     def test_two_entries_in_list(self):
-        self.assertEqual(2, len(list(self.model.base_entry_fields("name"))))
+        self.assertEqual(2, len(list(self.listing.base_entry_fields("name"))))
 
     def test_category_sum(self):
         self.assertAlmostEqual(
             self.item_a_value + self.item_b_value,
-            self.model.category_sum(self.item_category),
+            self.listing.category_sum(self.item_category),
             places=5)
 
     def test_total_value(self):
         self.assertAlmostEqual(
             self.item_a_value + self.item_b_value,
-            self.model.total_value(),
+            self.listing.total_value(),
             places=5)
 
 
 class SetValueItemTextTestCase(unittest.TestCase):
     def setUp(self):
-        self.model = Model()
+        self.listing = Listing()
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.model.add_entry(
+        self.listing.add_entry(
             BaseEntry("Aldi", self.item_a_value, "04-04"), self.item_category)
 
     def test_category_sum_updated(self):
         self.assertAlmostEqual(
             self.item_a_value,
-            self.model.category_sum(self.item_category),
+            self.listing.category_sum(self.item_category),
             places=5)
 
 
-class ModelFromElementsTestCase(unittest.TestCase):
+class ListingFromElementsTestCase(unittest.TestCase):
     def setUp(self):
         self.name = "Dinner for one"
         self.value = 99.9
         self.date = "12-31"
-        self.model = Model.from_elements(
+        self.listing = Listing.from_elements(
             [dict(name=self.name, value=self.value, date=self.date, eid=0)])
 
     def test_contains_an_entry(self):
-        self.assertIn(self.date, str(self.model))
+        self.assertIn(self.date, str(self.listing))
 
     def test_category_item_names(self):
-        parsed_model_entry_names = list(self.model.category_entry_names)
-        model_entry_names = [CategoryEntry.DEFAULT_NAME]
-        self.assertListEqual(model_entry_names, parsed_model_entry_names)
+        parsed_listing_entry_names = list(self.listing.category_entry_names)
+        listing_entry_names = [CategoryEntry.DEFAULT_NAME]
+        self.assertListEqual(listing_entry_names, parsed_listing_entry_names)
 
     def test_category_sums(self):
         self.assertAlmostEqual(
-            self.model.category_sum(CategoryEntry.DEFAULT_NAME),
+            self.listing.category_sum(CategoryEntry.DEFAULT_NAME),
             self.value,
             places=5)
 
 
-class PrettifyModelsTestCase(unittest.TestCase):
+class PrettifyListingsTestCase(unittest.TestCase):
     def test_prettify_no_elements(self):
         elements = {DEFAULT_TABLE: {}, "recurrent": {}}
         self.assertEqual(prettify(elements), "")

@@ -5,7 +5,7 @@ from datetime import datetime
 import financeager.httprequests
 import financeager.localserver
 from . import PERIOD_DATE_FORMAT
-from .model import prettify, Model
+from .listing import prettify, Listing
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
 from .exceptions import PreprocessingError
@@ -28,7 +28,7 @@ def run(proxy,
         date_format=None,
         stacked_layout=False,
         entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-        category_sort=Model.CATEGORY_ENTRY_SORT_KEY,
+        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
         **kwargs):
     """Run a command on the given proxy. The kwargs are preprocessed and passed
     on. The server response is formatted and returned. If the response does not
@@ -55,7 +55,7 @@ def run(proxy,
     if elements is not None:
         CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort
         CategoryEntry.DEFAULT_NAME = default_category
-        Model.CATEGORY_ENTRY_SORT_KEY = category_sort
+        Listing.CATEGORY_ENTRY_SORT_KEY = category_sort
         return prettify(elements, stacked_layout)
 
     element = response.get("element")

@@ -4,7 +4,7 @@ import sys
 
 modules = [
     'test_entries',
-    'test_model',
+    'test_listing',
     'test_period',
     'test_server',
     'test_cli',

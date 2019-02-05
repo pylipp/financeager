@@ -11,7 +11,7 @@ class Entry:
     """Base class. An entry represents a row in the table that is built from a
     Model.
     The name field is stored in lowercase, simplifying searching from the parent
-    model. The value is rendered absolute to simplify sorting."""
+    listing. The value is rendered absolute to simplify sorting."""
 
     def __init__(self, name, value):
         """:type name: str
@@ -64,7 +64,7 @@ class BaseEntry(Entry):
 
 
 class CategoryEntry(Entry):
-    """First child of the model, holding BaseEntries. Has a name and a value
+    """First child of the listing, holding BaseEntries. Has a name and a value
     (i.e. the sum of its children's values)."""
 
     ITEM_TYPES = ["name", "sum", "empty"]

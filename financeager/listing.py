@@ -3,7 +3,7 @@ from . import DEFAULT_TABLE
 from .entries import BaseEntry, CategoryEntry
 
 
-class Model:
+class Listing:
     """Holds Entries in hierarchical order. First-level children are
     CategoryEntries, second-level children are BaseEntries. Generator methods
     are provided to iterate over these."""
@@ -11,20 +11,20 @@ class Model:
     CATEGORY_ENTRY_SORT_KEY = "value"
 
     def __init__(self, name=None, categories=None):
-        self.name = name or "Model"
+        self.name = name or "Listing"
         self.categories = categories or []
 
     @classmethod
     def from_elements(cls, elements, name=None):
-        """Create model from list of element dictionaries"""
-        model = cls(name=name)
+        """Create listing from list of element dictionaries"""
+        listing = cls(name=name)
         for element in elements:
             category = element.pop("category", None)
-            model.add_entry(BaseEntry(**element), category_name=category)
-        return model
+            listing.add_entry(BaseEntry(**element), category_name=category)
+        return listing
 
     def __str__(self):
-        """Format model (incl. name and header)."""
+        """Format listing (incl. name and header)."""
         result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
 
         header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
@@ -35,14 +35,14 @@ class Model:
             header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
         result.append(header_line)
 
-        sort_key = lambda e: getattr(e, Model.CATEGORY_ENTRY_SORT_KEY)
+        sort_key = lambda e: getattr(e, Listing.CATEGORY_ENTRY_SORT_KEY)
         for category in sorted(self.categories, key=sort_key):
             result.append(str(category))
 
         return '\n'.join(result)
 
     def add_entry(self, entry, category_name=None):
-        """Add a Category- or BaseEntry to the model.
+        """Add a Category- or BaseEntry to the listing.
         Category names are unique, i.e. a CategoryEntry is discarded if one
         with identical name (case INsensitive) already exists.
         When adding a BaseEntry, the parent CategoryEntry is created if it does
@@ -67,7 +67,7 @@ class Model:
 
     def category_fields(self, field_type):
         """Generator iterating over the field specified by `field_type` of the
-        first-level children (CategoryEntries) of the model.
+        first-level children (CategoryEntries) of the listing.
 
         :param field_type: 'name' or 'value'
 
@@ -79,7 +79,7 @@ class Model:
 
     def base_entry_fields(self, field_type):
         """Generator iterating over the field specified by `field_type` of the
-        second-level children (BaseEntries) of the model.
+        second-level children (BaseEntries) of the listing.
 
         :param field_type: 'name', 'value' or 'date'
 
@@ -114,7 +114,7 @@ class Model:
         return 0.0
 
     def total_value(self):
-        """Return total value of the model."""
+        """Return total value of the listing."""
         result = 0.0
         for value in self.category_fields("value"):
             result += value
@@ -124,9 +124,9 @@ class Model:
 def prettify(elements, stacked_layout=False):
     """Sort the given elements (type acc. to Period._search_all_tables) by
     positive and negative value and return pretty string build from the
-    corresponding Models.
+    corresponding Listings.
 
-    :param stacked_layout: If True, models are displayed one by one
+    :param stacked_layout: If True, listings are displayed one by one
     """
 
     earnings = []
@@ -155,36 +155,36 @@ def prettify(elements, stacked_layout=False):
     if not earnings and not expenses:
         return ""
 
-    model_earnings = Model.from_elements(earnings, name="Earnings")
-    model_expenses = Model.from_elements(expenses, name="Expenses")
+    listing_earnings = Listing.from_elements(earnings, name="Earnings")
+    listing_expenses = Listing.from_elements(expenses, name="Expenses")
 
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(
-            str(model_earnings), CategoryEntry.TOTAL_LENGTH * "-",
-            str(model_expenses))
+            str(listing_earnings), CategoryEntry.TOTAL_LENGTH * "-",
+            str(listing_expenses))
     else:
         result = []
-        models = [model_earnings, model_expenses]
-        models_str = [str(m).splitlines() for m in models]
-        for row in zip(*models_str):
+        listings = [listing_earnings, listing_expenses]
+        listings_str = [str(listing).splitlines() for listing in listings]
+        for row in zip(*listings_str):
             result.append(" | ".join(row))
-        earnings_size = len(models_str[0])
-        expenses_size = len(models_str[1])
+        earnings_size = len(listings_str[0])
+        expenses_size = len(listings_str[1])
         diff = earnings_size - expenses_size
         if diff > 0:
-            for row in models_str[0][expenses_size:]:
+            for row in listings_str[0][expenses_size:]:
                 result.append(row + " | ")
         else:
-            for row in models_str[1][earnings_size:]:
+            for row in listings_str[1][earnings_size:]:
                 result.append(CategoryEntry.TOTAL_LENGTH * " " + " | " + row)
         # add 3 to take central separator " | " into account
         result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
 
         # add total value of earnings and expenses as final line
         total_values = []
-        for m in models:
+        for listing in listings:
             total_entry = CategoryEntry(name="TOTAL")
-            total_entry.value = m.total_value()
+            total_entry.value = listing.total_value()
             total_values.append(str(total_entry))
         result.append(" | ".join(total_values))
 

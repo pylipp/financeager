@@ -198,7 +198,7 @@ The following diagram sketches the relationship between financeager's modules. S
     |             communication           |
     +-------------------------------------+
                                                +---------+     +---------+
-      [pre-processing]      [formatting]  <--  |  model  | <-- | entries |
+      [pre-processing]      [formatting]  <--  | listing | <-- | entries |
                                                +---------+     +---------+
             ¦                     Λ
             V                     ¦
@@ -301,7 +301,7 @@ This requires some restructuring of the software architecture. Motivation and go
         - CLI
         - communication pre-/post-processing
         - HTTP requests
-        - response formatting (entries, model)
+        - response formatting (entries, listing)
 - consistent, modular test structure
 - pave way for terminal user interface
 
@@ -321,7 +321,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] add loggers to resources and server
 - [x] avoid test code interfering with actual file system content
 - [ ] test offline feature with 'none' backend
-- [ ] rename 'model' to 'listing'
+- [x] rename 'model' to 'listing'
 - [ ] clean up `test_communication`
 
 PERSONAL NOTE
