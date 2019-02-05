@@ -100,10 +100,7 @@ class Listing:
 
     def total_value(self):
         """Return total value of the listing."""
-        result = 0.0
-        for value in self.category_fields("value"):
-            result += value
-        return result
+        return sum(v for v in self.category_fields("value"))
 
 
 def prettify(elements, stacked_layout=False):
