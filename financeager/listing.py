@@ -47,21 +47,18 @@ class Listing:
         with identical name (case INsensitive) already exists.
         When adding a BaseEntry, the parent CategoryEntry is created if it does
         not exist. If no category is specified, the BaseEntry is added to the
-        default category. The CategoryEntry's value is updated.
+        default category.
 
         :raises: TypeError if neither CategoryEntry nor BaseEntry given
         """
-
-        if category_name is None:
-            category_name = CategoryEntry.DEFAULT_NAME
 
         if isinstance(entry, CategoryEntry):
             if entry.name not in self.category_entry_names:
                 self.categories.append(entry)
         elif isinstance(entry, BaseEntry):
-            self.add_entry(CategoryEntry(name=category_name))
-            category_item = self.find_category_entry(category_name)
-            category_item.append(entry)
+            category_entry = self._get_category_entry(
+                category_name or CategoryEntry.DEFAULT_NAME)
+            category_entry.append(entry)
         else:
             raise TypeError("Invalid entry type: {}".format(entry))
 
@@ -83,15 +80,23 @@ class Listing:
         for category_name in self.category_fields("name"):
             yield category_name
 
-    def find_category_entry(self, category_name):
-        """Find CategoryEntry by given `category_name` or return None if not
-        found. The search is case insensitive."""
+    def _get_category_entry(self, category_name):
+        """Fetch CategoryEntry searching for given `category_name` or return a
+        new instance that is automatically added to the Listing's categories.
+        The search is case insensitive.
+
+        :return: CategoryEntry
+        """
 
         category_name = category_name.lower()
         for category_entry in self.categories:
             if category_entry.name == category_name:
                 return category_entry
-        return None
+        else:
+            # Nothing found in existing categories
+            category_entry = CategoryEntry(name=category_name)
+            self.add_entry(category_entry)
+            return category_entry
 
     def total_value(self):
         """Return total value of the listing."""
