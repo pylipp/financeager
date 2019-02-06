@@ -16,6 +16,10 @@ from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
 
 logger = init_logger(__name__)
 
+# Exit codes
+SUCCESS = 0
+FAILURE = 1
+
 
 def main():
     """Main command line entry point of the application. The config and the log
@@ -38,9 +42,13 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
     'config' specifies the path to a custom config file (optional). If 'verbose'
     is set, debug level log messages are printed to the terminal.
+
+    :return: UNIX return code (zero for success, non-zero otherwise)
     """
     if verbose:
         make_log_stream_handler_verbose()
+
+    exit_code = FAILURE
 
     config_filepath = config
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
@@ -49,7 +57,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         configuration = Configuration(filepath=config_filepath)
     except InvalidConfigError as e:
         logger.error("Invalid configuration: {}".format(e))
-        return 1
+        return FAILURE
 
     backend_name = configuration.get_option("SERVICE", "name")
     communication_module = communication.module(backend_name)
@@ -77,6 +85,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
                 **cl_kwargs))
         if offline.recover(proxy):
             logger.info("Recovered offline backup.")
+        exit_code = SUCCESS
     except OfflineRecoveryError:
         logger.error("Offline backup recovery failed!")
     except (PreprocessingError, InvalidRequest) as e:
@@ -91,6 +100,8 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
 
     if store_offline and offline.add(command, **cl_kwargs):
         logger.info("Stored '{}' request in offline backup.".format(command))
+
+    return exit_code
 
 
 def _parse_command(args=None):

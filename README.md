@@ -315,7 +315,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ] install pre-commit framework
 - [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
-- [ ] have return codes in cli.run
+- [x] have return codes in cli.run
 - [x] introduce `verbose` cli option
 - [x] add loggers to config and offline modules
 - [x] add loggers to resources and server

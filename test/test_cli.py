@@ -12,7 +12,7 @@ from requests import Response, RequestException
 
 from financeager.fflask import create_app
 from financeager.httprequests import InvalidRequest
-from financeager.cli import _parse_command, run
+from financeager.cli import _parse_command, run, SUCCESS, FAILURE
 from financeager.entries import CategoryEntry
 
 
@@ -103,7 +103,7 @@ class CliTestCase(unittest.TestCase):
             mocked_logger.info = mock.MagicMock()
             mocked_logger.error = mock.MagicMock()
 
-            run(**_parse_command(args))
+            exit_code = run(**_parse_command(args))
 
             # Record for optional detailed analysis in test methods
             self.log_call_args_list = {}
@@ -112,6 +112,10 @@ class CliTestCase(unittest.TestCase):
                     getattr(mocked_logger, method).call_args_list
             # Get first of the args of the first call of specified log method
             printed_content = self.log_call_args_list[log_method][0][0][0]
+
+            # Verify exit code after assigning log_call_args_list member
+            self.assertEqual(exit_code, SUCCESS
+                             if log_method == "info" else FAILURE)
 
         if command in ["add", "update", "rm", "copy"] and\
                 isinstance(printed_content, str):
@@ -391,7 +395,7 @@ host = http://{}
             mocked_post.side_effect = RequestException("did not work")
 
             try:
-                self.cli_run("add veggies -33")
+                self.cli_run("add veggies -33", log_method="error")
             except AssertionError:
                 # The regex matching is expected to fail
                 pass
@@ -405,7 +409,7 @@ host = http://{}
             # Now request a print, and try to recover the offline backup
             # But adding is still expected to fail
             mocked_post.side_effect = RequestException("still no works")
-            self.cli_run("print")
+            self.cli_run("print", log_method="error")
             # Output from print; expect empty database
             self.assertEqual("", self.log_call_args_list["info"][0][0][0])
 
