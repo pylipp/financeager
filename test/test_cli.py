@@ -10,6 +10,7 @@ import tempfile
 
 from requests import Response, RequestException
 
+from financeager import DEFAULT_TABLE
 from financeager.fflask import create_app
 from financeager.httprequests import InvalidRequest
 from financeager.cli import _parse_command, run, SUCCESS, FAILURE
@@ -21,7 +22,7 @@ def suite():
     tests = [
         'test_add_entry',
         'test_verbose',
-        'test_unexpected_server_error',
+        'test_offline_feature',
     ]
     suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
     tests = [
@@ -190,11 +191,53 @@ default_category = no-category"""
         self.assertTrue(mocked_stderr.call_args_list[0][0][0].endswith(
             "Loading custom config from {}".format(TEST_CONFIG_FILEPATH)))
 
-    def test_unexpected_server_error(self):
+    @mock.patch("financeager.offline.OFFLINE_FILEPATH",
+                "/tmp/financeager-test-offline.json")
+    def test_offline_feature(self):
         with mock.patch("financeager.server.Server.run") as mocked_run:
-            mocked_run.side_effect = ValueError
-            printed_content = self.cli_run("print", log_method="error")
-        self.assertEqual(printed_content, "Unexpected error")
+
+            def side_effect(command, **kwargs):
+                if command == "print":
+                    return {"elements": {DEFAULT_TABLE: {}, "recurrent": {}}}
+                elif command == "add":
+                    raise TypeError()
+                elif command == "stop":
+                    pass
+                else:
+                    raise NotImplementedError(command)
+
+            # Try do add an item but provoke CommunicationError
+            mocked_run.side_effect = side_effect
+
+            try:
+                self.cli_run("add veggies -33", log_method="error")
+            except AssertionError:
+                # The regex matching is expected to fail; hence no return value
+                # from cli_run() available
+                pass
+
+            # Output from caught CommunicationError
+            self.assertEqual("Unexpected error",
+                             str(self.log_call_args_list["error"][0][0][0]))
+            self.assertEqual("Stored 'add' request in offline backup.",
+                             self.log_call_args_list["info"][0][0][0])
+
+            # Now request a print, and try to recover the offline backup
+            # But adding is still expected to fail
+            self.cli_run("print", log_method="error")
+            # Output from print; expect empty database
+            self.assertEqual("", self.log_call_args_list["info"][0][0][0])
+
+            # Output from cli module
+            self.assertEqual("Offline backup recovery failed!",
+                             self.log_call_args_list["error"][-1][0][0])
+
+        # Without side effects, recover the offline backup
+        self.cli_run("print")
+
+        self.assertEqual("", self.log_call_args_list["info"][0][0][0])
+        self.assertEqual("Recovered offline backup.",
+                         self.log_call_args_list["info"][1][0][0])
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)

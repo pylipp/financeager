@@ -320,7 +320,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] add loggers to config and offline modules
 - [x] add loggers to resources and server
 - [x] avoid test code interfering with actual file system content
-- [ ] test offline feature with 'none' backend
+- [x] test offline feature with 'none' backend
 - [x] rename 'model' to 'listing'
 - [ ] clean up `test_communication`
 

@@ -101,6 +101,9 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     if store_offline and offline.add(command, **cl_kwargs):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
+    if backend_name == "none":
+        proxy.run("stop")
+
     return exit_code
 
 

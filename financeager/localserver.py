@@ -12,18 +12,15 @@ class LocalServer(Server):
     """Subclass mocking a locally running server. Convenient for testing"""
 
     def run(self, command, **kwargs):
-        """Run command on local server, and shut it down immediately. Any
-        unexpected exceptions will be propagated upwards.
+        """Run command on local server. Exceptions are propagated upwards. Call
+        run('stop') as last operation to properly close the databases before
+        exiting the process.
 
         :raises: InvalidRequest on invalid request
                  CommunicationError on unexpected server error
         """
         try:
             response = super().run(command, **kwargs)
-
-            if command != "stop":
-                # don't shutdown twice
-                super().run("stop")
         except Exception as e:
             logger.exception("Unexpected error")
             raise CommunicationError("Unexpected error")
