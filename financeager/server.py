@@ -39,6 +39,7 @@ class Server:
                 # graceful shutdown, invoke closing of files
                 for period in self._periods.values():
                     period.close()
+                return {}
             else:
                 period_name = kwargs.pop("period", None)
                 period = self._get_period(period_name)

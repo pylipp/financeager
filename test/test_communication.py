@@ -135,7 +135,7 @@ Food                  20.00          " + """
 
     def test_stop(self):
         # For completeness, directly shutdown the localserver
-        self.assertIsNone(self.proxy.run("stop"))
+        self.assertDictEqual(self.proxy.run("stop"), {})
 
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):

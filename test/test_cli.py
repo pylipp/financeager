@@ -202,7 +202,7 @@ default_category = no-category"""
                 elif command == "add":
                     raise TypeError()
                 elif command == "stop":
-                    pass
+                    return {}
                 else:
                     raise NotImplementedError(command)
 

@@ -25,8 +25,7 @@ class LocalServer(Server):
             logger.exception("Unexpected error")
             raise CommunicationError("Unexpected error")
 
-        # stop-command is expected to return None
-        if response is not None and "error" in response:
+        if "error" in response:
             raise InvalidRequest("Invalid request: {}".format(
                 response["error"]))
 
