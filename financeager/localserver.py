@@ -2,7 +2,10 @@
 common process)."""
 
 from .server import Server
-from .exceptions import InvalidRequest
+from .exceptions import InvalidRequest, CommunicationError
+from . import init_logger
+
+logger = init_logger(__name__)
 
 
 class LocalServer(Server):
@@ -13,12 +16,17 @@ class LocalServer(Server):
         unexpected exceptions will be propagated upwards.
 
         :raises: InvalidRequest on invalid request
+                 CommunicationError on unexpected server error
         """
-        response = super().run(command, **kwargs)
+        try:
+            response = super().run(command, **kwargs)
 
-        if command != "stop":
-            # don't shutdown twice
-            super().run("stop")
+            if command != "stop":
+                # don't shutdown twice
+                super().run("stop")
+        except Exception as e:
+            logger.exception("Unexpected error")
+            raise CommunicationError("Unexpected error")
 
         # stop-command is expected to return None
         if response is not None and "error" in response:

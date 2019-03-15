@@ -21,6 +21,7 @@ def suite():
     tests = [
         'test_add_entry',
         'test_verbose',
+        'test_unexpected_server_error',
     ]
     suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
     tests = [
@@ -188,6 +189,12 @@ default_category = no-category"""
         self.cli_run("print --verbose")
         self.assertTrue(mocked_stderr.call_args_list[0][0][0].endswith(
             "Loading custom config from {}".format(TEST_CONFIG_FILEPATH)))
+
+    def test_unexpected_server_error(self):
+        with mock.patch("financeager.server.Server.run") as mocked_run:
+            mocked_run.side_effect = ValueError
+            printed_content = self.cli_run("print", log_method="error")
+        self.assertEqual(printed_content, "Unexpected error")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
