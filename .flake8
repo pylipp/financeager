@@ -1,3 +1,4 @@
 [flake8]
 max-line-length = 80
 ignore = E731,  # do not assign a lambda expression, use a def
+         W504,  # line break after binary operator

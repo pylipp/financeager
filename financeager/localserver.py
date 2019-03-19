@@ -21,7 +21,7 @@ class LocalServer(Server):
         """
         try:
             response = super().run(command, **kwargs)
-        except Exception as e:
+        except Exception:
             logger.exception("Unexpected error")
             raise CommunicationError("Unexpected error")
 
