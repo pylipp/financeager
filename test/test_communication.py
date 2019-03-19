@@ -64,7 +64,8 @@ class CommunicationTestCase(CommunicationTestFixture):
 
     def test_get(self):
         response = self.run_command("get", eid=1)
-        self.assertEqual(response, """\
+        self.assertEqual(
+            response, """\
 Name    : Pants
 Value   : -99.0
 Date    : {}
@@ -80,7 +81,8 @@ Category: Clothes""".format(today()))
         response = self.run_command("update", eid=1, name="trousers")
         self.assertEqual(response, "Updated element 1.")
         response = self.run_command("get", eid=1)
-        self.assertEqual(response, """\
+        self.assertEqual(
+            response, """\
 Name    : Trousers
 Value   : -99.0
 Date    : {}
@@ -121,7 +123,8 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
 
     def test_get(self):
         response = self.run_command("get", eid=1, table_name="recurrent")
-        self.assertEqual(response, """\
+        self.assertEqual(
+            response, """\
 Name     : Retirement
 Value    : 567.0
 Frequency: Monthly
@@ -138,7 +141,8 @@ Category : Income""")
             table_name="recurrent")
         self.assertEqual(response, "Updated element 1.")
         response = self.run_command("get", eid=1, table_name="recurrent")
-        self.assertEqual(response, """\
+        self.assertEqual(
+            response, """\
 Name     : Retirement
 Value    : 567.0
 Frequency: Bimonthly

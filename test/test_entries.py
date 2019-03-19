@@ -104,10 +104,10 @@ class CategoryEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(self.entry),
-            "Gifts".ljust(CategoryEntry.NAME_LENGTH) + " " + "0.00".rjust(
-                BaseEntry.VALUE_LENGTH) + " " + BaseEntry.DATE_LENGTH * " " +
-            (BaseEntry.EID_LENGTH + 1) * " " if BaseEntry.SHOW_EID else "")
+            str(self.entry), "Gifts".ljust(CategoryEntry.NAME_LENGTH) + " " +
+            "0.00".rjust(BaseEntry.VALUE_LENGTH) + " " +
+            BaseEntry.DATE_LENGTH * " " + (BaseEntry.EID_LENGTH + 1) * " "
+            if BaseEntry.SHOW_EID else "")
 
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):

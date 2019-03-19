@@ -117,8 +117,8 @@ class CliTestCase(unittest.TestCase):
             printed_content = self.log_call_args_list[log_method][0][0][0]
 
             # Verify exit code after assigning log_call_args_list member
-            self.assertEqual(exit_code, SUCCESS
-                             if log_method == "info" else FAILURE)
+            self.assertEqual(exit_code,
+                             SUCCESS if log_method == "info" else FAILURE)
 
         if command in ["add", "update", "rm", "copy"] and\
                 isinstance(printed_content, str):

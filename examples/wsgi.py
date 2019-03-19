@@ -15,6 +15,4 @@ if path not in sys.path:
 # the 'application' object will be used by the WSGI server
 application = create_app(
     data_dir=os.path.expanduser('~/.local/share/financeager'),
-    config={
-        "DEBUG": True
-    })
+    config={"DEBUG": True})

@@ -92,14 +92,13 @@ class CreateEmptyPeriodTestCase(unittest.TestCase):
         data_dir = tempfile.mkdtemp(prefix="financeager-")
         name = 1234
         with open(os.path.join(data_dir, "{}.json".format(name)), "w") as file:
-            json.dump({
-                DEFAULT_TABLE: {
+            json.dump(
+                {DEFAULT_TABLE: {
                     1: {
                         "name": "climbing",
                         "category": "sport"
                     }
-                }
-            }, file)
+                }}, file)
         period = TinyDbPeriod(name=name, data_dir=data_dir)
         # Expect that 'sport' has been counted once
         self.assertEqual(period._category_cache["climbing"], Counter(["sport"]))
@@ -124,20 +123,17 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def test_create_models_query_kwargs(self):
         eid = self.period.add_entry(
             name="Xmas gifts", value=500, date="1901-12-23", category="gifts")
-        standard_elements = self.period.get_entries(filters={
-            "date": "12"
-        })[DEFAULT_TABLE]
+        standard_elements = self.period.get_entries(
+            filters={"date": "12"})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
-        standard_elements = self.period.get_entries(filters={
-            "category": None
-        })[DEFAULT_TABLE]
+        standard_elements = self.period.get_entries(
+            filters={"category": None})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
 
-        standard_elements = self.period.get_entries(filters={
-            "category": "gi"
-        })[DEFAULT_TABLE]
+        standard_elements = self.period.get_entries(
+            filters={"category": "gi"})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
 
         self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
@@ -156,9 +152,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
             date="1901-02-02")
         self.period.add_entry(name="walmart", value=-0.99, date="1901-02-03")
 
-        groceries_elements = self.period.get_entries(filters={
-            "category": "groceries"
-        })
+        groceries_elements = self.period.get_entries(
+            filters={"category": "groceries"})
         self.assertEqual(len(groceries_elements), 2)
         self.assertEqual(
             sum([
@@ -204,13 +199,9 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.assertEqual(element["name"], "trekking bicycle")
 
         self.assertEqual(self.period._category_cache["bicycle"],
-                         Counter({
-                             _DEFAULT_CATEGORY: 0
-                         }))
+                         Counter({_DEFAULT_CATEGORY: 0}))
         self.assertEqual(self.period._category_cache["trekking bicycle"],
-                         Counter({
-                             _DEFAULT_CATEGORY: 1
-                         }))
+                         Counter({_DEFAULT_CATEGORY: 1}))
 
         self.period.update_entry(eid=self.eid, category="Sports")
         element = self.period.get_entry(eid=self.eid)
@@ -236,9 +227,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
                              _DEFAULT_CATEGORY: 0
                          }))
         self.assertEqual(self.period._category_cache["mtb tandem"],
-                         Counter({
-                             "fun": 1
-                         }))
+                         Counter({"fun": 1}))
 
     def test_update_nonexisting_entry(self):
         self.assertRaises(
@@ -305,9 +294,8 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
             rep_element_names,
             {"rent, october", "rent, november", "rent, december"})
 
-        matching_elements = self.period.get_entries(filters={
-            "date": "11"
-        })["recurrent"]
+        matching_elements = self.period.get_entries(
+            filters={"date": "11"})["recurrent"]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(matching_elements[eid][0]["name"], "rent, november")
         # the eid attribute is None because a new Element instance has been
