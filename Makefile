@@ -28,9 +28,11 @@ coverage:
 	coverage html
 
 lint:
-	flake8 $(shell git ls-files | grep ".py$$" | xargs)
+	pre-commit run --all-files flake8
 
 format:
-	yapf --diff --parallel $(shell git ls-files | grep ".py$$" | xargs) > /dev/null
+	pre-commit run --all-files yapf
+	pre-commit run --all-files end-of-file-fixer
+	pre-commit run --all-files trailing-whitespace
 
 style-check: format lint

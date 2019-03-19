@@ -58,9 +58,8 @@ setup(
     extras_require={
         "develop": [
             "twine>=1.11.0",
-            "flake8==3.7.7",
             "coverage>=4.4.2",
-            "yapf==0.26.0",
+            "pre-commit==1.14.4",
         ],
     },
 )

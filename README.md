@@ -229,6 +229,15 @@ The following diagram sketches the relationship between financeager's modules. S
 - see [issues](https://github.com/pylipp/financeager/issues)
 - Please. Report. Them.
 
+## Contributing
+
+Always welcome! For installation, follow the steps above (section 'From source') and install development dependencies via
+
+    pip install --upgrade --editable .[develop]
+    pre-commit install
+
+You're all set for hacking!
+
 ## `financeager` features
 
 ### Future features
@@ -312,7 +321,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [ ]  more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [x] integration test of cli module
 - [x] move data dir to ~/.local/share/financeager
-- [ ] install pre-commit framework
+- [x] install pre-commit framework
 - [x] use logging module instead of print
 - [ ] use marshmallow package for keyword validation/serialization in period and resources
 - [x] have return codes in cli.run
