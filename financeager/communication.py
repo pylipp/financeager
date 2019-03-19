@@ -24,7 +24,7 @@ def module(name):
 
 def run(proxy,
         command,
-        default_category=None,
+        default_category=CategoryEntry.DEFAULT_NAME,
         date_format=None,
         stacked_layout=False,
         entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,

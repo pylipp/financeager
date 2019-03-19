@@ -49,6 +49,7 @@ def suite():
     suite.addTest(unittest.TestSuite(map(ListingFromElementsTestCase, tests)))
     tests = [
         'test_prettify',
+        'test_prettify_stacked_layout',
     ]
     suite.addTest(unittest.TestSuite(map(PrettifyListingsTestCase, tests)))
     return suite
@@ -263,6 +264,39 @@ class PrettifyListingsTestCase(unittest.TestCase):
         )
         # Assert that original data was not modified
         self.assertDictEqual(elements, elements_copy)
+
+    def test_prettify_stacked_layout(self):
+        elements = {
+            DEFAULT_TABLE: {
+                2: {
+                    "name": "shirt",
+                    "value": -199,
+                    "date": "04-01",
+                    "category": "clothes",
+                },
+                3: {
+                    "name": "lunch",
+                    "value": -20,
+                    "date": "04-01",
+                    "category": "food",
+                }
+            },
+            "recurrent": {}
+        }
+        self.assertEqual(
+            prettify(elements, stacked_layout=True), "\
+              Earnings               " + "\n\
+Name               Value    Date  ID " + """
+
+-------------------------------------
+
+""" + "\
+              Expenses               " + "\n\
+Name               Value    Date  ID " + "\n\
+Food                  20.00          " + "\n\
+  Lunch               20.00 04-01   3" + "\n\
+Clothes              199.00          " + "\n\
+  Shirt              199.00 04-01   2")
 
 
 if __name__ == '__main__':

@@ -3,9 +3,7 @@ from datetime import date
 
 from financeager import default_period_name
 from financeager.entries import BaseEntry
-from financeager.cli import _parse_command
 from financeager import communication, localserver, httprequests
-from financeager.exceptions import InvalidRequest
 
 
 def suite():
@@ -13,11 +11,9 @@ def suite():
     tests = [
         'test_rm',
         'test_get',
-        'test_erroneous_get',
         'test_copy',
         'test_update',
         'test_print',
-        'test_print_with_sorting',
         'test_list',
         'test_stop',
     ]
@@ -32,9 +28,11 @@ def suite():
     tests = ['test_modules']
     suite.addTest(unittest.TestSuite(map(CommunicationModuleTestCase, tests)))
     tests = [
+        'test_date_format',
         'test_date_format_error',
         'test_filters',
         'test_filters_error',
+        'test_default_category_filter',
     ]
     suite.addTest(unittest.TestSuite(map(PreprocessTestCase, tests)))
     return suite
@@ -45,17 +43,9 @@ def today():
 
 
 class CommunicationTestFixture(unittest.TestCase):
-    def run_command(self, args):
-        cl_kwargs = _parse_command(args=args.split())
-        command = cl_kwargs.pop("command")
-
-        # this option is popped early in the CLI, hence here it's also removed
-        # to not confuse the backend (i.e. validation in period module)
-        cl_kwargs.pop("config")
-        cl_kwargs.pop("verbose")
-
+    def run_command(self, command, **kwargs):
         return communication.run(
-            self.proxy, command, date_format=BaseEntry.DATE_FORMAT, **cl_kwargs)
+            self.proxy, command, date_format=BaseEntry.DATE_FORMAT, **kwargs)
 
     def setUp(self):
         self.proxy = localserver.LocalServer()
@@ -64,35 +54,32 @@ class CommunicationTestFixture(unittest.TestCase):
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
-        response = self.run_command("add pants -99 -c clothes")
+        response = self.run_command(
+            "add", name="pants", value=-99, category="clothes")
         self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
-        response = self.run_command("rm 1")
+        response = self.run_command("rm", eid=1)
         self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
-        response = self.run_command("get 1")
+        response = self.run_command("get", eid=1)
         self.assertEqual(response, """\
 Name    : Pants
 Value   : -99.0
 Date    : {}
 Category: Clothes""".format(today()))
 
-    def test_erroneous_get(self):
-        with self.assertRaises(InvalidRequest) as cm:
-            self.run_command("get 0")
-        self.assertTrue(cm.exception.args[0].endswith("Element not found."))
-
     def test_copy(self):
-        response = self.run_command("copy 1 -s {0} -d {0}".format(
-            default_period_name()))
+        period = default_period_name()
+        response = self.run_command(
+            "copy", eid=1, source_period=period, destination_period=period)
         self.assertEqual(response, "Copied element 2.")
 
     def test_update(self):
-        response = self.run_command("update 1 -n trousers")
+        response = self.run_command("update", eid=1, name="trousers")
         self.assertEqual(response, "Updated element 1.")
-        response = self.run_command("get 1")
+        response = self.run_command("get", eid=1)
         self.assertEqual(response, """\
 Name    : Trousers
 Value   : -99.0
@@ -107,50 +94,33 @@ Category: Clothes""".format(today()))
         response = self.run_command("print")
         self.assertNotEqual("", response)
 
-        response = self.run_command("print --filters date=12-")
+        response = self.run_command("print", filters=["date=12-"])
         self.assertEqual("", response)
-
-    def test_print_with_sorting(self):
-        response = self.run_command("add shirt -199 -c clothes -d 04-01")
-        self.assertEqual(response, "Added element 2.")
-        response = self.run_command("add lunch -20 -c food -d 04-01")
-        self.assertEqual(response, "Added element 3.")
-
-        response = self.run_command(
-            "print --entry-sort value --category-sort name --stacked-layout")
-        self.assertEqual(response, "\
-              Earnings               " + "\n\
-Name               Value    Date  ID " + """
-
--------------------------------------
-
-""" + "\
-              Expenses               " + "\n\
-Name               Value    Date  ID " + "\n\
-Clothes              298.00          " + """
-  Pants               99.00 {}   1
-  Shirt              199.00 04-01   2""".format(today()) + "\n\
-Food                  20.00          " + """
-  Lunch               20.00 04-01   3""")
 
     def test_stop(self):
         # For completeness, directly shutdown the localserver
-        self.assertDictEqual(self.proxy.run("stop"), {})
+        self.assertEqual(self.run_command("stop"), "")
 
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
         response = self.run_command(
-            "add retirement 567 -c income -f monthly -s 01-01 -t recurrent")
+            "add",
+            name="retirement",
+            value=567,
+            category="income",
+            frequency="monthly",
+            start="01-01",
+            table_name="recurrent")
         self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
-        response = self.run_command("rm 1 -t recurrent")
+        response = self.run_command("rm", eid=1, table_name="recurrent")
         self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
-        response = self.run_command("get 1 -t recurrent")
+        response = self.run_command("get", eid=1, table_name="recurrent")
         self.assertEqual(response, """\
 Name     : Retirement
 Value    : 567.0
@@ -161,9 +131,13 @@ Category : Income""")
 
     def test_update(self):
         response = self.run_command(
-            "update 1 -f bimonthly -c n.a. -t recurrent")
+            "update",
+            eid=1,
+            frequency="bimonthly",
+            category="n.a.",
+            table_name="recurrent")
         self.assertEqual(response, "Updated element 1.")
-        response = self.run_command("get 1 -t recurrent")
+        response = self.run_command("get", eid=1, table_name="recurrent")
         self.assertEqual(response, """\
 Name     : Retirement
 Value    : 567.0
@@ -182,6 +156,11 @@ class CommunicationModuleTestCase(unittest.TestCase):
 
 
 class PreprocessTestCase(unittest.TestCase):
+    def test_date_format(self):
+        data = {"date": "31.01."}
+        communication._preprocess(data, date_format="%d.%m.")
+        self.assertDictEqual(data, {"date": "01-31"})
+
     def test_date_format_error(self):
         data = {"date": "01-01"}
         self.assertRaises(
@@ -202,6 +181,11 @@ class PreprocessTestCase(unittest.TestCase):
         data = {"filters": ["value-123"]}
         self.assertRaises(communication.PreprocessingError,
                           communication._preprocess, data)
+
+    def test_default_category_filter(self):
+        data = {"filters": ["category=unspecified"]}
+        communication._preprocess(data)
+        self.assertEqual(data["filters"], {"category": None})
 
 
 if __name__ == '__main__':

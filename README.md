@@ -322,7 +322,7 @@ This requires some restructuring of the software architecture. Motivation and go
 - [x] avoid test code interfering with actual file system content
 - [x] test offline feature with 'none' backend
 - [x] rename 'model' to 'listing'
-- [ ] clean up `test_communication`
+- [x] clean up `test_communication`
 
 PERSONAL NOTE
 -------------

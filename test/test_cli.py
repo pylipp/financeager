@@ -23,6 +23,7 @@ def suite():
         'test_add_entry',
         'test_verbose',
         'test_offline_feature',
+        'test_get_nonexisting_entry',
     ]
     suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
     tests = [
@@ -238,6 +239,10 @@ default_category = no-category"""
         self.assertEqual("", self.log_call_args_list["info"][0][0][0])
         self.assertEqual("Recovered offline backup.",
                          self.log_call_args_list["info"][1][0][0])
+
+    def test_get_nonexisting_entry(self):
+        printed_content = self.cli_run("get 0", log_method="error")
+        self.assertEqual(printed_content, "Invalid request: Element not found.")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
