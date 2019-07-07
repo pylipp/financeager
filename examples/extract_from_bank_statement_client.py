@@ -28,7 +28,8 @@ data = csv.DictReader(f, dialect=SemicolonDialect)
 # all supermarket shopping shall go to the database
 trigger_words = [
     "lidl", "rewe", "aldi", "dm fil", "denns", "kaufland", "tengelmann",
-    "edeka", "denn.s", "alnatura", "bioladen"
+    "edeka", "denn.s", "alnatura", "bioladen", "vollcorner", "bio company",
+    "netto", "rossmann"
 ]
 
 # when adding an unknown entry, you might want to specify the corresponding
