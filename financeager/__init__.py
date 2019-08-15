@@ -3,7 +3,7 @@ from datetime import datetime as dt
 from logging import getLogger, StreamHandler, DEBUG, INFO, Formatter, handlers
 
 # versioning information
-__version__ = "0.18"
+__version__ = "0.19"
 
 #
 # Global constants
@@ -23,7 +23,7 @@ CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 OFFLINE_FILEPATH = os.path.join(DATA_DIR, "offline.json")
 
 # URL endpoints
-PERIODS_TAIL = "/financeager/periods"
+PERIODS_TAIL = "/periods"
 COPY_TAIL = PERIODS_TAIL + "/copy"
 
 # HTTP communication defaults
