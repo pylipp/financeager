@@ -24,8 +24,9 @@ def create_app(data_dir=None, config=None):
     the app terminates.
     'config' is a dict of configuration variables that flask understands.
     """
-    # Propagate flask log messages to financeager logs
+    # Propagate flask and werkzeug log messages to financeager logs
     init_logger("flask.app")
+    init_logger("werkzeug")
 
     app = Flask(__name__)
     app.config.update(config or {})
