@@ -43,7 +43,7 @@ _stream_handler = StreamHandler()
 _stream_handler.setLevel(INFO)
 LOGGER.addHandler(_stream_handler)
 FORMATTER = Formatter(
-    fmt='%(levelname)s %(asctime)s %(module)s:%(lineno)d %(message)s')
+    fmt='%(levelname)s %(asctime)s %(name)s:%(lineno)d %(message)s')
 
 
 def init_logger(name):
