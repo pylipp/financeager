@@ -31,7 +31,7 @@ Clone the repo
 
 Create a virtual environment
 
-    python -m virtualenv --python=$(which python3) .venv
+    python -m venv --python=$(which python3) .venv
     source .venv/bin/activate
 
 Install
@@ -67,7 +67,7 @@ To run `financeager` as client-server application, start the flask webservice by
 
 >   This does not store data persistently! Specify the environment variable `FINANCEAGER_DATA_DIR`.
 
->   For production use, you should wrap `app = fflask.create_app(data_dir=...)` in a WSGI.
+>   For production use, you should wrap `app = fflask.create_app(data_dir=...)` in a WSGI or FCGI (see `examples/` directory).
 
 To communicate with the webservice, the `financeager` configuration has to be adjusted. Create and open the file `~/.config/financeager/config`. If you're on the machine that runs the webservice, put the lines
 
