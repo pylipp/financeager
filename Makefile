@@ -18,7 +18,7 @@ upload: README.md setup.py
 
 tag:
 	git tag v$(VERSION)
-	git push --tags
+	git push --tags origin master
 	hub release create -m "Release v$(VERSION)" v$(VERSION)
 
 publish: tag upload
