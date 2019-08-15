@@ -58,6 +58,8 @@ setup(
     extras_require={
         "develop": [
             "twine>=1.11.0",
+            "setuptools>=38.6.0",
+            "wheel>=0.31.0",
             "coverage>=4.4.2",
             "pre-commit==1.14.4",
         ],
