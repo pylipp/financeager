@@ -16,14 +16,16 @@ logger = init_logger(__name__)
 def create_app(data_dir=None, config=None):
     """Create web app with RESTful API built from resources. The function is
     named such that the flask cli detects it as app factory method.
+    The log file handler is set up very first.
     If 'data_dir' or the environment variable 'FINANCEAGER_DATA_DIR' is given, a
-    directory is created to store application data, and the log file handler is
-    set up.
+    directory is created to store application data.
     An instance of 'server.Server' is created, passing 'data_dir'. If 'data_dir'
     is not given, the application data is stored in memory and will be lost when
     the app terminates.
     'config' is a dict of configuration variables that flask understands.
     """
+    setup_log_file_handler()
+
     # Propagate flask and werkzeug log messages to financeager logs
     init_logger("flask.app")
     init_logger("werkzeug")
@@ -41,7 +43,6 @@ def create_app(data_dir=None, config=None):
                        "accordingly for persistent data storage.")
     else:
         os.makedirs(data_dir, exist_ok=True)
-        setup_log_file_handler(log_dir=data_dir)
 
     logger.debug("Created flask app {} - {} mode".format(
         app.name, "debug" if app.debug else "production"))

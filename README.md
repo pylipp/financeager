@@ -165,7 +165,7 @@ You can turn on printing debug messages to the terminal using the `--verbose` op
 
     > financeager print --verbose
 
-You can find a log of interactions at `~/.local/share/financeager/log`.
+You can find a log of interactions at `~/.local/share/financeager/log` (on both the client machine and the server).
 
 ### More on configuration
 

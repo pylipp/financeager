@@ -3,7 +3,7 @@ from datetime import datetime as dt
 from logging import getLogger, StreamHandler, DEBUG, INFO, Formatter, handlers
 
 # versioning information
-__version__ = "0.19"
+__version__ = "0.20"
 
 #
 # Global constants
@@ -63,11 +63,12 @@ def init_logger(name):
     return logger
 
 
-def setup_log_file_handler(log_dir=DATA_DIR):
-    """Create FileHandler for package logger, storing logs in 'log_dir'
-    (default: DATA_DIR).
+def setup_log_file_handler():
+    """Create FileHandler for package logger, storing logs in 'DATA_DIR'. The
+    directory is created if not existing.
     """
-    file_handler = handlers.RotatingFileHandler(os.path.join(log_dir, "log"))
+    os.makedirs(DATA_DIR, exist_ok=True)
+    file_handler = handlers.RotatingFileHandler(os.path.join(DATA_DIR, "log"))
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
 

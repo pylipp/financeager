@@ -20,6 +20,12 @@ def suite():
     return suite
 
 
+# Patch DATA_DIR to avoid having it created/interfering with logs on actual
+# machine
+TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
+
+
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CreateAppNoDataDirTestCase(unittest.TestCase):
     @mock.patch("financeager.fflask.logger.warning")
     def test_warning(self, mocked_warning):
@@ -40,7 +46,9 @@ class CreateAppNoDataDirTestCase(unittest.TestCase):
         environ["FINANCEAGER_DATA_DIR"] = data_dir
         with mock.patch("os.makedirs") as mocked_makedirs:
             create_app(data_dir=None)
-            mocked_makedirs.assert_called_once_with(data_dir, exist_ok=True)
+            # First call is from inside setup_log_file_handler()
+            self.assertEqual(mocked_makedirs.call_count, 2)
+            mocked_makedirs.assert_called_with(data_dir, exist_ok=True)
         del environ["FINANCEAGER_DATA_DIR"]
 
 

@@ -266,6 +266,10 @@ host = http://{}
         super().setUpClass()
 
         def launch_server():
+            # Patch DATA_DIR inside the thread to avoid having it
+            # created/interfering with logs on actual machine
+            import financeager
+            financeager.DATA_DIR = TEST_DATA_DIR
             app = create_app(
                 data_dir=TEST_DATA_DIR,
                 config={
