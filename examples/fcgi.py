@@ -38,15 +38,13 @@ https://gist.github.com/tocsinDE/98c423da2724d23c02ff
 https://docs.python.org/3.4/howto/webservers.html
 https://wiki.uberspace.de/webserver:htaccess#verzeichnisschutz
 """
-import os
-
 from flipflop import WSGIServer
-from financeager.fflask import create_app
+from financeager import fflask, DATA_DIR
 
 if __name__ == "__main__":
     # Configure to your liking
-    app = create_app(
-        data_dir=os.path.expanduser("~/.local/share/financeager"),
+    app = fflask.create_app(
+        data_dir=DATA_DIR,
         # config={"DEBUG": True},
     )
     WSGIServer(app).run()
