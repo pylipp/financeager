@@ -19,7 +19,7 @@ upload: README.md setup.py
 tag:
 	git tag v$(VERSION)
 	git push --tags origin master
-	hub release create -m v$(VERSION) -m "$$(awk -v RS='' '/\[v$(VERSION)\]/' Changelog.md)" v$(VERSION)
+	hub release create -m v$(VERSION) -m "$$(awk -v RS='' '/\[v$(VERSION)\]/' Changelog.md | tail -n+2)" v$(VERSION)
 
 publish: tag upload
 
