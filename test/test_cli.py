@@ -261,24 +261,25 @@ date_format = %%m-%%d
 host = http://{}
 """.format(HOST_IP)
 
+    @staticmethod
+    def launch_server():
+        # Patch DATA_DIR inside the thread to avoid having it
+        # created/interfering with logs on actual machine
+        import financeager
+        financeager.DATA_DIR = TEST_DATA_DIR
+        app = create_app(
+            data_dir=TEST_DATA_DIR,
+            config={
+                "DEBUG": False,  # reloader can only be run in main thread
+                "SERVER_NAME": CliFlaskTestCase.HOST_IP,
+            })
+        app.run()
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        def launch_server():
-            # Patch DATA_DIR inside the thread to avoid having it
-            # created/interfering with logs on actual machine
-            import financeager
-            financeager.DATA_DIR = TEST_DATA_DIR
-            app = create_app(
-                data_dir=TEST_DATA_DIR,
-                config={
-                    "DEBUG": False,  # reloader can only be run in main thread
-                    "SERVER_NAME": cls.HOST_IP
-                })
-            app.run()
-
-        cls.flask_thread = Thread(target=launch_server)
+        cls.flask_thread = Thread(target=cls.launch_server)
         cls.flask_thread.daemon = True
         cls.flask_thread.start()
 
