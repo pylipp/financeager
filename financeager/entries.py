@@ -1,7 +1,6 @@
 """Data structures for smallest elements of frontend representation of database
 query results."""
 
-from __future__ import unicode_literals
 from datetime import datetime
 
 from . import PERIOD_DATE_FORMAT

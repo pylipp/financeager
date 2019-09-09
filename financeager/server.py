@@ -1,7 +1,5 @@
 """Top-level backend organization of databases."""
 
-from __future__ import unicode_literals
-
 from . import default_period_name, init_logger
 from .period import TinyDbPeriod, PeriodException
 
