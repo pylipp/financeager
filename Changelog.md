@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 ### Added
+- Travis CI testing using Python version 3.6 and 3.7.
 ### Changed
 ### Deprecated
 ### Removed
