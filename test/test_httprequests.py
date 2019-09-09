@@ -5,16 +5,6 @@ from financeager.httprequests import _Proxy
 from financeager import PERIODS_TAIL, DEFAULT_HOST, DEFAULT_TIMEOUT
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_username_password',
-        'test_unknown_command',
-    ]
-    suite.addTest(unittest.TestSuite(map(HttpRequestProxyTestCase, tests)))
-    return suite
-
-
 class HttpRequestProxyTestCase(unittest.TestCase):
     def mock_post(*args, **kwargs):
         """Mock a Response object returned by requests.post."""

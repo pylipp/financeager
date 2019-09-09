@@ -4,19 +4,6 @@ import time
 from financeager.config import Configuration, InvalidConfigError
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_sections',
-        'test_load_custom_config_file',
-        'test_get_option',
-        'test_invalid_config',
-        'test_nonexisting_config_filepath',
-    ]
-    suite.addTest(unittest.TestSuite(map(ConfigTestCase, tests)))
-    return suite
-
-
 class ConfigTestCase(unittest.TestCase):
     def test_sections(self):
         config = Configuration()

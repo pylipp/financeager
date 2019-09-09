@@ -8,18 +8,6 @@ from unittest import mock
 from financeager.fflask import create_app
 import financeager
 
-
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_warning',
-        'test_debug',
-        'test_data_dir_env_variable',
-    ]
-    suite.addTest(unittest.TestSuite(map(CreateAppNoDataDirTestCase, tests)))
-    return suite
-
-
 # Patch DATA_DIR to avoid having it created/interfering with logs on actual
 # machine
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")

@@ -6,41 +6,6 @@ from financeager.entries import BaseEntry, CategoryEntry
 from financeager.entries import prettify as prettify_entry
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_name',
-        'test_value',
-        'test_date',
-        'test_eid',
-    ]
-    suite.addTest(unittest.TestSuite(map(BaseEntryTestCase, tests)))
-    tests = [
-        'test_name',
-        'test_value',
-        'test_str',
-    ]
-    suite.addTest(unittest.TestSuite(map(CategoryEntryTestCase, tests)))
-    suite.addTest(
-        unittest.TestSuite(map(LongNegativeCategoryEntryTestCase, tests)))
-    tests.append('test_str_no_eid')
-    suite.addTest(unittest.TestSuite(map(NegativeBaseEntryTestCase, tests)))
-    tests = [
-        'test_sort_by_name',
-        'test_sort_by_value',
-        'test_sort_by_date',
-        'test_sort_by_eid',
-    ]
-    suite.addTest(unittest.TestSuite(map(SortBaseEntriesTestCase, tests)))
-    tests = [
-        'test_prettify',
-    ]
-    suite.addTest(unittest.TestSuite(map(PrettifyBaseEntryTestCase, tests)))
-    suite.addTest(
-        unittest.TestSuite(map(PrettifyRecurrentElementTestCase, tests)))
-    return suite
-
-
 class BaseEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.date = "08-10"

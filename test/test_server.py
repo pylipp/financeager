@@ -8,31 +8,6 @@ from financeager.server import Server
 from financeager.period import PeriodException
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_period_name',
-        'test_list',
-        'test_unknown_command',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddEntryToServerTestCase, tests)))
-    tests = [
-        'test_recurrent_entries',
-        'test_recurrent_copy',
-    ]
-    suite.addTest(unittest.TestSuite(map(RecurrentEntryServerTestCase, tests)))
-    tests = [
-        'test_get_period',
-        'test_query_and_reset_response',
-        'test_response_is_none',
-        'test_update',
-        'test_copy',
-        'test_unsuccessful_copy',
-    ]
-    suite.addTest(unittest.TestSuite(map(FindEntryServerTestCase, tests)))
-    return suite
-
-
 class AddEntryToServerTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

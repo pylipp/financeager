@@ -16,47 +16,6 @@ from financeager.httprequests import InvalidRequest
 from financeager.cli import _parse_command, run, SUCCESS, FAILURE
 from financeager.entries import CategoryEntry
 
-
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_add_entry',
-        'test_verbose',
-        'test_offline_feature',
-        'test_get_nonexisting_entry',
-    ]
-    suite.addTest(unittest.TestSuite(map(CliLocalServerTestCase, tests)))
-    tests = [
-        'test_add_entry',
-    ]
-    suite.addTest(
-        unittest.TestSuite(map(CliLocalServerMemoryStorageTestCase, tests)))
-    tests = [
-        'test_print',
-    ]
-    suite.addTest(unittest.TestSuite(map(CliInvalidConfigTestCase, tests)))
-    suite.addTest(unittest.TestSuite(map(CliNoConfigTestCase, tests)))
-    tests = [
-        'test_add_print_rm',
-        'test_add_get_rm_via_eid',
-        # 'test_add_invalid_entry',
-        'test_add_invalid_entry_table_name',
-        'test_get_nonexisting_entry',
-        'test_delete_nonexisting_entry',
-        'test_update',
-        'test_update_nonexisting_entry',
-        'test_copy',
-        'test_copy_nonexisting_entry',
-        'test_recurrent_entry',
-        'test_default_category',
-        # 'test_parser_error',
-        'test_communication_error',
-        'test_offline_feature',
-    ]
-    suite.addTest(unittest.TestSuite(map(CliFlaskTestCase, tests)))
-    return suite
-
-
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
 
@@ -310,7 +269,7 @@ host = http://{}
         printed_content = self.cli_run("print")
         self.assertEqual(printed_content, "")
 
-    def test_add_invalid_entry(self):
+    def _test_add_invalid_entry(self):
         with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("add", period=self.period, name="")
         self.assertIn("400", cm.exception.args[0])
@@ -345,7 +304,7 @@ host = http://{}
         printed_content = self.cli_run("rm 0", log_method="error")
         self.assertIn("404", printed_content)
 
-    def test_invalid_request(self):
+    def _test_invalid_request(self):
         # insert invalid host, reset to original in the end
         original_host = self.proxy.http_config["host"]
         self.proxy.http_config["host"] = "weird.foodomain.nope"
@@ -433,7 +392,7 @@ host = http://{}
 
         self.cli_run("rm {}", format_args=entry_id)
 
-    def test_parser_error(self):
+    def _test_parser_error(self):
         # missing name and value in request, parser will complain
         with self.assertRaises(InvalidRequest) as cm:
             self.proxy.run("add", period=self.period)
@@ -487,6 +446,12 @@ host = http://{}
         self.assertEqual("Recovered offline backup.",
                          self.log_call_args_list["info"][1][0][0])
 
+        # This is admittedly hacky. It would be cleaner to a) have independent
+        # databases per test function, or b) have a way to get the response
+        # about the recovered element ID by having the offline module use
+        # functions of the cli module
+        self.cli_run("rm 5")
+
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 @mock.patch("financeager.CONFIG_FILEPATH", TEST_CONFIG_FILEPATH)
@@ -509,6 +474,10 @@ class CliNoConfigTestCase(CliTestCase):
         # No config is loaded at all
         run(command="print", period=1900, config=None)
         mocked_logger.info.assert_called_once_with("")
+
+        # The custom config modified the global state which affects other
+        # tests...
+        CategoryEntry.DEFAULT_NAME = "unspecified"
 
 
 if __name__ == "__main__":

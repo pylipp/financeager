@@ -7,54 +7,6 @@ from financeager.listing import Listing, prettify
 from financeager.entries import CategoryEntry, BaseEntry
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_category_item_in_list',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddCategoryEntryTestCase, tests)))
-    tests = [
-        'test_category_item_in_list',
-        'test_single_item_in_list',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddCategoryEntryTwiceTestCase, tests)))
-    tests = [
-        'test_str',
-        'test_str_no_eid',
-        'test_add_invalid_entry',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddBaseEntryTestCase, tests)))
-    tests = [
-        'test_str',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddNegativeBaseEntryTestCase, tests)))
-    tests = [
-        'test_sort_by_name',
-        'test_sort_by_value',
-    ]
-    suite.addTest(unittest.TestSuite(map(SortCategoryEntriesTestCase, tests)))
-    tests = [
-        'test_default_category_in_list',
-    ]
-    suite.addTest(
-        unittest.TestSuite(map(AddBaseEntryWithoutCategoryTestCase, tests)))
-    tests = [
-        'test_total_value',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddTwoBaseEntriesTestCase, tests)))
-    tests = [
-        'test_contains_an_entry',
-        'test_category_item_names',
-    ]
-    suite.addTest(unittest.TestSuite(map(ListingFromElementsTestCase, tests)))
-    tests = [
-        'test_prettify',
-        'test_prettify_stacked_layout',
-    ]
-    suite.addTest(unittest.TestSuite(map(PrettifyListingsTestCase, tests)))
-    return suite
-
-
 class AddCategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.listing = Listing()

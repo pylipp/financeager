@@ -6,38 +6,6 @@ from financeager.entries import BaseEntry
 from financeager import communication, localserver, httprequests
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_rm',
-        'test_get',
-        'test_copy',
-        'test_update',
-        'test_print',
-        'test_list',
-        'test_stop',
-    ]
-    suite.addTest(unittest.TestSuite(map(CommunicationTestCase, tests)))
-    tests = [
-        'test_rm',
-        'test_get',
-        'test_update',
-    ]
-    suite.addTest(
-        unittest.TestSuite(map(RecurrentEntryCommunicationTestCase, tests)))
-    tests = ['test_modules']
-    suite.addTest(unittest.TestSuite(map(CommunicationModuleTestCase, tests)))
-    tests = [
-        'test_date_format',
-        'test_date_format_error',
-        'test_filters',
-        'test_filters_error',
-        'test_default_category_filter',
-    ]
-    suite.addTest(unittest.TestSuite(map(PreprocessTestCase, tests)))
-    return suite
-
-
 def today():
     return date.today().strftime("%m-%d")
 

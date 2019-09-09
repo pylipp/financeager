@@ -6,18 +6,6 @@ from financeager.offline import add, _load, recover, OfflineRecoveryError
 from financeager.localserver import proxy as local_proxy
 
 
-def suite():
-    suite = unittest.TestSuite()
-    tests = [
-        'test_add_recover',
-        'test_no_add',
-        'test_no_recover',
-        'test_failed_recover',
-    ]
-    suite.addTest(unittest.TestSuite(map(AddTestCase, tests)))
-    return suite
-
-
 class AddTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
