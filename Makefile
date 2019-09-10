@@ -24,6 +24,7 @@ tag:
 publish: tag upload
 
 coverage:
+	coverage erase
 	coverage run --source financeager setup.py test
 	coverage report
 	coverage html
