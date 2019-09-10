@@ -12,7 +12,6 @@ from requests import Response, RequestException
 
 from financeager import DEFAULT_TABLE
 from financeager.fflask import create_app
-from financeager.httprequests import InvalidRequest
 from financeager.cli import _parse_command, run, SUCCESS, FAILURE
 from financeager.entries import CategoryEntry
 
@@ -269,11 +268,6 @@ host = http://{}
         printed_content = self.cli_run("print")
         self.assertEqual(printed_content, "")
 
-    def _test_add_invalid_entry(self):
-        with self.assertRaises(InvalidRequest) as cm:
-            self.proxy.run("add", period=self.period, name="")
-        self.assertIn("400", cm.exception.args[0])
-
     def test_add_invalid_entry_table_name(self):
         printed_content = self.cli_run(
             "add stuff 11.11 -t unknown", log_method="error")
@@ -391,12 +385,6 @@ host = http://{}
                          CategoryEntry.DEFAULT_NAME)
 
         self.cli_run("rm {}", format_args=entry_id)
-
-    def _test_parser_error(self):
-        # missing name and value in request, parser will complain
-        with self.assertRaises(InvalidRequest) as cm:
-            self.proxy.run("add", period=self.period)
-        self.assertIn("400", cm.exception.args[0])
 
     def test_communication_error(self):
         with mock.patch("requests.get") as mocked_get:

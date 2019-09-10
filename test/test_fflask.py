@@ -39,6 +39,14 @@ class CreateAppNoDataDirTestCase(unittest.TestCase):
             mocked_makedirs.assert_called_with(data_dir, exist_ok=True)
         del environ["FINANCEAGER_DATA_DIR"]
 
+    def test_bad_request(self):
+        app = create_app()
+        app.testing = True
+        with app.test_client() as client:
+            response = client.post("/periods/2000")
+        # Expect Bad Request due to missing data (name and value)
+        self.assertEqual(response.status_code, 400)
+
 
 if __name__ == "__main__":
     unittest.main()
