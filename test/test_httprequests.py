@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from financeager.httprequests import _Proxy
+from financeager.exceptions import CommunicationError
 from financeager import PERIODS_TAIL, DEFAULT_HOST, DEFAULT_TIMEOUT
 
 
@@ -38,6 +39,16 @@ class HttpRequestProxyTestCase(unittest.TestCase):
 
     def test_unknown_command(self):
         self.assertRaises(ValueError, _Proxy().run, "derp")
+
+    def test_invalid_host(self):
+        proxy = _Proxy(http_config={"host": "http://weird.foodomain.nope"})
+
+        with self.assertRaises(CommunicationError) as cm:
+            proxy.run("get", period=2000, eid=1)
+
+        error_message = cm.exception.args[0]
+        self.assertTrue(error_message.startswith("Error sending request: "))
+        self.assertIn("Name or service not known", error_message)
 
 
 if __name__ == "__main__":

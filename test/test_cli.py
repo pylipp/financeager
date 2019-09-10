@@ -298,16 +298,6 @@ host = http://{}
         printed_content = self.cli_run("rm 0", log_method="error")
         self.assertIn("404", printed_content)
 
-    def _test_invalid_request(self):
-        # insert invalid host, reset to original in the end
-        original_host = self.proxy.http_config["host"]
-        self.proxy.http_config["host"] = "weird.foodomain.nope"
-
-        response = self.proxy.run("get", period=self.period, eid=1)
-        self.assertEqual("Element not found.", response["error"])
-
-        self.proxy.http_config["host"] = original_host
-
     def test_recurrent_entry(self):
         entry_id = self.cli_run("add cookies -10 -c food -t recurrent -f "
                                 "half-yearly -s 01-01 -e 12-31")
