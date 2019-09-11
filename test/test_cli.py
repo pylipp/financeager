@@ -9,6 +9,7 @@ import re
 import tempfile
 
 from requests import Response, RequestException
+from requests import get as requests_get
 
 from financeager import DEFAULT_TABLE
 from financeager.fflask import create_app
@@ -231,6 +232,15 @@ host = http://{}
                 "DEBUG": False,  # reloader can only be run in main thread
                 "SERVER_NAME": CliFlaskTestCase.HOST_IP,
             })
+
+        def shutdown():
+            from flask import request
+            request.environ.get("werkzeug.server.shutdown")()
+            return ""
+
+        # For testing, add rule to shutdown Flask app
+        app.add_url_rule("/stop", "stop", shutdown)
+
         app.run()
 
     @classmethod
@@ -238,11 +248,15 @@ host = http://{}
         super().setUpClass()
 
         cls.flask_thread = Thread(target=cls.launch_server)
-        cls.flask_thread.daemon = True
         cls.flask_thread.start()
 
         # wait for flask server being launched
-        time.sleep(3)
+        time.sleep(0.2)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Invoke shutting down of Flask app
+        requests_get("http://{}/stop".format(cls.HOST_IP))
 
     def test_add_print_rm(self):
         entry_id = self.cli_run("add cookies -100")
