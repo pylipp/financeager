@@ -8,13 +8,17 @@ An application (possibly running as Flask webservice) that helps you administeri
 
 The `financeager` backend holds databases (internally referred to as 'periods'). A period contains entries of a certain year.
 
+## Quickstart
+
+![Quickstart](./examples/quickstart.svg)
+
 Who is this for?
 ----------------
 You might be someone who wants to organize finances with a simple software because you're tired of Excel and the like. And you like the command line. And Python.
 
 NOTE
 ----
-You're currently on the `master` branch which is under active development.
+The project is actively developed. Expect things to break - e.g. the command line interface, the REST API definitions, ... - before version 1.0.0 is released.
 
 ## Installation
 
@@ -41,14 +45,6 @@ Install
 Alternatively, you can omit the second and third step and install `financeager` to `~/.local` with (requires `pip3`)
 
     pip3 install . --user
-
-## Testing
-
-You're invited to run the tests from the root directory:
-
-    git clone https://github.com/pylipp/financeager
-    cd financeager
-    python setup.py test
 
 ## Usage
 
@@ -237,6 +233,9 @@ Always welcome! For installation, follow the steps above (section 'From source')
     pre-commit install
 
 You're all set for hacking!
+Please adhere to test-driven development, if possible: When adding a feature, or fixing a bug, try to construct a test first, and subsequently adapt the implementation. Run the tests from the root directory via
+
+    python setup.py test
 
 ## `financeager` features
 
