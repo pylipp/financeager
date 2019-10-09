@@ -2,8 +2,7 @@ import unittest
 from datetime import date
 
 from financeager import default_period_name
-from financeager.entries import BaseEntry
-from financeager import communication, localserver, httprequests
+from financeager import communication, localserver, httprequests, config
 
 
 def today():
@@ -11,27 +10,26 @@ def today():
 
 
 class CommunicationTestFixture(unittest.TestCase):
-    def run_command(self, command, **kwargs):
-        return communication.run(
-            self.proxy, command, date_format=BaseEntry.DATE_FORMAT, **kwargs)
-
     def setUp(self):
-        self.proxy = localserver.LocalServer()
+        self.client = communication.Client(
+            configuration=config.Configuration(), backend_name="none")
+        # Create Period database in memory
+        self.client.proxy._period_kwargs["data_dir"] = None
 
 
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
-        response = self.run_command(
+        response = self.client.run(
             "add", name="pants", value=-99, category="clothes")
         self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
-        response = self.run_command("rm", eid=1)
+        response = self.client.run("rm", eid=1)
         self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
-        response = self.run_command("get", eid=1)
+        response = self.client.run("get", eid=1)
         self.assertEqual(
             response, """\
 Name    : Pants
@@ -41,14 +39,14 @@ Category: Clothes""".format(today()))
 
     def test_copy(self):
         period = default_period_name()
-        response = self.run_command(
+        response = self.client.run(
             "copy", eid=1, source_period=period, destination_period=period)
         self.assertEqual(response, "Copied element 2.")
 
     def test_update(self):
-        response = self.run_command("update", eid=1, name="trousers")
+        response = self.client.run("update", eid=1, name="trousers")
         self.assertEqual(response, "Updated element 1.")
-        response = self.run_command("get", eid=1)
+        response = self.client.run("get", eid=1)
         self.assertEqual(
             response, """\
 Name    : Trousers
@@ -57,25 +55,25 @@ Date    : {}
 Category: Clothes""".format(today()))
 
     def test_list(self):
-        response = self.run_command("list")
+        response = self.client.run("list")
         self.assertEqual(response, "{}".format(date.today().year))
 
     def test_print(self):
-        response = self.run_command("print")
+        response = self.client.run("print")
         self.assertNotEqual("", response)
 
-        response = self.run_command("print", filters=["date=12-"])
+        response = self.client.run("print", filters=["date=12-"])
         self.assertEqual("", response)
 
     def test_stop(self):
         # For completeness, directly shutdown the localserver
-        self.assertEqual(self.run_command("stop"), "")
+        self.assertEqual(self.client.run("stop"), "")
 
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
-        response = self.run_command(
+        response = self.client.run(
             "add",
             name="retirement",
             value=567,
@@ -86,11 +84,11 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
         self.assertEqual(response, "Added element 1.")
 
     def test_rm(self):
-        response = self.run_command("rm", eid=1, table_name="recurrent")
+        response = self.client.run("rm", eid=1, table_name="recurrent")
         self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
-        response = self.run_command("get", eid=1, table_name="recurrent")
+        response = self.client.run("get", eid=1, table_name="recurrent")
         self.assertEqual(
             response, """\
 Name     : Retirement
@@ -101,14 +99,14 @@ End      : 12-31
 Category : Income""")
 
     def test_update(self):
-        response = self.run_command(
+        response = self.client.run(
             "update",
             eid=1,
             frequency="bimonthly",
             category="n.a.",
             table_name="recurrent")
         self.assertEqual(response, "Updated element 1.")
-        response = self.run_command("get", eid=1, table_name="recurrent")
+        response = self.client.run("get", eid=1, table_name="recurrent")
         self.assertEqual(
             response, """\
 Name     : Retirement
