@@ -61,17 +61,17 @@ class Client:
             command,
             default_category=self.configuration.get_option(
                 "FRONTEND", "default_category"),
-            table_name=params.get("table_name"),
             **formatting_options)
 
 
-def _format_response(response,
-                     command,
-                     default_category=CategoryEntry.DEFAULT_NAME,
-                     stacked_layout=False,
-                     entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-                     category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-                     table_name=None):
+def _format_response(
+        response,
+        command,
+        default_category=CategoryEntry.DEFAULT_NAME,
+        stacked_layout=False,
+        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
+):
     """Format the given response into human-readable text.
     If the response does not contain any of the fields 'id', 'elements',
     'element', or 'periods', the empty string is returned.
@@ -98,7 +98,7 @@ def _format_response(response,
     element = response.get("element")
     if element is not None:
         CategoryEntry.DEFAULT_NAME = default_category
-        return prettify_element(element, recurrent=table_name == "recurrent")
+        return prettify_element(element)
 
     periods = response.get("periods")
     if periods is not None:

@@ -111,12 +111,16 @@ class CategoryEntry(Entry):
         return '\n'.join(lines)
 
 
-def prettify(element, recurrent=False):
-    """Return element properties formatted as list.
+def prettify(element):
+    """Return element properties formatted as list. The type of the element
+    (recurrent or standard) is inferred by the presence of the 'frequency'
+    property.
 
     :type element: dict
     """
+    recurrent = "frequency" in element
 
+    # Define order of listed properties
     if recurrent:
         properties = ("name", "value", "frequency", "start", "end", "category")
     else:
