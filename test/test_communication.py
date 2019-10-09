@@ -59,10 +59,13 @@ Category: Clothes""".format(today()))
         self.assertEqual(response, "{}".format(date.today().year))
 
     def test_print(self):
-        response = self.client.run("print")
+        formatting_options = dict(
+            stacked_layout=False, entry_sort="name", category_sort="value")
+        response = self.client.run("print", **formatting_options)
         self.assertNotEqual("", response)
 
-        response = self.client.run("print", filters=["date=12-"])
+        response = self.client.run(
+            "print", filters=["date=12-"], **formatting_options)
         self.assertEqual("", response)
 
     def test_stop(self):

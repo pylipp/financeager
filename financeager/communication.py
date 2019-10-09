@@ -37,12 +37,7 @@ class Client:
         self.proxy = module(backend_name).proxy(**proxy_kwargs)
         self.configuration = configuration
 
-    def run(self,
-            command,
-            stacked_layout=False,
-            entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-            category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-            **kwargs):
+    def run(self, command, **params):
         """Preprocess parameters, form and send request to the proxy, and
         eventually return formatted response.
         Handle any errors occurring during execution.
@@ -50,20 +45,24 @@ class Client:
         :raises: PreprocessingError, CommunicationError, InvalidRequest
         :return: str
         """
-        date_format = self.configuration.get_option("FRONTEND", "date_format")
-        _preprocess(kwargs, date_format)
+        # Extract formatting options; irrelevant, event confusing for Server
+        formatting_options = {}
+        if command == "print":
+            for option in ["stacked_layout", "entry_sort", "category_sort"]:
+                formatting_options[option] = params.pop(option)
 
-        response = self.proxy.run(command, **kwargs)
+        date_format = self.configuration.get_option("FRONTEND", "date_format")
+        _preprocess(params, date_format)
+
+        response = self.proxy.run(command, **params)
 
         return _format_response(
             response,
             command,
             default_category=self.configuration.get_option(
                 "FRONTEND", "default_category"),
-            stacked_layout=stacked_layout,
-            entry_sort=entry_sort,
-            category_sort=category_sort,
-            table_name=kwargs.get("table_name"))
+            table_name=params.get("table_name"),
+            **formatting_options)
 
 
 def _format_response(response,
