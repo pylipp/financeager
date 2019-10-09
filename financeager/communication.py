@@ -1,9 +1,8 @@
 """Backend-agnostic communication-related routines (preprocessing of requests,
 formatting of responses)."""
 from datetime import datetime
+import importlib
 
-import financeager.httprequests
-import financeager.localserver
 from . import PERIOD_DATE_FORMAT
 from .listing import prettify, Listing
 from .entries import prettify as prettify_element
@@ -19,7 +18,8 @@ def module(name):
         "flask": "httprequests",
         "none": "localserver",
     }
-    return getattr(financeager, frontend_modules[name])
+    return importlib.import_module(
+        "financeager.{}".format(frontend_modules[name]))
 
 
 def run(proxy,
