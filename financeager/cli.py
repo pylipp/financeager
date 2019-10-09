@@ -60,30 +60,19 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         return FAILURE
 
     backend_name = configuration.get_option("SERVICE", "name")
-    communication_module = communication.module(backend_name)
-
-    proxy_kwargs = {}
     if backend_name == "flask":
         init_logger("urllib3")
-        proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
-    else:  # 'none' is the only other option
-        proxy_kwargs["data_dir"] = financeager.DATA_DIR
 
     # Indicate whether to store request offline, if failed
     store_offline = False
 
-    proxy = communication_module.proxy(**proxy_kwargs)
-
+    client = communication.Client(backend_name=backend_name,
+                                  configuration=configuration)
     try:
         logger.info(
-            communication.run(
-                proxy,
-                command,
-                default_category=configuration.get_option(
-                    "FRONTEND", "default_category"),
-                date_format=configuration.get_option("FRONTEND", "date_format"),
-                **cl_kwargs))
-        if offline.recover(proxy):
+            client.run(command, **cl_kwargs))
+
+        if offline.recover(client.proxy):
             logger.info("Recovered offline backup.")
         exit_code = SUCCESS
     except OfflineRecoveryError:
@@ -102,7 +91,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
     if backend_name == "none":
-        communication.run(proxy, "stop")
+        client.run("stop")
 
     return exit_code
 

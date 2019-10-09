@@ -3,6 +3,8 @@ formatting of responses)."""
 from datetime import datetime
 import importlib
 
+import financeager
+
 from . import PERIOD_DATE_FORMAT
 from .listing import prettify, Listing
 from .entries import prettify as prettify_element
@@ -20,6 +22,33 @@ def module(name):
     }
     return importlib.import_module(
         "financeager.{}".format(frontend_modules[name]))
+
+
+class Client:
+    def __init__(self, *, configuration, backend_name):
+        """Set up proxy according to backend_name and configuration."""
+        proxy_kwargs = {}
+        if backend_name == "flask":
+            proxy_kwargs["http_config"] = configuration.get_option(
+                "SERVICE:FLASK")
+        else:  # 'none' is the only other option
+            proxy_kwargs["data_dir"] = financeager.DATA_DIR
+
+        self.proxy = module(backend_name).proxy(**proxy_kwargs)
+        self.configuration = configuration
+
+    def run(self, command, **kwargs):
+        """Preprocess parameters, form and send request, and eventually return
+        formatted response.
+        Handle any errors occurring during execution.
+        """
+        return run(
+            self.proxy, command,
+            default_category=self.configuration.get_option(
+                "FRONTEND", "default_category"),
+            date_format=self.configuration.get_option(
+                "FRONTEND", "date_format"),
+            **kwargs)
 
 
 def run(proxy,
@@ -50,7 +79,7 @@ def _format_response(response, command,
         stacked_layout=False,
         entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
         category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-                     table_name=None
+                     table_name=None, **kwargs
                      ):
     eid = response.get("id")
     if eid is not None:
