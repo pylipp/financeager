@@ -39,7 +39,8 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     """High-level API entry point, useful for scripts. Run 'command' passing
     'cl_kwargs' according to what the command line interface accepts (consult
     help via `financeager [command] --help`), e.g. {"command": "add", "name":
-    "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
+    "champagne", "value": "99"}. All kwargs are passed to
+    'communication.Client.run()'.
     'config' specifies the path to a custom config file (optional). If 'verbose'
     is set, debug level log messages are printed to the terminal.
 
@@ -66,11 +67,10 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     # Indicate whether to store request offline, if failed
     store_offline = False
 
-    client = communication.Client(backend_name=backend_name,
-                                  configuration=configuration)
+    client = communication.Client(
+        backend_name=backend_name, configuration=configuration)
     try:
-        logger.info(
-            client.run(command, **cl_kwargs))
+        logger.info(client.run(command, **cl_kwargs))
 
         if offline.recover(client.proxy):
             logger.info("Recovered offline backup.")

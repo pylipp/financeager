@@ -20,8 +20,8 @@ def module(name):
         "flask": "httprequests",
         "none": "localserver",
     }
-    return importlib.import_module(
-        "financeager.{}".format(frontend_modules[name]))
+    return importlib.import_module("financeager.{}".format(
+        frontend_modules[name]))
 
 
 class Client:
@@ -37,50 +37,48 @@ class Client:
         self.proxy = module(backend_name).proxy(**proxy_kwargs)
         self.configuration = configuration
 
-    def run(self, command, **kwargs):
-        """Preprocess parameters, form and send request, and eventually return
-        formatted response.
+    def run(self,
+            command,
+            stacked_layout=False,
+            entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+            category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
+            **kwargs):
+        """Preprocess parameters, form and send request to the proxy, and
+        eventually return formatted response.
         Handle any errors occurring during execution.
+
+        :raises: PreprocessingError, CommunicationError, InvalidRequest
+        :return: str
         """
-        return run(
-            self.proxy, command,
+        date_format = self.configuration.get_option("FRONTEND", "date_format")
+        _preprocess(kwargs, date_format)
+
+        response = self.proxy.run(command, **kwargs)
+
+        return _format_response(
+            response,
+            command,
             default_category=self.configuration.get_option(
                 "FRONTEND", "default_category"),
-            date_format=self.configuration.get_option(
-                "FRONTEND", "date_format"),
-            **kwargs)
+            stacked_layout=stacked_layout,
+            entry_sort=entry_sort,
+            category_sort=category_sort,
+            table_name=kwargs.get("table_name"))
 
 
-def run(proxy,
-        command,
-        default_category=CategoryEntry.DEFAULT_NAME,
-        date_format=None,
-        stacked_layout=False,
-        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-        **kwargs):
-    """Run a command on the given proxy. The kwargs are preprocessed and passed
-    on. The server response is formatted and returned. If the response does not
-    contain any of the fields 'elements', 'element', or 'periods', the empty
-    string is returned.
+def _format_response(response,
+                     command,
+                     default_category=CategoryEntry.DEFAULT_NAME,
+                     stacked_layout=False,
+                     entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+                     category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
+                     table_name=None):
+    """Format the given response into human-readable text.
+    If the response does not contain any of the fields 'id', 'elements',
+    'element', or 'periods', the empty string is returned.
 
-    :raises: CommunicationError, InvalidRequest
     :return: str
     """
-    _preprocess(kwargs, date_format)
-    response = proxy.run(command, **kwargs)
-    return _format_response(response, command, default_category=default_category,
-                            stacked_layout=stacked_layout,
-                            entry_sort=entry_sort, category_sort=category_sort,
-                            table_name=kwargs.get("table_name"))
-
-def _format_response(response, command,
-        default_category=CategoryEntry.DEFAULT_NAME,
-        stacked_layout=False,
-        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-                     table_name=None, **kwargs
-                     ):
     eid = response.get("id")
     if eid is not None:
         verb = {
@@ -101,8 +99,7 @@ def _format_response(response, command,
     element = response.get("element")
     if element is not None:
         CategoryEntry.DEFAULT_NAME = default_category
-        return prettify_element(
-            element, recurrent=table_name == "recurrent")
+        return prettify_element(element, recurrent=table_name == "recurrent")
 
     periods = response.get("periods")
     if periods is not None:
