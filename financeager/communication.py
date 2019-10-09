@@ -40,7 +40,18 @@ def run(proxy,
     """
     _preprocess(kwargs, date_format)
     response = proxy.run(command, **kwargs)
+    return _format_response(response, command, default_category=default_category,
+                            stacked_layout=stacked_layout,
+                            entry_sort=entry_sort, category_sort=category_sort,
+                            table_name=kwargs.get("table_name"))
 
+def _format_response(response, command,
+        default_category=CategoryEntry.DEFAULT_NAME,
+        stacked_layout=False,
+        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
+                     table_name=None
+                     ):
     eid = response.get("id")
     if eid is not None:
         verb = {
@@ -62,7 +73,7 @@ def run(proxy,
     if element is not None:
         CategoryEntry.DEFAULT_NAME = default_category
         return prettify_element(
-            element, recurrent=kwargs.get("table_name") == "recurrent")
+            element, recurrent=table_name == "recurrent")
 
     periods = response.get("periods")
     if periods is not None:
