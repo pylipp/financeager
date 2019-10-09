@@ -71,12 +71,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         backend_name=backend_name, configuration=configuration)
     try:
         logger.info(client.run(command, **cl_kwargs))
-
-        if offline.recover(client.proxy):
-            logger.info("Recovered offline backup.")
         exit_code = SUCCESS
-    except OfflineRecoveryError:
-        logger.error("Offline backup recovery failed!")
     except (PreprocessingError, InvalidRequest) as e:
         # Command is erroneous and hence not stored offline
         logger.error(e)
@@ -86,6 +81,16 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     except Exception:
         logger.exception("Unexpected error")
         store_offline = True
+
+    if exit_code == SUCCESS:
+        # When regular command was successfully executed, attempt to recover
+        # offline backup
+        try:
+            if offline.recover(client.proxy):
+                logger.info("Recovered offline backup.")
+        except OfflineRecoveryError:
+            logger.error("Offline backup recovery failed!")
+            exit_code = FAILURE
 
     if store_offline and offline.add(command, **cl_kwargs):
         logger.info("Stored '{}' request in offline backup.".format(command))
