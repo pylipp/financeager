@@ -222,7 +222,7 @@ The following diagram sketches the relationship between financeager's modules. S
 
 ## Known bugs
 
-- see [issues](https://github.com/pylipp/financeager/issues)
+- see [issues](https://github.com/pylipp/financeager/labels/bug)
 - Please. Report. Them.
 
 ## Contributing
@@ -239,7 +239,7 @@ Please adhere to test-driven development, if possible: When adding a feature, or
 
 ## `financeager` features
 
-### Future features
+### Ideas
 
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `print`
@@ -248,41 +248,9 @@ Please adhere to test-driven development, if possible: When adding a feature, or
 - [ ] extended period names (something along `2018-personal`)
 - [ ] support `print` at date other than today
 
-### Implemented features
-
-- [x] recurrent entries
-- [x] stacked layout for `print`
-- [x] detect category from entry name (category cache)
-- [x] allow filtering of specific date, name, etc. for `print`
-- [x] use flask for REST API
-- [x] always show entry ID when `print`ing
-- [x] specify date format as `MM-DD`
-- [x] validate user input prior to inserting to database
-- [x] support `get` command
-- [x] support 'updating' of entries
-- [x] sort `print` output acc. to entry name/value/date/category
-- [x] refactor config module (custom method to intuitively retrieve config parameters)
-- [x] `copy` command to transfer recurrent entries between period databases
-- [x] support specifying custom flask host/config with all cli commands
-
-### Discarded feature ideas
+### Discarded ideas
 
 - select from multiple options if possible (e.g. when searching or deleting an entry): breaks the concept of having a single request-response action. Instead, the user is expected to know which element he wants to delete (by using the element ID) and can give a precise command
-
-## Developer's TODOs
-
-- [x] refactor TinyDbPeriod (return Model strings)
-- [x] improve documentation (period module)
-- [x] create Python package
-- [x] set up Travis CI
-- [x] drop PyQt dependency for schematics package
-- [x] allow remove elements by ID only
-- [x] specify CL option to differ between removing standard and recurrent element
-- [x] refactor `entries` module (no dependency on schematics package)
-- [x] consistent naming (recurrent instead of repetitive)
-- [x] increase code coverage
-- [x] refactor period module (no use of CONFIG_DIR)
-- [x] refactor some modules (e.g. split fflask and server)
 
 ## Roadmap for release of version 1.0
 
@@ -317,7 +285,7 @@ This requires some restructuring of the software architecture. Motivation and go
 
 - [x] remove TinyDB usage from model and entries
 - [x] remove entries import from period
-- [ ]  more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
+- [ ] more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
 - [x] integration test of cli module
 - [x] move data dir to ~/.local/share/financeager
 - [x] install pre-commit framework
