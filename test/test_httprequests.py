@@ -31,7 +31,7 @@ class HttpRequestProxyTestCase(unittest.TestCase):
 
             url = "{}{}".format(DEFAULT_HOST, PERIODS_TAIL)
             kwargs = {
-                "data": None,
+                "json": None,
                 "auth": (username, password),
                 "timeout": DEFAULT_TIMEOUT,
             }
