@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from os import environ
 import tempfile
 import unittest
