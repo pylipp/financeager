@@ -2,8 +2,8 @@ import unittest
 import os.path
 
 from financeager.offline import add, _load, recover, OfflineRecoveryError
-from financeager.communication import Client
-from financeager.config import Configuration
+
+from . import utils
 
 
 class AddTestCase(unittest.TestCase):
@@ -25,7 +25,7 @@ class AddTestCase(unittest.TestCase):
         self.assertEqual(data.pop("command"), "add")
         self.assertDictEqual(kwargs, data)
 
-        client = Client(configuration=Configuration(), backend_name="none")
+        client = utils.Client(backend_name="none")
         self.assertTrue(recover(client, offline_filepath=self.filepath))
 
         element = client.proxy.run("get", eid=1, period=period_name)["element"]
@@ -46,8 +46,11 @@ class AddTestCase(unittest.TestCase):
         self.assertTrue(add(command, offline_filepath=self.filepath, **kwargs))
 
         # Create client, and fake the run method
-        client = Client(configuration=None, backend_name="none")
-        def run(command, **kwargs): raise Exception
+        client = utils.Client(backend_name="none")
+
+        def run(command, **kwargs):
+            raise Exception
+
         client.run = run
 
         self.assertRaises(

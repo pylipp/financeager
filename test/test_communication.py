@@ -2,7 +2,9 @@ import unittest
 from datetime import date
 
 from financeager import default_period_name
-from financeager import communication, localserver, httprequests, config
+from financeager import communication, localserver, httprequests
+
+from . import utils
 
 
 def today():
@@ -11,8 +13,7 @@ def today():
 
 class CommunicationTestFixture(unittest.TestCase):
     def setUp(self):
-        self.client = communication.Client(
-            configuration=config.Configuration(), backend_name="none")
+        self.client = utils.Client(backend_name="none")
         # Create Period database in memory
         self.client.proxy._period_kwargs["data_dir"] = None
 

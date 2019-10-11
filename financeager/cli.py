@@ -12,8 +12,7 @@ from .communication import Client
 from .entries import CategoryEntry
 from .listing import Listing
 from .config import Configuration
-from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
-    OfflineRecoveryError, InvalidConfigError
+from .exceptions import OfflineRecoveryError, InvalidConfigError
 
 logger = init_logger(__name__)
 
@@ -65,25 +64,15 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     if backend_name == "flask":
         init_logger("urllib3")
 
-    # Indicate whether to store request offline, if failed
-    store_offline = False
+    client = Client(
+        backend_name=backend_name,
+        configuration=configuration,
+        out=Client.Out(logger.info, logger.error))
+    success, store_offline = client.safely_run(command, **cl_kwargs)
 
-    client = Client(backend_name=backend_name, configuration=configuration)
-    out = Client.Out(logger.info, logger.error)
-    try:
-        out.info(client.run(command, **cl_kwargs))
+    if success:
         exit_code = SUCCESS
-    except (PreprocessingError, InvalidRequest) as e:
-        # Command is erroneous and hence not stored offline
-        out.error(e)
-    except CommunicationError as e:
-        out.error(e)
-        store_offline = True
-    except Exception:
-        out.exception("Unexpected error")
-        store_offline = True
 
-    if exit_code == SUCCESS:
         # When regular command was successfully executed, attempt to recover
         # offline backup
         try:

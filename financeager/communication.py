@@ -10,7 +10,7 @@ from . import PERIOD_DATE_FORMAT
 from .listing import prettify, Listing
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
-from .exceptions import PreprocessingError
+from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
 
 
 def module(name):
@@ -30,7 +30,7 @@ class Client:
     # Output streams
     Out = namedtuple("Out", ["info", "error"])
 
-    def __init__(self, *, configuration, backend_name):
+    def __init__(self, *, configuration, backend_name, out):
         """Set up proxy according to backend_name and configuration."""
         proxy_kwargs = {}
         if backend_name == "flask":
@@ -41,11 +41,34 @@ class Client:
 
         self.proxy = module(backend_name).proxy(**proxy_kwargs)
         self.configuration = configuration
+        self.out = out
+
+    def safely_run(self, command, **params):
+        """Execute run() while handling any errors. Return indicators about
+        whether execution was successful, and whether to store the requested
+        command offline, if execution failed due to a service-sided error.
+        """
+        store_offline = False
+        success = False
+
+        try:
+            self.out.info(self.run(command, **params))
+            success = True
+        except (PreprocessingError, InvalidRequest) as e:
+            # Command is erroneous and hence not stored offline
+            self.out.error(e)
+        except CommunicationError as e:
+            self.out.error(e)
+            store_offline = True
+        except Exception:
+            self.out.exception("Unexpected error")
+            store_offline = True
+
+        return success, store_offline
 
     def run(self, command, **params):
         """Preprocess parameters, form and send request to the proxy, and
         eventually return formatted response.
-        Handle any errors occurring during execution.
 
         :raises: PreprocessingError, CommunicationError, InvalidRequest
         :return: str
