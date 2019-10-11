@@ -96,7 +96,9 @@ def run(command=None, config=None, verbose=False, **params):
 def _parse_command(args=None):
     """Parse the given list of args and return the result as dict."""
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="An application (possibly running as Flask webservice) "
+        "that helps you administering your daily expenses and earnings.")
 
     parser.add_argument(
         "-V",

@@ -52,7 +52,7 @@ class _Proxy:
             # Correctly send filters; allowing for server-side deserialization
             kwargs["json"] = json.dumps(data)
         else:
-            kwargs["data"] = data or None
+            kwargs["json"] = data or None
 
         if command == "print":
             url = period_url

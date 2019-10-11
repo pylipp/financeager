@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Travis CI testing using Python version 3.6 and 3.7.
 ### Changed
+- Send any HTTP request data in JSON format.
 ### Deprecated
 ### Removed
 - `test.suites` module and `test.test_*.suite` functions in order to simplify test framework. Testing now invokes `unittest` discovery in an expected way.
