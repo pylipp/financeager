@@ -14,8 +14,6 @@ def today():
 class CommunicationTestFixture(unittest.TestCase):
     def setUp(self):
         self.client = utils.Client()
-        # Create Period database in memory
-        self.client.proxy._period_kwargs["data_dir"] = None
 
 
 class CommunicationTestCase(CommunicationTestFixture):
