@@ -62,6 +62,7 @@ setup(
             "wheel>=0.31.0",
             "coverage>=4.4.2",
             "pre-commit==1.14.4",
+            "gitlint==0.12.0",
         ],
     },
 )

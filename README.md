@@ -231,6 +231,7 @@ Always welcome! For installation, follow the steps above (section 'From source')
 
     pip install --upgrade --editable .[develop]
     pre-commit install
+    gitlint install-hook
 
 You're all set for hacking!
 Please adhere to test-driven development, if possible: When adding a feature, or fixing a bug, try to construct a test first, and subsequently adapt the implementation. Run the tests from the root directory via

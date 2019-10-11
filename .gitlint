@@ -1,0 +1,14 @@
+[general]
+# Allow missing or short body
+ignore=B5,B6
+
+[title-max-length]
+line-length=80
+
+[title-match-regex]
+# python like regex (https://docs.python.org/2/library/re.html) that the
+# commit-msg title must be matched to.
+# Note that the regex can contradict with other rules if not used correctly
+# (e.g. title-must-not-contain-word).
+# Require title to start with an uppercase letter
+regex=^[A-Z0-9]+.*
