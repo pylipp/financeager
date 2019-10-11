@@ -34,10 +34,11 @@ class Client:
     # Output sinks
     Out = namedtuple("Out", ["info", "error"])
 
-    def __init__(self, *, configuration, service_name, out):
-        """Set up proxy according to service_name and configuration.
+    def __init__(self, *, configuration, out):
+        """Set up proxy according to configuration.
         Store the output sinks specified in the Client.Out object 'out'.
         """
+        service_name = configuration.get_option("SERVICE", "name")
         proxy_kwargs = {}
         if service_name == "flask":
             proxy_kwargs["http_config"] = configuration.get_option(

@@ -67,9 +67,7 @@ def run(command=None, config=None, verbose=False, **params):
         init_logger("urllib3")
 
     client = Client(
-        service_name=service_name,
-        configuration=configuration,
-        out=Client.Out(logger.info, logger.error))
+        configuration=configuration, out=Client.Out(logger.info, logger.error))
     success, store_offline = client.safely_run(command, **params)
 
     if success:
