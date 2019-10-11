@@ -49,7 +49,6 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
         make_log_stream_handler_verbose()
 
     exit_code = FAILURE
-
     
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
         config_filepath = financeager.CONFIG_FILEPATH
