@@ -2,6 +2,7 @@
 formatting of responses)."""
 from datetime import datetime
 import importlib
+from collections import namedtuple
 
 import financeager
 
@@ -25,6 +26,10 @@ def module(name):
 
 
 class Client:
+
+    # Output streams
+    Out = namedtuple("Out", ["info", "error"])
+
     def __init__(self, *, configuration, backend_name):
         """Set up proxy according to backend_name and configuration."""
         proxy_kwargs = {}

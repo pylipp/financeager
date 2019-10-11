@@ -5,9 +5,10 @@ import argparse
 import os
 import sys
 
-from financeager import offline, communication, __version__,\
+from financeager import offline, __version__,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
+from .communication import Client
 from .entries import CategoryEntry
 from .listing import Listing
 from .config import Configuration
@@ -40,7 +41,7 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     'cl_kwargs' according to what the command line interface accepts (consult
     help via `financeager [command] --help`), e.g. {"command": "add", "name":
     "champagne", "value": "99"}. All kwargs are passed to
-    'communication.Client.run()'.
+    'Client.run()'.
     'config' specifies the path to a custom config file (optional). If 'verbose'
     is set, debug level log messages are printed to the terminal.
 
@@ -67,19 +68,19 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
     # Indicate whether to store request offline, if failed
     store_offline = False
 
-    client = communication.Client(
-        backend_name=backend_name, configuration=configuration)
+    client = Client(backend_name=backend_name, configuration=configuration)
+    out = Client.Out(logger.info, logger.error)
     try:
-        logger.info(client.run(command, **cl_kwargs))
+        out.info(client.run(command, **cl_kwargs))
         exit_code = SUCCESS
     except (PreprocessingError, InvalidRequest) as e:
         # Command is erroneous and hence not stored offline
-        logger.error(e)
+        out.error(e)
     except CommunicationError as e:
-        logger.error(e)
+        out.error(e)
         store_offline = True
     except Exception:
-        logger.exception("Unexpected error")
+        out.exception("Unexpected error")
         store_offline = True
 
     if exit_code == SUCCESS:
