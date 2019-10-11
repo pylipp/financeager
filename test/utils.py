@@ -3,9 +3,9 @@ from financeager import communication, config
 
 
 class Client(communication.Client):
-    """Implementation that assigns dummy functions for the 'out' argument,
+    """Implementation that assigns dummy sinks to consume the client's output
     and holds a default configuration (meaning it communicates with the 'none'
-    service.
+    service).
     The underlying LocalServer is patched to store data in memory instead of in
     financeager.DATA_DIR.
     """
