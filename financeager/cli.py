@@ -35,7 +35,7 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config=None, verbose=False, **cl_kwargs):
+def run(command=None, config_path=None, verbose=False, **cl_kwargs):
     """High-level API entry point, useful for scripts. Run 'command' passing
     'cl_kwargs' according to what the command line interface accepts (consult
     help via `financeager [command] --help`), e.g. {"command": "add", "name":
@@ -241,7 +241,7 @@ least a frequency, start date and end date are optional. Default:
     for subparser in subparsers.choices.values():
         subparser.add_argument(
             "-C",
-            "--config",
+            "--config-filepath",
             help="path to config file. Default: {}".format(
                 financeager.CONFIG_FILEPATH))
         subparser.add_argument(
