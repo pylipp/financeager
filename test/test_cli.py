@@ -110,7 +110,7 @@ name = heroku"""
 @mock.patch("financeager.DATA_DIR", None)
 class CliLocalServerMemoryStorageTestCase(CliTestCase):
 
-    CONFIG_FILE_CONTENT = ""  # backend 'none' is the default anyway
+    CONFIG_FILE_CONTENT = ""  # service 'none' is the default anyway
 
     @mock.patch("tinydb.storages.MemoryStorage.write")
     def test_add_entry(self, mocked_write):

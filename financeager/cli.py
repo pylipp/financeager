@@ -62,12 +62,12 @@ def run(command=None, config=None, verbose=False, **params):
         logger.error("Invalid configuration: {}".format(e))
         return FAILURE
 
-    backend_name = configuration.get_option("SERVICE", "name")
-    if backend_name == "flask":
+    service_name = configuration.get_option("SERVICE", "name")
+    if service_name == "flask":
         init_logger("urllib3")
 
     client = Client(
-        backend_name=backend_name,
+        service_name=service_name,
         configuration=configuration,
         out=Client.Out(logger.info, logger.error))
     success, store_offline = client.safely_run(command, **params)
@@ -87,7 +87,7 @@ def run(command=None, config=None, verbose=False, **params):
     if store_offline and offline.add(command, **params):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
-    if backend_name == "none":
+    if service_name == "none":
         client.run("stop")
 
     return exit_code

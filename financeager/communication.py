@@ -1,5 +1,5 @@
-"""Backend-agnostic communication-related routines (preprocessing of requests,
-formatting of responses)."""
+"""Service-agnostic communication-related interfaces wrapping several routines
+(preprocessing of requests, formatting of responses)."""
 from datetime import datetime
 import importlib
 from collections import namedtuple
@@ -14,7 +14,7 @@ from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
 
 
 def module(name):
-    """Return the client module corresponding to the backend specified by 'name'
+    """Return the client module corresponding to the service specified by 'name'
     ('flask' or 'none').
     """
     frontend_modules = {
@@ -26,20 +26,26 @@ def module(name):
 
 
 class Client:
+    """Abstract interface for communicating with the service.
+    Output is passed to distinct sinks which are functions taking a single
+    string argument.
+    """
 
-    # Output streams
+    # Output sinks
     Out = namedtuple("Out", ["info", "error"])
 
-    def __init__(self, *, configuration, backend_name, out):
-        """Set up proxy according to backend_name and configuration."""
+    def __init__(self, *, configuration, service_name, out):
+        """Set up proxy according to service_name and configuration.
+        Store the output sinks specified in the Client.Out object 'out'.
+        """
         proxy_kwargs = {}
-        if backend_name == "flask":
+        if service_name == "flask":
             proxy_kwargs["http_config"] = configuration.get_option(
                 "SERVICE:FLASK")
         else:  # 'none' is the only other option
             proxy_kwargs["data_dir"] = financeager.DATA_DIR
 
-        self.proxy = module(backend_name).proxy(**proxy_kwargs)
+        self.proxy = module(service_name).proxy(**proxy_kwargs)
         self.configuration = configuration
         self.out = out
 
