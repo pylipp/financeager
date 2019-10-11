@@ -5,14 +5,14 @@ import argparse
 import os
 import sys
 
-from financeager import offline, communication, __version__,\
+from financeager import offline, __version__,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
+from .communication import Client
 from .entries import CategoryEntry
 from .listing import Listing
 from .config import Configuration
-from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
-    OfflineRecoveryError, InvalidConfigError
+from .exceptions import OfflineRecoveryError, InvalidConfigError
 
 logger = init_logger(__name__)
 
@@ -34,7 +34,7 @@ def main():
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
 
-
+    
 def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
     """High-level API entry point, useful for scripts.
     Run 'command' passing 'cl_kwargs' according to
@@ -60,50 +60,31 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
         logger.error("Invalid configuration: {}".format(e))
         return FAILURE
 
-    backend_name = configuration.get_option("SERVICE", "name")
-    communication_module = communication.module(backend_name)
-
-    proxy_kwargs = {}
-    if backend_name == "flask":
+    service_name = configuration.get_option("SERVICE", "name")
+    if service_name == "flask":
         init_logger("urllib3")
-        proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
-    else:  # 'none' is the only other option
-        proxy_kwargs["data_dir"] = financeager.DATA_DIR
 
-    # Indicate whether to store request offline, if failed
-    store_offline = False
+    client = Client(
+        configuration=configuration, out=Client.Out(logger.info, logger.error))
+    success, store_offline = client.safely_run(command, **params)
 
-    proxy = communication_module.proxy(**proxy_kwargs)
-
-    try:
-        logger.info(
-            communication.run(
-                proxy,
-                command,
-                default_category=configuration.get_option(
-                    "FRONTEND", "default_category"),
-                date_format=configuration.get_option("FRONTEND", "date_format"),
-                **cl_kwargs))
-        if offline.recover(proxy):
-            logger.info("Recovered offline backup.")
+    if success:
         exit_code = SUCCESS
-    except OfflineRecoveryError:
-        logger.error("Offline backup recovery failed!")
-    except (PreprocessingError, InvalidRequest) as e:
-        # Command is erroneous and hence not stored offline
-        logger.error(e)
-    except CommunicationError as e:
-        logger.error(e)
-        store_offline = True
-    except Exception:
-        logger.exception("Unexpected error")
-        store_offline = True
 
-    if store_offline and offline.add(command, **cl_kwargs):
+        # When regular command was successfully executed, attempt to recover
+        # offline backup
+        try:
+            if offline.recover(client.proxy):
+                logger.info("Recovered offline backup.")
+        except OfflineRecoveryError:
+            logger.error("Offline backup recovery failed!")
+            exit_code = FAILURE
+
+    if store_offline and offline.add(command, **params):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
-    if backend_name == "none":
-        communication.run(proxy, "stop")
+    if service_name == "none":
+        client.run("stop")
 
     return exit_code
 

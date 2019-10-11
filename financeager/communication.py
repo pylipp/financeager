@@ -1,46 +1,118 @@
-"""Backend-agnostic communication-related routines (preprocessing of requests,
-formatting of responses)."""
+"""Service-agnostic communication-related interfaces wrapping several routines
+(preprocessing of requests, formatting of responses)."""
 from datetime import datetime
+import importlib
+from collections import namedtuple
 
-import financeager.httprequests
-import financeager.localserver
+import financeager
+
 from . import PERIOD_DATE_FORMAT
 from .listing import prettify, Listing
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
-from .exceptions import PreprocessingError
+from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
 
 
 def module(name):
-    """Return the client module corresponding to the backend specified by 'name'
+    """Return the client module corresponding to the service specified by 'name'
     ('flask' or 'none').
     """
     frontend_modules = {
         "flask": "httprequests",
         "none": "localserver",
     }
-    return getattr(financeager, frontend_modules[name])
+    return importlib.import_module("financeager.{}".format(
+        frontend_modules[name]))
 
 
-def run(proxy,
+class Client:
+    """Abstract interface for communicating with the service.
+    Output is passed to distinct sinks which are functions taking a single
+    string argument.
+    """
+
+    # Output sinks
+    Out = namedtuple("Out", ["info", "error"])
+
+    def __init__(self, *, configuration, out):
+        """Set up proxy according to configuration.
+        Store the output sinks specified in the Client.Out object 'out'.
+        """
+        service_name = configuration.get_option("SERVICE", "name")
+        proxy_kwargs = {}
+        if service_name == "flask":
+            proxy_kwargs["http_config"] = configuration.get_option(
+                "SERVICE:FLASK")
+        else:  # 'none' is the only other option
+            proxy_kwargs["data_dir"] = financeager.DATA_DIR
+
+        self.proxy = module(service_name).proxy(**proxy_kwargs)
+        self.configuration = configuration
+        self.out = out
+
+    def safely_run(self, command, **params):
+        """Execute run() while handling any errors. Return indicators about
+        whether execution was successful, and whether to store the requested
+        command offline, if execution failed due to a service-sided error.
+        """
+        store_offline = False
+        success = False
+
+        try:
+            self.out.info(self.run(command, **params))
+            success = True
+        except (PreprocessingError, InvalidRequest) as e:
+            # Command is erroneous and hence not stored offline
+            self.out.error(e)
+        except CommunicationError as e:
+            self.out.error(e)
+            store_offline = True
+        except Exception:
+            self.out.exception("Unexpected error")
+            store_offline = True
+
+        return success, store_offline
+
+    def run(self, command, **params):
+        """Preprocess parameters, form and send request to the proxy, and
+        eventually return formatted response.
+
+        :raises: PreprocessingError, CommunicationError, InvalidRequest
+        :return: str
+        """
+        # Extract formatting options; irrelevant, event confusing for Server
+        formatting_options = {}
+        if command == "print":
+            for option in ["stacked_layout", "entry_sort", "category_sort"]:
+                formatting_options[option] = params.pop(option)
+
+        date_format = self.configuration.get_option("FRONTEND", "date_format")
+        _preprocess(params, date_format)
+
+        response = self.proxy.run(command, **params)
+
+        return _format_response(
+            response,
+            command,
+            default_category=self.configuration.get_option(
+                "FRONTEND", "default_category"),
+            **formatting_options)
+
+
+def _format_response(
+        response,
         command,
         default_category=CategoryEntry.DEFAULT_NAME,
-        date_format=None,
         stacked_layout=False,
         entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
         category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-        **kwargs):
-    """Run a command on the given proxy. The kwargs are preprocessed and passed
-    on. The server response is formatted and returned. If the response does not
-    contain any of the fields 'elements', 'element', or 'periods', the empty
-    string is returned.
+):
+    """Format the given response into human-readable text.
+    If the response does not contain any of the fields 'id', 'elements',
+    'element', or 'periods', the empty string is returned.
 
-    :raises: CommunicationError, InvalidRequest
     :return: str
     """
-    _preprocess(kwargs, date_format)
-    response = proxy.run(command, **kwargs)
-
     eid = response.get("id")
     if eid is not None:
         verb = {
@@ -61,8 +133,7 @@ def run(proxy,
     element = response.get("element")
     if element is not None:
         CategoryEntry.DEFAULT_NAME = default_category
-        return prettify_element(
-            element, recurrent=kwargs.get("table_name") == "recurrent")
+        return prettify_element(element)
 
     periods = response.get("periods")
     if periods is not None:

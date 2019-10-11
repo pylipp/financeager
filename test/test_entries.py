@@ -169,7 +169,7 @@ class PrettifyRecurrentElementTestCase(unittest.TestCase):
 
     def test_prettify(self):
         self.assertEqual(
-            prettify_entry(self.element, True), """\
+            prettify_entry(self.element), """\
 Name     : Retirement Money
 Value    : 567.0
 Frequency: Monthly

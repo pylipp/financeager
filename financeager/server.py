@@ -1,4 +1,4 @@
-"""Top-level backend organization of databases."""
+"""Top-level service organizing databases."""
 
 from . import default_period_name, init_logger
 from .period import TinyDbPeriod, PeriodException
