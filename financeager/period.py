@@ -5,6 +5,7 @@ from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 import re
+from abc import ABC, abstractmethod
 
 from tinydb import TinyDB, Query, storages
 from tinydb.database import Element
@@ -41,7 +42,7 @@ class RecurrentEntryValidationModel(BaseValidationModel):
     end = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
 
 
-class Period:
+class Period(ABC):
     def __init__(self, name=None):
         """Create Period object. Its name defaults to the current year if not
         specified.
@@ -56,6 +57,57 @@ class Period:
     def year(self):
         """Return period year as integer."""
         return int(self._name)
+    
+    @abstractmethod
+    def add_entry(self, table_name=None, **kwargs):
+        """
+        Add an entry (standard or recurrent) to the database.
+        If 'table_name' is not specified, the kwargs name, value[, category,
+        date] are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency
+        [, start, end, category] are used to insert a template entry in the
+        recurrent table.
+
+        Two kwargs are mandatory:
+            :param name: entry name
+            :type name: str
+            :param value: entry value
+            :type value: float, int or str
+
+        The following kwarg is optional:
+            :param category: entry category. If not specified, the program
+                attempts to derive it from previous, eponymous entries. If this
+                fails, ``_DEFAULT_CATEGORY`` is assigned
+            :type category: str or None
+
+        The following kwarg is optional for standard entries:
+            :param date: entry date. Defaults to current date
+            :type date: str of ``PERIOD_DATE_FORMAT``
+
+        The following kwarg is mandatory for recurrent entries:
+            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
+                'bimonthly', 'monthly', 'weekly' or 'daily'
+
+        The following kwargs are optional for recurrent entries:
+            :param start: start date (defaults to current date)
+            :param end: end date (defaults to last day of the period's year)
+
+        :raise: PeriodException if validation failed or table name unknown
+        :return: TinyDB ID of new entry (int)
+        """
+        pass
+    @abstractmethod
+    def remove_entry(self, eid, table_name=None):
+        pass
+    @abstractmethod
+    def update_entry(self, eid, table_name=None, **kwargs):
+        pass
+    @abstractmethod
+    def get_entry(self, eid, table_name=None):
+        pass
+    @abstractmethod
+    def get_entries(self, filters=None):
+        pass
 
 
 class PeriodException(Exception):
