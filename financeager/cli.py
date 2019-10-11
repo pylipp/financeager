@@ -35,12 +35,12 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config=None, verbose=False, **cl_kwargs):
+def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
     """High-level API entry point, useful for scripts. Run 'command' passing
     'cl_kwargs' according to what the command line interface accepts (consult
     help via `financeager [command] --help`), e.g. {"command": "add", "name":
     "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
-    'config' specifies the path to a custom config file (optional). If 'verbose'
+    'config_filepath' specifies the path to a custom config file (optional). If 'verbose'
     is set, debug level log messages are printed to the terminal.
 
     :return: UNIX return code (zero for success, non-zero otherwise)
@@ -50,7 +50,6 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
 
     exit_code = FAILURE
 
-    config_filepath = config
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
         config_filepath = financeager.CONFIG_FILEPATH
     try:
@@ -241,7 +240,7 @@ least a frequency, start date and end date are optional. Default:
     for subparser in subparsers.choices.values():
         subparser.add_argument(
             "-C",
-            "--config",
+            "--config-filepath",
             help="path to config file. Default: {}".format(
                 financeager.CONFIG_FILEPATH))
         subparser.add_argument(
