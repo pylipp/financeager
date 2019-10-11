@@ -34,7 +34,7 @@ def main():
     # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
 
-    
+
 def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
     """High-level API entry point, useful for scripts.
     Run 'command' passing 'cl_kwargs' according to
@@ -66,7 +66,7 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
 
     client = Client(
         configuration=configuration, out=Client.Out(logger.info, logger.error))
-    success, store_offline = client.safely_run(command, **params)
+    success, store_offline = client.safely_run(command, **cl_kwargs)
 
     if success:
         exit_code = SUCCESS
@@ -80,7 +80,7 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
             logger.error("Offline backup recovery failed!")
             exit_code = FAILURE
 
-    if store_offline and offline.add(command, **params):
+    if store_offline and offline.add(command, **cl_kwargs):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
     if service_name == "none":
