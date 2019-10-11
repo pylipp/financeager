@@ -25,7 +25,7 @@ class AddTestCase(unittest.TestCase):
         self.assertEqual(data.pop("command"), "add")
         self.assertDictEqual(kwargs, data)
 
-        client = utils.Client(service_name="none")
+        client = utils.Client()
         self.assertTrue(recover(client, offline_filepath=self.filepath))
 
         element = client.proxy.run("get", eid=1, period=period_name)["element"]
@@ -46,7 +46,7 @@ class AddTestCase(unittest.TestCase):
         self.assertTrue(add(command, offline_filepath=self.filepath, **kwargs))
 
         # Create client, and fake the run method
-        client = utils.Client(service_name="none")
+        client = utils.Client()
 
         def run(command, **kwargs):
             raise Exception
