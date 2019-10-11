@@ -40,8 +40,8 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
     'cl_kwargs' according to what the command line interface accepts (consult
     help via `financeager [command] --help`), e.g. {"command": "add", "name":
     "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
-    'config_filepath' specifies the path to a custom config file (optional). If 'verbose'
-    is set, debug level log messages are printed to the terminal.
+    'config_filepath' specifies the path to a custom config file (optional).
+     If 'verbose'is set, debug level log messages are printed to the terminal.
 
     :return: UNIX return code (zero for success, non-zero otherwise)
     """
