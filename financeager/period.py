@@ -88,7 +88,6 @@ class Period(ABC):
         :raise: PeriodException if validation failed or table name unknown
         :return: ID of new entry (int)
         """
-        pass
 
     @abstractmethod
     def remove_entry(self, eid, table_name=None):
@@ -102,7 +101,6 @@ class Period(ABC):
         :raise: PeriodException if entry/ID not found.
         :return: entry ID if removal was successful
         """
-        pass
 
     @abstractmethod
     def update_entry(self, eid, table_name=None, **kwargs):
@@ -116,7 +114,6 @@ class Period(ABC):
         :raise: PeriodException if entry not found
         :return: ID of the updated entry
         """
-        pass
 
     @abstractmethod
     def get_entry(self, eid, table_name=None):
@@ -126,7 +123,6 @@ class Period(ABC):
         :raise: PeriodException if entry not found
         :return: found entry
         """
-        pass
 
     @abstractmethod
     def get_entries(self, filters=None):
@@ -138,7 +134,6 @@ class Period(ABC):
                     "recurrent": dict{ int: list[entry] }
                     }
         """
-        pass
 
 
 class PeriodException(Exception):
