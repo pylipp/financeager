@@ -5,6 +5,7 @@ from collections import defaultdict, Counter
 from dateutil import rrule
 from datetime import datetime as dt
 import re
+from abc import ABC, abstractmethod
 
 from tinydb import TinyDB, Query, storages
 from tinydb.database import Element
@@ -41,7 +42,7 @@ class RecurrentEntryValidationModel(BaseValidationModel):
     end = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
 
 
-class Period:
+class Period(ABC):
     def __init__(self, name=None):
         """Create Period object. Its name defaults to the current year if not
         specified.
@@ -57,6 +58,89 @@ class Period:
         """Return period year as integer."""
         return int(self._name)
 
+    @abstractmethod
+    def add_entry(self, table_name=None, **kwargs):
+        """
+        Add an entry (standard or recurrent) to the database.
+        If 'table_name' is not specified, the kwargs name, value[, category,
+        date] are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency
+        [, start, end, category] are used to insert a template entry in the
+        recurrent table.
+        Two kwargs are mandatory:
+            :param name: entry name
+            :type name: str
+            :param value: entry value
+            :type value: float, int or str
+        The following kwarg is optional:
+            :param category: entry category. If not specified, the program
+                attempts to derive it from previous, eponymous entries. If this
+                fails, ``_DEFAULT_CATEGORY`` is assigned
+            :type category: str or None
+        The following kwarg is optional for standard entries:
+            :param date: entry date. Defaults to current date
+            :type date: str of ``PERIOD_DATE_FORMAT``
+        The following kwarg is mandatory for recurrent entries:
+            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
+                'bimonthly', 'monthly', 'weekly' or 'daily'
+        The following kwargs are optional for recurrent entries:
+            :param start: start date (defaults to current date)
+            :param end: end date (defaults to last day of the period's year)
+        :raise: PeriodException if validation failed or table name unknown
+        :return: ID of new entry (int)
+        """
+        pass
+        
+    @abstractmethod
+    def remove_entry(self, eid, table_name=None):
+         """Remove an entry from the Period database given its ID. The category
+        cache is updated.
+        :param eid: ID of the element to be deleted.
+        :type eid: int or str
+        :param table_name: name of the table that contains the element.
+            Default: 'standard'
+        :type table_name: str
+        :raise: PeriodException if element/ID not found.
+        :return: element ID if removal was successful
+        """
+        pass
+
+    @abstractmethod
+    def update_entry(self, eid, table_name=None, **kwargs):
+        """Update one or more fields of a single entry of the Period.
+        :param eid: entry ID of the entry to be updated
+        :param table_name: table that the entry is stored in (default:
+            'standard')
+        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
+            'end' for recurrent entries; any of 'name', 'value', 'category' for
+            either entry type
+        :raise: PeriodException if element not found
+        :return: ID of the updated entry
+        """
+        pass
+
+    @abstractmethod
+    def get_entry(self, eid, table_name=None):
+        """
+        Get entry specified by ``eid`` in the table ``table_name`` (defaults to
+        table 'standard').
+        :type eid: int or str
+        :raise: PeriodException if element not found
+        :return: found element
+        """
+        pass
+
+    @abstractmethod
+    def get_entries(self, filters=None):
+         """Get dict of standard and recurrent entries that match the items of
+        the filters dict, if specified. Constructs a condition from the given
+        filters and uses it to query all tables.
+        :return: dict{
+                    DEFAULT_TABLE:  dict{ int: element },
+                    "recurrent": dict{ int: list[element] }
+                    }
+        """
+        pass
 
 class PeriodException(Exception):
     pass
@@ -98,12 +182,10 @@ class TinyDbPeriod(Period):
     def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
         """Perform preprocessing steps (validation, conversion, substitution) of
         raw entry fields prior to adding it to the database.
-
         :param raw_data: dict containing raw entry fields
         :param table_name: name of the table that the entry is passed to
         :param partial: indicates whether preprocessing is performed before
             adding (False) or updating (True) the database
-
         :raise: PeriodException if validation failed or table name unknown
         """
 
@@ -142,7 +224,6 @@ class TinyDbPeriod(Period):
     @staticmethod
     def _validate_entry(raw_data, table_name, **model_kwargs):
         """Validate raw entry data acc. to ValidationModel.
-
         :return: primitive (type-correct) representation of fields
         :raise: PeriodException if validation failed
         """
@@ -229,12 +310,10 @@ class TinyDbPeriod(Period):
                                **fields):
         """Update the category cache when adding or updating an entry. The `eid`
         kwarg is used to distinguish the use cases.
-
         :param eid: element ID when updating
         :param table_name: table name when updating
         :param removing: indicate updating cache after removing an entry
         :param fields: preprossed entry fields to be inserted in the database
-
         :raise: PeriodException if element not found when updating
         """
 
@@ -260,41 +339,6 @@ class TinyDbPeriod(Period):
                                                old_category] += 1
 
     def add_entry(self, table_name=None, **kwargs):
-        """
-        Add an entry (standard or recurrent) to the database.
-        If 'table_name' is not specified, the kwargs name, value[, category,
-        date] are used to insert a unique entry in the standard table.
-        With 'table_name' as 'recurrent', the kwargs name, value, frequency
-        [, start, end, category] are used to insert a template entry in the
-        recurrent table.
-
-        Two kwargs are mandatory:
-            :param name: entry name
-            :type name: str
-            :param value: entry value
-            :type value: float, int or str
-
-        The following kwarg is optional:
-            :param category: entry category. If not specified, the program
-                attempts to derive it from previous, eponymous entries. If this
-                fails, ``_DEFAULT_CATEGORY`` is assigned
-            :type category: str or None
-
-        The following kwarg is optional for standard entries:
-            :param date: entry date. Defaults to current date
-            :type date: str of ``PERIOD_DATE_FORMAT``
-
-        The following kwarg is mandatory for recurrent entries:
-            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
-                'bimonthly', 'monthly', 'weekly' or 'daily'
-
-        The following kwargs are optional for recurrent entries:
-            :param start: start date (defaults to current date)
-            :param end: end date (defaults to last day of the period's year)
-
-        :raise: PeriodException if validation failed or table name unknown
-        :return: TinyDB ID of new entry (int)
-        """
 
         table_name = table_name or DEFAULT_TABLE
         fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
@@ -306,15 +350,6 @@ class TinyDbPeriod(Period):
         return element_id
 
     def get_entry(self, eid, table_name=None):
-        """
-        Get entry specified by ``eid`` in the table ``table_name`` (defaults to
-        table 'standard').
-
-        :type eid: int or str
-
-        :raise: PeriodException if element not found
-        :return: found element (tinydb.Element)
-        """
 
         table_name = table_name or DEFAULT_TABLE
         element = self._db.table(table_name).get(eid=int(eid))
@@ -324,17 +359,6 @@ class TinyDbPeriod(Period):
         return element
 
     def update_entry(self, eid, table_name=None, **kwargs):
-        """Update one or more fields of a single entry of the Period.
-
-        :param eid: entry ID of the entry to be updated
-        :param table_name: table that the entry is stored in (default:
-            'standard')
-        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
-            'end' for recurrent entries; any of 'name', 'value', 'category' for
-            either entry type
-        :raise: PeriodException if element not found
-        :return: ID of the updated entry
-        """
 
         table_name = table_name or DEFAULT_TABLE
         fields = self._preprocess_entry(
@@ -350,17 +374,14 @@ class TinyDbPeriod(Period):
     def _search_all_tables(self, query_impl=None):
         """Search both the standard table and the recurrent table for elements
         that satisfy the given condition.
-
         The elements' `eid` attribute is used as key in the returned subdicts
         because it is lost in the client-server communication protocol (on
         `financeager print`, the server calls Period.get_entries, yet the
         JSON response returned drops the Element.eid attribute s.t. it's not
         available when calling prettify on the client side).
-
         :param query_impl: condition for the search. If none (default), all
             elements are returned.
         :type query_impl: tinydb.queries.QueryImpl
-
         :return: dict
         """
 
@@ -445,18 +466,6 @@ class TinyDbPeriod(Period):
                     date=date.strftime(PERIOD_DATE_FORMAT)))
 
     def remove_entry(self, eid, table_name=None):
-        """Remove an entry from the Period database given its ID. The category
-        cache is updated.
-
-        :param eid: ID of the element to be deleted.
-        :type eid: int or str
-        :param table_name: name of the table that contains the element.
-            Default: 'standard'
-        :type table_name: str
-
-        :raise: PeriodException if element/ID not found.
-        :return: element ID if removal was successful
-        """
 
         table_name = table_name or DEFAULT_TABLE
         # might raise PeriodException if ID not existing
@@ -518,10 +527,7 @@ class TinyDbPeriod(Period):
         return condition
 
     def get_entries(self, filters=None):
-        """Get dict of standard and recurrent entries that match the items of
-        the filters dict, if specified. Constructs a condition from the given
-        filters and uses it to query all tables.
-
+        """
         :return: dict{
                     DEFAULT_TABLE:  dict{ int: tinydb.Element },
                     "recurrent": dict{ int: list[tinydb.Element] }
