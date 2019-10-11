@@ -35,15 +35,15 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
+def run(command=None, config_filepath=None, verbose=False, **params):
     """High-level API entry point, useful for scripts.
-    Run 'command' passing 'cl_kwargs' according to
+    Run 'command' passing 'params' according to
     what the command line interface accepts
     (consult help via `financeager [command] --help`),
-    e.g. {"command": "add", "name":"champagne", "value": "99"}.
+    e.g. {"command": "add", "name": "champagne", "value": "99"}.
     All kwargs are passed to 'communication.run()'.
     'config_filepath' specifies the path to a custom config file (optional).
-    If 'verbose'is set, debug level log messages are printed to the terminal.
+    If 'verbose' is set, debug level log messages are printed to the terminal.
 
     :return: UNIX return code (zero for success, non-zero otherwise)
     """
@@ -66,7 +66,7 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
 
     client = Client(
         configuration=configuration, out=Client.Out(logger.info, logger.error))
-    success, store_offline = client.safely_run(command, **cl_kwargs)
+    success, store_offline = client.safely_run(command, **params)
 
     if success:
         exit_code = SUCCESS
@@ -80,7 +80,7 @@ def run(command=None, config_filepath=None, verbose=False, **cl_kwargs):
             logger.error("Offline backup recovery failed!")
             exit_code = FAILURE
 
-    if store_offline and offline.add(command, **cl_kwargs):
+    if store_offline and offline.add(command, **params):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
     if service_name == "none":
