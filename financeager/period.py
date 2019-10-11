@@ -60,8 +60,7 @@ class Period(ABC):
 
     @abstractmethod
     def add_entry(self, table_name=None, **kwargs):
-        """
-        Add an entry (standard or recurrent) to the database.
+        """Add an entry (standard or recurrent) to the database.
         If 'table_name' is not specified, the kwargs name, value[, category,
         date] are used to insert a unique entry in the standard table.
         With 'table_name' as 'recurrent', the kwargs name, value, frequency
@@ -90,18 +89,18 @@ class Period(ABC):
         :return: ID of new entry (int)
         """
         pass
-        
+
     @abstractmethod
     def remove_entry(self, eid, table_name=None):
-         """Remove an entry from the Period database given its ID. The category
+        """Remove an entry from the Period database given its ID. The category
         cache is updated.
-        :param eid: ID of the element to be deleted.
+        :param eid: ID of the entry to be deleted.
         :type eid: int or str
-        :param table_name: name of the table that contains the element.
+        :param table_name: name of the table that contains the entry.
             Default: 'standard'
         :type table_name: str
-        :raise: PeriodException if element/ID not found.
-        :return: element ID if removal was successful
+        :raise: PeriodException if entry/ID not found.
+        :return: entry ID if removal was successful
         """
         pass
 
@@ -114,33 +113,33 @@ class Period(ABC):
         :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
             'end' for recurrent entries; any of 'name', 'value', 'category' for
             either entry type
-        :raise: PeriodException if element not found
+        :raise: PeriodException if entry not found
         :return: ID of the updated entry
         """
         pass
 
     @abstractmethod
     def get_entry(self, eid, table_name=None):
-        """
-        Get entry specified by ``eid`` in the table ``table_name`` (defaults to
+        """Get entry specified by ``eid`` in the table ``table_name`` (defaults to
         table 'standard').
         :type eid: int or str
-        :raise: PeriodException if element not found
-        :return: found element
+        :raise: PeriodException if entry not found
+        :return: found entry
         """
         pass
 
     @abstractmethod
     def get_entries(self, filters=None):
-         """Get dict of standard and recurrent entries that match the items of
+        """Get dict of standard and recurrent entries that match the items of
         the filters dict, if specified. Constructs a condition from the given
         filters and uses it to query all tables.
         :return: dict{
-                    DEFAULT_TABLE:  dict{ int: element },
-                    "recurrent": dict{ int: list[element] }
+                    DEFAULT_TABLE:  dict{ int: entry },
+                    "recurrent": dict{ int: list[entry] }
                     }
         """
         pass
+
 
 class PeriodException(Exception):
     pass
