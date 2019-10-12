@@ -101,10 +101,7 @@ class Client:
             **formatting_options)
 
 
-def _format_response(response,
-                     command,
-                     default_category=CategoryEntry.DEFAULT_NAME,
-                     **listing_options):
+def _format_response(response, command, **listing_options):
     """Format the given response into human-readable text.
     If the response does not contain any of the fields 'id', 'elements',
     'element', or 'periods', the empty string is returned.
@@ -124,12 +121,12 @@ def _format_response(response,
 
     elements = response.get("elements")
     if elements is not None:
-        CategoryEntry.DEFAULT_NAME = default_category
         return listing.prettify(elements, **listing_options)
 
     element = response.get("element")
     if element is not None:
-        return entries.prettify(element, default_category=default_category)
+        return entries.prettify(
+            element, default_category=listing_options["default_category"])
 
     periods = response.get("periods")
     if periods is not None:

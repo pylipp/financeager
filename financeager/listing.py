@@ -13,11 +13,11 @@ class Listing:
         self.categories = categories or []
 
     @classmethod
-    def from_elements(cls, elements, name=None):
+    def from_elements(cls, elements, default_category=None, name=None):
         """Create listing from list of element dictionaries"""
         listing = cls(name=name)
         for element in elements:
-            category = element.pop("category", None)
+            category = element.pop("category", None) or default_category
             listing.add_entry(BaseEntry(**element), category_name=category)
         return listing
 
@@ -57,13 +57,11 @@ class Listing:
 
         :raises: TypeError if neither CategoryEntry nor BaseEntry given
         """
-
         if isinstance(entry, CategoryEntry):
             if entry.name not in self.category_entry_names:
                 self.categories.append(entry)
         elif isinstance(entry, BaseEntry):
-            category_entry = self._get_category_entry(
-                category_name or CategoryEntry.DEFAULT_NAME)
+            category_entry = self._get_category_entry(category_name)
             category_entry.append(entry)
         else:
             raise TypeError("Invalid entry type: {}".format(entry))
@@ -93,8 +91,8 @@ class Listing:
 
         :return: CategoryEntry
         """
-
         category_name = category_name.lower()
+
         for category_entry in self.categories:
             if category_entry.name == category_name:
                 return category_entry
@@ -115,7 +113,8 @@ def prettify(elements, stacked_layout=False, **listing_options):
     corresponding Listings.
 
     :param stacked_layout: If True, listings are displayed one by one
-    :param listing_options: Options passed to Listing.prettify()
+    :param listing_options: Options passed to Listing.prettify(), and
+        Listing.from_elements()
     """
 
     earnings = []
@@ -144,8 +143,11 @@ def prettify(elements, stacked_layout=False, **listing_options):
     if not earnings and not expenses:
         return ""
 
-    listing_earnings = Listing.from_elements(earnings, name="Earnings")
-    listing_expenses = Listing.from_elements(expenses, name="Expenses")
+    default_category = listing_options.pop("default_category", None)
+    listing_earnings = Listing.from_elements(
+        earnings, default_category=default_category, name="Earnings")
+    listing_expenses = Listing.from_elements(
+        expenses, default_category=default_category, name="Expenses")
 
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(

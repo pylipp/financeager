@@ -146,7 +146,8 @@ class PrettifyBaseEntryTestCase(unittest.TestCase):
 
     def test_prettify(self):
         self.assertEqual(
-            prettify_entry(self.element), """\
+            prettify_entry(
+                self.element, default_category=CategoryEntry.DEFAULT_NAME), """\
 Name    : Soccer Shoes
 Value   : -123.45
 Date    : 04-01
@@ -156,7 +157,8 @@ Category: Sport Equipment""")
         element = self.element.copy()
         element["category"] = None
         self.assertEqual(
-            prettify_entry(element), """\
+            prettify_entry(
+                element, default_category=CategoryEntry.DEFAULT_NAME), """\
 Name    : Soccer Shoes
 Value   : -123.45
 Date    : 04-01
@@ -175,7 +177,8 @@ class PrettifyRecurrentElementTestCase(unittest.TestCase):
 
     def test_prettify(self):
         self.assertEqual(
-            prettify_entry(self.element), """\
+            prettify_entry(
+                self.element, default_category=CategoryEntry.DEFAULT_NAME), """\
 Name     : Retirement Money
 Value    : 567.0
 Frequency: Monthly

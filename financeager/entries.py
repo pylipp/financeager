@@ -74,7 +74,7 @@ class CategoryEntry(Entry):
 
     def __init__(self, name, entries=None):
         """:type entries: list[BaseEntry]"""
-        super().__init__(name=name, value=0.0)
+        super().__init__(name=name or self.DEFAULT_NAME, value=0.0)
 
         self.entries = []
         if entries is not None:
@@ -111,7 +111,7 @@ class CategoryEntry(Entry):
         return '\n'.join(lines)
 
 
-def prettify(element, *, default_category=CategoryEntry.DEFAULT_NAME):
+def prettify(element, *, default_category):
     """Return element properties formatted as list. The type of the element
     (recurrent or standard) is inferred by the presence of the 'frequency'
     property.

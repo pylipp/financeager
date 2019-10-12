@@ -125,7 +125,8 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
         self.item_value = 66.6
         self.item_date = "11-08"
         self.listing.add_entry(
-            BaseEntry(self.item_name, self.item_value, self.item_date))
+            BaseEntry(self.item_name, self.item_value, self.item_date),
+            category_name=CategoryEntry.DEFAULT_NAME)
 
     def test_default_category_in_list(self):
         names = list(self.listing.category_entry_names)
@@ -157,7 +158,8 @@ class ListingFromElementsTestCase(unittest.TestCase):
         self.value = 99.9
         self.date = "12-31"
         self.listing = Listing.from_elements(
-            [dict(name=self.name, value=self.value, date=self.date, eid=0)])
+            [dict(name=self.name, value=self.value, date=self.date, eid=0)],
+            default_category=CategoryEntry.DEFAULT_NAME)
 
     def test_contains_an_entry(self):
         self.assertIn(self.date, self.listing.prettify())
@@ -200,7 +202,8 @@ class PrettifyListingsTestCase(unittest.TestCase):
         self.maxDiff = None
         elements_copy = elements.copy()
         self.assertEqual(
-            prettify(elements_copy),
+            prettify(
+                elements_copy, default_category=CategoryEntry.DEFAULT_NAME),
             "              Earnings                |               Expenses               \n"  # noqa
             "Name               Value    Date  ID  | Name               Value    Date  ID \n"  # noqa
             "Unspecified          299.99           | Groceries            100.01          \n"  # noqa
