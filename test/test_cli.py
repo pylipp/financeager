@@ -25,8 +25,8 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        cls.period = "1900"  # choosing a year that hopefully does not exist yet
-        cls.destination_period = "1901"
+        cls.destination_period = 1900
+        cls.period = 1901
 
         cls.eid_pattern = re.compile(
             r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
@@ -54,7 +54,7 @@ class CliTestCase(unittest.TestCase):
 
         # Exclude option from subcommand parsers that would be confused
         if command not in ["copy", "list"]:
-            args.extend(["--period", self.period])
+            args.extend(["--period", str(self.period)])
 
         args.extend(["--config", TEST_CONFIG_FILEPATH])
 
@@ -266,7 +266,7 @@ host = http://{}
         self.assertEqual(rm_entry_id, entry_id)
 
         printed_content = self.cli_run("list")
-        self.assertIn(self.period, printed_content)
+        self.assertIn(str(self.period), printed_content)
 
     def test_add_get_rm_via_eid(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
