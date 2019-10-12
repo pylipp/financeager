@@ -15,7 +15,7 @@ from financeager import PERIOD_DATE_FORMAT, DEFAULT_TABLE
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
     def test_default_name(self):
-        Period.__abstractmethod__ = set()
+        Period.__abstractmethods__ = set()
         period = Period()
         year = dt.date.today().year
         self.assertEqual(period.year, year)
