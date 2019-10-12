@@ -67,8 +67,8 @@ class CategoryEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(self.entry), "Gifts".ljust(CategoryEntry.NAME_LENGTH) + " " +
-            "0.00".rjust(BaseEntry.VALUE_LENGTH) + " " +
+            self.entry.string(), "Gifts".ljust(CategoryEntry.NAME_LENGTH) +
+            " " + "0.00".rjust(BaseEntry.VALUE_LENGTH) + " " +
             BaseEntry.DATE_LENGTH * " " + (BaseEntry.EID_LENGTH + 1) * " "
             if BaseEntry.SHOW_EID else "")
 
@@ -88,7 +88,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(self.entry),
+            self.entry.string(),
             "This Is Quite A Lo " + "  100.00" + 6 * " " + 4 * " " + "\n" +
             "  Entry            " + "  100.00" + " 08-13 " + "  0")
 
@@ -103,37 +103,33 @@ class SortBaseEntriesTestCase(unittest.TestCase):
             ])
 
     def test_sort_by_name(self):
-        CategoryEntry.BASE_ENTRY_SORT_KEY = "name"
         # don't let trailing whitespaces of category name row being cleaned up
         self.assertEqual(
-            str(self.entry), "\
+            self.entry.string(entry_sort="name"), "\
 Letters                9.00          " + """
   A                    1.00 08-11   7
   B                    5.00 04-11   1
   C                    3.00 06-11   3""")
 
     def test_sort_by_value(self):
-        CategoryEntry.BASE_ENTRY_SORT_KEY = "value"
         self.assertEqual(
-            str(self.entry), "\
+            self.entry.string(entry_sort="value"), "\
 Letters                9.00          " + """
   A                    1.00 08-11   7
   C                    3.00 06-11   3
   B                    5.00 04-11   1""")
 
     def test_sort_by_date(self):
-        CategoryEntry.BASE_ENTRY_SORT_KEY = "date"
         self.assertEqual(
-            str(self.entry), "\
+            self.entry.string(entry_sort="date"), "\
 Letters                9.00          " + """
   B                    5.00 04-11   1
   C                    3.00 06-11   3
   A                    1.00 08-11   7""")
 
     def test_sort_by_eid(self):
-        CategoryEntry.BASE_ENTRY_SORT_KEY = "eid"
         self.assertEqual(
-            str(self.entry), "\
+            self.entry.string(entry_sort="eid"), "\
 Letters                9.00          " + """
   B                    5.00 04-11   1
   C                    3.00 06-11   3
@@ -150,11 +146,23 @@ class PrettifyBaseEntryTestCase(unittest.TestCase):
 
     def test_prettify(self):
         self.assertEqual(
-            prettify_entry(self.element), """\
+            prettify_entry(
+                self.element, default_category=CategoryEntry.DEFAULT_NAME), """\
 Name    : Soccer Shoes
 Value   : -123.45
 Date    : 04-01
 Category: Sport Equipment""")
+
+    def test_prettify_default_category(self):
+        element = self.element.copy()
+        element["category"] = None
+        self.assertEqual(
+            prettify_entry(
+                element, default_category=CategoryEntry.DEFAULT_NAME), """\
+Name    : Soccer Shoes
+Value   : -123.45
+Date    : 04-01
+Category: {}""".format(CategoryEntry.DEFAULT_NAME.capitalize()))
 
 
 class PrettifyRecurrentElementTestCase(unittest.TestCase):
@@ -169,7 +177,8 @@ class PrettifyRecurrentElementTestCase(unittest.TestCase):
 
     def test_prettify(self):
         self.assertEqual(
-            prettify_entry(self.element), """\
+            prettify_entry(
+                self.element, default_category=CategoryEntry.DEFAULT_NAME), """\
 Name     : Retirement Money
 Value    : 567.0
 Frequency: Monthly

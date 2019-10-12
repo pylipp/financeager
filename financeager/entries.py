@@ -3,7 +3,7 @@ query results."""
 
 from datetime import datetime
 
-from . import PERIOD_DATE_FORMAT
+from . import PERIOD_DATE_FORMAT, DEFAULT_BASE_ENTRY_SORT_KEY
 
 
 class Entry:
@@ -72,11 +72,9 @@ class CategoryEntry(Entry):
     NAME_LENGTH = BaseEntry.NAME_LENGTH + BASE_ENTRY_INDENT
     TOTAL_LENGTH = BaseEntry.TOTAL_LENGTH + BASE_ENTRY_INDENT
 
-    BASE_ENTRY_SORT_KEY = "name"
-
     def __init__(self, name, entries=None):
         """:type entries: list[BaseEntry]"""
-        super().__init__(name=name, value=0.0)
+        super().__init__(name=name or self.DEFAULT_NAME, value=0.0)
 
         self.entries = []
         if entries is not None:
@@ -88,11 +86,13 @@ class CategoryEntry(Entry):
         self.entries.append(base_entry)
         self.value += base_entry.value
 
-    def __str__(self):
+    def string(self, *, entry_sort=DEFAULT_BASE_ENTRY_SORT_KEY):
         """Return a formatted string representing the entry including its
         children (i.e. BaseEntries). The category representation is supposed
         to be longer than the BaseEntry representation so that the latter is
         indented.
+        'entry_sort' determines the property according to which the list of base
+        entries is sorted.
         """
 
         lines = [
@@ -104,19 +104,21 @@ class CategoryEntry(Entry):
                 value=self.value).ljust(self.TOTAL_LENGTH)
         ]
 
-        sort_key = lambda e: getattr(e, CategoryEntry.BASE_ENTRY_SORT_KEY)
+        sort_key = lambda e: getattr(e, entry_sort)
         for entry in sorted(self.entries, key=sort_key):
             lines.append(self.BASE_ENTRY_INDENT * " " + str(entry))
 
         return '\n'.join(lines)
 
 
-def prettify(element):
+def prettify(element, *, default_category):
     """Return element properties formatted as list. The type of the element
     (recurrent or standard) is inferred by the presence of the 'frequency'
     property.
+    If the element's 'category' property is None, use 'default_category'.
 
     :type element: dict
+    :type default_category: str
     """
     recurrent = "frequency" in element
 
@@ -131,7 +133,7 @@ def prettify(element):
             longest_property_length = len(p)
 
     if element["category"] is None:
-        element["category"] = CategoryEntry.DEFAULT_NAME
+        element["category"] = default_category
 
     lines = []
     for p in properties:

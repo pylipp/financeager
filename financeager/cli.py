@@ -9,8 +9,6 @@ from financeager import offline, __version__,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
 from .communication import Client
-from .entries import CategoryEntry
-from .listing import Listing
 from .config import Configuration
 from .exceptions import OfflineRecoveryError, InvalidConfigError
 
@@ -212,11 +210,11 @@ least a frequency, start date and end date are optional. Default:
     print_parser.add_argument(
         "--entry-sort",
         choices=["name", "value", "date", "eid"],
-        default=CategoryEntry.BASE_ENTRY_SORT_KEY)
+        default=financeager.DEFAULT_BASE_ENTRY_SORT_KEY)
     print_parser.add_argument(
         "--category-sort",
         choices=["name", "value"],
-        default=Listing.CATEGORY_ENTRY_SORT_KEY)
+        default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
 
     list_parser = subparsers.add_parser("list", help="list all databases")
 

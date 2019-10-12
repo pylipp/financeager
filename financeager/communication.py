@@ -3,12 +3,13 @@
 from datetime import datetime
 import importlib
 from collections import namedtuple
+import traceback
 
 import financeager
 
 from . import PERIOD_DATE_FORMAT
-from .listing import prettify, Listing
-from .entries import prettify as prettify_element
+from . import listing
+from . import entries
 from .entries import CategoryEntry
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
 
@@ -68,7 +69,8 @@ class Client:
             self.out.error(e)
             store_offline = True
         except Exception:
-            self.out.exception("Unexpected error")
+            self.out.error("Unexpected error: {}".format(
+                traceback.format_exc()))
             store_offline = True
 
         return success, store_offline
@@ -99,17 +101,11 @@ class Client:
             **formatting_options)
 
 
-def _format_response(
-        response,
-        command,
-        default_category=CategoryEntry.DEFAULT_NAME,
-        stacked_layout=False,
-        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-):
+def _format_response(response, command, **listing_options):
     """Format the given response into human-readable text.
     If the response does not contain any of the fields 'id', 'elements',
     'element', or 'periods', the empty string is returned.
+    The 'listing_options' are passed to listing.prettify().
 
     :return: str
     """
@@ -125,15 +121,12 @@ def _format_response(
 
     elements = response.get("elements")
     if elements is not None:
-        CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort
-        CategoryEntry.DEFAULT_NAME = default_category
-        Listing.CATEGORY_ENTRY_SORT_KEY = category_sort
-        return prettify(elements, stacked_layout)
+        return listing.prettify(elements, **listing_options)
 
     element = response.get("element")
     if element is not None:
-        CategoryEntry.DEFAULT_NAME = default_category
-        return prettify_element(element)
+        return entries.prettify(
+            element, default_category=listing_options["default_category"])
 
     periods = response.get("periods")
     if periods is not None:

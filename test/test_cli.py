@@ -25,11 +25,16 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        cls.period = "1900"  # choosing a year that hopefully does not exist yet
-        cls.destination_period = "1901"
+        cls.period = 1900
 
         cls.eid_pattern = re.compile(
             r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
+
+    def setUp(self):
+        # Separate test runs by running individual test methods using distinct
+        # periods (especially crucial for CliFlaskTestCase which uses a single
+        # Flask instance for all tests)
+        self.__class__.period += 1
 
     def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
@@ -54,7 +59,7 @@ class CliTestCase(unittest.TestCase):
 
         # Exclude option from subcommand parsers that would be confused
         if command not in ["copy", "list"]:
-            args.extend(["--period", self.period])
+            args.extend(["--period", str(self.period)])
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
 
@@ -85,12 +90,6 @@ class CliTestCase(unittest.TestCase):
 
         # Convert Exceptions to string
         return str(printed_content)
-
-    def tearDown(self):
-        for p in [self.period, self.destination_period]:
-            filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(p))
-            if os.path.exists(filepath):
-                os.remove(filepath)
 
 
 class CliInvalidConfigTestCase(CliTestCase):
@@ -266,7 +265,7 @@ host = http://{}
         self.assertEqual(rm_entry_id, entry_id)
 
         printed_content = self.cli_run("list")
-        self.assertIn(self.period, printed_content)
+        self.assertIn(str(self.period), printed_content)
 
     def test_add_get_rm_via_eid(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
@@ -294,9 +293,6 @@ host = http://{}
 
         printed_content = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("Bretzels", printed_content)
-
-        # Remove to have empty period
-        self.cli_run("rm {}", format_args=entry_id)
 
     def test_update_nonexisting_entry(self):
         printed_content = self.cli_run("update -1 -n a", log_method="error")
@@ -335,19 +331,20 @@ host = http://{}
         self.assertEqual(printed_content, "")
 
     def test_copy(self):
+        destination_period = self.period + 1
+        self.__class__.period += 1
+
         source_entry_id = self.cli_run("add donuts -50 -c sweets")
 
         destination_entry_id = self.cli_run(
             "copy {} -s {} -d {}",
-            format_args=(source_entry_id, self.period, self.destination_period))
+            format_args=(source_entry_id, self.period, destination_period))
 
         # Swap period to trick cli_run()
-        self.period, self.destination_period = self.destination_period, \
-            self.period
+        self.period, destination_period = destination_period, self.period
         destination_printed_content = self.cli_run(
             "get {}", format_args=destination_entry_id).splitlines()
-        self.period, self.destination_period = self.destination_period, \
-            self.period
+        self.period, destination_period = destination_period, self.period
 
         source_printed_content = self.cli_run(
             "get {}", format_args=source_entry_id).splitlines()
@@ -357,13 +354,14 @@ host = http://{}
         self.assertListEqual(destination_printed_content,
                              source_printed_content)
 
-        self.cli_run("rm {}", format_args=source_entry_id)
-
     def test_copy_nonexisting_entry(self):
+        destination_period = self.period + 1
+        self.__class__.period += 1
+
         printed_content = self.cli_run(
             "copy 0 -s {} -d {}",
             log_method="error",
-            format_args=(self.period, self.destination_period))
+            format_args=(self.period, destination_period))
         self.assertIn("404", printed_content)
 
     def test_default_category(self):
@@ -385,8 +383,6 @@ host = http://{}
         printed_content = self.cli_run("get {}", format_args=entry_id)
         self.assertEqual(printed_content.splitlines()[-1].split()[1].lower(),
                          CategoryEntry.DEFAULT_NAME)
-
-        self.cli_run("rm {}", format_args=entry_id)
 
     def test_communication_error(self):
         with mock.patch("requests.get") as mocked_get:
@@ -436,12 +432,6 @@ host = http://{}
         self.assertEqual("Recovered offline backup.",
                          self.log_call_args_list["info"][1][0][0])
 
-        # This is admittedly hacky. It would be cleaner to a) have independent
-        # databases per test function, or b) have a way to get the response
-        # about the recovered element ID by having the offline module use
-        # functions of the cli module
-        self.cli_run("rm 5")
-
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 @mock.patch("financeager.CONFIG_FILEPATH", TEST_CONFIG_FILEPATH)
@@ -456,10 +446,7 @@ class CliNoConfigTestCase(CliTestCase):
             stacked_layout=False, entry_sort="name", category_sort="value")
 
         # Default config file exists; expect it to be loaded
-        run(command="print",
-            period=self.period,
-            config_filepath=None,
-            **formatting_options)
+        run(command="list", config=None, **formatting_options)
         mocked_logger.info.assert_called_once_with("")
         mocked_logger.info.reset_mock()
 
@@ -467,10 +454,7 @@ class CliNoConfigTestCase(CliTestCase):
         os.remove(TEST_CONFIG_FILEPATH)
 
         # No config is loaded at all
-        run(command="print",
-            period=1900,
-            config_filepath=None,
-            **formatting_options)
+        run(command="list", config=None, **formatting_options)
         mocked_logger.info.assert_called_once_with("")
 
         # The custom config modified the global state which affects other
