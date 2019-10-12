@@ -36,14 +36,15 @@ def main():
 
 
 def run(command=None, config_filepath=None, verbose=False, **params):
-    """High-level API entry point, useful for scripts.
-    Run 'command' passing 'params' according to
-    what the command line interface accepts
-    (consult help via `financeager [command] --help`),
-    e.g. {"command": "add", "name": "champagne", "value": "99"}.
-    All kwargs are passed to 'communication.run()'.
-    'config_filepath' specifies the path to a custom config file (optional).
-    If 'verbose' is set, debug level log messages are printed to the terminal.
+    """High-level API entry point.
+    All 'params' are passed to 'Client.safely_run()'.
+    'config_filepath' specifies the path to a custom config file (optional). If
+    'verbose' is set, debug level log messages are printed to the terminal.
+
+    This function can be used for scripting. Provide 'command' and 'params'
+    according to what the command line interface accepts (consult help via
+    `financeager [command] --help`), e.g. {"command": "add", "name":
+    "champagne", "value": "99"}.
 
     :return: UNIX return code (zero for success, non-zero otherwise)
     """
