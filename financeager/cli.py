@@ -82,7 +82,7 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         # When regular command was successfully executed, attempt to recover
         # offline backup
         try:
-            if offline.recover(client.proxy):
+            if offline.recover(client):
                 logger.info("Recovered offline backup.")
         except OfflineRecoveryError:
             logger.error("Offline backup recovery failed!")
