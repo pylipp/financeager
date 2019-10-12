@@ -4,6 +4,10 @@
 FINANCEAGER
 ===========
 
+
+
+
+
 An application (possibly running as Flask webservice) that helps you administering your daily expenses and earnings. Interact via the command line interface.
 
 The `financeager` backend holds databases (internally referred to as 'periods'). A period contains entries of a certain year.
