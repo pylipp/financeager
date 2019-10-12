@@ -61,7 +61,7 @@ class CliTestCase(unittest.TestCase):
         if command not in ["copy", "list"]:
             args.extend(["--period", str(self.period)])
 
-        args.extend(["--config", TEST_CONFIG_FILEPATH])
+        args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
 
         with mock.patch("financeager.cli.logger") as mocked_logger:
             # Mock relevant methods

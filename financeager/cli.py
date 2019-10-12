@@ -33,11 +33,11 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config=None, verbose=False, **params):
+def run(command=None, config_filepath=None, verbose=False, **params):
     """High-level API entry point.
     All 'params' are passed to 'Client.safely_run()'.
-    'config' specifies the path to a custom config file (optional). If 'verbose'
-    is set, debug level log messages are printed to the terminal.
+    'config_filepath' specifies the path to a custom config file (optional). If
+    'verbose' is set, debug level log messages are printed to the terminal.
 
     This function can be used for scripting. Provide 'command' and 'params'
     according to what the command line interface accepts (consult help via
@@ -51,7 +51,6 @@ def run(command=None, config=None, verbose=False, **params):
 
     exit_code = FAILURE
 
-    config_filepath = config
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
         config_filepath = financeager.CONFIG_FILEPATH
     try:
@@ -223,7 +222,7 @@ least a frequency, start date and end date are optional. Default:
     for subparser in subparsers.choices.values():
         subparser.add_argument(
             "-C",
-            "--config",
+            "--config-filepath",
             help="path to config file. Default: {}".format(
                 financeager.CONFIG_FILEPATH))
         subparser.add_argument(
