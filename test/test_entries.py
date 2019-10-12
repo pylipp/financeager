@@ -152,6 +152,16 @@ Value   : -123.45
 Date    : 04-01
 Category: Sport Equipment""")
 
+    def test_prettify_default_category(self):
+        element = self.element.copy()
+        element["category"] = None
+        self.assertEqual(
+            prettify_entry(element), """\
+Name    : Soccer Shoes
+Value   : -123.45
+Date    : 04-01
+Category: {}""".format(CategoryEntry.DEFAULT_NAME.capitalize()))
+
 
 class PrettifyRecurrentElementTestCase(unittest.TestCase):
     def setUp(self):

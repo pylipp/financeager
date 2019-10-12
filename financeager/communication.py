@@ -127,8 +127,7 @@ def _format_response(response,
 
     element = response.get("element")
     if element is not None:
-        CategoryEntry.DEFAULT_NAME = default_category
-        return entries.prettify(element)
+        return entries.prettify(element, default_category=default_category)
 
     periods = response.get("periods")
     if periods is not None:

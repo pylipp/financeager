@@ -111,12 +111,14 @@ class CategoryEntry(Entry):
         return '\n'.join(lines)
 
 
-def prettify(element):
+def prettify(element, *, default_category=CategoryEntry.DEFAULT_NAME):
     """Return element properties formatted as list. The type of the element
     (recurrent or standard) is inferred by the presence of the 'frequency'
     property.
+    If the element's 'category' property is None, use 'default_category'.
 
     :type element: dict
+    :type default_category: str
     """
     recurrent = "frequency" in element
 
@@ -131,7 +133,7 @@ def prettify(element):
             longest_property_length = len(p)
 
     if element["category"] is None:
-        element["category"] = CategoryEntry.DEFAULT_NAME
+        element["category"] = default_category
 
     lines = []
     for p in properties:
