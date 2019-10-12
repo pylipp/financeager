@@ -25,8 +25,7 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        cls.destination_period = 1900
-        cls.period = 1901
+        cls.period = 1900
 
         cls.eid_pattern = re.compile(
             r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
@@ -93,10 +92,9 @@ class CliTestCase(unittest.TestCase):
         return str(printed_content)
 
     def tearDown(self):
-        for p in [self.period, self.destination_period]:
-            filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(p))
-            if os.path.exists(filepath):
-                os.remove(filepath)
+        filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(self.period))
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
 
 class CliInvalidConfigTestCase(CliTestCase):
@@ -338,19 +336,20 @@ host = http://{}
         self.assertEqual(printed_content, "")
 
     def test_copy(self):
+        destination_period = self.period + 1
+        self.__class__.period += 1
+
         source_entry_id = self.cli_run("add donuts -50 -c sweets")
 
         destination_entry_id = self.cli_run(
             "copy {} -s {} -d {}",
-            format_args=(source_entry_id, self.period, self.destination_period))
+            format_args=(source_entry_id, self.period, destination_period))
 
         # Swap period to trick cli_run()
-        self.period, self.destination_period = self.destination_period, \
-            self.period
+        self.period, destination_period = destination_period, self.period
         destination_printed_content = self.cli_run(
             "get {}", format_args=destination_entry_id).splitlines()
-        self.period, self.destination_period = self.destination_period, \
-            self.period
+        self.period, destination_period = destination_period, self.period
 
         source_printed_content = self.cli_run(
             "get {}", format_args=source_entry_id).splitlines()
@@ -361,10 +360,13 @@ host = http://{}
                              source_printed_content)
 
     def test_copy_nonexisting_entry(self):
+        destination_period = self.period + 1
+        self.__class__.period += 1
+
         printed_content = self.cli_run(
             "copy 0 -s {} -d {}",
             log_method="error",
-            format_args=(self.period, self.destination_period))
+            format_args=(self.period, destination_period))
         self.assertIn("404", printed_content)
 
     def test_default_category(self):
