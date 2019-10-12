@@ -91,11 +91,6 @@ class CliTestCase(unittest.TestCase):
         # Convert Exceptions to string
         return str(printed_content)
 
-    def tearDown(self):
-        filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(self.period))
-        if os.path.exists(filepath):
-            os.remove(filepath)
-
 
 class CliInvalidConfigTestCase(CliTestCase):
 
