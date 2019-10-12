@@ -3,6 +3,7 @@
 from datetime import datetime
 import importlib
 from collections import namedtuple
+import traceback
 
 import financeager
 
@@ -68,7 +69,8 @@ class Client:
             self.out.error(e)
             store_offline = True
         except Exception:
-            self.out.exception("Unexpected error")
+            self.out.error("Unexpected error: {}".format(
+                traceback.format_exc()))
             store_offline = True
 
         return success, store_offline
