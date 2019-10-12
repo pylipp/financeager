@@ -44,7 +44,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(self.listing), '\n'.join([
+            self.listing.prettify(), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "Groceries             66.60" + 10 * " ",
@@ -54,7 +54,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
     def test_str_no_eid(self):
         BaseEntry.SHOW_EID = False
         self.assertEqual(
-            str(self.listing),
+            self.listing.prettify(),
             '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date ",
@@ -75,9 +75,8 @@ class SortCategoryEntriesTestCase(unittest.TestCase):
             self.listing.add_entry(BaseEntry("foo", v, "01-01"), c)
 
     def test_sort_by_name(self):
-        Listing.CATEGORY_ENTRY_SORT_KEY = "name"
         self.assertEqual(
-            str(self.listing), '\n'.join([
+            self.listing.prettify(category_sort="name"), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "A                     20.00" + 10 * " ",
@@ -87,9 +86,8 @@ class SortCategoryEntriesTestCase(unittest.TestCase):
             ]))
 
     def test_sort_by_value(self):
-        Listing.CATEGORY_ENTRY_SORT_KEY = "value"
         self.assertEqual(
-            str(self.listing), '\n'.join([
+            self.listing.prettify(), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "B                     10.00" + 10 * " ",
@@ -112,7 +110,7 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
 
     def test_str(self):
         self.assertEqual(
-            str(self.listing), '\n'.join([
+            self.listing.prettify(), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date  ID ",
                 "Groceries             66.60" + 10 * " ",
@@ -162,7 +160,7 @@ class ListingFromElementsTestCase(unittest.TestCase):
             [dict(name=self.name, value=self.value, date=self.date, eid=0)])
 
     def test_contains_an_entry(self):
-        self.assertIn(self.date, str(self.listing))
+        self.assertIn(self.date, self.listing.prettify())
 
     def test_category_item_names(self):
         parsed_listing_entry_names = list(self.listing.category_entry_names)

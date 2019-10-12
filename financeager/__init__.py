@@ -15,6 +15,9 @@ PERIOD_DATE_FORMAT = "%m-%d"
 # default table name of database
 DEFAULT_TABLE = "standard"
 
+# Formatting option defaults
+DEFAULT_CATEGORY_ENTRY_SORT_KEY = "value"
+
 # directories for application data and log file
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")
 DATA_DIR = os.path.expanduser("~/.local/share/financeager")

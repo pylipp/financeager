@@ -7,7 +7,7 @@ from collections import namedtuple
 import financeager
 
 from . import PERIOD_DATE_FORMAT
-from .listing import prettify, Listing
+from .listing import prettify
 from .entries import prettify as prettify_element
 from .entries import CategoryEntry
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
@@ -99,17 +99,16 @@ class Client:
             **formatting_options)
 
 
-def _format_response(
-        response,
-        command,
-        default_category=CategoryEntry.DEFAULT_NAME,
-        stacked_layout=False,
-        entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
-        category_sort=Listing.CATEGORY_ENTRY_SORT_KEY,
-):
+def _format_response(response,
+                     command,
+                     default_category=CategoryEntry.DEFAULT_NAME,
+                     stacked_layout=False,
+                     entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
+                     **listing_options):
     """Format the given response into human-readable text.
     If the response does not contain any of the fields 'id', 'elements',
     'element', or 'periods', the empty string is returned.
+    The 'listing_options' are passed to listing.prettify().
 
     :return: str
     """
@@ -127,8 +126,7 @@ def _format_response(
     if elements is not None:
         CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort
         CategoryEntry.DEFAULT_NAME = default_category
-        Listing.CATEGORY_ENTRY_SORT_KEY = category_sort
-        return prettify(elements, stacked_layout)
+        return prettify(elements, stacked_layout, **listing_options)
 
     element = response.get("element")
     if element is not None:
