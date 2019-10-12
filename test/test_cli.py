@@ -11,8 +11,9 @@ from requests import get as requests_get
 
 from financeager import DEFAULT_TABLE
 from financeager.fflask import create_app
-from financeager.cli import _parse_command, run, SUCCESS, FAILURE
+from financeager.cli import _parse_command, run, SUCCESS, FAILURE, _preprocess
 from financeager.entries import CategoryEntry
+from financeager.exceptions import PreprocessingError
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -460,6 +461,35 @@ class CliNoConfigTestCase(CliTestCase):
         # The custom config modified the global state which affects other
         # tests...
         CategoryEntry.DEFAULT_NAME = "unspecified"
+
+
+class PreprocessTestCase(unittest.TestCase):
+    def test_date_format(self):
+        data = {"date": "31.01."}
+        _preprocess(data, date_format="%d.%m.")
+        self.assertDictEqual(data, {"date": "01-31"})
+
+    def test_date_format_error(self):
+        data = {"date": "01-01"}
+        self.assertRaises(
+            PreprocessingError, _preprocess, data, date_format="%d.%m")
+
+    def test_filters(self):
+        data = {"filters": ["name=italian", "category=Restaurants"]}
+        _preprocess(data)
+        self.assertEqual(data["filters"], {
+            "name": "italian",
+            "category": "restaurants"
+        })
+
+    def test_filters_error(self):
+        data = {"filters": ["value-123"]}
+        self.assertRaises(PreprocessingError, _preprocess, data)
+
+    def test_default_category_filter(self):
+        data = {"filters": ["category=unspecified"]}
+        _preprocess(data)
+        self.assertEqual(data["filters"], {"category": None})
 
 
 if __name__ == "__main__":

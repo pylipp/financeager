@@ -64,7 +64,7 @@ Category: Clothes""".format(today()))
         self.assertNotEqual("", response)
 
         response = self.client.run(
-            "print", filters=["date=12-"], **formatting_options)
+            "print", filters={"date": "12-"}, **formatting_options)
         self.assertEqual("", response)
 
     def test_stop(self):
@@ -125,39 +125,6 @@ class CommunicationModuleTestCase(unittest.TestCase):
         self.assertEqual(module, httprequests)
         module = communication.module("none")
         self.assertEqual(module, localserver)
-
-
-class PreprocessTestCase(unittest.TestCase):
-    def test_date_format(self):
-        data = {"date": "31.01."}
-        communication._preprocess(data, date_format="%d.%m.")
-        self.assertDictEqual(data, {"date": "01-31"})
-
-    def test_date_format_error(self):
-        data = {"date": "01-01"}
-        self.assertRaises(
-            communication.PreprocessingError,
-            communication._preprocess,
-            data,
-            date_format="%d.%m")
-
-    def test_filters(self):
-        data = {"filters": ["name=italian", "category=Restaurants"]}
-        communication._preprocess(data)
-        self.assertEqual(data["filters"], {
-            "name": "italian",
-            "category": "restaurants"
-        })
-
-    def test_filters_error(self):
-        data = {"filters": ["value-123"]}
-        self.assertRaises(communication.PreprocessingError,
-                          communication._preprocess, data)
-
-    def test_default_category_filter(self):
-        data = {"filters": ["category=unspecified"]}
-        communication._preprocess(data)
-        self.assertEqual(data["filters"], {"category": None})
 
 
 if __name__ == '__main__':

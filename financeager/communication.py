@@ -1,17 +1,13 @@
-"""Service-agnostic communication-related interfaces wrapping several routines
-(preprocessing of requests, formatting of responses)."""
-from datetime import datetime
+"""Service-agnostic communication-related interface."""
 import importlib
 from collections import namedtuple
 import traceback
 
 import financeager
 
-from . import PERIOD_DATE_FORMAT
 from . import listing
 from . import entries
-from .entries import CategoryEntry
-from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
+from .exceptions import InvalidRequest, CommunicationError
 
 
 def module(name):
@@ -62,7 +58,7 @@ class Client:
         try:
             self.out.info(self.run(command, **params))
             success = True
-        except (PreprocessingError, InvalidRequest) as e:
+        except InvalidRequest as e:
             # Command is erroneous and hence not stored offline
             self.out.error(e)
         except CommunicationError as e:
@@ -76,10 +72,10 @@ class Client:
         return success, store_offline
 
     def run(self, command, **params):
-        """Preprocess parameters, form and send request to the proxy, and
-        eventually return formatted response.
+        """Form and send request to the proxy, and eventually return formatted
+        response.
 
-        :raises: PreprocessingError, CommunicationError, InvalidRequest
+        :raises: CommunicationError, InvalidRequest
         :return: str
         """
         # Extract formatting options; irrelevant, event confusing for Server
@@ -87,9 +83,6 @@ class Client:
         if command == "print":
             for option in ["stacked_layout", "entry_sort", "category_sort"]:
                 formatting_options[option] = params.pop(option)
-
-        date_format = self.configuration.get_option("FRONTEND", "date_format")
-        _preprocess(params, date_format)
 
         response = self.proxy.run(command, **params)
 
@@ -133,42 +126,3 @@ def _format_response(response, command, **listing_options):
         return "\n".join([p for p in periods])
 
     return ""
-
-
-def _preprocess(data, date_format=None):
-    """Preprocess data to be passed to server (e.g. convert date format, parse
-    'filters' options passed with print command). Raises PreprocessError if
-    preprocessing failed.
-    """
-    date = data.get("date")
-    # recovering offline data does not bring any date format because the data
-    # has already been converted
-    if date is not None and date_format is not None:
-        try:
-            date = datetime.strptime(date,
-                                     date_format).strftime(PERIOD_DATE_FORMAT)
-            data["date"] = date
-        except ValueError:
-            raise PreprocessingError("Invalid date format.")
-
-    filter_items = data.get("filters")
-    if filter_items is not None:
-        # convert list of "key=value" strings into dictionary
-        parsed_items = {}
-        try:
-            for item in filter_items:
-                key, value = item.split("=")
-                parsed_items[key] = value.lower()
-
-            try:
-                # Substitute category default name
-                if parsed_items["category"] == CategoryEntry.DEFAULT_NAME:
-                    parsed_items["category"] = None
-            except KeyError:
-                # No 'category' field present
-                pass
-
-            data["filters"] = parsed_items
-        except ValueError:
-            # splitting returned less than two parts due to missing separator
-            raise PreprocessingError("Invalid filter format: {}".format(item))

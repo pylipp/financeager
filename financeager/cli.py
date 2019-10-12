@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 """Command line interface of financeager application."""
-
+from datetime import datetime
 import argparse
 import os
 import sys
 
-from financeager import offline, __version__,\
+from financeager import offline, __version__, PERIOD_DATE_FORMAT,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
 from .communication import Client
 from .config import Configuration
-from .exceptions import OfflineRecoveryError, InvalidConfigError
+from .entries import CategoryEntry
+from .exceptions import OfflineRecoveryError, InvalidConfigError,\
+    PreprocessingError
 
 logger = init_logger(__name__)
 
@@ -59,6 +61,13 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         logger.error("Invalid configuration: {}".format(e))
         return FAILURE
 
+    date_format = configuration.get_option("FRONTEND", "date_format")
+    try:
+        _preprocess(params, date_format)
+    except PreprocessingError as e:
+        logger.error(e)
+        return FAILURE
+
     service_name = configuration.get_option("SERVICE", "name")
     if service_name == "flask":
         init_logger("urllib3")
@@ -86,6 +95,46 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         client.run("stop")
 
     return exit_code
+
+
+def _preprocess(data, date_format=None):
+    """Preprocess data to be passed to Client (e.g. convert date format, parse
+    'filters' options passed with print command).
+
+    :raises: PreprocessError if preprocessing failed.
+    """
+    date = data.get("date")
+    # recovering offline data does not bring any date format because the data
+    # has already been converted
+    if date is not None and date_format is not None:
+        try:
+            date = datetime.strptime(date,
+                                     date_format).strftime(PERIOD_DATE_FORMAT)
+            data["date"] = date
+        except ValueError:
+            raise PreprocessingError("Invalid date format.")
+
+    filter_items = data.get("filters")
+    if filter_items is not None:
+        # convert list of "key=value" strings into dictionary
+        parsed_items = {}
+        try:
+            for item in filter_items:
+                key, value = item.split("=")
+                parsed_items[key] = value.lower()
+
+            try:
+                # Substitute category default name
+                if parsed_items["category"] == CategoryEntry.DEFAULT_NAME:
+                    parsed_items["category"] = None
+            except KeyError:
+                # No 'category' field present
+                pass
+
+            data["filters"] = parsed_items
+        except ValueError:
+            # splitting returned less than two parts due to missing separator
+            raise PreprocessingError("Invalid filter format: {}".format(item))
 
 
 def _parse_command(args=None):
