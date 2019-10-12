@@ -7,8 +7,8 @@ from collections import namedtuple
 import financeager
 
 from . import PERIOD_DATE_FORMAT
-from .listing import prettify
-from .entries import prettify as prettify_element
+from . import listing
+from . import entries
 from .entries import CategoryEntry
 from .exceptions import PreprocessingError, InvalidRequest, CommunicationError
 
@@ -102,7 +102,6 @@ class Client:
 def _format_response(response,
                      command,
                      default_category=CategoryEntry.DEFAULT_NAME,
-                     stacked_layout=False,
                      **listing_options):
     """Format the given response into human-readable text.
     If the response does not contain any of the fields 'id', 'elements',
@@ -124,12 +123,12 @@ def _format_response(response,
     elements = response.get("elements")
     if elements is not None:
         CategoryEntry.DEFAULT_NAME = default_category
-        return prettify(elements, stacked_layout, **listing_options)
+        return listing.prettify(elements, **listing_options)
 
     element = response.get("element")
     if element is not None:
         CategoryEntry.DEFAULT_NAME = default_category
-        return prettify_element(element)
+        return entries.prettify(element)
 
     periods = response.get("periods")
     if periods is not None:
