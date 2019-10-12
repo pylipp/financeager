@@ -103,7 +103,6 @@ def _format_response(response,
                      command,
                      default_category=CategoryEntry.DEFAULT_NAME,
                      stacked_layout=False,
-                     entry_sort=CategoryEntry.BASE_ENTRY_SORT_KEY,
                      **listing_options):
     """Format the given response into human-readable text.
     If the response does not contain any of the fields 'id', 'elements',
@@ -124,7 +123,6 @@ def _format_response(response,
 
     elements = response.get("elements")
     if elements is not None:
-        CategoryEntry.BASE_ENTRY_SORT_KEY = entry_sort
         CategoryEntry.DEFAULT_NAME = default_category
         return prettify(elements, stacked_layout, **listing_options)
 

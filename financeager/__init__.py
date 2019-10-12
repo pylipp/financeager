@@ -17,6 +17,7 @@ DEFAULT_TABLE = "standard"
 
 # Formatting option defaults
 DEFAULT_CATEGORY_ENTRY_SORT_KEY = "value"
+DEFAULT_BASE_ENTRY_SORT_KEY = "name"
 
 # directories for application data and log file
 CONFIG_DIR = os.path.expanduser("~/.config/financeager")

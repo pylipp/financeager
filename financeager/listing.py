@@ -21,9 +21,13 @@ class Listing:
             listing.add_entry(BaseEntry(**element), category_name=category)
         return listing
 
-    def prettify(self, *, category_sort=DEFAULT_CATEGORY_ENTRY_SORT_KEY):
+    def prettify(self,
+                 *,
+                 category_sort=DEFAULT_CATEGORY_ENTRY_SORT_KEY,
+                 **entry_options):
         """Format listing (incl. name and header).
         Category entries are sorted acc. to the given 'category_sort'.
+        'entry_options' are passed to CategoryEntry.string().
 
         :return: str
         """
@@ -39,7 +43,7 @@ class Listing:
 
         sort_key = lambda e: getattr(e, category_sort)
         for category in sorted(self.categories, key=sort_key):
-            result.append(str(category))
+            result.append(category.string(**entry_options))
 
         return '\n'.join(result)
 
@@ -173,7 +177,7 @@ def prettify(elements, stacked_layout=False, **listing_options):
         for listing in listings:
             total_entry = CategoryEntry(name="TOTAL")
             total_entry.value = listing.total_value()
-            total_values.append(str(total_entry))
+            total_values.append(total_entry.string())
         result.append(" | ".join(total_values))
 
         return '\n'.join(result)
