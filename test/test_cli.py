@@ -451,10 +451,7 @@ class CliNoConfigTestCase(CliTestCase):
             stacked_layout=False, entry_sort="name", category_sort="value")
 
         # Default config file exists; expect it to be loaded
-        run(command="print",
-            period=self.period,
-            config=None,
-            **formatting_options)
+        run(command="list", config=None, **formatting_options)
         mocked_logger.info.assert_called_once_with("")
         mocked_logger.info.reset_mock()
 
@@ -462,7 +459,7 @@ class CliNoConfigTestCase(CliTestCase):
         os.remove(TEST_CONFIG_FILEPATH)
 
         # No config is loaded at all
-        run(command="print", period=1900, config=None, **formatting_options)
+        run(command="list", config=None, **formatting_options)
         mocked_logger.info.assert_called_once_with("")
 
         # The custom config modified the global state which affects other
