@@ -31,6 +31,12 @@ class CliTestCase(unittest.TestCase):
         cls.eid_pattern = re.compile(
             r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
 
+    def setUp(self):
+        # Separate test runs by running individual test methods using distinct
+        # periods (especially crucial for CliFlaskTestCase which uses a single
+        # Flask instance for all tests)
+        self.__class__.period += 1
+
     def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
         options (period and config filepath). Executes the actual run() function
@@ -295,9 +301,6 @@ host = http://{}
         printed_content = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("Bretzels", printed_content)
 
-        # Remove to have empty period
-        self.cli_run("rm {}", format_args=entry_id)
-
     def test_update_nonexisting_entry(self):
         printed_content = self.cli_run("update -1 -n a", log_method="error")
         self.assertIn("400", printed_content)
@@ -357,8 +360,6 @@ host = http://{}
         self.assertListEqual(destination_printed_content,
                              source_printed_content)
 
-        self.cli_run("rm {}", format_args=source_entry_id)
-
     def test_copy_nonexisting_entry(self):
         printed_content = self.cli_run(
             "copy 0 -s {} -d {}",
@@ -385,8 +386,6 @@ host = http://{}
         printed_content = self.cli_run("get {}", format_args=entry_id)
         self.assertEqual(printed_content.splitlines()[-1].split()[1].lower(),
                          CategoryEntry.DEFAULT_NAME)
-
-        self.cli_run("rm {}", format_args=entry_id)
 
     def test_communication_error(self):
         with mock.patch("requests.get") as mocked_get:
@@ -435,12 +434,6 @@ host = http://{}
         #                  self.log_call_args_list[][1][0][0])
         self.assertEqual("Recovered offline backup.",
                          self.log_call_args_list["info"][1][0][0])
-
-        # This is admittedly hacky. It would be cleaner to a) have independent
-        # databases per test function, or b) have a way to get the response
-        # about the recovered element ID by having the offline module use
-        # functions of the cli module
-        self.cli_run("rm 5")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
