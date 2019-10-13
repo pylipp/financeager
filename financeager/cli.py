@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 """Command line interface of financeager application."""
-
+from datetime import datetime
 import argparse
 import os
 import sys
 
-from financeager import offline, communication, __version__,\
+from financeager import offline, __version__, PERIOD_DATE_FORMAT,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
-from .entries import CategoryEntry
-from .listing import Listing
+from .communication import Client
 from .config import Configuration
-from .exceptions import PreprocessingError, InvalidRequest, CommunicationError,\
-    OfflineRecoveryError, InvalidConfigError
+from .entries import CategoryEntry
+from .exceptions import OfflineRecoveryError, InvalidConfigError,\
+    PreprocessingError
 
 logger = init_logger(__name__)
 
@@ -35,13 +35,16 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config=None, verbose=False, **cl_kwargs):
-    """High-level API entry point, useful for scripts. Run 'command' passing
-    'cl_kwargs' according to what the command line interface accepts (consult
-    help via `financeager [command] --help`), e.g. {"command": "add", "name":
-    "champagne", "value": "99"}. All kwargs are passed to 'communication.run()'.
-    'config' specifies the path to a custom config file (optional). If 'verbose'
-    is set, debug level log messages are printed to the terminal.
+def run(command=None, config_filepath=None, verbose=False, **params):
+    """High-level API entry point.
+    All 'params' are passed to 'Client.safely_run()'.
+    'config_filepath' specifies the path to a custom config file (optional). If
+    'verbose' is set, debug level log messages are printed to the terminal.
+
+    This function can be used for scripting. Provide 'command' and 'params'
+    according to what the command line interface accepts (consult help via
+    `financeager [command] --help`), e.g. {"command": "add", "name":
+    "champagne", "value": "99"}.
 
     :return: UNIX return code (zero for success, non-zero otherwise)
     """
@@ -50,7 +53,6 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
 
     exit_code = FAILURE
 
-    config_filepath = config
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
         config_filepath = financeager.CONFIG_FILEPATH
     try:
@@ -59,52 +61,80 @@ def run(command=None, config=None, verbose=False, **cl_kwargs):
         logger.error("Invalid configuration: {}".format(e))
         return FAILURE
 
-    backend_name = configuration.get_option("SERVICE", "name")
-    communication_module = communication.module(backend_name)
-
-    proxy_kwargs = {}
-    if backend_name == "flask":
-        init_logger("urllib3")
-        proxy_kwargs["http_config"] = configuration.get_option("SERVICE:FLASK")
-    else:  # 'none' is the only other option
-        proxy_kwargs["data_dir"] = financeager.DATA_DIR
-
-    # Indicate whether to store request offline, if failed
-    store_offline = False
-
-    proxy = communication_module.proxy(**proxy_kwargs)
-
+    date_format = configuration.get_option("FRONTEND", "date_format")
     try:
-        logger.info(
-            communication.run(
-                proxy,
-                command,
-                default_category=configuration.get_option(
-                    "FRONTEND", "default_category"),
-                date_format=configuration.get_option("FRONTEND", "date_format"),
-                **cl_kwargs))
-        if offline.recover(proxy):
-            logger.info("Recovered offline backup.")
-        exit_code = SUCCESS
-    except OfflineRecoveryError:
-        logger.error("Offline backup recovery failed!")
-    except (PreprocessingError, InvalidRequest) as e:
-        # Command is erroneous and hence not stored offline
+        _preprocess(params, date_format)
+    except PreprocessingError as e:
         logger.error(e)
-    except CommunicationError as e:
-        logger.error(e)
-        store_offline = True
-    except Exception:
-        logger.exception("Unexpected error")
-        store_offline = True
+        return FAILURE
 
-    if store_offline and offline.add(command, **cl_kwargs):
+    service_name = configuration.get_option("SERVICE", "name")
+    if service_name == "flask":
+        init_logger("urllib3")
+
+    client = Client(
+        configuration=configuration, out=Client.Out(logger.info, logger.error))
+    success, store_offline = client.safely_run(command, **params)
+
+    if success:
+        exit_code = SUCCESS
+
+        # When regular command was successfully executed, attempt to recover
+        # offline backup
+        try:
+            if offline.recover(client):
+                logger.info("Recovered offline backup.")
+        except OfflineRecoveryError:
+            logger.error("Offline backup recovery failed!")
+            exit_code = FAILURE
+
+    if store_offline and offline.add(command, **params):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
-    if backend_name == "none":
-        communication.run(proxy, "stop")
+    if service_name == "none":
+        client.run("stop")
 
     return exit_code
+
+
+def _preprocess(data, date_format=None):
+    """Preprocess data to be passed to Client (e.g. convert date format, parse
+    'filters' options passed with print command).
+
+    :raises: PreprocessError if preprocessing failed.
+    """
+    date = data.get("date")
+    # recovering offline data does not bring any date format because the data
+    # has already been converted
+    if date is not None and date_format is not None:
+        try:
+            date = datetime.strptime(date,
+                                     date_format).strftime(PERIOD_DATE_FORMAT)
+            data["date"] = date
+        except ValueError:
+            raise PreprocessingError("Invalid date format.")
+
+    filter_items = data.get("filters")
+    if filter_items is not None:
+        # convert list of "key=value" strings into dictionary
+        parsed_items = {}
+        try:
+            for item in filter_items:
+                key, value = item.split("=")
+                parsed_items[key] = value.lower()
+
+            try:
+                # Substitute category default name
+                if parsed_items["category"] == CategoryEntry.DEFAULT_NAME:
+                    parsed_items["category"] = None
+            except KeyError:
+                # No 'category' field present
+                pass
+
+            data["filters"] = parsed_items
+        except ValueError:
+            # splitting returned less than two parts due to missing separator
+            raise PreprocessingError("Invalid filter format: {}".format(item))
 
 
 def _parse_command(args=None):
@@ -229,11 +259,11 @@ least a frequency, start date and end date are optional. Default:
     print_parser.add_argument(
         "--entry-sort",
         choices=["name", "value", "date", "eid"],
-        default=CategoryEntry.BASE_ENTRY_SORT_KEY)
+        default=financeager.DEFAULT_BASE_ENTRY_SORT_KEY)
     print_parser.add_argument(
         "--category-sort",
         choices=["name", "value"],
-        default=Listing.CATEGORY_ENTRY_SORT_KEY)
+        default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
 
     list_parser = subparsers.add_parser("list", help="list all databases")
 
@@ -241,7 +271,7 @@ least a frequency, start date and end date are optional. Default:
     for subparser in subparsers.choices.values():
         subparser.add_argument(
             "-C",
-            "--config",
+            "--config-filepath",
             help="path to config file. Default: {}".format(
                 financeager.CONFIG_FILEPATH))
         subparser.add_argument(

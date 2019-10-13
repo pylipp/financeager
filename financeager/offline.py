@@ -6,7 +6,6 @@ import os.path
 import json
 
 from . import OFFLINE_FILEPATH, init_logger
-from .communication import run
 from .exceptions import OfflineRecoveryError
 
 logger = init_logger(__name__)
@@ -29,16 +28,16 @@ def _write(content, filepath):
         json.dump(content, file)
 
 
-def _recover_data(proxy, content):
+def _recover_data(client, content):
     """Recover the data items in the content list by running the commands via
-    the proxy. If a CommunicationError occurs during recovery, the data being
+    the client. If a CommunicationError occurs during recovery, the data being
     currently processed is returned.
     The content list is modified in-place.
     """
     while len(content):
         data = content.pop()
         try:
-            logger.info(run(proxy, **data))
+            logger.info(client.run(**data))
         except Exception as e:
             logger.exception(e)
             return data
@@ -66,8 +65,8 @@ def add(command, offline_filepath=None, **cl_kwargs):
     return True
 
 
-def recover(proxy, offline_filepath=None):
-    """Recover the offline backup by passing its content to the given proxy.
+def recover(client, offline_filepath=None):
+    """Recover the offline backup by passing its content to the given client.
     The recovery will be aborted if a CommunicationError occurs.
 
     If the recovery succeeded, the backup file is deleted.
@@ -82,7 +81,7 @@ def recover(proxy, offline_filepath=None):
     if not content:
         return False
 
-    failed_recovery_data = _recover_data(proxy, content)
+    failed_recovery_data = _recover_data(client, content)
 
     if failed_recovery_data is None:
         os.remove(offline_filepath)
