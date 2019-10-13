@@ -201,6 +201,11 @@ default_category = no-category"""
         printed_content = self.cli_run("get 0", log_method="error")
         self.assertEqual(printed_content, "Invalid request: Element not found.")
 
+    def test_preprocessing_error(self):
+        printed_content = self.cli_run(
+            "add car -1000 -d ups", log_method="error")
+        self.assertEqual(printed_content, "Invalid date format.")
+
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CliFlaskTestCase(CliTestCase):
@@ -474,13 +479,15 @@ class PreprocessTestCase(unittest.TestCase):
         self.assertRaises(
             PreprocessingError, _preprocess, data, date_format="%d.%m")
 
-    def test_filters(self):
-        data = {"filters": ["name=italian", "category=Restaurants"]}
+    def test_name_filters(self):
+        data = {"filters": ["name=italian"]}
         _preprocess(data)
-        self.assertEqual(data["filters"], {
-            "name": "italian",
-            "category": "restaurants"
-        })
+        self.assertEqual(data["filters"], {"name": "italian"})
+
+    def test_category_filters(self):
+        data = {"filters": ["category=Restaurants"]}
+        _preprocess(data)
+        self.assertEqual(data["filters"], {"category": "restaurants"})
 
     def test_filters_error(self):
         data = {"filters": ["value-123"]}
