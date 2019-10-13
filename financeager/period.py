@@ -135,6 +135,125 @@ class Period(ABC):
                     }
         """
 
+    def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
+        """Perform preprocessing steps (validation, conversion, substitution) of
+        raw entry fields prior to adding it to the database.
+        :param raw_data: dict containing raw entry fields
+        :param table_name: name of the table that the entry is passed to
+        :param partial: indicates whether preprocessing is performed before
+            adding (False) or updating (True) the database
+        :raise: PeriodException if validation failed or table name unknown
+        """
+        table_name = table_name or DEFAULT_TABLE
+        if table_name not in ["recurrent", DEFAULT_TABLE]:
+            raise PeriodException("Unknown table name: {}".format(table_name))
+
+        self._remove_redundant_fields(table_name, raw_data)
+
+        validated_fields = self._validate_entry(
+            raw_data=raw_data, table_name=table_name, partial=partial)
+        converted_fields = self._convert_fields(**validated_fields)
+
+        if not partial:
+            converted_fields = self._substitute_none_fields(
+                table_name=table_name, **converted_fields)
+
+        return converted_fields
+
+    @staticmethod
+    def _remove_redundant_fields(table_name, raw_data):
+        """The raw data (e.g. parsed from the command line) might contain fields
+        that are not required by the given table type and hence, they crash the
+        schematics validation ('Rogue field' error). This method removes
+        redundant fields in `raw_data` in-place.
+        """
+        if table_name == "recurrent":
+            redundant_fields = ["date"]
+        else:
+            redundant_fields = ["start", "end", "frequency"]
+
+        for field in redundant_fields:
+            raw_data.pop(field, None)
+
+    @staticmethod
+    def _validate_entry(raw_data, table_name, **model_kwargs):
+        """Validate raw entry data acc. to ValidationModel.
+        :return: primitive (type-correct) representation of fields
+        :raise: PeriodException if validation failed
+        """
+        ValidationModel = RecurrentEntryValidationModel \
+            if table_name == "recurrent" else StandardEntryValidationModel
+
+        try:
+            # pass the kwargs twice because schematics API is inconsistent...
+            validation_model = ValidationModel(
+                raw_data=raw_data, **model_kwargs)
+            validation_model.validate(**model_kwargs)
+            return validation_model.to_primitive()
+        except (DataError, ValidationError) as e:
+            # Get error information from nested data structures
+            infos = []
+            for field in e.errors:
+                info = [message.summary for message in e.errors[field]]
+                infos.append("{}: {}".format(field, "; ".join(info)))
+            raise PeriodException("Invalid input data:\n{}".format(
+                "\n".join(infos)))
+
+    def _substitute_none_fields(self, table_name, **fields):
+        """Substitute optional fields by defaults."""
+        substituted_fields = fields.copy()
+
+        # table_name is either of two values; verified in _preprocess_entry
+        if table_name == "recurrent":
+            if fields.get("start") is None:
+                substituted_fields["start"] = dt.today().strftime(
+                    PERIOD_DATE_FORMAT)
+            if fields.get("end") is None:
+                substituted_fields["end"] = \
+                    dt.today().replace(month=12,
+                                       day=31).strftime(PERIOD_DATE_FORMAT)
+        else:
+            if fields.get("date") is None:
+                substituted_fields["date"] = dt.today().strftime(
+                    PERIOD_DATE_FORMAT)
+
+        if fields.get("category") is None:
+            name = fields["name"]
+
+            # Find the most common categories previously assigned for the given
+            # name. If there is only one OR if there is one that is used more
+            # often than any other, assign it; otherwise default to None
+            category = _DEFAULT_CATEGORY
+            most_common_categories = self._category_cache[name].most_common(2)
+            nr_most_common_categories = len(most_common_categories)
+
+            if nr_most_common_categories == 1 or \
+                    (nr_most_common_categories > 1 and
+                     most_common_categories[0][1] !=
+                     most_common_categories[1][1]):
+                category = most_common_categories[0][0]
+
+            substituted_fields["category"] = category
+
+        return substituted_fields
+
+    @staticmethod
+    def _convert_fields(**fields):
+        """Convert string field values to lowercase for storage. Fields with
+        value None are discarded.
+        """
+        converted_fields = {}
+
+        for k, v in fields.items():
+            if v is None:
+                continue
+            try:
+                converted_fields[k] = v.lower()
+            except AttributeError:
+                converted_fields[k] = v
+
+        return converted_fields
+
 
 class PeriodException(Exception):
     pass
@@ -172,130 +291,6 @@ class TinyDbPeriod(Period):
         self._category_cache = defaultdict(Counter)
         for element in self._db.all():
             self._category_cache[element["name"]].update([element["category"]])
-
-    def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
-        """Perform preprocessing steps (validation, conversion, substitution) of
-        raw entry fields prior to adding it to the database.
-        :param raw_data: dict containing raw entry fields
-        :param table_name: name of the table that the entry is passed to
-        :param partial: indicates whether preprocessing is performed before
-            adding (False) or updating (True) the database
-        :raise: PeriodException if validation failed or table name unknown
-        """
-
-        table_name = table_name or DEFAULT_TABLE
-        if table_name not in ["recurrent", DEFAULT_TABLE]:
-            raise PeriodException("Unknown table name: {}".format(table_name))
-
-        self._remove_redundant_fields(table_name, raw_data)
-
-        validated_fields = self._validate_entry(
-            raw_data=raw_data, table_name=table_name, partial=partial)
-        converted_fields = self._convert_fields(**validated_fields)
-
-        if not partial:
-            converted_fields = self._substitute_none_fields(
-                table_name=table_name, **converted_fields)
-
-        return converted_fields
-
-    @staticmethod
-    def _remove_redundant_fields(table_name, raw_data):
-        """The raw data (e.g. parsed from the command line) might contain fields
-        that are not required by the given table type and hence, they crash the
-        schematics validation ('Rogue field' error). This method removes
-        redundant fields in `raw_data` in-place.
-        """
-
-        if table_name == "recurrent":
-            redundant_fields = ["date"]
-        else:
-            redundant_fields = ["start", "end", "frequency"]
-
-        for field in redundant_fields:
-            raw_data.pop(field, None)
-
-    @staticmethod
-    def _validate_entry(raw_data, table_name, **model_kwargs):
-        """Validate raw entry data acc. to ValidationModel.
-        :return: primitive (type-correct) representation of fields
-        :raise: PeriodException if validation failed
-        """
-
-        ValidationModel = RecurrentEntryValidationModel \
-            if table_name == "recurrent" else StandardEntryValidationModel
-
-        try:
-            # pass the kwargs twice because schematics API is inconsistent...
-            validation_model = ValidationModel(
-                raw_data=raw_data, **model_kwargs)
-            validation_model.validate(**model_kwargs)
-            return validation_model.to_primitive()
-        except (DataError, ValidationError) as e:
-            # Get error information from nested data structures
-            infos = []
-            for field in e.errors:
-                info = [message.summary for message in e.errors[field]]
-                infos.append("{}: {}".format(field, "; ".join(info)))
-            raise PeriodException("Invalid input data:\n{}".format(
-                "\n".join(infos)))
-
-    @staticmethod
-    def _convert_fields(**fields):
-        """Convert string field values to lowercase for storage. Fields with
-        value None are discarded.
-        """
-
-        converted_fields = {}
-
-        for k, v in fields.items():
-            if v is None:
-                continue
-            try:
-                converted_fields[k] = v.lower()
-            except AttributeError:
-                converted_fields[k] = v
-
-        return converted_fields
-
-    def _substitute_none_fields(self, table_name, **fields):
-        """Substitute optional fields by defaults."""
-
-        substituted_fields = fields.copy()
-
-        # table_name is either of two values; verified in _preprocess_entry
-        if table_name == "recurrent":
-            if fields.get("start") is None:
-                substituted_fields["start"] = dt.today().strftime(
-                    PERIOD_DATE_FORMAT)
-            if fields.get("end") is None:
-                substituted_fields["end"] = \
-                    dt.today().replace(month=12,
-                                       day=31).strftime(PERIOD_DATE_FORMAT)
-        else:
-            if fields.get("date") is None:
-                substituted_fields["date"] = dt.today().strftime(
-                    PERIOD_DATE_FORMAT)
-
-        if fields.get("category") is None:
-            name = fields["name"]
-
-            # Find the most common categories previously assigned for the given
-            # name. If there is only one OR if there is one that is used more
-            # often than any other, assign it; otherwise default to None
-            category = _DEFAULT_CATEGORY
-            most_common_categories = self._category_cache[name].most_common(2)
-            nr_most_common_categories = len(most_common_categories)
-
-            if nr_most_common_categories == 1 or \
-                    (nr_most_common_categories > 1 and
-                     most_common_categories[0][1] !=
-                     most_common_categories[1][1]):
-                category = most_common_categories[0][0]
-
-            substituted_fields["category"] = category
-
-        return substituted_fields
 
     def _update_category_cache(self,
                                eid=None,
