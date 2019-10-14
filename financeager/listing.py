@@ -176,10 +176,18 @@ def prettify(elements, stacked_layout=False, **listing_options):
 
         # add total value of earnings and expenses as final line
         total_values = []
+        earning = True
+        remaining = CategoryEntry(name="REMAINING")
         for listing in listings:
             total_entry = CategoryEntry(name="TOTAL")
             total_entry.value = listing.total_value()
+            remaining.value = (lambda x: remaining.value + total_entry.value if x == True else remaining.value - total_entry.value)(earning)
             total_values.append(total_entry.string())
+            earning = False
         result.append(" | ".join(total_values))
+        result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
+
+        spaces = ((CategoryEntry.TOTAL_LENGTH + 3) - int(len(remaining.string()) / 2)) * " "
+        result.append(str(spaces) + str(remaining.string()) + str(spaces))
 
         return '\n'.join(result)
