@@ -146,8 +146,9 @@ default_category = no-category"""
     @mock.patch("sys.stderr.write")
     def test_verbose(self, mocked_stderr):
         self.cli_run("print --verbose")
-        self.assertTrue(mocked_stderr.call_args_list[0][0][0].endswith(
-            "Loading custom config from {}".format(TEST_CONFIG_FILEPATH)))
+        self.assertIn(
+            "Loading custom config from {}".format(TEST_CONFIG_FILEPATH),
+            mocked_stderr.call_args_list[0][0][0])
 
     @mock.patch("financeager.offline.OFFLINE_FILEPATH",
                 "/tmp/financeager-test-offline.json")

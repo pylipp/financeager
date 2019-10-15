@@ -48,7 +48,7 @@ class HttpRequestProxyTestCase(unittest.TestCase):
 
         error_message = cm.exception.args[0]
         self.assertTrue(error_message.startswith("Error sending request: "))
-        self.assertIn("Name or service not known", error_message)
+        self.assertIn("NewConnectionError", error_message)
 
 
 if __name__ == "__main__":
