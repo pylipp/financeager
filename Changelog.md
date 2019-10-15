@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Send any HTTP request data in JSON format.
 - Client-side communication interface is abstracted in the Client class.
 - Various test framework enhancements.
+- [Incompatible] The URL endpoint for copying entries is changed from /periods/copy to /copy. (PR#32)
 
 ### Deprecated
 
