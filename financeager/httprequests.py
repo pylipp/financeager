@@ -48,13 +48,13 @@ class _Proxy:
 
         kwargs = dict(auth=auth, timeout=DEFAULT_TIMEOUT)
 
-        if command == "print":
+        if command == "list":
             # Correctly send filters; allowing for server-side deserialization
             kwargs["json"] = json.dumps(data)
         else:
             kwargs["json"] = data or None
 
-        if command == "print":
+        if command == "list":
             url = period_url
             function = requests.get
         elif command == "rm":
@@ -63,7 +63,7 @@ class _Proxy:
         elif command == "add":
             url = period_url
             function = requests.post
-        elif command == "list":
+        elif command == "periods":
             url = base_url
             function = requests.post
         elif command == "copy":

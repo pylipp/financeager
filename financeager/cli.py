@@ -241,31 +241,32 @@ least a frequency, start date and end date are optional. Default:
         default=None,
         help="Table to copy the entry from/to. Default: 'standard'.")
 
-    print_parser = subparsers.add_parser(
-        "print", help="show the period database")
-    print_parser.add_argument(
+    list_parser = subparsers.add_parser(
+        "list", help="list all entries in the period database")
+    list_parser.add_argument(
         "-f",
         "--filters",
         default=None,
         nargs="+",
         help="filter for name, "
         "date and/or category substring, e.g. name=beer category=groceries")
-    print_parser.add_argument(
+    list_parser.add_argument(
         "-s",
         "--stacked-layout",
         action="store_true",
         help="if true, display earnings and expenses in stacked layout, "
         "otherwise side-by-side")
-    print_parser.add_argument(
+    list_parser.add_argument(
         "--entry-sort",
         choices=["name", "value", "date", "eid"],
         default=financeager.DEFAULT_BASE_ENTRY_SORT_KEY)
-    print_parser.add_argument(
+    list_parser.add_argument(
         "--category-sort",
         choices=["name", "value"],
         default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
 
-    list_parser = subparsers.add_parser("list", help="list all databases")
+    periods_parser = subparsers.add_parser(
+        "periods", help="lists all period databases")
 
     # Add common options to subparsers
     for subparser in subparsers.choices.values():
@@ -279,7 +280,7 @@ least a frequency, start date and end date are optional. Default:
             action="store_true",
             help="Be verbose about internal workings")
 
-        if subparser not in [list_parser, copy_parser]:
+        if subparser not in [periods_parser, copy_parser]:
             subparser.add_argument(
                 "-p", "--period", help="name of period to modify or query")
 

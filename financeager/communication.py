@@ -80,7 +80,7 @@ class Client:
         """
         # Extract formatting options; irrelevant, event confusing for Server
         formatting_options = {}
-        if command == "print":
+        if command == "list":
             for option in ["stacked_layout", "entry_sort", "category_sort"]:
                 formatting_options[option] = params.pop(option)
 
