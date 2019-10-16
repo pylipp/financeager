@@ -73,14 +73,14 @@ class LogResource(Resource):
 
 class PeriodsResource(LogResource):
     def post(self):
-        return self.run_safely("list")
+        return self.run_safely("periods")
 
 
 class PeriodResource(LogResource):
     def get(self, period_name):
         args = json.loads(flask.request.json or "{}")
         return self.run_safely(
-            "print", error_code=400, period=period_name, **args)
+            "list", error_code=400, period=period_name, **args)
 
     def post(self, period_name):
         args = put_parser.parse_args()

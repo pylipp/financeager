@@ -59,7 +59,7 @@ class CliTestCase(unittest.TestCase):
         command = args[0]
 
         # Exclude option from subcommand parsers that would be confused
-        if command not in ["copy", "list"]:
+        if command not in ["copy", "periods"]:
             args.extend(["--period", str(self.period)])
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
@@ -99,10 +99,10 @@ class CliInvalidConfigTestCase(CliTestCase):
 [SERVICE]
 name = heroku"""
 
-    def test_print(self):
-        # using a command that won't try to parse the element ID from the print
+    def test_list(self):
+        # using a command that won't try to parse the element ID from the list
         # call in cli_run()...
-        printed_content = self.cli_run("print", log_method="error")
+        printed_content = self.cli_run("list", log_method="error")
         self.assertEqual(printed_content,
                          "Invalid configuration: Unknown service name!")
 
@@ -145,7 +145,7 @@ default_category = no-category"""
     # python3.5/logging/__init__.py)
     @mock.patch("sys.stderr.write")
     def test_verbose(self, mocked_stderr):
-        self.cli_run("print --verbose")
+        self.cli_run("list --verbose")
         self.assertIn(
             "Loading custom config from {}".format(TEST_CONFIG_FILEPATH),
             mocked_stderr.call_args_list[0][0][0])
@@ -156,7 +156,7 @@ default_category = no-category"""
         with mock.patch("financeager.server.Server.run") as mocked_run:
 
             def side_effect(command, **kwargs):
-                if command == "print":
+                if command == "list":
                     return {"elements": {DEFAULT_TABLE: {}, "recurrent": {}}}
                 elif command == "add":
                     raise TypeError()
@@ -183,7 +183,7 @@ default_category = no-category"""
 
             # Now request a print, and try to recover the offline backup
             # But adding is still expected to fail
-            self.cli_run("print", log_method="error")
+            self.cli_run("list", log_method="error")
             # Output from print; expect empty database
             self.assertEqual("", self.log_call_args_list["info"][0][0][0])
 
@@ -192,7 +192,7 @@ default_category = no-category"""
                              self.log_call_args_list["error"][-1][0][0])
 
         # Without side effects, recover the offline backup
-        self.cli_run("print")
+        self.cli_run("list")
 
         self.assertEqual("", self.log_call_args_list["info"][0][0][0])
         self.assertEqual("Recovered offline backup.",
@@ -262,16 +262,16 @@ host = http://{}
         # Invoke shutting down of Flask app
         requests_get("http://{}/stop".format(cls.HOST_IP))
 
-    def test_add_print_rm(self):
+    def test_add_list_rm(self):
         entry_id = self.cli_run("add cookies -100")
 
-        printed_content = self.cli_run("print")
+        printed_content = self.cli_run("list")
         self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
 
         rm_entry_id = self.cli_run("rm {}", format_args=entry_id)
         self.assertEqual(rm_entry_id, entry_id)
 
-        printed_content = self.cli_run("list")
+        printed_content = self.cli_run("periods")
         self.assertIn(str(self.period), printed_content)
 
     def test_add_get_rm_via_eid(self):
@@ -283,7 +283,7 @@ host = http://{}
 
         self.cli_run("rm {}", format_args=entry_id)
 
-        printed_content = self.cli_run("print")
+        printed_content = self.cli_run("list")
         self.assertEqual(printed_content, "")
 
     def test_add_invalid_entry_table_name(self):
@@ -327,14 +327,14 @@ host = http://{}
             format_args=entry_id)
         self.assertEqual(update_entry_id, entry_id)
 
-        printed_content = self.cli_run("print")
+        printed_content = self.cli_run("list")
         self.assertEqual(printed_content.count("Clifbars"), 4)
         self.assertEqual(printed_content.count("{}\n".format(entry_id)), 4)
         self.assertEqual(len(printed_content.splitlines()), 9)
 
         self.cli_run("rm {} -t recurrent", format_args=entry_id)
 
-        printed_content = self.cli_run("print")
+        printed_content = self.cli_run("list")
         self.assertEqual(printed_content, "")
 
     def test_copy(self):
@@ -375,15 +375,15 @@ host = http://{}
         entry_id = self.cli_run("add car -9999")
 
         # Default category is converted for frontend display
-        printed_content = self.cli_run("print")
+        printed_content = self.cli_run("list")
         self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
 
         # Category field is converted to 'None' and filtered for
-        printed_content = self.cli_run("print --filters category=unspecified")
+        printed_content = self.cli_run("list --filters category=unspecified")
         self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
 
         # The pattern is used for regex filtering; nothing is found
-        printed_content = self.cli_run("print --filters category=lel")
+        printed_content = self.cli_run("list --filters category=lel")
         self.assertEqual(printed_content, "")
 
         # Default category is converted for frontend display
@@ -396,7 +396,7 @@ host = http://{}
             response = Response()
             response.status_code = 500
             mocked_get.return_value = response
-            printed_content = self.cli_run("print", log_method="error")
+            printed_content = self.cli_run("list", log_method="error")
             self.assertIn("500", printed_content)
 
     @mock.patch("financeager.offline.OFFLINE_FILEPATH",
@@ -421,7 +421,7 @@ host = http://{}
             # Now request a print, and try to recover the offline backup
             # But adding is still expected to fail
             mocked_post.side_effect = RequestException("still no works")
-            self.cli_run("print", log_method="error")
+            self.cli_run("list", log_method="error")
             # Output from print; expect empty database
             self.assertEqual("", self.log_call_args_list["info"][0][0][0])
 
@@ -430,7 +430,7 @@ host = http://{}
                              self.log_call_args_list["error"][-1][0][0])
 
         # Without side effects, recover the offline backup
-        self.cli_run("print")
+        self.cli_run("list")
 
         self.assertEqual("", self.log_call_args_list["info"][0][0][0])
         # TODO: adjust offline module implementation
@@ -447,13 +447,13 @@ class CliNoConfigTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = "[FRONTEND]\ndefault_category = wayne"
 
     @mock.patch("financeager.cli.logger")
-    def test_print(self, mocked_logger):
+    def test_print_periods(self, mocked_logger):
         mocked_logger.info = mock.MagicMock()
         formatting_options = dict(
             stacked_layout=False, entry_sort="name", category_sort="value")
 
         # Default config file exists; expect it to be loaded
-        run(command="list", config=None, **formatting_options)
+        run(command="periods", config=None, **formatting_options)
         mocked_logger.info.assert_called_once_with("")
         mocked_logger.info.reset_mock()
 
@@ -461,7 +461,7 @@ class CliNoConfigTestCase(CliTestCase):
         os.remove(TEST_CONFIG_FILEPATH)
 
         # No config is loaded at all
-        run(command="list", config=None, **formatting_options)
+        run(command="periods", config=None, **formatting_options)
         mocked_logger.info.assert_called_once_with("")
 
         # The custom config modified the global state which affects other

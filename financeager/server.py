@@ -29,7 +29,7 @@ class Server:
         logger.debug("Running '{}' with {}".format(command, kwargs))
 
         try:
-            if command == "list":
+            if command == "periods":
                 return {"periods": [p._name for p in self._periods.values()]}
             elif command == "copy":
                 return {"id": self._copy_entry(**kwargs)}
@@ -46,7 +46,7 @@ class Server:
                     response = {"id": period.add_entry(**kwargs)}
                 elif command == "rm":
                     response = {"id": period.remove_entry(**kwargs)}
-                elif command == "print":
+                elif command == "list":
                     response = {"elements": period.get_entries(**kwargs)}
                 elif command == "get":
                     response = {"element": period.get_entry(**kwargs)}

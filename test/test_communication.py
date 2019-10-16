@@ -53,18 +53,18 @@ Value   : -99.0
 Date    : {}
 Category: Clothes""".format(today()))
 
-    def test_list(self):
-        response = self.client.run("list")
+    def test_periods(self):
+        response = self.client.run("periods")
         self.assertEqual(response, "{}".format(date.today().year))
 
-    def test_print(self):
+    def test_list(self):
         formatting_options = dict(
             stacked_layout=False, entry_sort="name", category_sort="value")
-        response = self.client.run("print", **formatting_options)
+        response = self.client.run("list", **formatting_options)
         self.assertNotEqual("", response)
 
         response = self.client.run(
-            "print", filters={"date": "12-"}, **formatting_options)
+            "list", filters={"date": "12-"}, **formatting_options)
         self.assertEqual("", response)
 
     def test_stop(self):

@@ -20,8 +20,8 @@ class AddEntryToServerTestCase(unittest.TestCase):
     def test_period_name(self):
         self.assertEqual("0", self.server._periods["0"].name)
 
-    def test_list(self):
-        response = self.server.run("list")
+    def test_periods(self):
+        response = self.server.run("periods")
         self.assertListEqual(response["periods"], ["0"])
 
     def test_unknown_command(self):
@@ -45,7 +45,7 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
 
     def test_recurrent_entries(self):
         elements = self.server.run(
-            "print", period=self.period,
+            "list", period=self.period,
             filters={"name": "rent"})["elements"]["recurrent"][self.entry_id]
         self.assertEqual(len(elements), 6)
 
@@ -95,7 +95,7 @@ class FindEntryServerTestCase(unittest.TestCase):
     def test_query_and_reset_response(self):
         category = CategoryEntry.DEFAULT_NAME
         response = self.server.run(
-            "print", period=self.period, filters={"category": category})
+            "list", period=self.period, filters={"category": category})
         self.assertGreater(len(response), 0)
         self.assertIsInstance(response, dict)
         self.assertIsInstance(response["elements"], dict)
@@ -111,7 +111,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertEqual(response["id"], self.entry_id)
 
         response = self.server.run(
-            "print",
+            "list",
             period=self.period,
             filters={
                 "name": "Hiking boots",

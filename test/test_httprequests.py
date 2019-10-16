@@ -27,7 +27,7 @@ class HttpRequestProxyTestCase(unittest.TestCase):
                 "financeager.httprequests.requests.post",
                 side_effect=self.mock_post) as post_patch:
 
-            proxy.run("list")
+            proxy.run("periods")
 
             url = "{}{}".format(DEFAULT_HOST, PERIODS_TAIL)
             kwargs = {

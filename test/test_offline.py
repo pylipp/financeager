@@ -33,7 +33,7 @@ class AddTestCase(unittest.TestCase):
         self.assertEqual(element["value"], 111)
 
     def test_no_add(self):
-        self.assertFalse(add("print"))
+        self.assertFalse(add("list"))
 
     def test_no_recover(self):
         self.assertFalse(recover(None, offline_filepath=self.filepath))
