@@ -87,24 +87,24 @@ In any case, you're all set up! See the next section about the available client 
 
 ### Command line client
 
-    usage: financeager [-h] {add,get,rm,update,copy,print,list} ...
+    usage: financeager [-h] [-V] {add,get,rm,update,copy,list,periods} ...
 
     optional arguments:
       -h, --help            show this help message and exit
       -V, --version         display version info and exit
 
     subcommands:
-      {add,get,rm,update,copy,print,list}
+      {add,get,rm,update,copy,list,periods}
                             list of available subcommands
         add                 add an entry to the database
         get                 show information about single entry
         rm                  remove an entry from the database
         update              update one or more fields of an database entry
         copy                copy an entry from one period to another
-        print               show the period database
-        list                list all databases
+        list                list all entries in the period database
+        periods             lists all period databases
 
-On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `rm`, `get`, `print`, `list`, `copy`.
+On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `rm`, `get`, `list`, `periods`, `copy`.
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -119,11 +119,11 @@ Category and date can be optionally specified. They default to None and the curr
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
-Did you make a mistake when adding a new entry? *Update* one or more fields by calling the 'update' command with the entry's ID and the respective corrected fields:
+Did you make a mistake when adding a new entry? *Update* one or more fields by calling the `update` command with the entry's ID and the respective corrected fields:
 
     > financeager update 1 --name "McKing Burgers" --value -18.59
 
-*Remove* an entry by specifying its ID (visible in the output of the `print` command). This removes the `burgers` entry:
+*Remove* an entry by specifying its ID (visible in the output of the `list` command). This removes the `burgers` entry:
 
     > financeager rm 1
 
@@ -133,7 +133,7 @@ This would remove the recurrent rent entries (ID is also 1 because standard and 
 
 Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filters` option, e.g. `--filters category=food` to show entries in the categories `food`)
 
-    > financeager print
+    > financeager list
 
                    Earnings               |                Expenses
     Name               Value    Date  ID  | Name               Value    Date  ID
@@ -159,7 +159,7 @@ Detailed information is available from
 
 You can turn on printing debug messages to the terminal using the `--verbose` option, e.g.
 
-    > financeager print --verbose
+    > financeager list --verbose
 
 You can find a log of interactions at `~/.local/share/financeager/log` (on both the client machine and the server).
 
@@ -243,11 +243,11 @@ Please adhere to test-driven development, if possible: When adding a feature, or
 ### Ideas
 
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
-- [ ] support querying of standard/recurrent table with `print`
+- [ ] support querying of standard/recurrent table with `list`
 - [x] return element data as response to add/copy/update request
 - [ ] support passing multiple elements IDs to update/rm/copy/get (maybe together with asynchronous HTTP requests)
 - [ ] extended period names (something along `2018-personal`)
-- [ ] support `print` at date other than today
+- [ ] support `list` at date other than today
 
 ### Discarded ideas
 
