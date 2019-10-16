@@ -102,7 +102,7 @@ In any case, you're all set up! See the next section about the available client 
         update              update one or more fields of an database entry
         copy                copy an entry from one period to another
         list                list all entries in the period database
-        periods             lists all period databases
+        periods             list all period databases
 
 On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `rm`, `get`, `list`, `periods`, `copy`.
 

@@ -266,7 +266,7 @@ least a frequency, start date and end date are optional. Default:
         default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
 
     periods_parser = subparsers.add_parser(
-        "periods", help="lists all period databases")
+        "periods", help="list all period databases")
 
     # Add common options to subparsers
     for subparser in subparsers.choices.values():
