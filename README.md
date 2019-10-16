@@ -238,6 +238,8 @@ Please adhere to test-driven development, if possible: When adding a feature, or
 
     python setup.py test
 
+If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug fix or a new feature), please update `Changelog.md` accordingly as well. Check this README whether the content is still up to date.
+
 ## `financeager` features
 
 ### Ideas
