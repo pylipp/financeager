@@ -44,7 +44,7 @@ class Server:
 
                 if command == "add":
                     response = {"id": period.add_entry(**kwargs)}
-                elif command == "rm":
+                elif command == "remove":
                     response = {"id": period.remove_entry(**kwargs)}
                 elif command == "list":
                     response = {"elements": period.get_entries(**kwargs)}

@@ -99,7 +99,7 @@ class EntryResource(LogResource):
 
     def delete(self, period_name, table_name, eid):
         return self.run_safely(
-            "rm",
+            "remove",
             error_code=404,
             period=period_name,
             table_name=table_name,

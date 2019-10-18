@@ -107,7 +107,7 @@ def _format_response(response, command, **listing_options):
         verb = {
             "add": "Added",
             "update": "Updated",
-            "rm": "Removed",
+            "remove": "Removed",
             "copy": "Copied"
         }[command]
         return "{} element {}.".format(verb, eid)

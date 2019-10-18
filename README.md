@@ -87,24 +87,24 @@ In any case, you're all set up! See the next section about the available client 
 
 ### Command line client
 
-    usage: financeager [-h] [-V] {add,get,rm,update,copy,list,periods} ...
+    usage: financeager [-h] [-V] {add,get,remove,update,copy,list,periods} ...
 
     optional arguments:
       -h, --help            show this help message and exit
       -V, --version         display version info and exit
 
     subcommands:
-      {add,get,rm,update,copy,list,periods}
+      {add,get,remove,update,copy,list,periods}
                             list of available subcommands
         add                 add an entry to the database
         get                 show information about single entry
-        rm                  remove an entry from the database
+        remove              remove an entry from the database
         update              update one or more fields of an database entry
         copy                copy an entry from one period to another
         list                list all entries in the period database
         periods             list all period databases
 
-On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `rm`, `get`, `list`, `periods`, `copy`.
+On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `remove`, `get`, `list`, `periods`, `copy`.
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -125,11 +125,11 @@ Did you make a mistake when adding a new entry? *Update* one or more fields by c
 
 *Remove* an entry by specifying its ID (visible in the output of the `list` command). This removes the `burgers` entry:
 
-    > financeager rm 1
+    > financeager remove 1
 
 This would remove the recurrent rent entries (ID is also 1 because standard and recurrent entries are stored in separate tables):
 
-    > financeager rm 1 --table-name recurrent
+    > financeager remove 1 --table-name recurrent
 
 Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filters` option, e.g. `--filters category=food` to show entries in the categories `food`)
 
@@ -247,7 +247,7 @@ If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug f
 - [ ] experiment with urwid for building TUI or remi for HTML-based GUI
 - [ ] support querying of standard/recurrent table with `list`
 - [x] return element data as response to add/copy/update request
-- [ ] support passing multiple elements IDs to update/rm/copy/get (maybe together with asynchronous HTTP requests)
+- [ ] support passing multiple elements IDs to update/remove/copy/get (maybe together with asynchronous HTTP requests)
 - [ ] extended period names (something along `2018-personal`)
 - [ ] support `list` at date other than today
 
