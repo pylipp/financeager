@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [Incompatible] The URL endpoint for copying entries is changed from /periods/copy to /copy. (PR#32)
 - [Incompatible] The `list` command has been renamed to `periods`. (#38)
 - [Incompatible] The `print` command has been renamed to `list`. (#38)
+- [Incompatible] The `rm` command has been renamed to `remove`. (#40)
 
 ### Deprecated
 
