@@ -8,7 +8,7 @@ from . import PERIODS_TAIL, COPY_TAIL, init_logger, setup_log_file_handler,\
     make_log_stream_handler_verbose
 from .server import Server
 from .resources import (PeriodsResource, PeriodResource, EntryResource,
-                        CopyResource)
+                        CopyResource, VersionResource)
 
 logger = init_logger(__name__)
 
@@ -63,5 +63,9 @@ def create_app(data_dir=None, config=None):
         EntryResource,
         "{}/<period_name>/<table_name>/<eid>".format(PERIODS_TAIL),
         resource_class_args=(server,))
+    api.add_resource(
+        VersionResource,
+        '/version'
+    )
 
     return app

@@ -268,6 +268,9 @@ least a frequency, start date and end date are optional. Default:
     periods_parser = subparsers.add_parser(
         "periods", help="list all period databases")
 
+    service_parser = subparsers.add_parser(
+        "service", help="interact with the webservice")
+
     # Add common options to subparsers
     for subparser in subparsers.choices.values():
         subparser.add_argument(
@@ -280,7 +283,7 @@ least a frequency, start date and end date are optional. Default:
             action="store_true",
             help="Be verbose about internal workings")
 
-        if subparser not in [periods_parser, copy_parser]:
+        if subparser not in [periods_parser, copy_parser, service_parser]:
             subparser.add_argument(
                 "-p", "--period", help="name of period to modify or query")
 

@@ -4,6 +4,8 @@ import json
 import flask
 from flask_restful import Resource, reqparse
 
+from financeager import __version__
+
 from . import init_logger
 
 logger = init_logger(__name__)
@@ -120,3 +122,9 @@ class CopyResource(LogResource):
     def post(self):
         args = copy_parser.parse_args()
         return self.run_safely("copy", error_code=404, **args)
+
+
+class VersionResource(Resource):
+    def get(self):
+        val = {'version': __version__}
+        return val

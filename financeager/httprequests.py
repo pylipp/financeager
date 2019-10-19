@@ -39,6 +39,7 @@ class _Proxy:
         eid_url = "{}/{}/{}".format(period_url,
                                     data.get("table_name") or DEFAULT_TABLE,
                                     data.get("eid"))
+        version_url = "{}/version".format(host)
 
         username = self.http_config.get("username")
         password = self.http_config.get("password")
@@ -75,6 +76,9 @@ class _Proxy:
         elif command == "update":
             url = eid_url
             function = requests.patch
+        elif command == "service":
+            url = version_url
+            function = requests.get
         else:
             raise ValueError("Unknown command: {}".format(command))
 

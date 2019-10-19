@@ -125,4 +125,8 @@ def _format_response(response, command, **listing_options):
     if periods is not None:
         return "\n".join([p for p in periods])
 
+    version = response.get("version")
+    if version is not None:
+        return version
+
     return ""
