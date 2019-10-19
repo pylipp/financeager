@@ -89,7 +89,7 @@ class _Proxy:
             try:
                 # Get further information about error (see Server.run)
                 error = response.json()["error"]
-            except (json.JSONDecodeError, KeyError):
+            except (json.JSONDecodeError, KeyError, ValueError):
                 error = "-"
 
             status_code = response.status_code

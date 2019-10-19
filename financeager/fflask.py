@@ -13,7 +13,7 @@ from .resources import (PeriodsResource, PeriodResource, EntryResource,
 logger = init_logger(__name__)
 
 
-def create_app(data_dir=None, config=None):
+def create_app(data_dir=None, config=None, return_server=False):
     """Create web app with RESTful API built from resources. The function is
     named such that the flask cli detects it as app factory method.
     The log file handler is set up very first.
@@ -63,5 +63,6 @@ def create_app(data_dir=None, config=None):
         EntryResource,
         "{}/<period_name>/<table_name>/<eid>".format(PERIODS_TAIL),
         resource_class_args=(server,))
-
+    if return_server:
+        return app, server
     return app
