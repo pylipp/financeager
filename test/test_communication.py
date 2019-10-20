@@ -23,8 +23,8 @@ class CommunicationTestCase(CommunicationTestFixture):
             "add", name="pants", value=-99, category="clothes")
         self.assertEqual(response, "Added element 1.")
 
-    def test_rm(self):
-        response = self.client.run("rm", eid=1)
+    def test_remove(self):
+        response = self.client.run("remove", eid=1)
         self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):
@@ -85,8 +85,8 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
             table_name="recurrent")
         self.assertEqual(response, "Added element 1.")
 
-    def test_rm(self):
-        response = self.client.run("rm", eid=1, table_name="recurrent")
+    def test_remove(self):
+        response = self.client.run("remove", eid=1, table_name="recurrent")
         self.assertEqual(response, "Removed element 1.")
 
     def test_get(self):

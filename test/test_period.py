@@ -96,7 +96,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def test_remove_nonexisting_entry(self):
         self.assertRaises(PeriodException, self.period.remove_entry, eid=0)
 
-    def test_add_rm_via_eid(self):
+    def test_add_remove_via_eid(self):
         entry_name = "penguin sale"
         entry_id = self.period.add_entry(
             name=entry_name, value=1337, date="1901-12-01")

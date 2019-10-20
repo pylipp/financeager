@@ -57,7 +57,7 @@ class _Proxy:
         if command == "list":
             url = period_url
             function = requests.get
-        elif command == "rm":
+        elif command == "remove":
             url = eid_url
             function = requests.delete
         elif command == "add":

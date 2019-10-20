@@ -83,7 +83,7 @@ class CliTestCase(unittest.TestCase):
             self.assertEqual(exit_code,
                              SUCCESS if log_method == "info" else FAILURE)
 
-        if command in ["add", "update", "rm", "copy"] and\
+        if command in ["add", "update", "remove", "copy"] and\
                 isinstance(printed_content, str):
             m = re.match(self.eid_pattern, printed_content)
             self.assertIsNotNone(m)
@@ -262,26 +262,26 @@ host = http://{}
         # Invoke shutting down of Flask app
         requests_get("http://{}/stop".format(cls.HOST_IP))
 
-    def test_add_list_rm(self):
+    def test_add_list_remove(self):
         entry_id = self.cli_run("add cookies -100")
 
         printed_content = self.cli_run("list")
         self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
 
-        rm_entry_id = self.cli_run("rm {}", format_args=entry_id)
-        self.assertEqual(rm_entry_id, entry_id)
+        remove_entry_id = self.cli_run("remove {}", format_args=entry_id)
+        self.assertEqual(remove_entry_id, entry_id)
 
         printed_content = self.cli_run("periods")
         self.assertIn(str(self.period), printed_content)
 
-    def test_add_get_rm_via_eid(self):
+    def test_add_get_remove_via_eid(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
 
         printed_content = self.cli_run("get {}", format_args=entry_id)
         name = printed_content.split("\n")[0].split()[2]
         self.assertEqual(name, "Donuts")
 
-        self.cli_run("rm {}", format_args=entry_id)
+        self.cli_run("remove {}", format_args=entry_id)
 
         printed_content = self.cli_run("list")
         self.assertEqual(printed_content, "")
@@ -309,8 +309,8 @@ host = http://{}
         printed_content = self.cli_run("get -1", log_method="error")
         self.assertIn("404", printed_content)
 
-    def test_delete_nonexisting_entry(self):
-        printed_content = self.cli_run("rm 0", log_method="error")
+    def test_remove_nonexisting_entry(self):
+        printed_content = self.cli_run("remove 0", log_method="error")
         self.assertIn("404", printed_content)
 
     def test_recurrent_entry(self):
@@ -332,7 +332,7 @@ host = http://{}
         self.assertEqual(printed_content.count("{}\n".format(entry_id)), 4)
         self.assertEqual(len(printed_content.splitlines()), 9)
 
-        self.cli_run("rm {} -t recurrent", format_args=entry_id)
+        self.cli_run("remove {} -t recurrent", format_args=entry_id)
 
         printed_content = self.cli_run("list")
         self.assertEqual(printed_content, "")

@@ -52,7 +52,7 @@ def add(command, offline_filepath=None, **cl_kwargs):
     :return: if anything was added
     """
 
-    if command not in ["add", "rm", "update"]:
+    if command not in ["add", "remove", "update"]:
         return False
 
     offline_filepath = offline_filepath or OFFLINE_FILEPATH

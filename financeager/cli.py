@@ -192,10 +192,10 @@ least a frequency, start date and end date are optional. Default:
         default=None,
         help="Table to get the entry from. Default: 'standard'.")
 
-    rm_parser = subparsers.add_parser(
-        "rm", help="remove an entry from the database")
-    rm_parser.add_argument("eid", help="entry ID")
-    rm_parser.add_argument(
+    remove_parser = subparsers.add_parser(
+        "remove", help="remove an entry from the database")
+    remove_parser.add_argument("eid", help="entry ID")
+    remove_parser.add_argument(
         "-t",
         "--table-name",
         default=None,
