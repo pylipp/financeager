@@ -148,6 +148,13 @@ def prettify(elements, stacked_layout=False, **listing_options):
         earnings, default_category=default_category, name="Earnings")
     listing_expenses = Listing.from_elements(
         expenses, default_category=default_category, name="Expenses")
+    listings = [listing_earnings, listing_expenses]
+
+    total_values = []
+    for listing in listings:
+        total_entry = CategoryEntry(name="TOTAL")
+        total_entry.value = listing.total_value()
+        total_values.append(total_entry.string())
 
     if stacked_layout:
         return "{}\n\n{}\n\n{}".format(
@@ -156,7 +163,6 @@ def prettify(elements, stacked_layout=False, **listing_options):
             listing_expenses.prettify(**listing_options))
     else:
         result = []
-        listings = [listing_earnings, listing_expenses]
         listings_str = [
             l.prettify(**listing_options).splitlines() for l in listings
         ]
@@ -175,11 +181,6 @@ def prettify(elements, stacked_layout=False, **listing_options):
         result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
 
         # add total value of earnings and expenses as final line
-        total_values = []
-        for listing in listings:
-            total_entry = CategoryEntry(name="TOTAL")
-            total_entry.value = listing.total_value()
-            total_values.append(total_entry.string())
         result.append(" | ".join(total_values))
 
         return '\n'.join(result)
