@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `test.suites` module and `test.test_*.suite` functions in order to simplify test framework. Testing now invokes `unittest` discovery in an expected way.
 
 ### Fixed
+- `list --stacked-layout` displays total values of earnings and expenses (analogous to the output of bare `list`). (#35)
 
 ## [v0.21] - 2019-08-19
 ### Added

@@ -237,9 +237,9 @@ class PrettifyListingsTestCase(unittest.TestCase):
         self.assertEqual(
             prettify(elements, stacked_layout=True), "\
               Earnings               " + "\n\
-Name               Value    Date  ID " + """
-
--------------------------------------
+Name               Value    Date  ID " + "\n\
+=====================================" + "\n\
+Total                  0.00          " + """
 
 """ + "\
               Expenses               " + "\n\
@@ -247,7 +247,9 @@ Name               Value    Date  ID " + "\n\
 Food                  20.00          " + "\n\
   Lunch               20.00 04-01   3" + "\n\
 Clothes              199.00          " + "\n\
-  Shirt              199.00 04-01   2")
+  Shirt              199.00 04-01   2" + "\n\
+=====================================" + "\n\
+Total                219.00          ")
 
 
 if __name__ == '__main__':

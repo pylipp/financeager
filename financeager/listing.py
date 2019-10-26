@@ -157,10 +157,15 @@ def prettify(elements, stacked_layout=False, **listing_options):
         total_values.append(total_entry.string())
 
     if stacked_layout:
-        return "{}\n\n{}\n\n{}".format(
+        line = CategoryEntry.TOTAL_LENGTH * "="
+        return "{}\n{}\n{}\n\n{}\n{}\n{}".format(
             listing_earnings.prettify(**listing_options),
-            CategoryEntry.TOTAL_LENGTH * "-",
-            listing_expenses.prettify(**listing_options))
+            line,
+            total_values[0],
+            listing_expenses.prettify(**listing_options),
+            line,
+            total_values[1],
+        )
     else:
         result = []
         listings_str = [
