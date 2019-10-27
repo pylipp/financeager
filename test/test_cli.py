@@ -230,18 +230,17 @@ host = http://{}
         # created/interfering with logs on actual machine
         import financeager
         financeager.DATA_DIR = TEST_DATA_DIR
-        app, server = create_app(
+        app = create_app(
             data_dir=TEST_DATA_DIR,
             config={
                 "DEBUG": False,  # reloader can only be run in main thread
                 "SERVER_NAME": CliFlaskTestCase.HOST_IP,
-            },
-            return_server=True)
+            })
 
         def shutdown():
             from flask import request
             request.environ.get("werkzeug.server.shutdown")()
-            server.run('stop')
+            app._server.run('stop')
             return ""
 
         # For testing, add rule to shutdown Flask app
