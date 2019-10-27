@@ -5,8 +5,6 @@ import traceback
 
 import financeager
 
-from . import listing
-from . import entries
 from .exceptions import InvalidRequest, CommunicationError
 
 
@@ -72,57 +70,9 @@ class Client:
         return success, store_offline
 
     def run(self, command, **params):
-        """Form and send request to the proxy, and eventually return formatted
-        response.
+        """Form and send request to the proxy, and eventually return response.
 
         :raises: CommunicationError, InvalidRequest
-        :return: str
+        :return: dict
         """
-        # Extract formatting options; irrelevant, event confusing for Server
-        formatting_options = {}
-        if command == "list":
-            for option in ["stacked_layout", "entry_sort", "category_sort"]:
-                formatting_options[option] = params.pop(option)
-
-        response = self.proxy.run(command, **params)
-
-        return _format_response(
-            response,
-            command,
-            default_category=self.configuration.get_option(
-                "FRONTEND", "default_category"),
-            **formatting_options)
-
-
-def _format_response(response, command, **listing_options):
-    """Format the given response into human-readable text.
-    If the response does not contain any of the fields 'id', 'elements',
-    'element', or 'periods', the empty string is returned.
-    The 'listing_options' are passed to listing.prettify().
-
-    :return: str
-    """
-    eid = response.get("id")
-    if eid is not None:
-        verb = {
-            "add": "Added",
-            "update": "Updated",
-            "remove": "Removed",
-            "copy": "Copied"
-        }[command]
-        return "{} element {}.".format(verb, eid)
-
-    elements = response.get("elements")
-    if elements is not None:
-        return listing.prettify(elements, **listing_options)
-
-    element = response.get("element")
-    if element is not None:
-        return entries.prettify(
-            element, default_category=listing_options["default_category"])
-
-    periods = response.get("periods")
-    if periods is not None:
-        return "\n".join([p for p in periods])
-
-    return ""
+        return self.proxy.run(command, **params)

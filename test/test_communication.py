@@ -1,5 +1,6 @@
 import unittest
 from datetime import date
+from collections import defaultdict
 
 from financeager import default_period_name
 from financeager import communication, localserver, httprequests
@@ -21,55 +22,63 @@ class CommunicationTestCase(CommunicationTestFixture):
         super().setUp()
         response = self.client.run(
             "add", name="pants", value=-99, category="clothes")
-        self.assertEqual(response, "Added element 1.")
+        self.assertEqual(response, {"id": 1})
 
     def test_remove(self):
         response = self.client.run("remove", eid=1)
-        self.assertEqual(response, "Removed element 1.")
+        self.assertEqual(response, {"id": 1})
 
     def test_get(self):
         response = self.client.run("get", eid=1)
-        self.assertEqual(
-            response, """\
-Name    : Pants
-Value   : -99.0
-Date    : {}
-Category: Clothes""".format(today()))
+        self.assertDictEqual(
+            response, {
+                "element": {
+                    "name": "pants",
+                    "value": -99.0,
+                    "date": today(),
+                    "category": "clothes",
+                }
+            })
 
     def test_copy(self):
         period = default_period_name()
         response = self.client.run(
             "copy", eid=1, source_period=period, destination_period=period)
-        self.assertEqual(response, "Copied element 2.")
+        self.assertEqual(response, {"id": 2})
 
     def test_update(self):
         response = self.client.run("update", eid=1, name="trousers")
-        self.assertEqual(response, "Updated element 1.")
+        self.assertEqual(response, {"id": 1})
         response = self.client.run("get", eid=1)
-        self.assertEqual(
-            response, """\
-Name    : Trousers
-Value   : -99.0
-Date    : {}
-Category: Clothes""".format(today()))
+        self.assertDictEqual(
+            response, {
+                "element": {
+                    "name": "trousers",
+                    "value": -99.0,
+                    "date": today(),
+                    "category": "clothes",
+                }
+            })
 
     def test_periods(self):
         response = self.client.run("periods")
-        self.assertEqual(response, "{}".format(date.today().year))
+        self.assertDictEqual(response, {"periods": [str(date.today().year)]})
 
     def test_list(self):
-        formatting_options = dict(
-            stacked_layout=False, entry_sort="name", category_sort="value")
-        response = self.client.run("list", **formatting_options)
-        self.assertNotEqual("", response)
+        response = self.client.run("list")
+        self.assertNotEqual({}, response)
 
-        response = self.client.run(
-            "list", filters={"date": "12-"}, **formatting_options)
-        self.assertEqual("", response)
+        response = self.client.run("list", filters={"date": "12-"})
+        self.assertDictEqual(
+            response,
+            {"elements": {
+                "standard": {},
+                "recurrent": defaultdict(list),
+            }})
 
     def test_stop(self):
         # For completeness, directly shutdown the localserver
-        self.assertEqual(self.client.run("stop"), "")
+        self.assertDictEqual(self.client.run("stop"), {})
 
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
@@ -83,22 +92,25 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
             frequency="monthly",
             start="01-01",
             table_name="recurrent")
-        self.assertEqual(response, "Added element 1.")
+        self.assertEqual(response, {"id": 1})
 
     def test_remove(self):
         response = self.client.run("remove", eid=1, table_name="recurrent")
-        self.assertEqual(response, "Removed element 1.")
+        self.assertEqual(response, {"id": 1})
 
     def test_get(self):
         response = self.client.run("get", eid=1, table_name="recurrent")
-        self.assertEqual(
-            response, """\
-Name     : Retirement
-Value    : 567.0
-Frequency: Monthly
-Start    : 01-01
-End      : 12-31
-Category : Income""")
+        self.assertDictEqual(
+            response, {
+                "element": {
+                    "name": "retirement",
+                    "value": 567.0,
+                    "frequency": "monthly",
+                    "start": "01-01",
+                    "end": "12-31",
+                    "category": "income",
+                }
+            })
 
     def test_update(self):
         response = self.client.run(
@@ -107,16 +119,19 @@ Category : Income""")
             frequency="bimonthly",
             category="n.a.",
             table_name="recurrent")
-        self.assertEqual(response, "Updated element 1.")
+        self.assertEqual(response, {"id": 1})
         response = self.client.run("get", eid=1, table_name="recurrent")
-        self.assertEqual(
-            response, """\
-Name     : Retirement
-Value    : 567.0
-Frequency: Bimonthly
-Start    : 01-01
-End      : 12-31
-Category : N.A.""")
+        self.assertDictEqual(
+            response, {
+                "element": {
+                    "name": "retirement",
+                    "value": 567.0,
+                    "frequency": "bimonthly",
+                    "start": "01-01",
+                    "end": "12-31",
+                    "category": "n.a.",
+                }
+            })
 
 
 class CommunicationModuleTestCase(unittest.TestCase):

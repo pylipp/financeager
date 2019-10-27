@@ -6,7 +6,8 @@ import os
 import sys
 
 from financeager import offline, __version__, PERIOD_DATE_FORMAT,\
-    init_logger, make_log_stream_handler_verbose, setup_log_file_handler
+    init_logger, make_log_stream_handler_verbose, setup_log_file_handler,\
+    entries, listing
 import financeager
 from .communication import Client
 from .config import Configuration
@@ -72,8 +73,20 @@ def run(command=None, config_filepath=None, verbose=False, **params):
     if service_name == "flask":
         init_logger("urllib3")
 
+    formatting_options = {}
+    formatting_options["default_category"] = configuration.get_option(
+        "FRONTEND", "default_category")
+    if command == "list":
+        # Extract formatting options; irrelevant, event confusing for Server
+        for option in ["stacked_layout", "entry_sort", "category_sort"]:
+            formatting_options[option] = params.pop(option)
+
+    def _info(message):
+        """Wrapper to format response and propagate it to logger.info."""
+        logger.info(_format_response(message, command, **formatting_options))
+
     client = Client(
-        configuration=configuration, out=Client.Out(logger.info, logger.error))
+        configuration=configuration, out=Client.Out(_info, logger.error))
     success, store_offline = client.safely_run(command, **params)
 
     if success:
@@ -135,6 +148,37 @@ def _preprocess(data, date_format=None):
         except ValueError:
             # splitting returned less than two parts due to missing separator
             raise PreprocessingError("Invalid filter format: {}".format(item))
+
+
+def _format_response(response, command, **listing_options):
+    """Format the given response into human-readable text.
+    If the response does not contain any of the fields 'id', 'elements',
+    'element', or 'periods', None is returned.
+    The 'listing_options' are passed to listing.prettify().
+
+    :return: str
+    """
+    eid = response.get("id")
+    if eid is not None:
+        verb = {
+            "add": "Added",
+            "update": "Updated",
+            "remove": "Removed",
+            "copy": "Copied"
+        }[command]
+        return "{} element {}.".format(verb, eid)
+
+    elements = response.get("elements")
+    if elements is not None:
+        return listing.prettify(elements, **listing_options)
+
+    element = response.get("element")
+    if element is not None:
+        return entries.prettify(
+            element, default_category=listing_options["default_category"])
+
+    periods = response.get("periods")
+    return "\n".join([p for p in periods])
 
 
 def _parse_command(args=None):
