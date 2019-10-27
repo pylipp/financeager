@@ -46,15 +46,18 @@ class Client:
         self.out = out
 
     def safely_run(self, command, **params):
-        """Execute run() while handling any errors. Return indicators about
-        whether execution was successful, and whether to store the requested
-        command offline, if execution failed due to a service-sided error.
+        """Execute self.proxy.run() while handling any errors. Return indicators
+        about whether execution was successful, and whether to store the
+        requested command offline, if execution failed due to a service-sided
+        error.
+
+        :return: tuple(bool, bool)
         """
         store_offline = False
         success = False
 
         try:
-            self.out.info(self.run(command, **params))
+            self.out.info(self.proxy.run(command, **params))
             success = True
         except InvalidRequest as e:
             # Command is erroneous and hence not stored offline
@@ -68,11 +71,3 @@ class Client:
             store_offline = True
 
         return success, store_offline
-
-    def run(self, command, **params):
-        """Form and send request to the proxy, and eventually return response.
-
-        :raises: CommunicationError, InvalidRequest
-        :return: dict
-        """
-        return self.proxy.run(command, **params)

@@ -14,22 +14,22 @@ def today():
 
 class CommunicationTestFixture(unittest.TestCase):
     def setUp(self):
-        self.client = utils.Client()
+        self.proxy = utils.Client().proxy
 
 
 class CommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
-        response = self.client.run(
+        response = self.proxy.run(
             "add", name="pants", value=-99, category="clothes")
         self.assertEqual(response, {"id": 1})
 
     def test_remove(self):
-        response = self.client.run("remove", eid=1)
+        response = self.proxy.run("remove", eid=1)
         self.assertEqual(response, {"id": 1})
 
     def test_get(self):
-        response = self.client.run("get", eid=1)
+        response = self.proxy.run("get", eid=1)
         self.assertDictEqual(
             response, {
                 "element": {
@@ -42,14 +42,14 @@ class CommunicationTestCase(CommunicationTestFixture):
 
     def test_copy(self):
         period = default_period_name()
-        response = self.client.run(
+        response = self.proxy.run(
             "copy", eid=1, source_period=period, destination_period=period)
         self.assertEqual(response, {"id": 2})
 
     def test_update(self):
-        response = self.client.run("update", eid=1, name="trousers")
+        response = self.proxy.run("update", eid=1, name="trousers")
         self.assertEqual(response, {"id": 1})
-        response = self.client.run("get", eid=1)
+        response = self.proxy.run("get", eid=1)
         self.assertDictEqual(
             response, {
                 "element": {
@@ -61,14 +61,14 @@ class CommunicationTestCase(CommunicationTestFixture):
             })
 
     def test_periods(self):
-        response = self.client.run("periods")
+        response = self.proxy.run("periods")
         self.assertDictEqual(response, {"periods": [str(date.today().year)]})
 
     def test_list(self):
-        response = self.client.run("list")
+        response = self.proxy.run("list")
         self.assertNotEqual({}, response)
 
-        response = self.client.run("list", filters={"date": "12-"})
+        response = self.proxy.run("list", filters={"date": "12-"})
         self.assertDictEqual(
             response,
             {"elements": {
@@ -78,13 +78,13 @@ class CommunicationTestCase(CommunicationTestFixture):
 
     def test_stop(self):
         # For completeness, directly shutdown the localserver
-        self.assertDictEqual(self.client.run("stop"), {})
+        self.assertDictEqual(self.proxy.run("stop"), {})
 
 
 class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
     def setUp(self):
         super().setUp()
-        response = self.client.run(
+        response = self.proxy.run(
             "add",
             name="retirement",
             value=567,
@@ -95,11 +95,11 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
         self.assertEqual(response, {"id": 1})
 
     def test_remove(self):
-        response = self.client.run("remove", eid=1, table_name="recurrent")
+        response = self.proxy.run("remove", eid=1, table_name="recurrent")
         self.assertEqual(response, {"id": 1})
 
     def test_get(self):
-        response = self.client.run("get", eid=1, table_name="recurrent")
+        response = self.proxy.run("get", eid=1, table_name="recurrent")
         self.assertDictEqual(
             response, {
                 "element": {
@@ -113,14 +113,14 @@ class RecurrentEntryCommunicationTestCase(CommunicationTestFixture):
             })
 
     def test_update(self):
-        response = self.client.run(
+        response = self.proxy.run(
             "update",
             eid=1,
             frequency="bimonthly",
             category="n.a.",
             table_name="recurrent")
         self.assertEqual(response, {"id": 1})
-        response = self.client.run("get", eid=1, table_name="recurrent")
+        response = self.proxy.run("get", eid=1, table_name="recurrent")
         self.assertDictEqual(
             response, {
                 "element": {

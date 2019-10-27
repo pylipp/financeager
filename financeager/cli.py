@@ -105,7 +105,7 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         logger.info("Stored '{}' request in offline backup.".format(command))
 
     if service_name == "none":
-        client.run("stop")
+        client.proxy.run("stop")
 
     return exit_code
 

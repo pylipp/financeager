@@ -51,7 +51,7 @@ class AddTestCase(unittest.TestCase):
         def run(command, **kwargs):
             raise Exception
 
-        client.run = run
+        client.proxy.run = run
 
         self.assertRaises(
             OfflineRecoveryError,
