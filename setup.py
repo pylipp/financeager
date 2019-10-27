@@ -17,14 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from setuptools import setup, find_packages
-from financeager import __version__
 
 with open("README.md") as readme:
     long_description = readme.read()
 
 setup(
     name="financeager",
-    version=__version__,
+    use_scm_version=True,
     description="command line tool for organizing finances",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -47,6 +46,9 @@ setup(
     ],
     packages=find_packages(exclude=["test"]),
     entry_points={"console_scripts": ["financeager = financeager.cli:main"]},
+    setup_requires=[
+        "setuptools_scm",
+    ],
     install_requires=[
         "tinydb==3.2.1",
         "python-dateutil==2.6.0",
