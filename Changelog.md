@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - `test.suites` module and `test.test_*.suite` functions in order to simplify test framework. Testing now invokes `unittest` discovery in an expected way.
+- `test.test_communication` module because it contained redundant tests
 
 ### Fixed
 - `list --stacked-layout` displays total values of earnings and expenses (analogous to the output of bare `list`). (#35)
