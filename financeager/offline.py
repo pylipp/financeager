@@ -37,7 +37,7 @@ def _recover_data(client, content):
     while len(content):
         data = content.pop()
         try:
-            logger.info(client.proxy.run(**data))
+            client.proxy.run(**data)
         except Exception as e:
             logger.exception(e)
             return data
