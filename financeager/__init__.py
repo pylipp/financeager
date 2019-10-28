@@ -3,7 +3,8 @@ from datetime import datetime as dt
 from logging import getLogger, StreamHandler, DEBUG, INFO, Formatter, handlers
 
 # versioning information
-__version__ = "0.21"
+from pkg_resources import get_distribution
+__version__ = get_distribution(__name__).version
 
 #
 # Global constants

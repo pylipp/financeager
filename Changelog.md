@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Extend Travis CI (use Python version 3.6 and 3.7, include style checks)
 - Add gitlint tool for development.
+- Added support for setuptools_scm.
 
 ### Changed
 - Send any HTTP request data in JSON format.
