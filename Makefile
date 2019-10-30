@@ -1,9 +1,9 @@
-VERSION=$(shell python -c "import financeager; print(financeager.__version__)")
+VERSION=$$(python setup.py --version)
 
-.PHONY: all test install upload tag publish coverage lint format style-check
+.PHONY: all test install release coverage lint format style-check
 
 all:
-	@echo "Available targets: install, test, upload, tag, publish, coverage, lint, format, style-check"
+	@echo "Available targets: install, test, release, coverage, lint, format, style-check"
 
 install:
 	pip install -U -e .
@@ -11,17 +11,12 @@ install:
 test:
 	python setup.py test
 
-upload: README.md setup.py
-	rm -f dist/*
-	python setup.py bdist_wheel --universal
-	twine upload dist/*
-
-tag:
-	git tag v$(VERSION)
+release: Changelog.md setup.py
 	git push --tags origin master
 	hub release create -m v$(VERSION) -m "$$(awk -v RS='' '/\[v$(VERSION)\]/' Changelog.md | tail -n+2)" v$(VERSION)
-
-publish: tag upload
+	rm -rf dist build
+	python setup.py bdist_wheel --universal
+	twine upload dist/*
 
 coverage:
 	coverage erase

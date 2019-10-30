@@ -246,6 +246,11 @@ Please adhere to test-driven development, if possible: When adding a feature, or
 
 If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug fix or a new feature), please update `Changelog.md` accordingly as well. Check this README whether the content is still up to date.
 
+## Releasing
+
+1. Tag the latest commit on master by incrementing the current version accordingly (scheme `v0.X`).
+1. Run `make release`.
+
 ## `financeager` features
 
 ### Ideas
