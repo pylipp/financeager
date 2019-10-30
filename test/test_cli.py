@@ -239,8 +239,8 @@ host = http://{}
 
         def shutdown():
             from flask import request
-            request.environ.get("werkzeug.server.shutdown")()
             app._server.run('stop')
+            request.environ.get("werkzeug.server.shutdown")()
             return ""
 
         # For testing, add rule to shutdown Flask app
