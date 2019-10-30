@@ -26,6 +26,12 @@ The project is actively developed. Expect things to break - e.g. the command lin
 
     pip install financeager
 
+### Using pipx
+
+If you're using Python >= 3.6 and have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `financeager` into an isolated environment via
+
+    pipx install financeager
+
 ### From source (master branch)
 
 Clone the repo
