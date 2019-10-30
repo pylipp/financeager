@@ -64,4 +64,7 @@ def create_app(data_dir=None, config=None):
         "{}/<period_name>/<table_name>/<eid>".format(PERIODS_TAIL),
         resource_class_args=(server,))
 
+    # Assign attribute such that e.g. test_cli can access Server methods
+    app._server = server
+
     return app

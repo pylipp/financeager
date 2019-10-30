@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - `list --stacked-layout` displays total values of earnings and expenses (analogous to the output of bare `list`). (#35)
+- Database files are properly closed after test runs involving a Flask app. (#42)
 
 ## [v0.21] - 2019-08-19
 ### Added
