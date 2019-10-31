@@ -24,33 +24,13 @@ The project is actively developed. Expect things to break - e.g. the command lin
 
 ### From PyPI package
 
-    pip install financeager
+    pip install --user financeager
 
 ### Using pipx
 
 If you're using Python >= 3.6 and have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `financeager` into an isolated environment via
 
     pipx install financeager
-
-### From source (master branch)
-
-Clone the repo
-
-    git clone https://github.com/pylipp/financeager
-    cd financeager
-
-Create a virtual environment
-
-    python -m venv --python=$(which python3) .venv
-    source .venv/bin/activate
-
-Install
-
-    pip install --upgrade --editable .
-
-Alternatively, you can omit the second and third step and install `financeager` to `~/.local` with (requires `pip3`)
-
-    pip3 install . --user
 
 ## Usage
 
@@ -233,7 +213,17 @@ The following diagram sketches the relationship between financeager's modules. S
 
 ## Contributing
 
-Always welcome! For installation, follow the steps above (section 'From source') and install development dependencies via
+Always welcome! Clone the repo
+
+    git clone https://github.com/pylipp/financeager
+    cd financeager
+
+Create a virtual environment
+
+    python -m venv --python=$(which python3) .venv
+    source .venv/bin/activate
+
+Install development dependencies
 
     pip install --upgrade --editable .[develop]
     pre-commit install
