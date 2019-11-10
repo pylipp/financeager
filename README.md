@@ -220,7 +220,7 @@ Always welcome! Clone the repo
 
 Create a virtual environment
 
-    python -m venv --python=$(which python3) .venv
+    python3 -m venv .venv
     source .venv/bin/activate
 
 Install development dependencies
@@ -241,24 +241,9 @@ If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug f
 1. Tag the latest commit on master by incrementing the current version accordingly (scheme `v0.X`).
 1. Run `make release`.
 
-## `financeager` features
-
-### Ideas
-
-- [ ] experiment with urwid for building TUI or remi for HTML-based GUI
-- [ ] support querying of standard/recurrent table with `list`
-- [x] return element data as response to add/copy/update request
-- [ ] support passing multiple elements IDs to update/remove/copy/get (maybe together with asynchronous HTTP requests)
-- [ ] extended period names (something along `2018-personal`)
-- [ ] support `list` at date other than today
-
-### Discarded ideas
-
-- select from multiple options if possible (e.g. when searching or deleting an entry): breaks the concept of having a single request-response action. Instead, the user is expected to know which element he wants to delete (by using the element ID) and can give a precise command
-
 ## Roadmap for release of version 1.0
 
-This requires some restructuring of the software architecture. Motivation and goals are outlined below.
+This may require some restructuring of the software architecture. Motivation and goals are outlined below.
 
 ### Status quo
 
@@ -284,25 +269,6 @@ This requires some restructuring of the software architecture. Motivation and go
         - response formatting (entries, listing)
 - consistent, modular test structure
 - pave way for terminal user interface
-
-### TODOs
-
-- [x] remove TinyDB usage from model and entries
-- [x] remove entries import from period
-- [ ] more fine-grained error-handling in period (distinguish between errors during validation and about non-existing elements)
-- [x] integration test of cli module
-- [x] move data dir to ~/.local/share/financeager
-- [x] install pre-commit framework
-- [x] use logging module instead of print
-- [ ] use marshmallow package for keyword validation/serialization in period and resources
-- [x] have return codes in cli.run
-- [x] introduce `verbose` cli option
-- [x] add loggers to config and offline modules
-- [x] add loggers to resources and server
-- [x] avoid test code interfering with actual file system content
-- [x] test offline feature with 'none' backend
-- [x] rename 'model' to 'listing'
-- [x] clean up `test_communication`
 
 PERSONAL NOTE
 -------------
