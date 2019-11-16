@@ -36,11 +36,14 @@ def main():
     sys.exit(run(**_parse_command()))
 
 
-def run(command=None, config_filepath=None, verbose=False, **params):
+def run(command=None, config_filepath=None, verbose=False, sinks=None,
+        **params):
     """High-level API entry point.
     All 'params' are passed to 'Client.safely_run()'.
     'config_filepath' specifies the path to a custom config file (optional). If
     'verbose' is set, debug level log messages are printed to the terminal.
+    'sinks' is an optional Client.Sinks object to direct program output to. By
+    default, the Python built-in logging interface is used.
 
     This function can be used for scripting. Provide 'command' and 'params'
     according to what the command line interface accepts (consult help via
@@ -52,6 +55,12 @@ def run(command=None, config_filepath=None, verbose=False, **params):
     if verbose:
         make_log_stream_handler_verbose()
 
+    def _info(message):
+        """Wrapper to format response and propagate it to logger.info."""
+        logger.info(_format_response(message, command, **formatting_options))
+
+    sinks = sinks or Client.Sinks(_info, logger.error)
+
     exit_code = FAILURE
 
     if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
@@ -59,14 +68,14 @@ def run(command=None, config_filepath=None, verbose=False, **params):
     try:
         configuration = Configuration(filepath=config_filepath)
     except InvalidConfigError as e:
-        logger.error("Invalid configuration: {}".format(e))
+        sinks.error("Invalid configuration: {}".format(e))
         return FAILURE
 
     date_format = configuration.get_option("FRONTEND", "date_format")
     try:
         _preprocess(params, date_format)
     except PreprocessingError as e:
-        logger.error(e)
+        sinks.error(e)
         return FAILURE
 
     service_name = configuration.get_option("SERVICE", "name")
@@ -81,12 +90,7 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         for option in ["stacked_layout", "entry_sort", "category_sort"]:
             formatting_options[option] = params.pop(option)
 
-    def _info(message):
-        """Wrapper to format response and propagate it to logger.info."""
-        logger.info(_format_response(message, command, **formatting_options))
-
-    client = Client(
-        configuration=configuration, sinks=Client.Sinks(_info, logger.error))
+    client = Client(configuration=configuration, sinks=sinks)
     success, store_offline = client.safely_run(command, **params)
 
     if success:
@@ -96,13 +100,13 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         # offline backup
         try:
             if offline.recover(client):
-                logger.info("Recovered offline backup.")
+                sinks.info("Recovered offline backup.")
         except OfflineRecoveryError:
-            logger.error("Offline backup recovery failed!")
+            sinks.error("Offline backup recovery failed!")
             exit_code = FAILURE
 
     if store_offline and offline.add(command, **params):
-        logger.info("Stored '{}' request in offline backup.".format(command))
+        sinks.info("Stored '{}' request in offline backup.".format(command))
 
     if service_name == "none":
         client.proxy.run("stop")
