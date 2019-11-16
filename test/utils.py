@@ -14,6 +14,6 @@ class Client(communication.Client):
         f = lambda s: None
         super().__init__(
             configuration=config.Configuration(),
-            out=communication.Client.Out(f, f))
+            sinks=communication.Client.Sinks(f, f))
 
         self.proxy._period_kwargs["data_dir"] = None

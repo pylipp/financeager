@@ -22,16 +22,15 @@ def module(name):
 
 class Client:
     """Abstract interface for communicating with the service.
-    Output is passed to distinct sinks which are functions taking a single
+    Output is directed to distinct sinks which are functions taking a single
     string argument.
     """
 
-    # Output sinks
-    Out = namedtuple("Out", ["info", "error"])
+    Sinks = namedtuple("Sinks", ["info", "error"])
 
-    def __init__(self, *, configuration, out):
+    def __init__(self, *, configuration, sinks):
         """Set up proxy according to configuration.
-        Store the output sinks specified in the Client.Out object 'out'.
+        Store the specified sinks.
         """
         service_name = configuration.get_option("SERVICE", "name")
         proxy_kwargs = {}
@@ -43,7 +42,7 @@ class Client:
 
         self.proxy = module(service_name).proxy(**proxy_kwargs)
         self.configuration = configuration
-        self.out = out
+        self.sinks = sinks
 
     def safely_run(self, command, **params):
         """Execute self.proxy.run() while handling any errors. Return indicators
@@ -57,16 +56,16 @@ class Client:
         success = False
 
         try:
-            self.out.info(self.proxy.run(command, **params))
+            self.sinks.info(self.proxy.run(command, **params))
             success = True
         except InvalidRequest as e:
             # Command is erroneous and hence not stored offline
-            self.out.error(e)
+            self.sinks.error(e)
         except CommunicationError as e:
-            self.out.error(e)
+            self.sinks.error(e)
             store_offline = True
         except Exception:
-            self.out.error("Unexpected error: {}".format(
+            self.sinks.error("Unexpected error: {}".format(
                 traceback.format_exc()))
             store_offline = True
 

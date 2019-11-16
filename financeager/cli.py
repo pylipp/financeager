@@ -86,7 +86,7 @@ def run(command=None, config_filepath=None, verbose=False, **params):
         logger.info(_format_response(message, command, **formatting_options))
 
     client = Client(
-        configuration=configuration, out=Client.Out(_info, logger.error))
+        configuration=configuration, sinks=Client.Sinks(_info, logger.error))
     success, store_offline = client.safely_run(command, **params)
 
     if success:
