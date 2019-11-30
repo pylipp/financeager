@@ -82,31 +82,31 @@ class CliTestCase(unittest.TestCase):
         exit_code = run(sinks=sinks, **params)
 
         # Get first of the args of the call of specified log method
-        printed_content = getattr(self, log_method).call_args[0][0]
+        response = getattr(self, log_method).call_args[0][0]
 
         # Verify exit code
         self.assertEqual(exit_code,
                          SUCCESS if log_method == "info" else FAILURE)
 
         # Immediately return str messages
-        if isinstance(printed_content, str):
-            return printed_content
+        if isinstance(response, str):
+            return response
 
         # Convert Exceptions to string
-        if isinstance(printed_content, Exception):
-            return str(printed_content)
+        if isinstance(response, Exception):
+            return str(response)
 
         if command in ["add", "update", "remove", "copy"]:
-            return printed_content["id"]
+            return response["id"]
 
         if command in ["get", "list", "periods"] and log_method == "info":
             return _format_response(
-                printed_content,
+                response,
                 command,
                 default_category=self.configuration.get_option(
                     "FRONTEND", "default_category"))
 
-        return printed_content
+        return response
 
 
 class CliInvalidConfigTestCase(CliTestCase):
@@ -118,8 +118,8 @@ name = heroku"""
     def test_list(self):
         # using a command that won't try to parse the element ID from the list
         # call in cli_run()...
-        printed_content = self.cli_run("list", log_method="error")
-        self.assertEqual(printed_content,
+        response = self.cli_run("list", log_method="error")
+        self.assertEqual(response,
                          "Invalid configuration: Unknown service name!")
 
 
@@ -153,8 +153,8 @@ default_category = no-category"""
         self.assertEqual(entry_id, 1)
 
         # Verify that customized default category is used
-        printed_content = self.cli_run("get {}", format_args=entry_id)
-        self.assertIn("no-category", printed_content.lower())
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertIn("no-category", response.lower())
 
     # Interfere call to stderr (see StreamHandler implementation in
     # python3.5/logging/__init__.py)
@@ -216,13 +216,12 @@ default_category = no-category"""
                          self.info.call_args_list[1][0][0])
 
     def test_get_nonexisting_entry(self):
-        printed_content = self.cli_run("get 0", log_method="error")
-        self.assertEqual(printed_content, "Invalid request: Element not found.")
+        response = self.cli_run("get 0", log_method="error")
+        self.assertEqual(response, "Invalid request: Element not found.")
 
     def test_preprocessing_error(self):
-        printed_content = self.cli_run(
-            "add car -1000 -d ups", log_method="error")
-        self.assertEqual(printed_content, "Invalid date format.")
+        response = self.cli_run("add car -1000 -d ups", log_method="error")
+        self.assertEqual(response, "Invalid date format.")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
@@ -283,31 +282,31 @@ host = http://{}
     def test_add_list_remove(self):
         entry_id = self.cli_run("add cookies -100")
 
-        printed_content = self.cli_run("list")
-        self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
+        response = self.cli_run("list")
+        self.assertIn(CategoryEntry.DEFAULT_NAME, response.lower())
 
         remove_entry_id = self.cli_run("remove {}", format_args=entry_id)
         self.assertEqual(remove_entry_id, entry_id)
 
-        printed_content = self.cli_run("periods")
-        self.assertIn(str(self.period), printed_content)
+        response = self.cli_run("periods")
+        self.assertIn(str(self.period), response)
 
     def test_add_get_remove_via_eid(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
 
-        printed_content = self.cli_run("get {}", format_args=entry_id)
-        name = printed_content.split("\n")[0].split()[2]
+        response = self.cli_run("get {}", format_args=entry_id)
+        name = response.split("\n")[0].split()[2]
         self.assertEqual(name, "Donuts")
 
         self.cli_run("remove {}", format_args=entry_id)
 
-        printed_content = self.cli_run("list")
-        self.assertEqual(printed_content, "")
+        response = self.cli_run("list")
+        self.assertEqual(response, "")
 
     def test_add_invalid_entry_table_name(self):
-        printed_content = self.cli_run(
+        response = self.cli_run(
             "add stuff 11.11 -t unknown", log_method="error")
-        self.assertIn("400", printed_content)
+        self.assertIn("400", response)
 
     def test_update(self):
         entry_id = self.cli_run("add donuts -50 -c sweets")
@@ -316,44 +315,43 @@ host = http://{}
             "update {} -n bretzels", format_args=entry_id)
         self.assertEqual(entry_id, update_entry_id)
 
-        printed_content = self.cli_run("get {}", format_args=entry_id)
-        self.assertIn("Bretzels", printed_content)
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertIn("Bretzels", response)
 
     def test_update_nonexisting_entry(self):
-        printed_content = self.cli_run("update -1 -n a", log_method="error")
-        self.assertIn("400", printed_content)
+        response = self.cli_run("update -1 -n a", log_method="error")
+        self.assertIn("400", response)
 
     def test_get_nonexisting_entry(self):
-        printed_content = self.cli_run("get -1", log_method="error")
-        self.assertIn("404", printed_content)
+        response = self.cli_run("get -1", log_method="error")
+        self.assertIn("404", response)
 
     def test_remove_nonexisting_entry(self):
-        printed_content = self.cli_run("remove 0", log_method="error")
-        self.assertIn("404", printed_content)
+        response = self.cli_run("remove 0", log_method="error")
+        self.assertIn("404", response)
 
     def test_recurrent_entry(self):
         entry_id = self.cli_run("add cookies -10 -c food -t recurrent -f "
                                 "half-yearly -s 01-01 -e 12-31")
         self.assertEqual(entry_id, 1)
 
-        printed_content = self.cli_run(
-            "get {} -t recurrent", format_args=entry_id)
-        self.assertIn("Half-Yearly", printed_content)
+        response = self.cli_run("get {} -t recurrent", format_args=entry_id)
+        self.assertIn("Half-Yearly", response)
 
         update_entry_id = self.cli_run(
             "update {} -t recurrent -n clifbars -f quarter-yearly",
             format_args=entry_id)
         self.assertEqual(update_entry_id, entry_id)
 
-        printed_content = self.cli_run("list")
-        self.assertEqual(printed_content.count("Clifbars"), 4)
-        self.assertEqual(printed_content.count("{}\n".format(entry_id)), 4)
-        self.assertEqual(len(printed_content.splitlines()), 9)
+        response = self.cli_run("list")
+        self.assertEqual(response.count("Clifbars"), 4)
+        self.assertEqual(response.count("{}\n".format(entry_id)), 4)
+        self.assertEqual(len(response.splitlines()), 9)
 
         self.cli_run("remove {} -t recurrent", format_args=entry_id)
 
-        printed_content = self.cli_run("list")
-        self.assertEqual(printed_content, "")
+        response = self.cli_run("list")
+        self.assertEqual(response, "")
 
     def test_copy(self):
         destination_period = self.period + 1
@@ -383,30 +381,30 @@ host = http://{}
         destination_period = self.period + 1
         self.__class__.period += 1
 
-        printed_content = self.cli_run(
+        response = self.cli_run(
             "copy 0 -s {} -d {}",
             log_method="error",
             format_args=(self.period, destination_period))
-        self.assertIn("404", printed_content)
+        self.assertIn("404", response)
 
     def test_default_category(self):
         entry_id = self.cli_run("add car -9999")
 
         # Default category is converted for frontend display
-        printed_content = self.cli_run("list")
-        self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
+        response = self.cli_run("list")
+        self.assertIn(CategoryEntry.DEFAULT_NAME, response.lower())
 
         # Category field is converted to 'None' and filtered for
-        printed_content = self.cli_run("list --filters category=unspecified")
-        self.assertIn(CategoryEntry.DEFAULT_NAME, printed_content.lower())
+        response = self.cli_run("list --filters category=unspecified")
+        self.assertIn(CategoryEntry.DEFAULT_NAME, response.lower())
 
         # The pattern is used for regex filtering; nothing is found
-        printed_content = self.cli_run("list --filters category=lel")
-        self.assertEqual(printed_content, "")
+        response = self.cli_run("list --filters category=lel")
+        self.assertEqual(response, "")
 
         # Default category is converted for frontend display
-        printed_content = self.cli_run("get {}", format_args=entry_id)
-        self.assertEqual(printed_content.splitlines()[-1].split()[1].lower(),
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertEqual(response.splitlines()[-1].split()[1].lower(),
                          CategoryEntry.DEFAULT_NAME)
 
     def test_communication_error(self):
@@ -414,8 +412,8 @@ host = http://{}
             response = Response()
             response.status_code = 500
             mocked_get.return_value = response
-            printed_content = self.cli_run("list", log_method="error")
-            self.assertIn("500", printed_content)
+            response = self.cli_run("list", log_method="error")
+            self.assertIn("500", response)
 
     @mock.patch("financeager.offline.OFFLINE_FILEPATH",
                 "/tmp/financeager-test-offline.json")
