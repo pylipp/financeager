@@ -518,5 +518,22 @@ class PreprocessTestCase(unittest.TestCase):
         self.assertEqual(data["filters"], {"category": None})
 
 
+class FormatResponseTestCase(unittest.TestCase):
+    def test_add(self):
+        self.assertEqual("Added element 1.", _format_response({"id": 1}, "add"))
+
+    def test_update(self):
+        self.assertEqual("Updated element 1.",
+                         _format_response({"id": 1}, "update"))
+
+    def test_remove(self):
+        self.assertEqual("Removed element 1.",
+                         _format_response({"id": 1}, "remove"))
+
+    def test_copy(self):
+        self.assertEqual("Copied element 1.", _format_response({"id": 1},
+                                                               "copy"))
+
+
 if __name__ == "__main__":
     unittest.main()
