@@ -3,15 +3,17 @@ from unittest import mock
 import os
 import time
 from threading import Thread
-import re
 import tempfile
+from collections import defaultdict
 
 from requests import Response, RequestException
 from requests import get as requests_get
 
-from financeager import DEFAULT_TABLE
+from financeager import DEFAULT_TABLE, config
+from financeager.communication import Client
 from financeager.fflask import create_app
-from financeager.cli import _parse_command, run, SUCCESS, FAILURE, _preprocess
+from financeager.cli import _parse_command, run, SUCCESS, FAILURE, _preprocess,\
+    _format_response
 from financeager.entries import CategoryEntry
 from financeager.exceptions import PreprocessingError
 
@@ -26,16 +28,23 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        cls.period = 1900
+        try:
+            cls.configuration = config.Configuration(
+                filepath=TEST_CONFIG_FILEPATH)
+        except config.InvalidConfigError:
+            cls.configuration = None
 
-        cls.eid_pattern = re.compile(
-            r"(Add|Updat|Remov|Copi)ed element (\d+)\.")
+        cls.period = 1900
 
     def setUp(self):
         # Separate test runs by running individual test methods using distinct
         # periods (especially crucial for CliFlaskTestCase which uses a single
         # Flask instance for all tests)
         self.__class__.period += 1
+
+        # Mocks to record output of cli.run() call
+        self.info = mock.MagicMock()
+        self.error = mock.MagicMock()
 
     def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
@@ -53,6 +62,9 @@ class CliTestCase(unittest.TestCase):
         the specified 'log_method' and returned. Otherwise the raw log call is
         returned.
         """
+        self.info.reset_mock()
+        self.error.reset_mock()
+
         if not isinstance(format_args, tuple):
             format_args = (format_args,)
         args = command_line.format(*format_args).split()
@@ -64,33 +76,37 @@ class CliTestCase(unittest.TestCase):
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
 
-        with mock.patch("financeager.cli.logger") as mocked_logger:
-            # Mock relevant methods
-            mocked_logger.info = mock.MagicMock()
-            mocked_logger.error = mock.MagicMock()
+        sinks = Client.Sinks(self.info, self.error)
 
-            exit_code = run(**_parse_command(args))
+        params = _parse_command(args)
+        exit_code = run(sinks=sinks, **params)
 
-            # Record for optional detailed analysis in test methods
-            self.log_call_args_list = {}
-            for method in ["info", "error"]:
-                self.log_call_args_list[method] = \
-                    getattr(mocked_logger, method).call_args_list
-            # Get first of the args of the first call of specified log method
-            printed_content = self.log_call_args_list[log_method][0][0][0]
+        # Get first of the args of the call of specified log method
+        printed_content = getattr(self, log_method).call_args[0][0]
 
-            # Verify exit code after assigning log_call_args_list member
-            self.assertEqual(exit_code,
-                             SUCCESS if log_method == "info" else FAILURE)
+        # Verify exit code
+        self.assertEqual(exit_code,
+                         SUCCESS if log_method == "info" else FAILURE)
 
-        if command in ["add", "update", "remove", "copy"] and\
-                isinstance(printed_content, str):
-            m = re.match(self.eid_pattern, printed_content)
-            self.assertIsNotNone(m)
-            return int(m.group(2))
+        # Immediately return str messages
+        if isinstance(printed_content, str):
+            return printed_content
 
         # Convert Exceptions to string
-        return str(printed_content)
+        if isinstance(printed_content, Exception):
+            return str(printed_content)
+
+        if command in ["add", "update", "remove", "copy"]:
+            return printed_content["id"]
+
+        if command in ["get", "list", "periods"] and log_method == "info":
+            return _format_response(
+                printed_content,
+                command,
+                default_category=self.configuration.get_option(
+                    "FRONTEND", "default_category"))
+
+        return printed_content
 
 
 class CliInvalidConfigTestCase(CliTestCase):
@@ -138,8 +154,7 @@ default_category = no-category"""
 
         # Verify that customized default category is used
         printed_content = self.cli_run("get {}", format_args=entry_id)
-        self.assertEqual(printed_content.splitlines()[-1].split()[1].lower(),
-                         "no-category")
+        self.assertIn("no-category", printed_content.lower())
 
     # Interfere call to stderr (see StreamHandler implementation in
     # python3.5/logging/__init__.py)
@@ -168,35 +183,37 @@ default_category = no-category"""
             # Try do add an item but provoke CommunicationError
             mocked_run.side_effect = side_effect
 
-            try:
-                self.cli_run("add veggies -33", log_method="error")
-            except AssertionError:
-                # The regex matching is expected to fail; hence no return value
-                # from cli_run() available
-                pass
+            self.cli_run("add veggies -33", log_method="error")
 
             # Output from caught CommunicationError
             self.assertEqual("Unexpected error",
-                             str(self.log_call_args_list["error"][0][0][0]))
+                             str(self.error.call_args_list[0][0][0]))
             self.assertEqual("Stored 'add' request in offline backup.",
-                             self.log_call_args_list["info"][0][0][0])
+                             self.info.call_args_list[0][0][0])
 
             # Now request a print, and try to recover the offline backup
             # But adding is still expected to fail
-            self.cli_run("list", log_method="error")
+            response = self.cli_run("list", log_method="error")
             # Output from print; expect empty database
-            self.assertEqual("", self.log_call_args_list["info"][0][0][0])
+            self.assertEqual({"elements": {
+                DEFAULT_TABLE: {},
+                "recurrent": {}
+            }}, self.info.call_args_list[0][0][0])
 
             # Output from cli module
-            self.assertEqual("Offline backup recovery failed!",
-                             self.log_call_args_list["error"][-1][0][0])
+            self.assertEqual("Offline backup recovery failed!", response)
 
         # Without side effects, recover the offline backup
         self.cli_run("list")
 
-        self.assertEqual("", self.log_call_args_list["info"][0][0][0])
+        self.assertEqual(
+            self.info.call_args_list[0][0][0],
+            {'elements': {
+                'standard': {},
+                'recurrent': defaultdict(list)
+            }})
         self.assertEqual("Recovered offline backup.",
-                         self.log_call_args_list["info"][1][0][0])
+                         self.info.call_args_list[1][0][0])
 
     def test_get_nonexisting_entry(self):
         printed_content = self.cli_run("get 0", log_method="error")
@@ -407,38 +424,40 @@ host = http://{}
             # Try do add an item but provoke CommunicationError
             mocked_post.side_effect = RequestException("did not work")
 
-            try:
-                self.cli_run("add veggies -33", log_method="error")
-            except AssertionError:
-                # The regex matching is expected to fail
-                pass
+            self.cli_run("add veggies -33", log_method="error")
 
             # Output from caught CommunicationError
             self.assertEqual("Error sending request: did not work",
-                             str(self.log_call_args_list["error"][0][0][0]))
+                             str(self.error.call_args_list[0][0][0]))
             self.assertEqual("Stored 'add' request in offline backup.",
-                             self.log_call_args_list["info"][0][0][0])
+                             self.info.call_args_list[0][0][0])
 
             # Now request a print, and try to recover the offline backup
             # But adding is still expected to fail
             mocked_post.side_effect = RequestException("still no works")
             self.cli_run("list", log_method="error")
             # Output from print; expect empty database
-            self.assertEqual("", self.log_call_args_list["info"][0][0][0])
+            self.assertEqual({"elements": {
+                DEFAULT_TABLE: {},
+                "recurrent": {}
+            }}, self.info.call_args_list[0][0][0])
 
             # Output from cli module
             self.assertEqual("Offline backup recovery failed!",
-                             self.log_call_args_list["error"][-1][0][0])
+                             self.error.call_args_list[-1][0][0])
 
         # Without side effects, recover the offline backup
         self.cli_run("list")
 
-        self.assertEqual("", self.log_call_args_list["info"][0][0][0])
+        self.assertEqual({"elements": {
+            DEFAULT_TABLE: {},
+            "recurrent": {}
+        }}, self.info.call_args_list[0][0][0])
         # TODO: adjust offline module implementation
         # self.assertEqual("Added element 1.",
-        #                  self.log_call_args_list[][1][0][0])
+        #                  self.info.call_args_list[1][0][0])
         self.assertEqual("Recovered offline backup.",
-                         self.log_call_args_list["info"][1][0][0])
+                         self.info.call_args_list[1][0][0])
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
