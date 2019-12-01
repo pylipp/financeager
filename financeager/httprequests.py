@@ -10,19 +10,21 @@ from .exceptions import CommunicationError, InvalidRequest
 
 
 class Proxy:
-    """Converts CL verbs to HTTP request, sends to webservice and returns
-    response."""
+    """Proxy for communicating with webservice via HTTP."""
 
     def __init__(self, http_config=None):
-        """http_config: dict specifying host and (optionally) username/password
-        for basic auth
+        """Args:
+        http_config (dict): HTTP configuration with fields 'host' (default:
+            DEFAULT_HOST), 'timeout' (default: DEFAULT_TIMEOUT) and
+            optionally 'username'/'password' (for basic auth)
         """
         self.http_config = http_config or {}
 
     def run(self, command, **data):
-        """Run the specified command. If no http_config given, it is read from
-        the user config. The data kwargs are passed to the HTTP request.
-        'period' and 'table_name' are substituted, if None.
+        """Convert specified command and data into HTTP request, send it to
+        webservice, and return response. Handle error responses.
+        The data kwargs are passed to the HTTP request.
+        'period' and 'table_name' data fields are substituted, if None.
 
         :return: dict. See Server class for possible keys
         :raise: ValueError if invalid command given
