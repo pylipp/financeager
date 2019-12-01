@@ -1,11 +1,24 @@
 """Service-agnostic communication-related interface."""
-import importlib
 from collections import namedtuple
 import traceback
 
 import financeager
-
+from . import httprequests, localserver
 from .exceptions import InvalidRequest, CommunicationError
+
+
+def client(*, configuration, sinks):
+    """Factory to create the Client subclass suitable to the given
+    configuration. The sinks are passed into the Client.
+    """
+    service_name = configuration.get_option("SERVICE", "name")
+
+    if service_name == "flask":
+        client_class = FlaskClient
+    else:  # 'none' is the only other option
+        client_class = LocalServerClient
+
+    return client_class(configuration=configuration, sinks=sinks)
 
 
 class Client:
@@ -17,24 +30,10 @@ class Client:
     Sinks = namedtuple("Sinks", ["info", "error"])
 
     def __init__(self, *, configuration, sinks):
-        """Set up proxy according to configuration.
-        Store the specified sinks.
+        """Store the specified sinks and configuration.
+        The subclass implementation must set up the proxy.
         """
-        self.service_name = configuration.get_option("SERVICE", "name")
-        proxy_kwargs = {}
-        if self.service_name == "flask":
-            proxy_kwargs["http_config"] = configuration.get_option(
-                "SERVICE:FLASK")
-            proxy_module_name = "httprequests"
-            financeager.init_logger("urllib3")
-
-        else:  # 'none' is the only other option
-            proxy_kwargs["data_dir"] = financeager.DATA_DIR
-            proxy_module_name = "localserver"
-
-        module = importlib.import_module(
-            "financeager.{}".format(proxy_module_name))
-        self.proxy = module.proxy(**proxy_kwargs)
+        self.proxy = None
         self.configuration = configuration
         self.sinks = sinks
 
@@ -67,5 +66,29 @@ class Client:
 
     def shutdown(self):
         """Routine to run at the end of the Client lifecycle."""
-        if self.service_name == "none":
-            self.proxy.run("stop")
+
+
+class FlaskClient(Client):
+    """Client for communicating with the financeager Flask webservice."""
+
+    def __init__(self, *, configuration, sinks):
+        """Set up proxy and urllib3 logger."""
+        super().__init__(configuration=configuration, sinks=sinks)
+        self.proxy = httprequests.proxy(
+            http_config=configuration.get_option("SERVICE:FLASK"))
+
+        financeager.init_logger("urllib3")
+
+
+class LocalServerClient(Client):
+    """Client for communicating with the financeager localserver."""
+
+    def __init__(self, *, configuration, sinks):
+        """Set up proxy."""
+        super().__init__(configuration=configuration, sinks=sinks)
+
+        self.proxy = localserver.proxy(data_dir=financeager.DATA_DIR)
+
+    def shutdown(self):
+        """Instruct stopping of Server."""
+        self.proxy.run("stop")

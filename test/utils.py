@@ -2,7 +2,7 @@
 from financeager import communication, config
 
 
-class Client(communication.Client):
+class Client(communication.LocalServerClient):
     """Implementation that assigns dummy sinks to consume the client's output
     and holds a default configuration (meaning it communicates with the 'none'
     service).

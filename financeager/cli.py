@@ -86,7 +86,7 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
         for option in ["stacked_layout", "entry_sort", "category_sort"]:
             formatting_options[option] = params.pop(option)
 
-    client = comm.Client(configuration=configuration, sinks=sinks)
+    client = comm.client(configuration=configuration, sinks=sinks)
     success, store_offline = client.safely_run(command, **params)
 
     if success:
