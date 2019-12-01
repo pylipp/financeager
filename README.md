@@ -174,14 +174,15 @@ The following diagram sketches the relationship between financeager's modules. S
     +--------+   +-----------+   +---------+
     | config |-->|    cli    |<->| offline |
     +--------+   +-----------+   +---------+
-                     ¦   Λ
-                     V   ¦
+
+                     ¦   Λ                     +---------+     +---------+
+    [pre-processing] ¦   ¦  [formatting]  <--  | listing | <-- | entries |
+                     V   ¦                     +---------+     +---------+
+
     +-------------------------------------+
     |             communication           |
     +-------------------------------------+
-                                               +---------+     +---------+
-      [pre-processing]      [formatting]  <--  | listing | <-- | entries |
-                                               +---------+     +---------+
+
             ¦                     Λ
             V                     ¦
 
