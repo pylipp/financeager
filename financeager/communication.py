@@ -73,7 +73,7 @@ class FlaskClient(Client):
     def __init__(self, *, configuration, sinks):
         """Set up proxy and urllib3 logger."""
         super().__init__(sinks=sinks)
-        self.proxy = httprequests.proxy(
+        self.proxy = httprequests.Proxy(
             http_config=configuration.get_option("SERVICE:FLASK"))
 
         financeager.init_logger("urllib3")
@@ -86,7 +86,7 @@ class LocalServerClient(Client):
         """Set up proxy."""
         super().__init__(sinks=sinks)
 
-        self.proxy = localserver.proxy(data_dir=financeager.DATA_DIR)
+        self.proxy = localserver.LocalServerProxy(data_dir=financeager.DATA_DIR)
 
     def shutdown(self):
         """Instruct stopping of Server."""

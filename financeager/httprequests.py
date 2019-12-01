@@ -9,7 +9,7 @@ from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
 
-class _Proxy:
+class Proxy:
     """Converts CL verbs to HTTP request, sends to webservice and returns
     response."""
 
@@ -103,8 +103,3 @@ class _Proxy:
                     http.HTTPStatus(status_code).phrase, status_code, error)
 
             raise error_class(message)
-
-
-def proxy(**kwargs):
-    # all communication modules require this function
-    return _Proxy(**kwargs)

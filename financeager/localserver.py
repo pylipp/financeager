@@ -8,7 +8,7 @@ from . import init_logger
 logger = init_logger(__name__)
 
 
-class LocalServer(Server):
+class LocalServerProxy(Server):
     """Subclass mocking a locally running server. Convenient for testing"""
 
     def run(self, command, **kwargs):
@@ -30,7 +30,3 @@ class LocalServer(Server):
                 response["error"]))
 
         return response
-
-
-def proxy(**kwargs):
-    return LocalServer(**kwargs)

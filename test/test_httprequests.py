@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from financeager.httprequests import _Proxy
+from financeager.httprequests import Proxy as HttpProxy
 from financeager.exceptions import CommunicationError
 from financeager import PERIODS_TAIL, DEFAULT_HOST, DEFAULT_TIMEOUT
 
@@ -21,7 +21,10 @@ class HttpRequestProxyTestCase(unittest.TestCase):
     def test_username_password(self):
         username = "noob"
         password = 123456
-        proxy = _Proxy(http_config={"username": username, "password": password})
+        proxy = HttpProxy(http_config={
+            "username": username,
+            "password": password,
+        })
 
         with patch(
                 "financeager.httprequests.requests.post",
@@ -38,10 +41,10 @@ class HttpRequestProxyTestCase(unittest.TestCase):
             post_patch.assert_called_once_with(url, **kwargs)
 
     def test_unknown_command(self):
-        self.assertRaises(ValueError, _Proxy().run, "derp")
+        self.assertRaises(ValueError, HttpProxy().run, "derp")
 
     def test_invalid_host(self):
-        proxy = _Proxy(http_config={"host": "http://weird.foodomain.nope"})
+        proxy = HttpProxy(http_config={"host": "http://weird.foodomain.nope"})
 
         with self.assertRaises(CommunicationError) as cm:
             proxy.run("get", period=2000, eid=1)
