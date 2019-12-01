@@ -8,18 +8,6 @@ import financeager
 from .exceptions import InvalidRequest, CommunicationError
 
 
-def module(name):
-    """Return the client module corresponding to the service specified by 'name'
-    ('flask' or 'none').
-    """
-    frontend_modules = {
-        "flask": "httprequests",
-        "none": "localserver",
-    }
-    return importlib.import_module("financeager.{}".format(
-        frontend_modules[name]))
-
-
 class Client:
     """Abstract interface for communicating with the service.
     Output is directed to distinct sinks which are functions taking a single
@@ -37,10 +25,14 @@ class Client:
         if service_name == "flask":
             proxy_kwargs["http_config"] = configuration.get_option(
                 "SERVICE:FLASK")
+            proxy_module_name = "httprequests"
         else:  # 'none' is the only other option
             proxy_kwargs["data_dir"] = financeager.DATA_DIR
+            proxy_module_name = "localserver"
 
-        self.proxy = module(service_name).proxy(**proxy_kwargs)
+        module = importlib.import_module(
+            "financeager.{}".format(proxy_module_name))
+        self.proxy = module.proxy(**proxy_kwargs)
         self.configuration = configuration
         self.sinks = sinks
 
