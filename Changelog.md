@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 ### Added
+- New classes FlaskClient and LocalServerClient, as well as factory function client() in communication module.
+- Test against Python 3.8 on Travis CI.
 ### Changed
+- Client.Out is renamed to Client.Sinks.
 ### Deprecated
 ### Removed
+- communication.module() and httprequests/localserver.proxy() functions.
 ### Fixed
 
 ## [v0.22] - 2019-10-30
