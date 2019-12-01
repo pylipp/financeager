@@ -30,16 +30,15 @@ def _write(content, filepath):
 
 def _recover_data(client, content):
     """Recover the data items in the content list by running the commands via
-    the client. If a CommunicationError occurs during recovery, the data being
-    currently processed is returned.
+    'client.safely_run'. If an error occurs, the recovery is aborted, and the
+    currently processed data is returned.
     The content list is modified in-place.
     """
     while len(content):
         data = content.pop()
-        try:
-            client.proxy.run(**data)
-        except Exception as e:
-            logger.exception(e)
+        success, _ = client.safely_run(**data)
+
+        if not success:
             return data
 
 

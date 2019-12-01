@@ -206,14 +206,17 @@ default_category = no-category"""
         # Without side effects, recover the offline backup
         self.cli_run("list")
 
+        # Output from list command
         self.assertEqual(
             self.info.call_args_list[0][0][0],
             {'elements': {
                 'standard': {},
                 'recurrent': defaultdict(list)
             }})
+        # Output from recovered add command
+        self.assertEqual({"id": 1}, self.info.call_args_list[1][0][0])
         self.assertEqual("Recovered offline backup.",
-                         self.info.call_args_list[1][0][0])
+                         self.info.call_args_list[2][0][0])
 
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
@@ -447,15 +450,15 @@ host = http://{}
         # Without side effects, recover the offline backup
         self.cli_run("list")
 
+        # Output from list command
         self.assertEqual({"elements": {
             DEFAULT_TABLE: {},
             "recurrent": {}
         }}, self.info.call_args_list[0][0][0])
-        # TODO: adjust offline module implementation
-        # self.assertEqual("Added element 1.",
-        #                  self.info.call_args_list[1][0][0])
+        # Output from recovered add command
+        self.assertEqual({"id": 1}, self.info.call_args_list[1][0][0])
         self.assertEqual("Recovered offline backup.",
-                         self.info.call_args_list[1][0][0])
+                         self.info.call_args_list[2][0][0])
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
