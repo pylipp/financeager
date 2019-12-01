@@ -9,7 +9,7 @@ from financeager import offline, __version__, PERIOD_DATE_FORMAT,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler,\
     entries, listing
 import financeager
-from .communication import Client
+from financeager import communication as comm
 from .config import Configuration
 from .entries import CategoryEntry
 from .exceptions import OfflineRecoveryError, InvalidConfigError,\
@@ -59,7 +59,7 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
         """Wrapper to format response and propagate it to logger.info."""
         logger.info(_format_response(message, command, **formatting_options))
 
-    sinks = sinks or Client.Sinks(_info, logger.error)
+    sinks = sinks or comm.Client.Sinks(_info, logger.error)
 
     exit_code = FAILURE
 
@@ -86,7 +86,7 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
         for option in ["stacked_layout", "entry_sort", "category_sort"]:
             formatting_options[option] = params.pop(option)
 
-    client = Client(configuration=configuration, sinks=sinks)
+    client = comm.Client(configuration=configuration, sinks=sinks)
     success, store_offline = client.safely_run(command, **params)
 
     if success:
