@@ -4,7 +4,6 @@ import os
 import time
 from threading import Thread
 import tempfile
-from collections import defaultdict
 
 from requests import Response, RequestException
 from requests import get as requests_get
@@ -164,59 +163,6 @@ default_category = no-category"""
         self.assertIn(
             "Loading custom config from {}".format(TEST_CONFIG_FILEPATH),
             mocked_stderr.call_args_list[0][0][0])
-
-    @mock.patch("financeager.offline.OFFLINE_FILEPATH",
-                "/tmp/financeager-test-offline.json")
-    def test_offline_feature(self):
-        with mock.patch("financeager.server.Server.run") as mocked_run:
-
-            def side_effect(command, **kwargs):
-                if command == "list":
-                    return {"elements": {DEFAULT_TABLE: {}, "recurrent": {}}}
-                elif command == "add":
-                    raise TypeError()
-                elif command == "stop":
-                    return {}
-                else:
-                    raise NotImplementedError(command)
-
-            # Try do add an item but provoke CommunicationError
-            mocked_run.side_effect = side_effect
-
-            self.cli_run("add veggies -33", log_method="error")
-
-            # Output from caught CommunicationError
-            self.assertEqual("Unexpected error",
-                             str(self.error.call_args_list[0][0][0]))
-            self.assertEqual("Stored 'add' request in offline backup.",
-                             self.info.call_args_list[0][0][0])
-
-            # Now request a print, and try to recover the offline backup
-            # But adding is still expected to fail
-            response = self.cli_run("list", log_method="error")
-            # Output from print; expect empty database
-            self.assertEqual({"elements": {
-                DEFAULT_TABLE: {},
-                "recurrent": {}
-            }}, self.info.call_args_list[0][0][0])
-
-            # Output from cli module
-            self.assertEqual("Offline backup recovery failed!", response)
-
-        # Without side effects, recover the offline backup
-        self.cli_run("list")
-
-        # Output from list command
-        self.assertEqual(
-            self.info.call_args_list[0][0][0],
-            {'elements': {
-                'standard': {},
-                'recurrent': defaultdict(list)
-            }})
-        # Output from recovered add command
-        self.assertEqual({"id": 1}, self.info.call_args_list[1][0][0])
-        self.assertEqual("Recovered offline backup.",
-                         self.info.call_args_list[2][0][0])
 
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
