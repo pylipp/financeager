@@ -20,12 +20,14 @@ class Client:
         """Set up proxy according to configuration.
         Store the specified sinks.
         """
-        service_name = configuration.get_option("SERVICE", "name")
+        self.service_name = configuration.get_option("SERVICE", "name")
         proxy_kwargs = {}
-        if service_name == "flask":
+        if self.service_name == "flask":
             proxy_kwargs["http_config"] = configuration.get_option(
                 "SERVICE:FLASK")
             proxy_module_name = "httprequests"
+            financeager.init_logger("urllib3")
+
         else:  # 'none' is the only other option
             proxy_kwargs["data_dir"] = financeager.DATA_DIR
             proxy_module_name = "localserver"
@@ -62,3 +64,8 @@ class Client:
             store_offline = True
 
         return success, store_offline
+
+    def shutdown(self):
+        """Routine to run at the end of the Client lifecycle."""
+        if self.service_name == "none":
+            self.proxy.run("stop")

@@ -78,10 +78,6 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
         sinks.error(e)
         return FAILURE
 
-    service_name = configuration.get_option("SERVICE", "name")
-    if service_name == "flask":
-        init_logger("urllib3")
-
     formatting_options = {}
     formatting_options["default_category"] = configuration.get_option(
         "FRONTEND", "default_category")
@@ -108,8 +104,7 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
     if store_offline and offline.add(command, **params):
         sinks.info("Stored '{}' request in offline backup.".format(command))
 
-    if service_name == "none":
-        client.proxy.run("stop")
+    client.shutdown()
 
     return exit_code
 
