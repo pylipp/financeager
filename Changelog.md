@@ -5,10 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+## [v0.23.0.0] - 2020-XX-XX
+### Added
 - New classes FlaskClient and LocalServerClient, as well as factory function client() in communication module.
 - Test against Python 3.8 on Travis CI.
 ### Changed
 - Client.Out is renamed to Client.Sinks.
+- The versioning scheme now adheres to '0.major.minor.patch' to correctly indicate impacts of new releases. (#54)
 ### Deprecated
 ### Removed
 - communication.module() and httprequests/localserver.proxy() functions.
