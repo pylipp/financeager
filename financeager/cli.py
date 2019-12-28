@@ -5,15 +5,13 @@ import argparse
 import os
 import sys
 
-from financeager import offline, __version__, PERIOD_DATE_FORMAT,\
-    init_logger, make_log_stream_handler_verbose, setup_log_file_handler,\
-    entries, listing
+from financeager import __version__, PERIOD_DATE_FORMAT, entries, listing,\
+    init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
 from financeager import communication as comm
 from .config import Configuration
 from .entries import CategoryEntry
-from .exceptions import OfflineRecoveryError, InvalidConfigError,\
-    PreprocessingError
+from .exceptions import InvalidConfigError, PreprocessingError
 
 logger = init_logger(__name__)
 
@@ -87,22 +85,10 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
             formatting_options[option] = params.pop(option)
 
     client = comm.client(configuration=configuration, sinks=sinks)
-    success, store_offline = client.safely_run(command, **params)
+    success, _ = client.safely_run(command, **params)
 
     if success:
         exit_code = SUCCESS
-
-        # When regular command was successfully executed, attempt to recover
-        # offline backup
-        try:
-            if offline.recover(client):
-                sinks.info("Recovered offline backup.")
-        except OfflineRecoveryError:
-            sinks.error("Offline backup recovery failed!")
-            exit_code = FAILURE
-
-    if store_offline and offline.add(command, **params):
-        sinks.info("Stored '{}' request in offline backup.".format(command))
 
     client.shutdown()
 

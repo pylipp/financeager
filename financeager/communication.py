@@ -3,8 +3,8 @@ from collections import namedtuple
 import traceback
 
 import financeager
-from . import httprequests, localserver
-from .exceptions import InvalidRequest, CommunicationError
+from . import httprequests, localserver, offline
+from .exceptions import InvalidRequest, CommunicationError, OfflineRecoveryError
 
 
 def client(*, configuration, sinks):
@@ -77,6 +77,29 @@ class FlaskClient(Client):
             http_config=configuration.get_option("SERVICE:FLASK"))
 
         financeager.init_logger("urllib3")
+
+    def safely_run(self, command, **params):
+        """Execute base functionality.
+        If successful, attempt to recover offline backup. Otherwise store
+        request in offline backup.
+
+        :return: tuple(bool, bool)
+        """
+        success, store_offline = super().safely_run(command, **params)
+
+        if success:
+            try:
+                if offline.recover(super()):
+                    self.sinks.info("Recovered offline backup.")
+            except OfflineRecoveryError:
+                self.sinks.error("Offline backup recovery failed!")
+                success = False
+
+        if store_offline and offline.add(command, **params):
+            self.sinks.info(
+                "Stored '{}' request in offline backup.".format(command))
+
+        return success, store_offline
 
 
 class LocalServerClient(Client):
