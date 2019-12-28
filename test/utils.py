@@ -4,8 +4,8 @@ from financeager import communication, config
 
 class Client(communication.LocalServerClient):
     """Implementation that assigns dummy sinks to consume the client's output.
-    The underlying LocalServerProxy is patched to store data in memory instead
-    of in financeager.DATA_DIR.
+    The underlying Proxy is patched to store data in memory instead of in
+    financeager.DATA_DIR.
     """
 
     def __init__(self):

@@ -86,7 +86,7 @@ class LocalServerClient(Client):
         """Set up proxy."""
         super().__init__(sinks=sinks)
 
-        self.proxy = localserver.LocalServerProxy(data_dir=financeager.DATA_DIR)
+        self.proxy = localserver.Proxy(data_dir=financeager.DATA_DIR)
 
     def shutdown(self):
         """Instruct stopping of Server."""
