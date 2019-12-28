@@ -45,6 +45,13 @@ class CliTestCase(unittest.TestCase):
         self.info = mock.MagicMock()
         self.error = mock.MagicMock()
 
+    def tearDown(self):
+        database_filepath = os.path.join(
+            TEST_DATA_DIR, "{}.json".format(self.__class__.period))
+        # Not all test cases produce database files
+        if os.path.exists(database_filepath):
+            os.remove(database_filepath)
+
     def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
         options (period and config filepath). Executes the actual run() function
