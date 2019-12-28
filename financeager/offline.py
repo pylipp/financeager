@@ -36,9 +36,7 @@ def _recover_data(client, content):
     """
     while len(content):
         data = content.pop()
-        success, _ = client.safely_run(**data)
-
-        if not success:
+        if not client.safely_run(**data):
             return data
 
 

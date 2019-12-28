@@ -85,9 +85,7 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
             formatting_options[option] = params.pop(option)
 
     client = comm.client(configuration=configuration, sinks=sinks)
-    success, _ = client.safely_run(command, **params)
-
-    if success:
+    if client.safely_run(command, **params):
         exit_code = SUCCESS
 
     client.shutdown()

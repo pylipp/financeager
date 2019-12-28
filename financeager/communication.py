@@ -35,33 +35,35 @@ class Client:
         """
         self.proxy = None
         self.sinks = sinks
+        self.latest_exception = None
 
     def safely_run(self, command, **params):
-        """Execute self.proxy.run() while handling any errors. Return indicators
-        about whether execution was successful, and whether to store the
-        requested command offline, if execution failed due to a service-sided
-        error.
+        """Execute self.proxy.run() while handling any errors.
+        A caught exception is stored in the 'latest_exception' attribute.
+        Return whether execution was successful.
 
-        :return: tuple(bool, bool)
+        :return: bool
         """
-        store_offline = False
         success = False
 
         try:
             self.sinks.info(self.proxy.run(command, **params))
+            self.latest_exception = None
             success = True
         except InvalidRequest as e:
-            # Command is erroneous and hence not stored offline
             self.sinks.error(e)
+            self.latest_exception = e
+
         except CommunicationError as e:
             self.sinks.error(e)
-            store_offline = True
-        except Exception:
+            self.latest_exception = e
+
+        except Exception as e:
             self.sinks.error("Unexpected error: {}".format(
                 traceback.format_exc()))
-            store_offline = True
+            self.latest_exception = e
 
-        return success, store_offline
+        return success
 
     def shutdown(self):
         """Routine to run at the end of the Client lifecycle."""
@@ -82,24 +84,30 @@ class FlaskClient(Client):
         """Execute base functionality.
         If successful, attempt to recover offline backup. Otherwise store
         request in offline backup.
+        Return whether execution was successful.
 
-        :return: tuple(bool, bool)
+        :return: bool
         """
-        success, store_offline = super().safely_run(command, **params)
+        success = super().safely_run(command, **params)
 
         if success:
             try:
+                # Avoid recursion by passing base class for invoking safely_run
                 if offline.recover(super()):
                     self.sinks.info("Recovered offline backup.")
+
             except OfflineRecoveryError:
                 self.sinks.error("Offline backup recovery failed!")
                 success = False
 
-        if store_offline and offline.add(command, **params):
+        # If request was erroneous, it's not supposed to be stored offline
+        if not isinstance(self.latest_exception, InvalidRequest) and\
+                self.latest_exception is not None and\
+                offline.add(command, **params):
             self.sinks.info(
                 "Stored '{}' request in offline backup.".format(command))
 
-        return success, store_offline
+        return success
 
 
 class LocalServerClient(Client):
