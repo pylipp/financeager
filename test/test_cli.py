@@ -432,10 +432,6 @@ class CliNoConfigTestCase(CliTestCase):
         response = self.cli_run("periods", "error")
         self.assertTrue(response.startswith("Invalid configuration:"))
 
-        # The custom config modified the global state which affects other
-        # tests...
-        CategoryEntry.DEFAULT_NAME = "unspecified"
-
 
 class PreprocessTestCase(unittest.TestCase):
     def test_date_format(self):
