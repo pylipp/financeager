@@ -12,11 +12,7 @@ def client(*, configuration, sinks):
     configuration. The sinks are passed into the Client.
     """
     service_name = configuration.get_option("SERVICE", "name")
-
-    if service_name == "flask":
-        client_class = FlaskClient
-    else:  # 'none' is the only other option
-        client_class = LocalServerClient
+    client_class = CLIENTS[service_name]
 
     return client_class(configuration=configuration, sinks=sinks)
 
@@ -122,3 +118,10 @@ class LocalServerClient(Client):
     def shutdown(self):
         """Instruct stopping of Server."""
         self.proxy.run("stop")
+
+
+# Register of supported clients
+CLIENTS = {
+    "none": LocalServerClient,
+    "flask": FlaskClient,
+}
