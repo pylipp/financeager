@@ -6,7 +6,9 @@ all:
 	@echo "Available targets: install, test, release, coverage, lint, format, style-check"
 
 install:
-	pip install -U -e .
+	pip install -U -e .[develop]
+	pre-commit install
+	gitlint install-hook
 
 test:
 	python setup.py test

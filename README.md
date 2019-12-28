@@ -226,9 +226,7 @@ Create a virtual environment
 
 Install development dependencies
 
-    pip install --upgrade --editable .[develop]
-    pre-commit install
-    gitlint install-hook
+    make install
 
 You're all set for hacking!
 Please adhere to test-driven development, if possible: When adding a feature, or fixing a bug, try to construct a test first, and subsequently adapt the implementation. Run the tests from the root directory via
