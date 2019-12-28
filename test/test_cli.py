@@ -413,23 +413,17 @@ class CliNoConfigTestCase(CliTestCase):
 
     CONFIG_FILE_CONTENT = "[FRONTEND]\ndefault_category = wayne"
 
-    @mock.patch("financeager.cli.logger")
-    def test_print_periods(self, mocked_logger):
-        mocked_logger.info = mock.MagicMock()
-        formatting_options = dict(
-            stacked_layout=False, entry_sort="name", category_sort="value")
-
+    def test_print_periods(self):
         # Default config file exists; expect it to be loaded
-        run(command="periods", config=None, **formatting_options)
-        mocked_logger.info.assert_called_once_with("")
-        mocked_logger.info.reset_mock()
+        response = self.cli_run("periods")
+        self.assertEqual(response, "")
 
         # Remove default config file
         os.remove(TEST_CONFIG_FILEPATH)
 
         # No config is loaded at all
-        run(command="periods", config=None, **formatting_options)
-        mocked_logger.info.assert_called_once_with("")
+        response = self.cli_run("periods", "error")
+        self.assertTrue(response.startswith("Invalid configuration:"))
 
         # The custom config modified the global state which affects other
         # tests...
