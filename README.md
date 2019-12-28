@@ -242,35 +242,6 @@ If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug f
 1. Tag the latest commit on master by incrementing the current version accordingly (scheme `v0.major.minor.patch`).
 1. Run `make release`.
 
-## Roadmap for release of version 1.0
-
-This may require some restructuring of the software architecture. Motivation and goals are outlined below.
-
-### Status quo
-
-- module functionalities and responsibilities particularly overlap
-- also apparent in test code: no clear distinction between integration and unit tests
-
-### Goals
-
-- three separated top modules: core, backend, client
-- responsibilities:
-    1. core:
-        - constants
-        - configuration (maybe move to client)
-        - exceptions
-    2. backend:
-        - interfaces (localserver, fflask)
-        - REST API (resources)
-        - database management (server, period)
-    3. client
-        - CLI
-        - communication pre-/post-processing
-        - HTTP requests
-        - response formatting (entries, listing)
-- consistent, modular test structure
-- pave way for terminal user interface
-
 PERSONAL NOTE
 -------------
 This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture, programming best practices (cough) and general Python development.
