@@ -30,7 +30,7 @@ class Server:
 
         try:
             if command == "periods":
-                return {"periods": [p._name for p in self._periods.values()]}
+                return {"periods": self._period_names()}
             elif command == "copy":
                 return {"id": self._copy_entry(**kwargs)}
             elif command == "stop":
@@ -78,6 +78,13 @@ class Server:
             self._periods[period.name] = period
 
         return period
+
+    def _period_names(self):
+        """Return names of periods currently organized by the server.
+
+        :return: list(str)
+        """
+        return [p._name for p in self._periods.values()]
 
     def _copy_entry(self, source_period=None, destination_period=None,
                     **kwargs):
