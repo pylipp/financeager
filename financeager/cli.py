@@ -21,8 +21,10 @@ FAILURE = 1
 
 
 def main():
-    """Main command line entry point of the application. The config and the log
-    directory are created. A FileHandler is added to the package logger.
+    """Main command line entry point of the application.
+
+    The config and the log directory are created. A FileHandler is added to the
+    package logger.
     All command line arguments and options are parsed and passed to 'run()'.
     """
     os.makedirs(financeager.DATA_DIR, exist_ok=True)
@@ -30,23 +32,23 @@ def main():
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
 
-    # Most runs return None which evaluates to return code 0
     sys.exit(run(**_parse_command()))
 
 
 def run(command=None, config_filepath=None, verbose=False, sinks=None,
         **params):
-    """High-level API entry point.
-    All 'params' are passed to 'Client.safely_run()'.
-    'config_filepath' specifies the path to a custom config file (optional). If
-    'verbose' is set, debug level log messages are printed to the terminal.
-    'sinks' is an optional Client.Sinks object to direct program output to. By
-    default, the Python built-in logging interface is used.
+    """Run 'command' request using additional 'params'.
 
-    This function can be used for scripting. Provide 'command' and 'params'
-    according to what the command line interface accepts (consult help via
-    `financeager [command] --help`), e.g. {"command": "add", "name":
-    "champagne", "value": "99"}.
+    All 'params' except for formatting-related options are passed to
+    'Client.safely_run()'.
+
+    'config_filepath' specifies the path to a custom config file (optional).
+    If not given, it is attempted to load the config file from the default path.
+
+    If 'verbose' is set, debug level log messages are printed to the terminal.
+
+    'sinks' is an optional Client.Sinks object to direct program output to.
+    By default, the Python built-in logging interface is used.
 
     :return: UNIX return code (zero for success, non-zero otherwise)
     """
