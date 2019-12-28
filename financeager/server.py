@@ -1,4 +1,6 @@
 """Top-level service organizing databases."""
+import glob
+import os.path
 
 from . import default_period_name, init_logger
 from .period import TinyDbPeriod, PeriodException
@@ -81,10 +83,23 @@ class Server:
 
     def _period_names(self):
         """Return names of periods currently organized by the server.
+        If persistent data storage was specified, all JSON files present in the
+        'data_dir' are also taken into account.
 
         :return: list(str)
         """
-        return [p._name for p in self._periods.values()]
+        # Avoid duplicate entries if Period already present in self._periods by
+        # using sets
+        names = {p._name for p in self._periods.values()}
+
+        data_dir = self._period_kwargs.get("data_dir")
+        if data_dir is not None:
+            names.update({
+                os.path.splitext(os.path.basename(f))[0]
+                for f in glob.glob(os.path.join(data_dir, "*.json"))
+            })
+
+        return sorted(names)
 
     def _copy_entry(self, source_period=None, destination_period=None,
                     **kwargs):

@@ -1,4 +1,6 @@
 import unittest
+import tempfile
+import os.path
 
 from financeager import default_period_name, DEFAULT_TABLE
 from financeager.entries import CategoryEntry
@@ -156,6 +158,21 @@ class FindEntryServerTestCase(unittest.TestCase):
             source_period=self.period,
             destination_period="1",
             eid=42)
+
+
+class JsonPeriodsServerTestCase(unittest.TestCase):
+    def test_periods(self):
+        tmp_dir = tempfile.mkdtemp()
+        self.server = Server(data_dir=tmp_dir)
+
+        self.assertDictEqual(self.server.run("periods"), {"periods": []})
+
+        # Create dummy JSON files
+        periods = ["1000", "1500"]
+        for p in periods:
+            open(os.path.join(tmp_dir, "{}.json".format(p)), "w").close()
+
+        self.assertDictEqual(self.server.run("periods"), {"periods": periods})
 
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - communication.module() and httprequests/localserver.proxy() functions.
 ### Fixed
+- All available Periods are listed with the 'periods' command, even after restarting the webservice, or when using the 'localserver' variant. (#3)
 
 ## [v0.22] - 2019-10-30
 ### Added
