@@ -115,20 +115,6 @@ class CliTestCase(unittest.TestCase):
         return response
 
 
-class CliInvalidConfigTestCase(CliTestCase):
-
-    CONFIG_FILE_CONTENT = """\
-[SERVICE]
-name = heroku"""
-
-    def test_list(self):
-        # using a command that won't try to parse the element ID from the list
-        # call in cli_run()...
-        response = self.cli_run("list", log_method="error")
-        self.assertEqual(response,
-                         "Invalid configuration: Unknown service name!")
-
-
 @mock.patch("financeager.DATA_DIR", None)
 class CliLocalServerMemoryStorageTestCase(CliTestCase):
 
@@ -412,25 +398,6 @@ host = http://{}
         self.assertEqual({"id": 1}, self.info.call_args_list[1][0][0])
         self.assertEqual("Recovered offline backup.",
                          self.info.call_args_list[2][0][0])
-
-
-@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
-@mock.patch("financeager.CONFIG_FILEPATH", TEST_CONFIG_FILEPATH)
-class CliNoConfigTestCase(CliTestCase):
-
-    CONFIG_FILE_CONTENT = "[FRONTEND]\ndefault_category = wayne"
-
-    def test_print_periods(self):
-        # Default config file exists; expect it to be loaded
-        response = self.cli_run("periods")
-        self.assertEqual(response, "")
-
-        # Remove default config file
-        os.remove(TEST_CONFIG_FILEPATH)
-
-        # No config is loaded at all
-        response = self.cli_run("periods", "error")
-        self.assertTrue(response.startswith("Invalid configuration:"))
 
 
 class PreprocessTestCase(unittest.TestCase):
