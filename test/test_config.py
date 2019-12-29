@@ -30,8 +30,6 @@ class ConfigTestCase(unittest.TestCase):
         for content in (
                 "[SERVICE]\nname = sillyservice\n",
                 "[FRONTEND]\ndefault_category = ",
-                "[SERVICE:FLASK]\ntimeout = foo",
-                "[SERVICE:FLASK]\nhost = ",
         ):
             with open(filepath, "w") as file:
                 file.write(content)

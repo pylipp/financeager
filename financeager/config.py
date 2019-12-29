@@ -12,6 +12,8 @@ class Configuration:
     """Wrapper around a ConfigParser object holding configuration. The default
     configuration is customizable via a config file."""
 
+    VALID_SERVICES = ["none", "flask"]
+
     def __init__(self, filepath=None):
         """Initialize the default configuration, overwrite with custom
         configuration from file if available, and eventually validate the loaded
@@ -82,16 +84,8 @@ class Configuration:
         """Validate certain fields of the configuration.
         :raises: InvalidConfigError
         """
-        if self.get_option("SERVICE", "name") not in ("flask", "none"):
+        if self.get_option("SERVICE", "name") not in self.VALID_SERVICES:
             raise InvalidConfigError("Unknown service name!")
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
-
-        if len(self.get_option("SERVICE:FLASK", "host")) < 1:
-            raise InvalidConfigError("Host name too short!")
-
-        try:
-            float(self.get_option("SERVICE:FLASK", "timeout"))
-        except ValueError:
-            raise InvalidConfigError("Timeout is not a number!")
