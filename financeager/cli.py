@@ -23,27 +23,37 @@ FAILURE = 1
 def main():
     """Main command line entry point of the application.
 
-    The config and the log directory are created. A FileHandler is added to the
-    package logger.
-    All command line arguments and options are parsed and passed to 'run()'.
+    The log directory is created. A FileHandler is added to the package logger.
+    The program configuration is loaded.
+    Relevant command line arguments and options are parsed and passed to
+    'run()'.
     """
     os.makedirs(financeager.DATA_DIR, exist_ok=True)
 
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
 
-    sys.exit(run(**_parse_command()))
+    args = _parse_command()
+    exit_code = FAILURE
+
+    try:
+        configuration = Configuration(args.pop("config_filepath"))
+        run(configuration=configuration, **args)
+        exit_code = SUCCESS
+
+    except InvalidConfigError as e:
+        logger.critical("Invalid configuration: {}".format(e))
+
+    sys.exit(exit_code)
 
 
-def run(command=None, config_filepath=None, verbose=False, sinks=None,
-        **params):
+def run(command, configuration, verbose=False, sinks=None, **params):
     """Run 'command' request using additional 'params'.
 
     All 'params' except for formatting-related options are passed to
     'Client.safely_run()'.
 
-    'config_filepath' specifies the path to a custom config file (optional).
-    If not given, it is attempted to load the config file from the default path.
+    'configuration' is a config.Configuration object.
 
     If 'verbose' is set, debug level log messages are printed to the terminal.
 
@@ -61,16 +71,6 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
 
     sinks = sinks or comm.Client.Sinks(_info, logger.error)
 
-    exit_code = FAILURE
-
-    if config_filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
-        config_filepath = financeager.CONFIG_FILEPATH
-    try:
-        configuration = Configuration(filepath=config_filepath)
-    except InvalidConfigError as e:
-        sinks.error("Invalid configuration: {}".format(e))
-        return FAILURE
-
     date_format = configuration.get_option("FRONTEND", "date_format")
     try:
         _preprocess(params, date_format)
@@ -86,6 +86,7 @@ def run(command=None, config_filepath=None, verbose=False, sinks=None,
         for option in ["stacked_layout", "entry_sort", "category_sort"]:
             formatting_options[option] = params.pop(option)
 
+    exit_code = FAILURE
     client = comm.client(configuration=configuration, sinks=sinks)
     if client.safely_run(command, **params):
         exit_code = SUCCESS

@@ -27,12 +27,6 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        try:
-            cls.configuration = config.Configuration(
-                filepath=TEST_CONFIG_FILEPATH)
-        except config.InvalidConfigError:
-            cls.configuration = None
-
         cls.period = 1900
 
     def setUp(self):
@@ -84,8 +78,10 @@ class CliTestCase(unittest.TestCase):
 
         sinks = Client.Sinks(self.info, self.error)
 
+        # Procedure similar to cli.main()
         params = _parse_command(args)
-        exit_code = run(sinks=sinks, **params)
+        configuration = config.Configuration(params.pop("config_filepath"))
+        exit_code = run(sinks=sinks, configuration=configuration, **params)
 
         # Get first of the args of the call of specified log method
         response = getattr(self, log_method).call_args[0][0]
@@ -109,7 +105,7 @@ class CliTestCase(unittest.TestCase):
             return _format_response(
                 response,
                 command,
-                default_category=self.configuration.get_option(
+                default_category=configuration.get_option(
                     "FRONTEND", "default_category"))
 
         return response
@@ -147,15 +143,6 @@ default_category = no-category"""
         # Verify that customized default category is used
         response = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("no-category", response.lower())
-
-    # Interfere call to stderr (see StreamHandler implementation in
-    # python3.5/logging/__init__.py)
-    @mock.patch("sys.stderr.write")
-    def test_verbose(self, mocked_stderr):
-        self.cli_run("list --verbose")
-        self.assertIn(
-            "Loading custom config from {}".format(TEST_CONFIG_FILEPATH),
-            mocked_stderr.call_args_list[0][0][0])
 
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")

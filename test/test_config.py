@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 import time
 
 from financeager.config import Configuration, InvalidConfigError
@@ -19,6 +20,7 @@ class ConfigTestCase(unittest.TestCase):
         config = Configuration(filepath=filepath)
         self.assertEqual(config.get("SERVICE", "name"), "flask")
 
+    @mock.patch("financeager.CONFIG_FILEPATH", "/tmp/non-existing-config")
     def test_get_option(self):
         config = Configuration()
         self.assertEqual(config.get_option("SERVICE", "name"), "none")
