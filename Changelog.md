@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Fixed
 
-## [v0.23.0.0] - 2020-XX-XX
+## [v0.23.0.0] - 2019-12-30
 ### Added
 - Extensibility by plugins. The only group supported so far is 'financeager.services'. Related adjustments in the cli, clients, and config modules. A plugin module is added. (#53)
 - New classes FlaskClient and LocalServerClient, as well as factory function create() in clients module.
