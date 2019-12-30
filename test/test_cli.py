@@ -152,6 +152,11 @@ default_category = no-category"""
         response = self.cli_run("add car -1000 -d ups", log_method="error")
         self.assertEqual(response, "Invalid date format.")
 
+    def test_verbose(self):
+        entry_id = self.cli_run("add stuff 100 --verbose")
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertIn("stuff", response.lower())
+
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CliFlaskTestCase(CliTestCase):

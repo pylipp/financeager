@@ -62,8 +62,8 @@ class TestPluginConfiguration(plugin.PluginConfiguration):
 class PluginConfigTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.plugin = plugin.ServicePlugin(
-            name="test-plugin", config=TestPluginConfiguration(), client=None)
+        cls.plugin = plugin.PluginBase(
+            name="test-plugin", config=TestPluginConfiguration())
 
     def test_init_defaults(self):
         config = Configuration(plugins=[self.plugin])
@@ -92,12 +92,14 @@ class PluginConfigTestCase(unittest.TestCase):
             plugins=[self.plugin])
 
     def test_load_service_plugin_config(self):
+        pl = plugin.ServicePlugin(
+            name="test-plugin", config=TestPluginConfiguration(), client=None)
         filepath = tempfile.mkstemp()[1]
         with open(filepath, "w") as file:
-            file.write("[SERVICE]\nname = {}\n".format(self.plugin.name))
+            file.write("[SERVICE]\nname = {}\n".format(pl.name))
 
-        config = Configuration(filepath=filepath, plugins=[self.plugin])
-        self.assertEqual(config.get_option("SERVICE", "name"), self.plugin.name)
+        config = Configuration(filepath=filepath, plugins=[pl])
+        self.assertEqual(config.get_option("SERVICE", "name"), pl.name)
 
 
 if __name__ == "__main__":

@@ -24,10 +24,12 @@ class CreateClientsTestCase(unittest.TestCase):
             name="test",
             client=TestClient,
         )
+        some_plugin = plugin.PluginBase(
+            name="some-plugin", config=plugin_config)
         client = clients.create(
             configuration=app_config,
             sinks=None,
-            plugins=[service_plugin],
+            plugins=[service_plugin, some_plugin],
         )
 
         # Then the correct client instance is returned
