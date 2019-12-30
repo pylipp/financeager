@@ -18,3 +18,21 @@ class PluginConfiguration(abc.ABC):
     def validate(self, config):
         """Validate content of the Configuration object specific to the plugin.
         """
+
+
+class PluginBase:
+    def __init__(self, *, name, config):
+        """Set plugin name and config (a PluginConfiguration object)."""
+        self.name = name
+        self.config = config
+
+
+class ServicePlugin(PluginBase):
+    """Container for a financeager.services plugin.
+    When developing a service plugin, provide a Client class required for
+    communication with the service.
+    """
+
+    def __init__(self, *, name, config, client):
+        super().__init__(name=name, config=config)
+        self.client = client

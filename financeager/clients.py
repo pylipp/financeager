@@ -3,16 +3,28 @@ from collections import namedtuple
 import traceback
 
 import financeager
-from . import httprequests, localserver, offline
+from . import httprequests, localserver, offline, plugin
 from .exceptions import InvalidRequest, CommunicationError, OfflineRecoveryError
 
 
-def create(*, configuration, sinks):
+def create(*, configuration, sinks, plugins=None):
     """Factory to create the Client subclass suitable to the given
-    configuration. The sinks are passed into the Client.
+    configuration.
+    Clients of service plugins are taken into account if specified.
+    The sinks are passed into the Client.
     """
+    clients = {
+        "none": LocalServerClient,
+        "flask": FlaskClient,
+    }
+
+    plugins = plugins or []
+    for p in plugins:
+        if isinstance(p, plugin.ServicePlugin):
+            clients[p.name] = p.client
+
     service_name = configuration.get_option("SERVICE", "name")
-    client_class = CLIENTS[service_name]
+    client_class = clients[service_name]
 
     return client_class(configuration=configuration, sinks=sinks)
 
@@ -118,10 +130,3 @@ class LocalServerClient(Client):
     def shutdown(self):
         """Instruct stopping of Server."""
         self.proxy.run("stop")
-
-
-# Register of supported clients
-CLIENTS = {
-    "none": LocalServerClient,
-    "flask": FlaskClient,
-}
