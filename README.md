@@ -167,10 +167,70 @@ The `financeager` command line client tries to read the configuration from `~/.c
 
 Want to use a different database? Should be straightforward by deriving from `Period` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new period type.
 
+### Plugin support
+
+The `financeager` core package can be extended by Python plugins.
+The supported groups are:
+
+- `financeager.services`
+
+#### All plugin types
+
+For developing a plugin, create a plugin package containing a `main.py` file:
+
+    from financeager import plugin
+
+    class _Configuration(plugin.PluginConfiguration):
+        """Configuration actions specific to the plugin."""
+
+and implement the required `PluginConfiguration` methods.
+Finally, specify the entry point for loading the plugin in `setup.py`:
+
+    setup(
+        ...,
+        entry_points={
+            <group_name>: <plugin-name> = <package>.main:main,
+            # e.g.
+            # "financeager.services": "fancy-service = fancy_service.main:main",
+        },
+    )
+
+The plugin name can be different from the package name.
+The package name should be prefixed with `financeager-`.
+
+#### Service plugins
+
+For developing a service plugin, extend the aforementioned `main.py` file:
+
+    # fancy_service/main.py in the fancy-service package
+    from financeager import plugin, clients
+
+    class _Configuration(plugin.PluginConfiguration):
+        """Configuration actions specific to the plugin."""
+
+    class _Client(clients.Client):
+        """Client to communicate with fancy-service."""
+
+    def main():
+        return plugin.ServicePlugin(
+            name="fancy-service",
+            config=_Configuration(),
+            client=_Client,
+        )
+
+Provide a suitable client implementation.
+
+Done! When the plugin is correctly installed, and configured to be used (`name = fancy-service`), `financeager` picks it up automatically. The plugin configuration is applied, and the plugin client created.
+
 ## Architecture
 
 The following diagram sketches the relationship between financeager's modules. See the module docstrings for more information.
 
+          +--------+
+          | plugin |
+          +--------+
+           ¦      ¦
+           V      V
     +--------+   +-----------+   +---------+
     | config |-->|    cli    |<->| offline |
     +--------+   +-----------+   +---------+

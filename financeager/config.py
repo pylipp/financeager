@@ -13,7 +13,8 @@ logger = init_logger(__name__)
 
 class Configuration:
     """Wrapper around a ConfigParser object holding configuration. The default
-    configuration is customizable via a config file."""
+    configuration can be customized by settings specified in a config file.
+    """
 
     def __init__(self, filepath=None, plugins=None):
         """Initialize the default configuration, overwrite with custom

@@ -1,5 +1,4 @@
 """Support for plugin development."""
-
 import abc
 
 
@@ -22,7 +21,7 @@ class PluginConfiguration(abc.ABC):
 
 class PluginBase:
     def __init__(self, *, name, config):
-        """Set plugin name and config (a PluginConfiguration object)."""
+        """Set plugin name and config (a PluginConfiguration instance)."""
         self.name = name
         self.config = config
 
