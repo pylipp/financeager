@@ -1,8 +1,10 @@
 import unittest
 from unittest import mock
 import time
+import tempfile
 
 from financeager.config import Configuration, InvalidConfigError
+from financeager import plugin
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -44,6 +46,48 @@ class ConfigTestCase(unittest.TestCase):
             Configuration(filepath=filepath)
         self.assertTrue(
             cm.exception.args[0].endswith("Config filepath does not exist!"))
+
+
+class TestPluginConfiguration(plugin.PluginConfiguration):
+    def init_defaults(self, config_parser):
+        config_parser["TESTSECTION"] = {"test": 42}
+
+    def validate(self, config):
+        try:
+            int(config.get_option("TESTSECTION", "test"))
+        except ValueError:
+            raise InvalidConfigError("Incorrect type")
+
+
+class PluginConfigTestCase(unittest.TestCase):
+    def test_init_defaults(self):
+        plugin_configs = [TestPluginConfiguration()]
+        config = Configuration(plugin_configs=plugin_configs)
+
+        # Since creating the Configuration instance did not fail, validation was
+        # successful
+        self.assertEqual(config.get_option("TESTSECTION", "test"), "42")
+
+    def test_load_custom_config_file(self):
+        filepath = tempfile.mkstemp()[1]
+        with open(filepath, "w") as file:
+            file.write("[TESTSECTION]\ntest = 84\n")
+
+        plugin_configs = [TestPluginConfiguration()]
+        config = Configuration(filepath=filepath, plugin_configs=plugin_configs)
+        self.assertEqual(config.get_option("TESTSECTION", "test"), "84")
+
+    def test_validate(self):
+        filepath = tempfile.mkstemp()[1]
+        with open(filepath, "w") as file:
+            file.write("[TESTSECTION]\ntest = no-int\n")
+
+        plugin_configs = [TestPluginConfiguration()]
+        self.assertRaises(
+            InvalidConfigError,
+            Configuration,
+            filepath=filepath,
+            plugin_configs=plugin_configs)
 
 
 if __name__ == "__main__":
