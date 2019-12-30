@@ -3,6 +3,7 @@ import os.path
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 import financeager
+from financeager import plugin
 from .entries import CategoryEntry, BaseEntry
 from .exceptions import InvalidConfigError
 from . import DEFAULT_HOST, DEFAULT_TIMEOUT, init_logger
@@ -13,8 +14,6 @@ logger = init_logger(__name__)
 class Configuration:
     """Wrapper around a ConfigParser object holding configuration. The default
     configuration is customizable via a config file."""
-
-    VALID_SERVICES = ["none", "flask"]
 
     def __init__(self, filepath=None, plugins=None):
         """Initialize the default configuration, overwrite with custom
@@ -97,7 +96,12 @@ class Configuration:
         """Validate certain fields of the configuration.
         :raises: InvalidConfigError
         """
-        if self.get_option("SERVICE", "name") not in self.VALID_SERVICES:
+        valid_services = ["none", "flask"]
+        for p in self._plugins:
+            if isinstance(p, plugin.ServicePlugin):
+                valid_services.append(p.name)
+
+        if self.get_option("SERVICE", "name") not in valid_services:
             raise InvalidConfigError("Unknown service name!")
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:

@@ -62,23 +62,22 @@ class TestPluginConfiguration(plugin.PluginConfiguration):
 class PluginConfigTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.plugins = [
-            plugin.PluginBase(name="test", config=TestPluginConfiguration())
-        ]
+        cls.plugin = plugin.ServicePlugin(
+            name="test-plugin", config=TestPluginConfiguration(), client=None)
 
     def test_init_defaults(self):
-        config = Configuration(plugins=self.plugins)
+        config = Configuration(plugins=[self.plugin])
 
         # Since creating the Configuration instance did not fail, validation was
         # successful
         self.assertEqual(config.get_option("TESTSECTION", "test"), "42")
 
-    def test_load_custom_config_file(self):
+    def test_load_custom_test_section(self):
         filepath = tempfile.mkstemp()[1]
         with open(filepath, "w") as file:
             file.write("[TESTSECTION]\ntest = 84\n")
 
-        config = Configuration(filepath=filepath, plugins=self.plugins)
+        config = Configuration(filepath=filepath, plugins=[self.plugin])
         self.assertEqual(config.get_option("TESTSECTION", "test"), "84")
 
     def test_validate(self):
@@ -90,7 +89,15 @@ class PluginConfigTestCase(unittest.TestCase):
             InvalidConfigError,
             Configuration,
             filepath=filepath,
-            plugins=self.plugins)
+            plugins=[self.plugin])
+
+    def test_load_service_plugin_config(self):
+        filepath = tempfile.mkstemp()[1]
+        with open(filepath, "w") as file:
+            file.write("[SERVICE]\nname = {}\n".format(self.plugin.name))
+
+        config = Configuration(filepath=filepath, plugins=[self.plugin])
+        self.assertEqual(config.get_option("SERVICE", "name"), self.plugin.name)
 
 
 if __name__ == "__main__":
