@@ -16,10 +16,13 @@ class Configuration:
 
     VALID_SERVICES = ["none", "flask"]
 
-    def __init__(self, filepath=None, plugin_configs=None):
+    def __init__(self, filepath=None, plugins=None):
         """Initialize the default configuration, overwrite with custom
         configuration from file if available, and eventually validate the loaded
         configuration.
+        If plugins are given, their configuration is taken into account.
+
+        :type plugins: list[plugin.PluginBase]
 
         :raises: InvalidConfigError if validation fails
         """
@@ -28,7 +31,7 @@ class Configuration:
         else:
             self._filepath = filepath
 
-        self._plugin_configs = plugin_configs or []
+        self._plugins = plugins or []
         self._parser = ConfigParser()
         self._init_defaults()
         self._load_custom_config()
@@ -49,8 +52,8 @@ class Configuration:
             "password": "",
         }
 
-        for pc in self._plugin_configs:
-            pc.init_defaults(self._parser)
+        for p in self._plugins:
+            p.config.init_defaults(self._parser)
 
     def _load_custom_config(self):
         """Update config values according to customization in config file."""
@@ -100,5 +103,5 @@ class Configuration:
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
 
-        for pc in self._plugin_configs:
-            pc.validate(self)
+        for p in self._plugins:
+            p.config.validate(self)

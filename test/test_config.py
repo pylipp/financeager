@@ -60,9 +60,14 @@ class TestPluginConfiguration(plugin.PluginConfiguration):
 
 
 class PluginConfigTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.plugins = [
+            plugin.PluginBase(name="test", config=TestPluginConfiguration())
+        ]
+
     def test_init_defaults(self):
-        plugin_configs = [TestPluginConfiguration()]
-        config = Configuration(plugin_configs=plugin_configs)
+        config = Configuration(plugins=self.plugins)
 
         # Since creating the Configuration instance did not fail, validation was
         # successful
@@ -73,8 +78,7 @@ class PluginConfigTestCase(unittest.TestCase):
         with open(filepath, "w") as file:
             file.write("[TESTSECTION]\ntest = 84\n")
 
-        plugin_configs = [TestPluginConfiguration()]
-        config = Configuration(filepath=filepath, plugin_configs=plugin_configs)
+        config = Configuration(filepath=filepath, plugins=self.plugins)
         self.assertEqual(config.get_option("TESTSECTION", "test"), "84")
 
     def test_validate(self):
@@ -82,12 +86,11 @@ class PluginConfigTestCase(unittest.TestCase):
         with open(filepath, "w") as file:
             file.write("[TESTSECTION]\ntest = no-int\n")
 
-        plugin_configs = [TestPluginConfiguration()]
         self.assertRaises(
             InvalidConfigError,
             Configuration,
             filepath=filepath,
-            plugin_configs=plugin_configs)
+            plugins=self.plugins)
 
 
 if __name__ == "__main__":
