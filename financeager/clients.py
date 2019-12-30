@@ -6,6 +6,8 @@ import financeager
 from . import httprequests, localserver, offline, plugin
 from .exceptions import InvalidRequest, CommunicationError, OfflineRecoveryError
 
+logger = financeager.init_logger(__name__)
+
 
 def create(*, configuration, sinks, plugins):
     """Factory to create the Client subclass suitable to the given
@@ -87,6 +89,11 @@ class FlaskClient(Client):
             http_config=configuration.get_option("SERVICE:FLASK"))
 
         financeager.init_logger("urllib3")
+
+        logger.warning(
+            "Flask-webservice related functionality will be moved to a "
+            "dedicated plugin.\n"
+            "Check the Changelog when updating your financeager version.")
 
     def safely_run(self, command, **params):
         """Execute base functionality.

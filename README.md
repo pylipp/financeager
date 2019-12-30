@@ -42,6 +42,8 @@ The user request invoked from the CLI is passed to the backend which opens the a
 
 ### Client-server mode
 
+>   Flask-webservice related functionality will be moved to a dedicated plugin, see #53.
+
 To run `financeager` as client-server application, start the flask webservice by
 
     export FLASK_APP=financeager/fflask.py
