@@ -12,7 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [v0.23.0.0] - 2020-XX-XX
 ### Added
-- New classes FlaskClient and LocalServerClient, as well as factory function client() in communication module.
+- Extensibility by plugins. The only group supported so far is 'financeager.services'. Related adjustments in the cli, clients, and config modules. A plugin module is added. (#53)
+- New classes FlaskClient and LocalServerClient, as well as factory function create() in clients module.
 - Test against Python 3.8 on Travis CI.
 ### Changed
 - Client.Out is renamed to Client.Sinks.
