@@ -8,7 +8,7 @@ import sys
 from financeager import __version__, PERIOD_DATE_FORMAT, entries, listing,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
-from financeager import communication as comm
+from financeager import clients
 from .config import Configuration
 from .entries import CategoryEntry
 from .exceptions import InvalidConfigError, PreprocessingError
@@ -69,7 +69,7 @@ def run(command, configuration, verbose=False, sinks=None, **params):
         """Wrapper to format response and propagate it to logger.info."""
         logger.info(_format_response(message, command, **formatting_options))
 
-    sinks = sinks or comm.Client.Sinks(_info, logger.error)
+    sinks = sinks or clients.Client.Sinks(_info, logger.error)
 
     date_format = configuration.get_option("FRONTEND", "date_format")
     try:
@@ -87,7 +87,7 @@ def run(command, configuration, verbose=False, sinks=None, **params):
             formatting_options[option] = params.pop(option)
 
     exit_code = FAILURE
-    client = comm.client(configuration=configuration, sinks=sinks)
+    client = clients.create(configuration=configuration, sinks=sinks)
     if client.safely_run(command, **params):
         exit_code = SUCCESS
 

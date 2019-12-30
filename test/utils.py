@@ -1,8 +1,8 @@
 """Utiliary classes for testing."""
-from financeager import communication, config
+from financeager import clients, config
 
 
-class Client(communication.LocalServerClient):
+class Client(clients.LocalServerClient):
     """Implementation that assigns dummy sinks to consume the client's output.
     The underlying Proxy is patched to store data in memory instead of in
     financeager.DATA_DIR.
@@ -12,6 +12,6 @@ class Client(communication.LocalServerClient):
         f = lambda s: None
         super().__init__(
             configuration=config.Configuration(),
-            sinks=communication.Client.Sinks(f, f))
+            sinks=clients.Client.Sinks(f, f))
 
         self.proxy._period_kwargs["data_dir"] = None

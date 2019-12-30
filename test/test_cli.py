@@ -9,7 +9,7 @@ from requests import Response, RequestException
 from requests import get as requests_get
 
 from financeager import DEFAULT_TABLE, config
-from financeager.communication import Client
+from financeager import clients
 from financeager.fflask import create_app
 from financeager.cli import _parse_command, run, SUCCESS, FAILURE, _preprocess,\
     _format_response
@@ -76,7 +76,7 @@ class CliTestCase(unittest.TestCase):
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
 
-        sinks = Client.Sinks(self.info, self.error)
+        sinks = clients.Client.Sinks(self.info, self.error)
 
         # Procedure similar to cli.main()
         params = _parse_command(args)

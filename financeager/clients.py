@@ -1,4 +1,4 @@
-"""Service-agnostic communication-related interface."""
+"""Infrastructure for backend communication."""
 from collections import namedtuple
 import traceback
 
@@ -7,7 +7,7 @@ from . import httprequests, localserver, offline
 from .exceptions import InvalidRequest, CommunicationError, OfflineRecoveryError
 
 
-def client(*, configuration, sinks):
+def create(*, configuration, sinks):
     """Factory to create the Client subclass suitable to the given
     configuration. The sinks are passed into the Client.
     """

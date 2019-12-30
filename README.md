@@ -180,7 +180,7 @@ The following diagram sketches the relationship between financeager's modules. S
                      V   ¦                     +---------+     +---------+
 
     +-------------------------------------+
-    |             communication           |
+    |                clients              |
     +-------------------------------------+
 
             ¦                     Λ
