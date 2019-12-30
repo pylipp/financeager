@@ -7,7 +7,7 @@ from . import httprequests, localserver, offline, plugin
 from .exceptions import InvalidRequest, CommunicationError, OfflineRecoveryError
 
 
-def create(*, configuration, sinks, plugins=None):
+def create(*, configuration, sinks, plugins):
     """Factory to create the Client subclass suitable to the given
     configuration.
     Clients of service plugins are taken into account if specified.

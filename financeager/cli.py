@@ -4,6 +4,7 @@ from datetime import datetime
 import argparse
 import os
 import sys
+import pkg_resources
 
 from financeager import __version__, PERIOD_DATE_FORMAT, entries, listing,\
     init_logger, make_log_stream_handler_verbose, setup_log_file_handler
@@ -24,6 +25,7 @@ def main():
     """Main command line entry point of the application.
 
     The log directory is created. A FileHandler is added to the package logger.
+    Available plugins are loaded.
     The program configuration is loaded.
     Relevant command line arguments and options are parsed and passed to
     'run()'.
@@ -33,12 +35,18 @@ def main():
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
 
+    plugins = [
+        ep.load()()
+        for ep in pkg_resources.iter_entry_points("financeager.services")
+    ]
+
     args = _parse_command()
     exit_code = FAILURE
 
     try:
-        configuration = Configuration(args.pop("config_filepath"))
-        run(configuration=configuration, **args)
+        configuration = Configuration(
+            args.pop("config_filepath"), plugins=plugins)
+        run(configuration=configuration, plugins=plugins, **args)
         exit_code = SUCCESS
 
     except InvalidConfigError as e:
@@ -47,13 +55,21 @@ def main():
     sys.exit(exit_code)
 
 
-def run(command, configuration, verbose=False, sinks=None, **params):
+def run(command,
+        configuration,
+        plugins=None,
+        verbose=False,
+        sinks=None,
+        **params):
     """Run 'command' request using additional 'params'.
 
     All 'params' except for formatting-related options are passed to
     'Client.safely_run()'.
 
     'configuration' is a config.Configuration object.
+
+    'plugins' is an optional list of plugin.PluginBase objects that is forwarded
+    to respective methods (e.g. ServicePlugins to clients.create()).
 
     If 'verbose' is set, debug level log messages are printed to the terminal.
 
@@ -87,7 +103,8 @@ def run(command, configuration, verbose=False, sinks=None, **params):
             formatting_options[option] = params.pop(option)
 
     exit_code = FAILURE
-    client = clients.create(configuration=configuration, sinks=sinks)
+    client = clients.create(
+        configuration=configuration, sinks=sinks, plugins=plugins)
     if client.safely_run(command, **params):
         exit_code = SUCCESS
 
