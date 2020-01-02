@@ -13,6 +13,13 @@ class PluginConfiguration(abc.ABC):
         by relevant sections.
         """
 
+    def init_option_types(self, option_types):
+        """Specify types of plugin options (int, float, boolean) if conversion
+        at the time of retrieving the option is desired. The given dictionary
+        should be modified in-place by adding the type to the corresponding
+        section and option.
+        """
+
     @abc.abstractmethod
     def validate(self, config):
         """Validate content of the Configuration object specific to the plugin.

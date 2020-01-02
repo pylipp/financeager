@@ -33,7 +33,11 @@ class Configuration:
 
         self._plugins = plugins or []
         self._parser = ConfigParser()
+        self._option_types = {}
+
         self._init_defaults()
+        self._init_option_types()
+
         self._load_custom_config()
         self._validate()
 
@@ -54,6 +58,16 @@ class Configuration:
 
         for p in self._plugins:
             p.config.init_defaults(self._parser)
+
+    def _init_option_types(self):
+        self._option_types = {
+            "SERVICE:FLASK": {
+                "timeout": "int",
+            },
+        }
+
+        for p in self._plugins:
+            p.config.init_option_types(self._option_types)
 
     def _load_custom_config(self):
         """Update config values according to customization in config file."""
@@ -87,11 +101,23 @@ class Configuration:
     def get_option(self, section, option=None):
         """Get an option of the configuration or a dictionary of section
         contents if no option given.
+        If the option is typed, a converted value is returned.
         """
         if option is None:
             return dict(self._parser.items(section))
         else:
-            return self.get(section, option)
+            try:
+                option_type = self._option_types[section][option]
+            except KeyError:
+                # Option type not specified, assuming str
+                option_type = None
+
+            if option_type in ("int", "float", "boolean"):
+                get = getattr(self._parser, "get{}".format(option_type))
+            else:
+                get = self._parser.get
+
+            return get(section, option)
 
     def _validate(self):
         """Validate certain fields of the configuration.

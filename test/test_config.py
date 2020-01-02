@@ -50,7 +50,18 @@ class ConfigTestCase(unittest.TestCase):
 
 class TestPluginConfiguration(plugin.PluginConfiguration):
     def init_defaults(self, config_parser):
-        config_parser["TESTSECTION"] = {"test": 42}
+        config_parser["TESTSECTION"] = {
+            "test": 42,
+            "flag": "off",
+            "number": 1.0
+        }
+
+    def init_option_types(self, option_types):
+        option_types["TESTSECTION"] = {
+            "test": "int",
+            "flag": "boolean",
+            "number": "float"
+        }
 
     def validate(self, config):
         try:
@@ -70,7 +81,9 @@ class PluginConfigTestCase(unittest.TestCase):
 
         # Since creating the Configuration instance did not fail, validation was
         # successful
-        self.assertEqual(config.get_option("TESTSECTION", "test"), "42")
+        self.assertEqual(config.get_option("TESTSECTION", "test"), 42)
+        self.assertFalse(config.get_option("TESTSECTION", "flag"))
+        self.assertEqual(config.get_option("TESTSECTION", "number"), 1.0)
 
     def test_load_custom_test_section(self):
         filepath = tempfile.mkstemp()[1]
@@ -78,7 +91,7 @@ class PluginConfigTestCase(unittest.TestCase):
             file.write("[TESTSECTION]\ntest = 84\n")
 
         config = Configuration(filepath=filepath, plugins=[self.plugin])
-        self.assertEqual(config.get_option("TESTSECTION", "test"), "84")
+        self.assertEqual(config.get_option("TESTSECTION", "test"), 84)
 
     def test_validate(self):
         filepath = tempfile.mkstemp()[1]
