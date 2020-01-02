@@ -23,6 +23,8 @@ class PluginConfiguration(abc.ABC):
     @abc.abstractmethod
     def validate(self, config):
         """Validate content of the Configuration object specific to the plugin.
+        Typed options are implicitly validated for conversion by the
+        Configuration object already.
         """
 
 

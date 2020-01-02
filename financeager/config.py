@@ -119,7 +119,9 @@ class Configuration:
             return get(section, option)
 
     def _validate(self):
-        """Validate certain fields of the configuration.
+        """Validate certain options of the configuration. Typed options are
+        validated for possible conversion.
+
         :raises: InvalidConfigError
         """
         valid_services = ["none", "flask"]
@@ -132,6 +134,15 @@ class Configuration:
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
+
+        for section in self._option_types:
+            for option in self._option_types[section]:
+                try:
+                    self.get_option(section, option)
+                except ValueError:
+                    raise InvalidConfigError(
+                        "Wrong type for option {} in section {}.".format(
+                            option, section))
 
         for p in self._plugins:
             p.config.validate(self)

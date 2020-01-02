@@ -35,6 +35,7 @@ class ConfigTestCase(unittest.TestCase):
         for content in (
                 "[SERVICE]\nname = sillyservice\n",
                 "[FRONTEND]\ndefault_category = ",
+                "[SERVICE:FLASK]\ntimeout = foo\n",
         ):
             with open(filepath, "w") as file:
                 file.write(content)
@@ -65,10 +66,7 @@ class TestPluginConfiguration(plugin.PluginConfiguration):
         }
 
     def validate(self, config):
-        try:
-            int(config.get_option("TESTSECTION", "test"))
-        except ValueError:
-            raise InvalidConfigError("Incorrect type")
+        """Validation happens in Configuration._validate()."""
 
 
 class PluginConfigTestCase(unittest.TestCase):
