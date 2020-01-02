@@ -4,7 +4,7 @@ import json
 
 import requests
 
-from . import default_period_name, DEFAULT_TABLE, DEFAULT_HOST, DEFAULT_TIMEOUT
+from . import default_period_name, DEFAULT_TABLE, DEFAULT_HOST
 from . import COPY_TAIL, PERIODS_TAIL
 from .exceptions import CommunicationError, InvalidRequest
 
@@ -48,7 +48,7 @@ class Proxy:
         if username and password:
             auth = (username, password)
 
-        kwargs = dict(auth=auth, timeout=DEFAULT_TIMEOUT)
+        kwargs = dict(auth=auth, timeout=int(self.http_config.get("timeout")))
 
         if command == "list":
             # Correctly send filters; allowing for server-side deserialization

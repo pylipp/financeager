@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
+- The SERVICE:FLASK timeout configuration option is now taken into account if specified in a configuration file.
 
 ## [v0.23.0.0] - 2019-12-30
 ### Added
