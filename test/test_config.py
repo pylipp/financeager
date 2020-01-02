@@ -27,7 +27,7 @@ class ConfigTestCase(unittest.TestCase):
     def test_get_option(self):
         config = Configuration()
         self.assertEqual(config.get_option("SERVICE", "name"), "none")
-        self.assertDictEqual(config.get_option("SERVICE"), {"name": "none"})
+        self.assertDictEqual(config.get_section("SERVICE"), {"name": "none"})
 
     def test_invalid_config(self):
         filepath = "/tmp/{}".format(int(time.time()))
@@ -82,7 +82,7 @@ class PluginConfigTestCase(unittest.TestCase):
         self.assertEqual(config.get_option("TESTSECTION", "number"), 1.0)
 
         self.assertDictEqual(
-            config.get_option("TESTSECTION"), {
+            config.get_section("TESTSECTION"), {
                 "test": 42,
                 "flag": False,
                 "number": 1.0

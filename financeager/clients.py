@@ -86,7 +86,7 @@ class FlaskClient(Client):
         """Set up proxy and urllib3 logger."""
         super().__init__(sinks=sinks)
         self.proxy = httprequests.Proxy(
-            http_config=configuration.get_option("SERVICE:FLASK"))
+            http_config=configuration.get_section("SERVICE:FLASK"))
 
         financeager.init_logger("urllib3")
 

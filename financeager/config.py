@@ -94,29 +94,31 @@ class Configuration:
                     continue
                 self._parser[section][item] = custom_value
 
-    def get_option(self, section, option=None):
-        """Get an option of the configuration or a dictionary of section
-        contents if no option given.
+    def get_section(self, section):
+        """Return a dictionary of options of the requested section.
         If an option is typed, a converted value is returned.
         """
-        if option is None:
-            return {
-                o: self.get_option(section, o)
-                for o in self._parser.options(section)
-            }
+        return {
+            o: self.get_option(section, o)
+            for o in self._parser.options(section)
+        }
+
+    def get_option(self, section, option):
+        """Return the requested option of the configuration.
+        If an option is typed, a converted value is returned.
+        """
+        try:
+            option_type = self._option_types[section][option]
+        except KeyError:
+            # Option type not specified, assuming str
+            option_type = None
+
+        if option_type in ("int", "float", "boolean"):
+            get = getattr(self._parser, "get{}".format(option_type))
         else:
-            try:
-                option_type = self._option_types[section][option]
-            except KeyError:
-                # Option type not specified, assuming str
-                option_type = None
+            get = self._parser.get
 
-            if option_type in ("int", "float", "boolean"):
-                get = getattr(self._parser, "get{}".format(option_type))
-            else:
-                get = self._parser.get
-
-            return get(section, option)
+        return get(section, option)
 
     def _validate(self):
         """Validate certain options of the configuration. Typed options are
