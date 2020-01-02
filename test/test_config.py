@@ -65,9 +65,6 @@ class TestPluginConfiguration(plugin.PluginConfiguration):
             "number": "float"
         }
 
-    def validate(self, config):
-        """Validation happens in Configuration._validate()."""
-
 
 class PluginConfigTestCase(unittest.TestCase):
     @classmethod
