@@ -85,6 +85,13 @@ class PluginConfigTestCase(unittest.TestCase):
         self.assertFalse(config.get_option("TESTSECTION", "flag"))
         self.assertEqual(config.get_option("TESTSECTION", "number"), 1.0)
 
+        self.assertDictEqual(
+            config.get_option("TESTSECTION"), {
+                "test": 42,
+                "flag": False,
+                "number": 1.0
+            })
+
     def test_load_custom_test_section(self):
         filepath = tempfile.mkstemp()[1]
         with open(filepath, "w") as file:

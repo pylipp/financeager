@@ -48,7 +48,7 @@ class Proxy:
         if username and password:
             auth = (username, password)
 
-        kwargs = dict(auth=auth, timeout=int(self.http_config.get("timeout")))
+        kwargs = dict(auth=auth, timeout=self.http_config.get("timeout"))
 
         if command == "list":
             # Correctly send filters; allowing for server-side deserialization

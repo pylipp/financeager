@@ -101,10 +101,13 @@ class Configuration:
     def get_option(self, section, option=None):
         """Get an option of the configuration or a dictionary of section
         contents if no option given.
-        If the option is typed, a converted value is returned.
+        If an option is typed, a converted value is returned.
         """
         if option is None:
-            return dict(self._parser.items(section))
+            return {
+                o: self.get_option(section, o)
+                for o in self._parser.options(section)
+            }
         else:
             try:
                 option_type = self._option_types[section][option]
