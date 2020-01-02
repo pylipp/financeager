@@ -11,7 +11,8 @@ class ConfigTestCase(unittest.TestCase):
     def test_sections(self):
         config = Configuration()
         self.assertSetEqual(
-            set(config.sections()), {"SERVICE", "FRONTEND", "SERVICE:FLASK"})
+            set(config._parser.sections()),
+            {"SERVICE", "FRONTEND", "SERVICE:FLASK"})
 
     def test_load_custom_config_file(self):
         # create custom config file, modify service name
@@ -20,7 +21,7 @@ class ConfigTestCase(unittest.TestCase):
             file.write("[SERVICE]\nname = flask\n")
 
         config = Configuration(filepath=filepath)
-        self.assertEqual(config.get("SERVICE", "name"), "flask")
+        self.assertEqual(config.get_option("SERVICE", "name"), "flask")
 
     @mock.patch("financeager.CONFIG_FILEPATH", "/tmp/non-existing-config")
     def test_get_option(self):

@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 ### Deprecated
 ### Removed
+- The Configuration.__getattr__() method enabling 'magic' access of underlying ConfigParser methods.
 ### Fixed
 - The SERVICE:FLASK timeout configuration option is now taken into account if specified in a configuration file.
 
