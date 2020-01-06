@@ -6,9 +6,7 @@ from . import test_config
 
 
 class TestClient(clients.Client):
-    def __init__(self, *, configuration, sinks):
-        super().__init__(sinks=sinks)
-        self.configuration = configuration
+    """Dummy class for testing."""
 
 
 class CreateClientsTestCase(unittest.TestCase):

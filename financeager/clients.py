@@ -39,11 +39,12 @@ class Client:
 
     Sinks = namedtuple("Sinks", ["info", "error"])
 
-    def __init__(self, *, sinks):
-        """Store the specified sinks as attributes.
+    def __init__(self, *, configuration, sinks):
+        """Store the specified configuration and sinks as attributes.
         The subclass implementation must set up the proxy.
         """
         self.proxy = None
+        self.configuration = configuration
         self.sinks = sinks
         self.latest_exception = None
 
@@ -84,7 +85,7 @@ class FlaskClient(Client):
 
     def __init__(self, *, configuration, sinks):
         """Set up proxy and urllib3 logger."""
-        super().__init__(sinks=sinks)
+        super().__init__(configuration=configuration, sinks=sinks)
         self.proxy = httprequests.Proxy(
             http_config=configuration.get_section("SERVICE:FLASK"))
 
@@ -130,7 +131,7 @@ class LocalServerClient(Client):
 
     def __init__(self, *, configuration, sinks):
         """Set up proxy."""
-        super().__init__(sinks=sinks)
+        super().__init__(configuration=configuration, sinks=sinks)
 
         self.proxy = localserver.Proxy(data_dir=financeager.DATA_DIR)
 
