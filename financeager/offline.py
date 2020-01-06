@@ -2,8 +2,8 @@
 of such.
 """
 
-import os.path
 import json
+import os.path
 
 from . import OFFLINE_FILEPATH, init_logger
 from .exceptions import OfflineRecoveryError

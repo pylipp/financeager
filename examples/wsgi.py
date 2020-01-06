@@ -3,8 +3,8 @@
 # It is assumed that the financeager project is cloned to the home directory and
 # all requirements are installed.
 
-import sys
 import os
+import sys
 
 from financeager.fflask import create_app
 

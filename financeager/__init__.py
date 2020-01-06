@@ -1,9 +1,10 @@
 import os.path
 from datetime import datetime as dt
-from logging import getLogger, StreamHandler, DEBUG, INFO, Formatter, handlers
+from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger, handlers
 
 # versioning information
 from pkg_resources import get_distribution
+
 __version__ = get_distribution(__name__).version
 
 #

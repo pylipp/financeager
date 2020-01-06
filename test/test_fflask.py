@@ -1,10 +1,10 @@
-from os import environ
 import tempfile
 import unittest
+from os import environ
 from unittest import mock
 
-from financeager.fflask import create_app
 import financeager
+from financeager.fflask import create_app
 
 # Patch DATA_DIR to avoid having it created/interfering with logs on actual
 # machine

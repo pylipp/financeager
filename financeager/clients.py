@@ -1,10 +1,12 @@
 """Infrastructure for backend communication."""
-from collections import namedtuple
 import traceback
+from collections import namedtuple
 
 import financeager
+
 from . import httprequests, localserver, offline, plugin
-from .exceptions import InvalidRequest, CommunicationError, OfflineRecoveryError
+from .exceptions import (CommunicationError, InvalidRequest,
+                         OfflineRecoveryError)
 
 logger = financeager.init_logger(__name__)
 

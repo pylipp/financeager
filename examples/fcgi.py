@@ -39,7 +39,8 @@ https://docs.python.org/3.4/howto/webservers.html
 https://wiki.uberspace.de/webserver:htaccess#verzeichnisschutz
 """
 from flipflop import WSGIServer
-from financeager import fflask, DATA_DIR
+
+from financeager import DATA_DIR, fflask
 
 if __name__ == "__main__":
     # Configure to your liking

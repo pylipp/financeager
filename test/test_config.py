@@ -1,10 +1,10 @@
+import tempfile
+import time
 import unittest
 from unittest import mock
-import time
-import tempfile
 
-from financeager.config import Configuration, InvalidConfigError
 from financeager import plugin
+from financeager.config import Configuration, InvalidConfigError
 
 
 class ConfigTestCase(unittest.TestCase):

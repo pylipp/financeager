@@ -1,9 +1,9 @@
 """Local server proxy for direct communication (client and server reside in
 common process)."""
 
-from .server import Server
-from .exceptions import InvalidRequest, CommunicationError
 from . import init_logger
+from .exceptions import CommunicationError, InvalidRequest
+from .server import Server
 
 logger = init_logger(__name__)
 

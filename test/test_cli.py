@@ -1,20 +1,17 @@
-import unittest
-from unittest import mock
 import os
-import time
-from threading import Thread
 import tempfile
+import time
+import unittest
+from threading import Thread
+from unittest import mock
 
-from requests import Response, RequestException
+from requests import RequestException, Response
 from requests import get as requests_get
 
-from financeager import DEFAULT_TABLE, config
-from financeager import clients
-from financeager.fflask import create_app
-from financeager.cli import _parse_command, run, SUCCESS, FAILURE, _preprocess,\
-    _format_response
+from financeager import DEFAULT_TABLE, cli, clients, config
 from financeager.entries import CategoryEntry
 from financeager.exceptions import PreprocessingError
+from financeager.fflask import create_app
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -79,16 +76,16 @@ class CliTestCase(unittest.TestCase):
         sinks = clients.Client.Sinks(self.info, self.error)
 
         # Procedure similar to cli.main()
-        params = _parse_command(args)
+        params = cli._parse_command(args)
         configuration = config.Configuration(params.pop("config_filepath"))
-        exit_code = run(sinks=sinks, configuration=configuration, **params)
+        exit_code = cli.run(sinks=sinks, configuration=configuration, **params)
 
         # Get first of the args of the call of specified log method
         response = getattr(self, log_method).call_args[0][0]
 
         # Verify exit code
         self.assertEqual(exit_code,
-                         SUCCESS if log_method == "info" else FAILURE)
+                         cli.SUCCESS if log_method == "info" else cli.FAILURE)
 
         # Immediately return str messages
         if isinstance(response, str):
@@ -102,7 +99,7 @@ class CliTestCase(unittest.TestCase):
             return response["id"]
 
         if command in ["get", "list", "periods"] and log_method == "info":
-            return _format_response(
+            return cli._format_response(
                 response,
                 command,
                 default_category=configuration.get_option(
@@ -395,49 +392,50 @@ host = http://{}
 class PreprocessTestCase(unittest.TestCase):
     def test_date_format(self):
         data = {"date": "31.01."}
-        _preprocess(data, date_format="%d.%m.")
+        cli._preprocess(data, date_format="%d.%m.")
         self.assertDictEqual(data, {"date": "01-31"})
 
     def test_date_format_error(self):
         data = {"date": "01-01"}
         self.assertRaises(
-            PreprocessingError, _preprocess, data, date_format="%d.%m")
+            PreprocessingError, cli._preprocess, data, date_format="%d.%m")
 
     def test_name_filters(self):
         data = {"filters": ["name=italian"]}
-        _preprocess(data)
+        cli._preprocess(data)
         self.assertEqual(data["filters"], {"name": "italian"})
 
     def test_category_filters(self):
         data = {"filters": ["category=Restaurants"]}
-        _preprocess(data)
+        cli._preprocess(data)
         self.assertEqual(data["filters"], {"category": "restaurants"})
 
     def test_filters_error(self):
         data = {"filters": ["value-123"]}
-        self.assertRaises(PreprocessingError, _preprocess, data)
+        self.assertRaises(PreprocessingError, cli._preprocess, data)
 
     def test_default_category_filter(self):
         data = {"filters": ["category=unspecified"]}
-        _preprocess(data)
+        cli._preprocess(data)
         self.assertEqual(data["filters"], {"category": None})
 
 
 class FormatResponseTestCase(unittest.TestCase):
     def test_add(self):
-        self.assertEqual("Added element 1.", _format_response({"id": 1}, "add"))
+        self.assertEqual("Added element 1.",
+                         cli._format_response({"id": 1}, "add"))
 
     def test_update(self):
         self.assertEqual("Updated element 1.",
-                         _format_response({"id": 1}, "update"))
+                         cli._format_response({"id": 1}, "update"))
 
     def test_remove(self):
         self.assertEqual("Removed element 1.",
-                         _format_response({"id": 1}, "remove"))
+                         cli._format_response({"id": 1}, "remove"))
 
     def test_copy(self):
-        self.assertEqual("Copied element 1.", _format_response({"id": 1},
-                                                               "copy"))
+        self.assertEqual("Copied element 1.",
+                         cli._format_response({"id": 1}, "copy"))
 
 
 if __name__ == "__main__":

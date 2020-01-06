@@ -1,12 +1,13 @@
 """Configuration of the financeager application."""
 import os.path
-from configparser import ConfigParser, NoSectionError, NoOptionError
+from configparser import ConfigParser, NoOptionError, NoSectionError
 
 import financeager
 from financeager import plugin
-from .entries import CategoryEntry, BaseEntry
-from .exceptions import InvalidConfigError
+
 from . import DEFAULT_HOST, DEFAULT_TIMEOUT, init_logger
+from .entries import BaseEntry, CategoryEntry
+from .exceptions import InvalidConfigError
 
 logger = init_logger(__name__)
 

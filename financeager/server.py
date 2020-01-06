@@ -3,7 +3,7 @@ import glob
 import os.path
 
 from . import default_period_name, init_logger
-from .period import TinyDbPeriod, PeriodException
+from .period import PeriodException, TinyDbPeriod
 
 logger = init_logger(__name__)
 

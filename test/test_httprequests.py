@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from financeager.httprequests import Proxy as HttpProxy
+from financeager import DEFAULT_HOST, PERIODS_TAIL
 from financeager.exceptions import CommunicationError
-from financeager import PERIODS_TAIL, DEFAULT_HOST
+from financeager.httprequests import Proxy as HttpProxy
 
 
 class HttpRequestProxyTestCase(unittest.TestCase):

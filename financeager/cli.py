@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 """Command line interface of financeager application."""
-from datetime import datetime
 import argparse
 import os
 import sys
+from datetime import datetime
+
 import pkg_resources
 
-from financeager import __version__, PERIOD_DATE_FORMAT, entries, listing,\
-    init_logger, make_log_stream_handler_verbose, setup_log_file_handler
 import financeager
-from financeager import clients
+from financeager import (PERIOD_DATE_FORMAT, __version__, clients, entries,
+                         init_logger, listing, make_log_stream_handler_verbose,
+                         setup_log_file_handler)
+
 from .config import Configuration
 from .entries import CategoryEntry
 from .exceptions import InvalidConfigError, PreprocessingError

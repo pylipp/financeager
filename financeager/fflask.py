@@ -4,11 +4,11 @@ import os
 from flask import Flask
 from flask_restful import Api
 
-from . import PERIODS_TAIL, COPY_TAIL, init_logger, setup_log_file_handler,\
-    make_log_stream_handler_verbose
+from . import (COPY_TAIL, PERIODS_TAIL, init_logger,
+               make_log_stream_handler_verbose, setup_log_file_handler)
+from .resources import (CopyResource, EntryResource, PeriodResource,
+                        PeriodsResource)
 from .server import Server
-from .resources import (PeriodsResource, PeriodResource, EntryResource,
-                        CopyResource)
 
 logger = init_logger(__name__)
 

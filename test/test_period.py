@@ -1,16 +1,16 @@
-import unittest
 import datetime as dt
-from collections import Counter
-import os.path
 import json
+import os.path
 import tempfile
+import unittest
+from collections import Counter
 
 from schematics.exceptions import DataError
 
-from financeager.period import Period, TinyDbPeriod, PeriodException,\
-    BaseValidationModel, StandardEntryValidationModel,\
-    RecurrentEntryValidationModel, _DEFAULT_CATEGORY
-from financeager import PERIOD_DATE_FORMAT, DEFAULT_TABLE
+from financeager import DEFAULT_TABLE, PERIOD_DATE_FORMAT
+from financeager.period import (_DEFAULT_CATEGORY, BaseValidationModel, Period,
+                                PeriodException, RecurrentEntryValidationModel,
+                                StandardEntryValidationModel, TinyDbPeriod)
 
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):

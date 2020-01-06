@@ -1,18 +1,18 @@
 """Defines Period database object holding per-year financial data."""
 
 import os.path
-from collections import defaultdict, Counter
-from dateutil import rrule
-from datetime import datetime as dt
 import re
+from collections import Counter, defaultdict
+from datetime import datetime as dt
 
-from tinydb import TinyDB, Query, storages
-from tinydb.database import Element
-from schematics.models import Model as SchematicsModel
-from schematics.types import StringType, FloatType, DateType
+from dateutil import rrule
 from schematics.exceptions import DataError, ValidationError
+from schematics.models import Model as SchematicsModel
+from schematics.types import DateType, FloatType, StringType
+from tinydb import Query, TinyDB, storages
+from tinydb.database import Element
 
-from . import PERIOD_DATE_FORMAT, default_period_name, DEFAULT_TABLE
+from . import DEFAULT_TABLE, PERIOD_DATE_FORMAT, default_period_name
 
 # format for ValidationModel.to_primitive() call
 DateType.SERIALIZED_FORMAT = PERIOD_DATE_FORMAT

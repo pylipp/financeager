@@ -1,7 +1,7 @@
-import unittest
 import os.path
+import unittest
 
-from financeager.offline import add, _load, recover, OfflineRecoveryError
+from financeager.offline import OfflineRecoveryError, _load, add, recover
 
 from . import utils
 

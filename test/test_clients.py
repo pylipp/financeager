@@ -1,6 +1,6 @@
 import unittest
 
-from financeager import clients, plugin, config
+from financeager import clients, config, plugin
 
 from . import test_config
 

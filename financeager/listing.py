@@ -1,5 +1,5 @@
 """Tabular, frontend-representation of financeager period."""
-from . import DEFAULT_TABLE, DEFAULT_CATEGORY_ENTRY_SORT_KEY
+from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE
 from .entries import BaseEntry, CategoryEntry
 
 

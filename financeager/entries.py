@@ -3,7 +3,7 @@ query results."""
 
 from datetime import datetime
 
-from . import PERIOD_DATE_FORMAT, DEFAULT_BASE_ENTRY_SORT_KEY
+from . import DEFAULT_BASE_ENTRY_SORT_KEY, PERIOD_DATE_FORMAT
 
 
 class Entry:

@@ -1,11 +1,11 @@
-import unittest
-import tempfile
 import os.path
+import tempfile
+import unittest
 
-from financeager import default_period_name, DEFAULT_TABLE
+from financeager import DEFAULT_TABLE, default_period_name
 from financeager.entries import CategoryEntry
-from financeager.server import Server
 from financeager.period import PeriodException
+from financeager.server import Server
 
 
 class AddEntryToServerTestCase(unittest.TestCase):

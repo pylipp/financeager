@@ -1,8 +1,8 @@
 import unittest
 
 from financeager import DEFAULT_TABLE
+from financeager.entries import BaseEntry, CategoryEntry
 from financeager.listing import Listing, prettify
-from financeager.entries import CategoryEntry, BaseEntry
 
 
 class AddCategoryEntryTestCase(unittest.TestCase):
