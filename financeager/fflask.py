@@ -5,10 +5,8 @@ from flask import Flask
 from flask_restful import Api
 
 from . import (COPY_TAIL, PERIODS_TAIL, init_logger,
-               make_log_stream_handler_verbose, setup_log_file_handler)
-from .resources import (CopyResource, EntryResource, PeriodResource,
-                        PeriodsResource)
-from .server import Server
+               make_log_stream_handler_verbose, resources, server,
+               setup_log_file_handler)
 
 logger = init_logger(__name__)
 
@@ -47,24 +45,25 @@ def create_app(data_dir=None, config=None):
     logger.debug("Created flask app {} - {} mode".format(
         app.name, "debug" if app.debug else "production"))
 
-    server = Server(data_dir=data_dir)
+    srv = server.Server(data_dir=data_dir)
     logger.debug(
         "Started financeager server with data dir '{}'".format(data_dir))
 
     api = Api(app)
     api.add_resource(
-        PeriodsResource, PERIODS_TAIL, resource_class_args=(server,))
-    api.add_resource(CopyResource, COPY_TAIL, resource_class_args=(server,))
+        resources.PeriodsResource, PERIODS_TAIL, resource_class_args=(srv,))
     api.add_resource(
-        PeriodResource,
+        resources.CopyResource, COPY_TAIL, resource_class_args=(srv,))
+    api.add_resource(
+        resources.PeriodResource,
         "{}/<period_name>".format(PERIODS_TAIL),
-        resource_class_args=(server,))
+        resource_class_args=(srv,))
     api.add_resource(
-        EntryResource,
+        resources.EntryResource,
         "{}/<period_name>/<table_name>/<eid>".format(PERIODS_TAIL),
-        resource_class_args=(server,))
+        resource_class_args=(srv,))
 
     # Assign attribute such that e.g. test_cli can access Server methods
-    app._server = server
+    app._server = srv
 
     return app

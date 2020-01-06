@@ -2,16 +2,15 @@ import os.path
 import tempfile
 import unittest
 
-from financeager import DEFAULT_TABLE, default_period_name
-from financeager.entries import CategoryEntry
-from financeager.period import PeriodException
-from financeager.server import Server
+from financeager import DEFAULT_TABLE, default_period_name, entries
+from financeager import period as pd
+from financeager import server
 
 
 class AddEntryToServerTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = Server()
+        cls.server = server.Server()
         cls.server.run(
             "add",
             name="Hiking boots",
@@ -33,7 +32,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
 
 class RecurrentEntryServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = Server()
+        self.server = server.Server()
         self.period = "2000"
         self.entry_id = self.server.run(
             "add",
@@ -78,7 +77,7 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
 
 class FindEntryServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.server = Server()
+        self.server = server.Server()
         self.period = "0"
         self.entry_id = self.server.run(
             "add", name="Hiking boots", value=-111.11, period=self.period)["id"]
@@ -95,7 +94,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertEqual(period.name, default_period_name())
 
     def test_query_and_reset_response(self):
-        category = CategoryEntry.DEFAULT_NAME
+        category = entries.CategoryEntry.DEFAULT_NAME
         response = self.server.run(
             "list", period=self.period, filters={"category": category})
         self.assertGreater(len(response), 0)
@@ -118,7 +117,7 @@ class FindEntryServerTestCase(unittest.TestCase):
             period=self.period,
             filters={
                 "name": "Hiking boots",
-                "category": CategoryEntry.DEFAULT_NAME
+                "category": entries.CategoryEntry.DEFAULT_NAME
             })
         self.assertDictEqual(response["elements"][DEFAULT_TABLE], {})
         self.assertDictEqual(response["elements"]["recurrent"], {})
@@ -153,7 +152,7 @@ class FindEntryServerTestCase(unittest.TestCase):
 
     def test_unsuccessful_copy(self):
         self.assertRaises(
-            PeriodException,
+            pd.PeriodException,
             self.server._copy_entry,
             source_period=self.period,
             destination_period="1",
@@ -163,7 +162,7 @@ class FindEntryServerTestCase(unittest.TestCase):
 class JsonPeriodsServerTestCase(unittest.TestCase):
     def test_periods(self):
         tmp_dir = tempfile.mkdtemp()
-        self.server = Server(data_dir=tmp_dir)
+        self.server = server.Server(data_dir=tmp_dir)
 
         self.assertDictEqual(self.server.run("periods"), {"periods": []})
 

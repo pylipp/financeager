@@ -5,8 +5,7 @@ import json
 import requests
 
 from . import (COPY_TAIL, DEFAULT_HOST, DEFAULT_TABLE, PERIODS_TAIL,
-               default_period_name)
-from .exceptions import CommunicationError, InvalidRequest
+               default_period_name, exceptions)
 
 
 class Proxy:
@@ -83,7 +82,8 @@ class Proxy:
         try:
             response = function(url, **kwargs)
         except requests.RequestException as e:
-            raise CommunicationError("Error sending request: {}".format(e))
+            raise exceptions.CommunicationError(
+                "Error sending request: {}".format(e))
 
         if response.ok:
             return response.json()
@@ -96,9 +96,9 @@ class Proxy:
 
             status_code = response.status_code
             if 400 <= status_code < 500:
-                error_class = InvalidRequest
+                error_class = exceptions.InvalidRequest
             else:
-                error_class = CommunicationError
+                error_class = exceptions.CommunicationError
 
             message = "Error handling request. " +\
                 "Server returned '{} ({}): {}'".format(

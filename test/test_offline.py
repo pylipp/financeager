@@ -1,7 +1,8 @@
 import os.path
 import unittest
 
-from financeager.offline import OfflineRecoveryError, _load, add, recover
+from financeager import exceptions
+from financeager.offline import _load, add, recover
 
 from . import utils
 
@@ -54,7 +55,7 @@ class AddTestCase(unittest.TestCase):
         client.proxy.run = run
 
         self.assertRaises(
-            OfflineRecoveryError,
+            exceptions.OfflineRecoveryError,
             recover,
             client,
             offline_filepath=self.filepath)

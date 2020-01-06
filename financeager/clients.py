@@ -4,9 +4,7 @@ from collections import namedtuple
 
 import financeager
 
-from . import httprequests, localserver, offline, plugin
-from .exceptions import (CommunicationError, InvalidRequest,
-                         OfflineRecoveryError)
+from . import exceptions, httprequests, localserver, offline, plugin
 
 logger = financeager.init_logger(__name__)
 
@@ -63,11 +61,11 @@ class Client:
             self.sinks.info(self.proxy.run(command, **params))
             self.latest_exception = None
             success = True
-        except InvalidRequest as e:
+        except exceptions.InvalidRequest as e:
             self.sinks.error(e)
             self.latest_exception = e
 
-        except CommunicationError as e:
+        except exceptions.CommunicationError as e:
             self.sinks.error(e)
             self.latest_exception = e
 
@@ -114,12 +112,12 @@ class FlaskClient(Client):
                 if offline.recover(super()):
                     self.sinks.info("Recovered offline backup.")
 
-            except OfflineRecoveryError:
+            except exceptions.OfflineRecoveryError:
                 self.sinks.error("Offline backup recovery failed!")
                 success = False
 
         # If request was erroneous, it's not supposed to be stored offline
-        if not isinstance(self.latest_exception, InvalidRequest) and\
+        if not isinstance(self.latest_exception, exceptions.InvalidRequest) and\
                 self.latest_exception is not None and\
                 offline.add(command, **params):
             self.sinks.info(

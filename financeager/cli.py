@@ -8,13 +8,10 @@ from datetime import datetime
 import pkg_resources
 
 import financeager
-from financeager import (PERIOD_DATE_FORMAT, __version__, clients, entries,
-                         init_logger, listing, make_log_stream_handler_verbose,
-                         setup_log_file_handler)
 
-from .config import Configuration
-from .entries import CategoryEntry
-from .exceptions import InvalidConfigError, PreprocessingError
+from . import (PERIOD_DATE_FORMAT, __version__, clients, config, entries,
+               exceptions, init_logger, listing,
+               make_log_stream_handler_verbose, setup_log_file_handler)
 
 logger = init_logger(__name__)
 
@@ -46,12 +43,12 @@ def main():
     exit_code = FAILURE
 
     try:
-        configuration = Configuration(
+        configuration = config.Configuration(
             args.pop("config_filepath"), plugins=plugins)
         run(configuration=configuration, plugins=plugins, **args)
         exit_code = SUCCESS
 
-    except InvalidConfigError as e:
+    except exceptions.InvalidConfigError as e:
         logger.critical("Invalid configuration: {}".format(e))
 
     sys.exit(exit_code)
@@ -92,7 +89,7 @@ def run(command,
     date_format = configuration.get_option("FRONTEND", "date_format")
     try:
         _preprocess(params, date_format)
-    except PreprocessingError as e:
+    except exceptions.PreprocessingError as e:
         sinks.error(e)
         return FAILURE
 
@@ -130,7 +127,7 @@ def _preprocess(data, date_format=None):
                                      date_format).strftime(PERIOD_DATE_FORMAT)
             data["date"] = date
         except ValueError:
-            raise PreprocessingError("Invalid date format.")
+            raise exceptions.PreprocessingError("Invalid date format.")
 
     filter_items = data.get("filters")
     if filter_items is not None:
@@ -143,7 +140,8 @@ def _preprocess(data, date_format=None):
 
             try:
                 # Substitute category default name
-                if parsed_items["category"] == CategoryEntry.DEFAULT_NAME:
+                if parsed_items["category"] ==\
+                        entries.CategoryEntry.DEFAULT_NAME:
                     parsed_items["category"] = None
             except KeyError:
                 # No 'category' field present
@@ -152,7 +150,8 @@ def _preprocess(data, date_format=None):
             data["filters"] = parsed_items
         except ValueError:
             # splitting returned less than two parts due to missing separator
-            raise PreprocessingError("Invalid filter format: {}".format(item))
+            raise exceptions.PreprocessingError(
+                "Invalid filter format: {}".format(item))
 
 
 def _format_response(response, command, **listing_options):

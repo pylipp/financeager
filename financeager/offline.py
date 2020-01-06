@@ -5,8 +5,7 @@ of such.
 import json
 import os.path
 
-from . import OFFLINE_FILEPATH, init_logger
-from .exceptions import OfflineRecoveryError
+from . import OFFLINE_FILEPATH, exceptions, init_logger
 
 logger = init_logger(__name__)
 
@@ -85,6 +84,6 @@ def recover(client, offline_filepath=None):
     else:
         content.append(failed_recovery_data)
         _write(content, offline_filepath)
-        raise OfflineRecoveryError()
+        raise exceptions.OfflineRecoveryError()
 
     return True

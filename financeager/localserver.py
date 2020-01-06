@@ -1,14 +1,12 @@
 """Local server proxy for direct communication (client and server reside in
 common process)."""
 
-from . import init_logger
-from .exceptions import CommunicationError, InvalidRequest
-from .server import Server
+from . import exceptions, init_logger, server
 
 logger = init_logger(__name__)
 
 
-class Proxy(Server):
+class Proxy(server.Server):
     """Subclass mocking a locally running server. Convenient for testing"""
 
     def run(self, command, **kwargs):
@@ -23,10 +21,10 @@ class Proxy(Server):
             response = super().run(command, **kwargs)
         except Exception:
             logger.exception("Unexpected error")
-            raise CommunicationError("Unexpected error")
+            raise exceptions.CommunicationError("Unexpected error")
 
         if "error" in response:
-            raise InvalidRequest("Invalid request: {}".format(
+            raise exceptions.InvalidRequest("Invalid request: {}".format(
                 response["error"]))
 
         return response

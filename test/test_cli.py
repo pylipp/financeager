@@ -8,10 +8,8 @@ from unittest import mock
 from requests import RequestException, Response
 from requests import get as requests_get
 
-from financeager import DEFAULT_TABLE, cli, clients, config
-from financeager.entries import CategoryEntry
-from financeager.exceptions import PreprocessingError
-from financeager.fflask import create_app
+from financeager import (DEFAULT_TABLE, cli, clients, config, entries,
+                         exceptions, fflask)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -177,7 +175,7 @@ host = http://{}
         # created/interfering with logs on actual machine
         import financeager
         financeager.DATA_DIR = TEST_DATA_DIR
-        app = create_app(
+        app = fflask.create_app(
             data_dir=TEST_DATA_DIR,
             config={
                 "DEBUG": False,  # reloader can only be run in main thread
@@ -214,7 +212,7 @@ host = http://{}
         entry_id = self.cli_run("add cookies -100")
 
         response = self.cli_run("list")
-        self.assertIn(CategoryEntry.DEFAULT_NAME, response.lower())
+        self.assertIn(entries.CategoryEntry.DEFAULT_NAME, response.lower())
 
         remove_entry_id = self.cli_run("remove {}", format_args=entry_id)
         self.assertEqual(remove_entry_id, entry_id)
@@ -323,11 +321,11 @@ host = http://{}
 
         # Default category is converted for frontend display
         response = self.cli_run("list")
-        self.assertIn(CategoryEntry.DEFAULT_NAME, response.lower())
+        self.assertIn(entries.CategoryEntry.DEFAULT_NAME, response.lower())
 
         # Category field is converted to 'None' and filtered for
         response = self.cli_run("list --filters category=unspecified")
-        self.assertIn(CategoryEntry.DEFAULT_NAME, response.lower())
+        self.assertIn(entries.CategoryEntry.DEFAULT_NAME, response.lower())
 
         # The pattern is used for regex filtering; nothing is found
         response = self.cli_run("list --filters category=lel")
@@ -336,7 +334,7 @@ host = http://{}
         # Default category is converted for frontend display
         response = self.cli_run("get {}", format_args=entry_id)
         self.assertEqual(response.splitlines()[-1].split()[1].lower(),
-                         CategoryEntry.DEFAULT_NAME)
+                         entries.CategoryEntry.DEFAULT_NAME)
 
     def test_communication_error(self):
         with mock.patch("requests.get") as mocked_get:
@@ -398,7 +396,10 @@ class PreprocessTestCase(unittest.TestCase):
     def test_date_format_error(self):
         data = {"date": "01-01"}
         self.assertRaises(
-            PreprocessingError, cli._preprocess, data, date_format="%d.%m")
+            exceptions.PreprocessingError,
+            cli._preprocess,
+            data,
+            date_format="%d.%m")
 
     def test_name_filters(self):
         data = {"filters": ["name=italian"]}
@@ -412,7 +413,7 @@ class PreprocessTestCase(unittest.TestCase):
 
     def test_filters_error(self):
         data = {"filters": ["value-123"]}
-        self.assertRaises(PreprocessingError, cli._preprocess, data)
+        self.assertRaises(exceptions.PreprocessingError, cli._preprocess, data)
 
     def test_default_category_filter(self):
         data = {"filters": ["category=unspecified"]}

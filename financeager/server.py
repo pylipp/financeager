@@ -2,8 +2,7 @@
 import glob
 import os.path
 
-from . import default_period_name, init_logger
-from .period import PeriodException, TinyDbPeriod
+from . import default_period_name, init_logger, period
 
 logger = init_logger(__name__)
 
@@ -37,30 +36,30 @@ class Server:
                 return {"id": self._copy_entry(**kwargs)}
             elif command == "stop":
                 # graceful shutdown, invoke closing of files
-                for period in self._periods.values():
-                    period.close()
+                for pd in self._periods.values():
+                    pd.close()
                 return {}
             else:
                 period_name = kwargs.pop("period", None)
-                period = self._get_period(period_name)
+                pd = self._get_period(period_name)
 
                 if command == "add":
-                    response = {"id": period.add_entry(**kwargs)}
+                    response = {"id": pd.add_entry(**kwargs)}
                 elif command == "remove":
-                    response = {"id": period.remove_entry(**kwargs)}
+                    response = {"id": pd.remove_entry(**kwargs)}
                 elif command == "list":
-                    response = {"elements": period.get_entries(**kwargs)}
+                    response = {"elements": pd.get_entries(**kwargs)}
                 elif command == "get":
-                    response = {"element": period.get_entry(**kwargs)}
+                    response = {"element": pd.get_entry(**kwargs)}
                 elif command == "update":
-                    response = {"id": period.update_entry(**kwargs)}
+                    response = {"id": pd.update_entry(**kwargs)}
                 else:
                     response = {
                         "error": "Server: unknown command '{}'".format(command)
                     }
                 return response
 
-        except PeriodException as e:
+        except period.PeriodException as e:
             return {"error": str(e)}
 
     def _get_period(self, name=None):
@@ -73,13 +72,13 @@ class Server:
         """
         name = name or default_period_name()
         try:
-            period = self._periods[name]
+            pd = self._periods[name]
         except KeyError:
             logger.debug("Creating new Period '{}'".format(name))
-            period = TinyDbPeriod(name, **self._period_kwargs)
-            self._periods[period.name] = period
+            pd = period.TinyDbPeriod(name, **self._period_kwargs)
+            self._periods[pd.name] = pd
 
-        return period
+        return pd
 
     def _period_names(self):
         """Return names of periods currently organized by the server.
