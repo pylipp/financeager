@@ -107,7 +107,7 @@ class CliTestCase(unittest.TestCase):
 
 
 @mock.patch("financeager.DATA_DIR", None)
-class CliLocalServerMemoryStorageTestCase(CliTestCase):
+class CliLocalServerNoneConfigTestCase(CliTestCase):
 
     CONFIG_FILE_CONTENT = ""  # service 'none' is the default anyway
 
@@ -119,6 +119,30 @@ class CliLocalServerMemoryStorageTestCase(CliTestCase):
             "name": "more",
             "value": 1337.0
         }, mocked_write.call_args[0][0]["standard"][entry_id])
+
+    @mock.patch("builtins.print")
+    @mock.patch("financeager.cli.logger.info")
+    def test_periods(self, mocked_info, mocked_print):
+        cli.run(
+            "periods",
+            configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH))
+
+        mocked_info.assert_called_once_with({"periods": []})
+        mocked_print.assert_called_once_with("")
+
+    @mock.patch("builtins.print")
+    @mock.patch("financeager.localserver.Proxy.run")
+    def test_str_response(self, mocked_run, mocked_print):
+        # Cover the behavior of cli._format_response() given a str
+        mocked_run.return_value = "response"
+        cli.run(
+            "periods",
+            configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH))
+
+        self.assertListEqual(
+            mocked_run.mock_calls,
+            [mock.call("periods"), mock.call("stop")])
+        mocked_print.assert_called_once_with("response")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)

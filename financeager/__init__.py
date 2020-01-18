@@ -1,6 +1,6 @@
 import os.path
 from datetime import datetime as dt
-from logging import DEBUG, INFO, Formatter, StreamHandler, getLogger, handlers
+from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
 
 # versioning information
 from pkg_resources import get_distribution
@@ -46,7 +46,7 @@ def default_period_name():
 LOGGER = getLogger(__package__)
 LOGGER.setLevel(DEBUG)
 _stream_handler = StreamHandler()
-_stream_handler.setLevel(INFO)
+_stream_handler.setLevel(WARN)
 LOGGER.addHandler(_stream_handler)
 FORMATTER = Formatter(
     fmt='%(levelname)s %(asctime)s %(name)s:%(lineno)d %(message)s')

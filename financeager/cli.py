@@ -81,8 +81,12 @@ def run(command,
         make_log_stream_handler_verbose()
 
     def _info(message):
-        """Wrapper to format response and propagate it to logger.info."""
-        logger.info(_format_response(message, command, **formatting_options))
+        """Wrapper to format message and propagate it to stdout. The original
+        message is logged at INFO-level.
+        """
+        response = _format_response(message, command, **formatting_options)
+        logger.info(message)
+        print(response)
 
     sinks = sinks or clients.Client.Sinks(_info, logger.error)
 
@@ -155,13 +159,17 @@ def _preprocess(data, date_format=None):
 
 
 def _format_response(response, command, **listing_options):
-    """Format the given response into human-readable text.
+    """Format the given response (dict or str) into human-readable text.
+    If the response is a string, it is immediately returned.
     If the response does not contain any of the fields 'id', 'elements',
-    'element', or 'periods', None is returned.
+    'element', or 'periods', an empty string is returned.
     The 'listing_options' are passed to listing.prettify().
 
     :return: str
     """
+    if isinstance(response, str):
+        return response
+
     eid = response.get("id")
     if eid is not None:
         verb = {
@@ -181,7 +189,7 @@ def _format_response(response, command, **listing_options):
         return entries.prettify(
             element, default_category=listing_options["default_category"])
 
-    periods = response.get("periods")
+    periods = response.get("periods", [])
     return "\n".join([p for p in periods])
 
 
