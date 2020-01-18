@@ -211,8 +211,8 @@ class PrettifyListingsTestCase(unittest.TestCase):
             "Bank                4321.00           | \n"  # noqa
             "  Gold              4321.00 01-01  42 | \n"  # noqa
             "=============================================================================\n"  # noqa
-            "Total               4620.99           | Total                100.01          "  # noqa
-        )
+            "Total               4620.99           | Total                100.01          \n"  # noqa
+            "Difference          4520.98          ")
         # Assert that original data was not modified
         self.assertDictEqual(elements, elements_copy)
 
@@ -249,7 +249,8 @@ Food                  20.00          " + "\n\
 Clothes              199.00          " + "\n\
   Shirt              199.00 04-01   2" + "\n\
 =====================================" + "\n\
-Total                219.00          ")
+Total                219.00          " + "\n\
+Difference          -219.00          ")
 
 
 if __name__ == '__main__':

@@ -131,6 +131,7 @@ Show a side-by-side *overview* of earnings and expenses (filter by date/category
                                           |   Rent March         500.00 03-01   1
     =============================================================================
     Total                123.45           | Total               1500.00
+    Difference         -1376.55
 
 The aforementioned `financeager` commands operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 

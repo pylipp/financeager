@@ -151,20 +151,28 @@ def prettify(elements, stacked_layout=False, **listing_options):
     listings = [listing_earnings, listing_expenses]
 
     total_values = []
+    total_entries = []
     for listing in listings:
         total_entry = CategoryEntry(name="TOTAL")
         total_entry.value = listing.total_value()
-        total_values.append(total_entry.string())
+        total_values.append(total_entry.value)
+        total_entries.append(total_entry.string())
+
+    # Compute difference of total earnings and expenses
+    diff_entry = CategoryEntry(name="Difference")
+    diff_entry.value = total_values[0] - total_values[1]
+    diff_entry = diff_entry.string()
 
     if stacked_layout:
         line = CategoryEntry.TOTAL_LENGTH * "="
-        return "{}\n{}\n{}\n\n{}\n{}\n{}".format(
+        return "{}\n{}\n{}\n\n{}\n{}\n{}\n{}".format(
             listing_earnings.prettify(**listing_options),
             line,
-            total_values[0],
+            total_entries[0],
             listing_expenses.prettify(**listing_options),
             line,
-            total_values[1],
+            total_entries[1],
+            diff_entry,
         )
     else:
         result = []
@@ -185,7 +193,8 @@ def prettify(elements, stacked_layout=False, **listing_options):
         # add 3 to take central separator " | " into account
         result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
 
-        # add total value of earnings and expenses as final line
-        result.append(" | ".join(total_values))
+        # add total value of earnings and expenses, and difference thereof
+        result.append(" | ".join(total_entries))
+        result.append(diff_entry)
 
         return '\n'.join(result)

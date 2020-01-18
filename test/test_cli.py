@@ -299,7 +299,7 @@ host = http://{}
         response = self.cli_run("list")
         self.assertEqual(response.count("Clifbars"), 4)
         self.assertEqual(response.count("{}\n".format(entry_id)), 4)
-        self.assertEqual(len(response.splitlines()), 9)
+        self.assertEqual(len(response.splitlines()), 10)
 
         self.cli_run("remove {} -t recurrent", format_args=entry_id)
 
