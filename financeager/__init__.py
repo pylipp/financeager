@@ -70,11 +70,12 @@ def init_logger(name):
 
 
 def setup_log_file_handler():
-    """Create FileHandler for package logger, storing logs in 'DATA_DIR'. The
-    directory is created if not existing.
+    """Create RotatingFileHandler for package logger, storing logs in
+    'DATA_DIR'. The directory is created if not existing.
     """
     os.makedirs(DATA_DIR, exist_ok=True)
-    file_handler = handlers.RotatingFileHandler(os.path.join(DATA_DIR, "log"))
+    file_handler = handlers.RotatingFileHandler(
+        os.path.join(DATA_DIR, "log"), maxBytes=5e6, backupCount=5)
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
 
