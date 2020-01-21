@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The SERVICE:FLASK timeout configuration option is now taken into account if specified in a configuration file.
 - Non-error and non-debug program (standard) output is put to stdout instead of stderr. This enables proper redirecting of program output acc. to the norm of a UNIX tool.
 - financeager log files are now properly rotated.
+- financeager exits with a non-zero exit code if execution errored.
 
 ## [v0.23.0.0] - 2019-12-30
 ### Added

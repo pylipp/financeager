@@ -10,6 +10,7 @@ install:
 script:
   - pre-commit run --all-files
   - coverage run --source financeager setup.py test
+  - bash test/integration.bash
 after_success:
   - coveralls
 cache:

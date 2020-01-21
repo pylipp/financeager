@@ -40,16 +40,14 @@ def main():
     ]
 
     args = _parse_command()
-    exit_code = FAILURE
-
     try:
         configuration = config.Configuration(
             args.pop("config_filepath"), plugins=plugins)
-        run(configuration=configuration, plugins=plugins, **args)
-        exit_code = SUCCESS
+        exit_code = run(configuration=configuration, plugins=plugins, **args)
 
     except exceptions.InvalidConfigError as e:
         logger.critical("Invalid configuration: {}".format(e))
+        exit_code = FAILURE
 
     sys.exit(exit_code)
 
