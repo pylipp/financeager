@@ -121,7 +121,7 @@ def run(command,
 
 def _preprocess(data, date_format=None):
     """Preprocess data to be passed to Client (e.g. convert date format, parse
-    'filters' options passed with print command).
+    'filters' and 'month' options passed with list command).
 
     :raises: PreprocessError if preprocessing failed.
     """
@@ -159,6 +159,35 @@ def _preprocess(data, date_format=None):
             # splitting returned less than two parts due to missing separator
             raise exceptions.PreprocessingError(
                 "Invalid filter format: {}".format(item))
+
+    month = data.pop("month", None)
+    if month is not None:
+        if month == "current":
+            date = datetime.today()
+
+        else:
+            # Attempt to convert value for 'month' option (number (zero-padded
+            # or not), or month name (abbreviated or full)) to 'filters'-option.
+            # This is subject to the machine's locale setting
+            date = None
+
+            # -m / #m for parsing non-zero-padded numbers on UNIX / Windows
+            for fmt in ["b", "B", "m", "-m", "#m"]:
+                try:
+                    date = datetime.strptime(month, "%{}".format(fmt))
+                    break
+                except ValueError:
+                    continue
+
+            if date is None:
+                raise exceptions.PreprocessingError(
+                    "Invalid month: {}".format(month))
+
+        if filter_items is None:
+            data["filters"] = {}
+
+        # Overwrite 'filters' setting
+        data["filters"]["date"] = "{}-".format(date.strftime("%m"))
 
 
 def _format_response(response, command, **listing_options):
@@ -327,6 +356,13 @@ least a frequency, start date and end date are optional. Default:
         "--only-categories",
         action="store_true",
         help="show only category entries incl. percentage",
+    )
+    list_parser.add_argument(
+        "-m",
+        "--month",
+        nargs="?",
+        const="current",
+        help="show only entries of given month (default to current one)",
     )
 
     periods_parser = subparsers.add_parser(

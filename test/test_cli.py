@@ -2,6 +2,7 @@ import os
 import tempfile
 import time
 import unittest
+from datetime import datetime as dt
 from threading import Thread
 from unittest import mock
 
@@ -175,6 +176,48 @@ default_category = no-category"""
         entry_id = self.cli_run("add stuff 100 --verbose")
         response = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("stuff", response.lower())
+
+    def test_list_month(self):
+        month_nr = 1
+        month_variants = ["01", "Jan", "January"]
+        current_month = dt.today().month
+        if current_month == month_nr:
+            month_nr = 2
+            month_variants = ["02", "Feb", "February"]
+        month_variants.append(month_nr)
+
+        self.cli_run("add beans -4 -d 0{}-01", format_args=month_nr)
+        self.cli_run("add chili -4 -d 0{}-01", format_args=month_nr + 1)
+
+        for m in month_variants:
+            response = self.cli_run("list --month {}", format_args=m).lower()
+            self.assertIn("beans", response)
+            self.assertNotIn("chili", response)
+
+        # Verify overwriting of 'filters' option
+        response = self.cli_run(
+            "list --month {} --filters date=0{}-",
+            format_args=(month_nr, month_nr + 1)).lower()
+        self.assertIn("beans", response)
+        self.assertNotIn("chili", response)
+
+        # Verify default behavior
+        response = self.cli_run("list --month").lower()
+
+        # If it's January: beans -> Feb, chili -> Mar ==> no match
+        # Otherwise:       beans -> Jan, chili -> Feb ==> match only in Feb
+        if current_month == month_nr + 1:
+            self.assertNotIn("beans", response)
+            self.assertIn("chili", response)
+        else:
+            self.assertNotIn("beans", response)
+            self.assertNotIn("chili", response)
+
+    def test_list_invalid_month(self):
+        month_nr = 13
+        response = self.cli_run(
+            "list -m {}", format_args=month_nr, log_method="error")
+        self.assertEqual(response, "Invalid month: {}".format(month_nr))
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)

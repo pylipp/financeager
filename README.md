@@ -133,6 +133,14 @@ Show a side-by-side *overview* of earnings and expenses (filter by date/category
     Total                123.45           | Total               1500.00
     Difference         -1376.55
 
+It might be convenient to list entries of the current, or a specific month only (example output is omitted):
+
+    > financeager list --month
+    > financeager list --month January
+    > financeager list --month Dec
+    > financeager list --month 7
+    > financeager list --month 03
+
 The aforementioned `financeager` commands operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 
     > financeager add xmas-gifts -42 --date 12-23 --period 2016
