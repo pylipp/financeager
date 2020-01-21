@@ -102,7 +102,10 @@ def run(command,
         "FRONTEND", "default_category")
     if command == "list":
         # Extract formatting options; irrelevant, event confusing for Server
-        for option in ["stacked_layout", "entry_sort", "category_sort"]:
+        for option in [
+                "stacked_layout", "entry_sort", "category_sort",
+                "only_categories"
+        ]:
             formatting_options[option] = params.pop(option)
 
     exit_code = FAILURE
@@ -320,6 +323,11 @@ least a frequency, start date and end date are optional. Default:
         "--category-sort",
         choices=["name", "value"],
         default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
+    list_parser.add_argument(
+        "--only-categories",
+        action="store_true",
+        help="show only category entries incl. percentage",
+    )
 
     periods_parser = subparsers.add_parser(
         "periods", help="list all period databases")

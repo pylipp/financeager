@@ -24,21 +24,36 @@ class Listing:
     def prettify(self,
                  *,
                  category_sort=DEFAULT_CATEGORY_ENTRY_SORT_KEY,
+                 only_categories=False,
                  **entry_options):
         """Format listing (incl. name and header).
         Category entries are sorted acc. to the given 'category_sort'.
         'entry_options' are passed to CategoryEntry.string().
+        The header lists the relevant item types of BaseEntry, or, if
+        'only_categories' is set, an indicator for a column that displays the
+        share in the listing total of each category.
 
         :return: str
         """
         result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
 
-        header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
-            CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
-            BaseEntry.DATE_LENGTH,
-            *[k.capitalize() for k in BaseEntry.ITEM_TYPES])
-        if BaseEntry.SHOW_EID:
-            header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
+        if only_categories:
+            entry_options["total_listing_value"] = self.total_value()
+
+            header_line = "{3:{0}} {4:{1}} {5:>{2}} {6}".format(
+                CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
+                BaseEntry.DATE_LENGTH,
+                *[k.capitalize() for k in BaseEntry.ITEM_TYPES[:2]], "%",
+                BaseEntry.EID_LENGTH * " ")
+
+        else:
+            header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
+                CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
+                BaseEntry.DATE_LENGTH,
+                *[k.capitalize() for k in BaseEntry.ITEM_TYPES])
+            if BaseEntry.SHOW_EID:
+                header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
+
         result.append(header_line)
 
         sort_key = lambda e: getattr(e, category_sort)

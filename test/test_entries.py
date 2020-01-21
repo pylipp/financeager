@@ -91,6 +91,9 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
             self.entry.string(),
             "This Is Quite A Lo " + "  100.00" + 6 * " " + 4 * " " + "\n" +
             "  Entry            " + "  100.00" + " 08-13 " + "  0")
+        self.assertEqual(
+            self.entry.string(total_listing_value=200),
+            "This Is Quite A Lo " + "  100.00" + "  50.0" + 4 * " ")
 
 
 class SortBaseEntriesTestCase(unittest.TestCase):

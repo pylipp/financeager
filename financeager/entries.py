@@ -86,23 +86,37 @@ class CategoryEntry(Entry):
         self.entries.append(base_entry)
         self.value += base_entry.value
 
-    def string(self, *, entry_sort=DEFAULT_BASE_ENTRY_SORT_KEY):
+    def string(self,
+               *,
+               entry_sort=DEFAULT_BASE_ENTRY_SORT_KEY,
+               total_listing_value=None):
         """Return a formatted string representing the entry including its
         children (i.e. BaseEntries). The category representation is supposed
         to be longer than the BaseEntry representation so that the latter is
         indented.
         'entry_sort' determines the property according to which the list of base
         entries is sorted.
+        If 'total_listing_value' is set, BaseEntries are not listed but instead
+        the share in the total listing of the category is inserted.
         """
+        percent = ""
+        if total_listing_value is not None:
+            percent = "{1:>{0}.1f}".format(
+                BaseEntry.DATE_LENGTH, 100 * self.value / total_listing_value)
 
         lines = [
-            "{name:{0}.{0}} {value:>{1}.{2}f}".format(
+            "{name:{0}.{0}} {value:>{1}.{2}f} {percent}".format(
                 self.NAME_LENGTH,
                 BaseEntry.VALUE_LENGTH,
                 BaseEntry.VALUE_DIGITS,
                 name=self.name.title(),
-                value=self.value).ljust(self.TOTAL_LENGTH)
+                value=self.value,
+                percent=percent,
+            ).ljust(self.TOTAL_LENGTH)
         ]
+
+        if total_listing_value is not None:
+            return lines[0]
 
         sort_key = lambda e: getattr(e, entry_sort)
         for entry in sorted(self.entries, key=sort_key):

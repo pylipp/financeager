@@ -216,6 +216,19 @@ class PrettifyListingsTestCase(unittest.TestCase):
         # Assert that original data was not modified
         self.assertDictEqual(elements, elements_copy)
 
+        self.assertEqual(
+            prettify(
+                elements_copy,
+                default_category=CategoryEntry.DEFAULT_NAME,
+                only_categories=True),
+            "              Earnings                |               Expenses               \n"  # noqa
+            "Name               Value        %     | Name               Value        %    \n"  # noqa
+            "Unspecified          299.99   6.5     | Groceries            100.01 100.0    \n"  # noqa
+            "Bank                4321.00  93.5     | \n"  # noqa
+            "=============================================================================\n"  # noqa
+            "Total               4620.99           | Total                100.01          \n"  # noqa
+            "Difference          4520.98          ")
+
     def test_prettify_stacked_layout(self):
         elements = {
             DEFAULT_TABLE: {
