@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Configuration.get_option() returns converted option value if an option was assigned a type (int, float, boolean). Available option types are also used for validating configuration. PluginConfiguration.init_option_types() is added to enable option typing in plugins. (#56)
 - The output of the 'list' command shows the difference of total earnings and expenses. (#29)
-- The output of the 'list' command shows only category entries incl. their percentage share in total listing values when the '--only-categories' option is specified. (#33)
+- The output of the 'list' command shows only category entries incl. their percentage share in total listing values when the '--category-percentage' option is specified. (#33)
 - The output of the 'list' command shows only monthly entries with the '--month' option. Default value is the current month. (#55)
 ### Changed
 - The PluginConfiguration.validate() method is not required to be implemented in derived classes anymore.

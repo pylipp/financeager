@@ -102,7 +102,7 @@ def run(command,
         # Extract formatting options; irrelevant, event confusing for Server
         for option in [
                 "stacked_layout", "entry_sort", "category_sort",
-                "only_categories"
+                "category_percentage"
         ]:
             formatting_options[option] = params.pop(option)
 
@@ -351,7 +351,8 @@ least a frequency, start date and end date are optional. Default:
         choices=["name", "value"],
         default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
     list_parser.add_argument(
-        "--only-categories",
+        "-P",
+        "--category-percentage",
         action="store_true",
         help="show only category entries incl. percentage",
     )

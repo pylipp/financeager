@@ -24,20 +24,20 @@ class Listing:
     def prettify(self,
                  *,
                  category_sort=DEFAULT_CATEGORY_ENTRY_SORT_KEY,
-                 only_categories=False,
+                 category_percentage=False,
                  **entry_options):
         """Format listing (incl. name and header).
         Category entries are sorted acc. to the given 'category_sort'.
         'entry_options' are passed to CategoryEntry.string().
         The header lists the relevant item types of BaseEntry, or, if
-        'only_categories' is set, an indicator for a column that displays the
-        share in the listing total of each category.
+        'category_percentage' is set, an indicator for a column that displays
+        the share in the listing total of each category.
 
         :return: str
         """
         result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
 
-        if only_categories:
+        if category_percentage:
             entry_options["total_listing_value"] = self.total_value()
 
             header_line = "{3:{0}} {4:{1}} {5:>{2}} {6}".format(

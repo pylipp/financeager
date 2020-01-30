@@ -220,7 +220,7 @@ class PrettifyListingsTestCase(unittest.TestCase):
             prettify(
                 elements_copy,
                 default_category=CategoryEntry.DEFAULT_NAME,
-                only_categories=True),
+                category_percentage=True),
             "              Earnings                |               Expenses               \n"  # noqa
             "Name               Value        %     | Name               Value        %    \n"  # noqa
             "Unspecified          299.99   6.5     | Groceries            100.01 100.0    \n"  # noqa
