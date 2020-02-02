@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The PluginConfiguration.validate() method is not required to be implemented in derived classes anymore.
 - Instead of having Configuration.get_option() return a section if no option was specified, a method get_section() is introduced.
 - clients.Client() takes a mandatory keyword argument 'configuration'. (#57)
+- 'marshmallow' is used for data validation instead of 'schematics'. (#48)
 ### Deprecated
 ### Removed
 - The Configuration.__getattr__() method enabling 'magic' access of underlying ConfigParser methods.

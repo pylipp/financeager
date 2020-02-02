@@ -5,12 +5,17 @@ import tempfile
 import unittest
 from collections import Counter
 
-from schematics.exceptions import DataError
+from marshmallow import ValidationError
 
 from financeager import DEFAULT_TABLE, PERIOD_DATE_FORMAT
-from financeager.period import (_DEFAULT_CATEGORY, BaseValidationModel, Period,
-                                PeriodException, RecurrentEntryValidationModel,
-                                StandardEntryValidationModel, TinyDbPeriod)
+from financeager.period import (_DEFAULT_CATEGORY, EntryBaseSchema, Period,
+                                PeriodException, RecurrentEntrySchema,
+                                StandardEntrySchema, TinyDbPeriod)
+
+
+class Entry:
+    def __init__(self, **attrs):
+        self.__dict__.update(**attrs)
 
 
 class CreateEmptyPeriodTestCase(unittest.TestCase):
@@ -124,7 +129,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         # kwargs with None-value should be ignored; they are passed e.g. by the
         # flask_restful RequestParser
         self.period.update_entry(
-            eid=self.eid, name="Trekking Bicycle", value=None)
+            eid=self.eid, name="Trekking Bicycle", value=None, category=None)
         element = self.period.get_entry(eid=self.eid)
         self.assertEqual(element["name"], "trekking bicycle")
 
@@ -133,7 +138,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.assertEqual(self.period._category_cache["trekking bicycle"],
                          Counter({_DEFAULT_CATEGORY: 1}))
 
-        self.period.update_entry(eid=self.eid, category="Sports")
+        self.period.update_entry(eid=self.eid, category="Sports", name=None)
         element = self.period.get_entry(eid=self.eid)
         self.assertEqual(element["category"], "sports")
 
@@ -307,6 +312,9 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.assertEqual(len(recurrent_entries), 1)
         self.assertEqual(recurrent_entries[0]["date"], "03-01")
 
+        self.period.update_entry(
+            eid=eid, value=30, frequency=None, table_name="recurrent")
+
     def test_update_recurrent_entry_incorrectly(self):
         eid = self.period.add_entry(
             name="interest",
@@ -336,68 +344,71 @@ class TinyDbPeriodRecurrentEntryTestCase(unittest.TestCase):
         self.period.close()
 
 
-class ValidationModelTestCase(unittest.TestCase):
+class ValidationTestCase(unittest.TestCase):
     def test_valid_base_entry(self):
-        entry = BaseValidationModel({"name": "entry", "value": "5"})
+        data = EntryBaseSchema().load({"name": "entry", "value": "5"})
+        entry = Entry(**data)
         self.assertEqual(entry.name, "entry")
         self.assertEqual(entry.value, 5)
         self.assertIsNone(entry.category)
 
     def test_valid_base_entry_category_none(self):
-        entry = BaseValidationModel({
+        data = EntryBaseSchema().load({
             "name": "entry",
             "value": "5",
             "category": None
         })
+        entry = Entry(**data)
         self.assertEqual(entry.name, "entry")
         self.assertEqual(entry.value, 5)
         self.assertIsNone(entry.category)
 
     def test_valid_standard_entry(self):
-        entry = StandardEntryValidationModel({
+        data = StandardEntrySchema().load({
             "name": "entry",
             "value": 5,
             "date": "05-01"
         })
+        entry = Entry(**data)
         self.assertEqual(entry.date, dt.date(year=1900, month=5, day=1))
 
     def test_valid_standard_entry_default_date(self):
-        entry = StandardEntryValidationModel({"name": "entry", "value": 5})
+        data = StandardEntrySchema().load({"name": "entry", "value": 5})
+        entry = Entry(**data)
         self.assertIsNone(entry.date)
 
     def test_invalid_base_entry_name(self):
-        with self.assertRaises(DataError) as context:
-            model = BaseValidationModel({"name": "", "value": 123})
-            model.validate()
-        self.assertListEqual(["name"], list(context.exception.errors.keys()))
+        with self.assertRaises(ValidationError) as context:
+            EntryBaseSchema().load({"name": "", "value": 123})
+        self.assertListEqual(["name"], list(context.exception.messages.keys()))
 
     def test_invalid_base_entry_value(self):
-        with self.assertRaises(DataError) as context:
-            BaseValidationModel({"name": "foo", "value": "hundred"})
-        self.assertListEqual(["value"], list(context.exception.errors.keys()))
+        with self.assertRaises(ValidationError) as context:
+            EntryBaseSchema().load({"name": "foo", "value": "hundred"})
+        self.assertListEqual(["value"], list(context.exception.messages.keys()))
 
     def test_valid_recurrent_entry(self):
-        entry = RecurrentEntryValidationModel({
+        data = RecurrentEntrySchema().load({
             "name": "rent",
             "value": -400,
             "frequency": "monthly",
             "start": "01-02"
         })
+        entry = Entry(**data)
         self.assertEqual(entry.frequency, "monthly")
         self.assertEqual(entry.start, dt.date(year=1900, month=1, day=2))
         self.assertEqual(entry.end, None)
 
     def test_invalid_recurrent_entry(self):
-        with self.assertRaises(DataError) as context:
-            model = RecurrentEntryValidationModel({
+        with self.assertRaises(ValidationError) as context:
+            RecurrentEntrySchema().load({
                 "name": "rent",
                 "value": -400,
                 "frequency": "yaerly",
                 "start": "01-02"
             })
-            model.validate()
         self.assertListEqual(["frequency"],
-                             list(context.exception.errors.keys()))
+                             list(context.exception.messages.keys()))
 
 
 class ValidateEntryTestCase(unittest.TestCase):

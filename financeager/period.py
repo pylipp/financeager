@@ -6,39 +6,36 @@ from collections import Counter, defaultdict
 from datetime import datetime as dt
 
 from dateutil import rrule
-from schematics.exceptions import DataError, ValidationError
-from schematics.models import Model as SchematicsModel
-from schematics.types import DateType, FloatType, StringType
+from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import Query, TinyDB, storages
 from tinydb.database import Element
 
 from . import DEFAULT_TABLE, PERIOD_DATE_FORMAT, default_period_name
 
-# format for ValidationModel.to_primitive() call
-DateType.SERIALIZED_FORMAT = PERIOD_DATE_FORMAT
-
 _DEFAULT_CATEGORY = None
 
 
-class BaseValidationModel(SchematicsModel):
-    name = StringType(min_length=1, required=True)
-    value = FloatType(required=True)
-    category = StringType(min_length=1)
+class EntryBaseSchema(Schema):
+    name = fields.String(
+        required=True, validate=validate.Length(min=1), allow_none=True)
+    value = fields.Float(required=True, allow_none=True)
+    category = fields.String(validate=validate.Length(min=1), missing=None)
 
 
-class StandardEntryValidationModel(BaseValidationModel):
-    date = DateType(formats=(PERIOD_DATE_FORMAT,))
+class StandardEntrySchema(EntryBaseSchema):
+    date = fields.Date(format=PERIOD_DATE_FORMAT, missing=None)
 
 
-class RecurrentEntryValidationModel(BaseValidationModel):
-    frequency = StringType(
-        choices=[
+class RecurrentEntrySchema(EntryBaseSchema):
+    frequency = fields.String(
+        validate=validate.OneOf(choices=[
             "yearly", "half-yearly", "quarter-yearly", "bimonthly", "monthly",
             "weekly", "daily"
-        ],
-        required=True)
-    start = DateType(formats=(PERIOD_DATE_FORMAT,))
-    end = DateType(formats=(PERIOD_DATE_FORMAT,))
+        ]),
+        required=True,
+        allow_none=True)
+    start = fields.Date(format=PERIOD_DATE_FORMAT, missing=None)
+    end = fields.Date(format=PERIOD_DATE_FORMAT, missing=None)
 
 
 class Period:
@@ -140,28 +137,25 @@ class TinyDbPeriod(Period):
             raw_data.pop(field, None)
 
     @staticmethod
-    def _validate_entry(raw_data, table_name, **model_kwargs):
-        """Validate raw entry data acc. to ValidationModel.
+    def _validate_entry(raw_data, table_name, **schema_kwargs):
+        """Validate raw entry data acc. to ValidationSchema.
 
         :return: primitive (type-correct) representation of fields
         :raise: PeriodException if validation failed
         """
 
-        ValidationModel = RecurrentEntryValidationModel \
-            if table_name == "recurrent" else StandardEntryValidationModel
+        ValidationSchema = RecurrentEntrySchema \
+            if table_name == "recurrent" else StandardEntrySchema
 
         try:
-            # pass the kwargs twice because schematics API is inconsistent...
-            validation_model = ValidationModel(
-                raw_data=raw_data, **model_kwargs)
-            validation_model.validate(**model_kwargs)
-            return validation_model.to_primitive()
-        except (DataError, ValidationError) as e:
-            # Get error information from nested data structures
-            infos = []
-            for field in e.errors:
-                info = [message.summary for message in e.errors[field]]
-                infos.append("{}: {}".format(field, "; ".join(info)))
+            schema = ValidationSchema(**schema_kwargs)
+            validated_data = schema.load(raw_data)
+            return schema.dump(validated_data)
+        except ValidationError as e:
+            infos = [
+                "{}: {}".format(field, "; ".join(messages))
+                for field, messages in e.messages.items()
+            ]
             raise PeriodException("Invalid input data:\n{}".format(
                 "\n".join(infos)))
 
