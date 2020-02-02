@@ -27,7 +27,7 @@ class BaseValidationModel(SchematicsModel):
 
 
 class StandardEntryValidationModel(BaseValidationModel):
-    date = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
+    date = DateType(formats=(PERIOD_DATE_FORMAT,))
 
 
 class RecurrentEntryValidationModel(BaseValidationModel):
@@ -37,8 +37,8 @@ class RecurrentEntryValidationModel(BaseValidationModel):
             "weekly", "daily"
         ],
         required=True)
-    start = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
-    end = DateType(formats=("%Y-%m-%d", PERIOD_DATE_FORMAT))
+    start = DateType(formats=(PERIOD_DATE_FORMAT,))
+    end = DateType(formats=(PERIOD_DATE_FORMAT,))
 
 
 class Period:

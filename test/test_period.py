@@ -42,7 +42,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.period = TinyDbPeriod(name=1901)
         self.eid = self.period.add_entry(
-            name="Bicycle", value=-999.99, date="1901-01-01")
+            name="Bicycle", value=-999.99, date="01-01")
 
     def test_get_entries(self):
         entries = self.period.get_entries(filters={"date": "01-"})
@@ -55,7 +55,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_create_models_query_kwargs(self):
         eid = self.period.add_entry(
-            name="Xmas gifts", value=500, date="1901-12-23", category="gifts")
+            name="Xmas gifts", value=500, date="12-23", category="gifts")
         standard_elements = self.period.get_entries(
             filters={"date": "12"})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
@@ -69,7 +69,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
             filters={"category": "gi"})[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
 
-        self.period.add_entry(name="hammer", value=-33, date="1901-12-20")
+        self.period.add_entry(name="hammer", value=-33, date="12-20")
         standard_elements = self.period.get_entries(filters={
             "name": "xmas",
             "date": "12"
@@ -79,11 +79,8 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
 
     def test_category_cache(self):
         self.period.add_entry(
-            name="walmart",
-            value=-50.01,
-            category="groceries",
-            date="1901-02-02")
-        self.period.add_entry(name="walmart", value=-0.99, date="1901-02-03")
+            name="walmart", value=-50.01, category="groceries", date="02-02")
+        self.period.add_entry(name="walmart", value=-0.99, date="02-03")
 
         groceries_elements = self.period.get_entries(
             filters={"category": "groceries"})
@@ -99,7 +96,7 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
     def test_add_remove_via_eid(self):
         entry_name = "penguin sale"
         entry_id = self.period.add_entry(
-            name=entry_name, value=1337, date="1901-12-01")
+            name=entry_name, value=1337, date="12-01")
         nr_entries = len(self.period._db)
 
         removed_entry_id = self.period.remove_entry(eid=entry_id)
