@@ -240,9 +240,10 @@ def _parse_command(args=None):
         help="display version info and exit")  # pragma: no cover
 
     subparsers = parser.add_subparsers(
-        title="subcommands",
         dest="command",
-        help="list of available subcommands")
+        metavar="command",
+    )
+    subparsers.required = True
 
     add_parser = subparsers.add_parser(
         "add", help="add an entry to the database")

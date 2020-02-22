@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Non-error and non-debug program (standard) output is put to stdout instead of stderr. This enables proper redirecting of program output acc. to the norm of a UNIX tool.
 - financeager log files are now properly rotated.
 - financeager exits with a non-zero exit code if execution errored.
+- When invoked without any arguments, financeager now shows usage info instead of a confusing exception traceback.
 
 ## [v0.23.0.0] - 2019-12-30
 ### Added
