@@ -173,6 +173,7 @@ The `financeager` command line client tries to read the configuration from `~/.c
 ### More Goodies
 
 - `financeager` will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is only available when running financeager with flask.
+- Command line tab completion is provided by the `argcomplete` package (for bash; limited support for zsh, fish, tcsh). Completion has to be enabled by running `activate-global-python-argcomplete`. Read the [instructions](https://github.com/kislyuk/argcomplete#activating-global-completion) if you want to know more.
 
 ### Expansion
 

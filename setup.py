@@ -56,6 +56,7 @@ setup(
         "Flask-RESTful==0.3.5",
         "requests>=2.20.0",
         "marshmallow==3.3.0",
+        "argcomplete==1.11.1",
     ],
     extras_require={
         "develop": [

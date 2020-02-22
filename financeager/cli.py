@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """Command line interface of financeager application."""
+# PYTHON_ARGCOMPLETE_OK
 import argparse
 import os
 import sys
 from datetime import datetime
 
+import argcomplete
 import pkg_resources
 
 import financeager
@@ -383,6 +385,7 @@ least a frequency, start date and end date are optional. Default:
             subparser.add_argument(
                 "-p", "--period", help="name of period to modify or query")
 
+    argcomplete.autocomplete(parser)
     return vars(parser.parse_args(args=args))
 
 

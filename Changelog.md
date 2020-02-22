@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The output of the 'list' command shows the difference of total earnings and expenses. (#29)
 - The output of the 'list' command shows only category entries incl. their percentage share in total listing values when the '--category-percentage' option is specified. (#33)
 - The output of the 'list' command shows only monthly entries with the '--month' option. Default value is the current month. (#55)
+- Command line tab completion is provided by the argcomplete package. (#47)
 ### Changed
 - The PluginConfiguration.validate() method is not required to be implemented in derived classes anymore.
 - Instead of having Configuration.get_option() return a section if no option was specified, a method get_section() is introduced.
