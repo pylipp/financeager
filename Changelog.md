@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - clients.Client() takes a mandatory keyword argument 'configuration'. (#57)
 - 'marshmallow' is used for data validation instead of 'schematics'. (#48)
 ### Deprecated
+- The database structure will undergo a major change in version 0.25.0.0. Please follow the corresponding [issue](https://github.com/pylipp/financeager/issues/52) for more details and about how to migrate.
 ### Removed
 - The Configuration.__getattr__() method enabling 'magic' access of underlying ConfigParser methods.
 ### Fixed
