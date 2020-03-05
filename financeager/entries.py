@@ -1,7 +1,7 @@
 """Data structures for smallest elements of frontend representation of database
 query results."""
 
-from datetime import datetime
+import time
 
 from . import DEFAULT_BASE_ENTRY_SORT_KEY, PERIOD_DATE_FORMAT
 
@@ -42,8 +42,8 @@ class BaseEntry(Entry):
         :type date: str of valid format
         """
         super().__init__(name, value)
-        self.date = datetime.strptime(date, PERIOD_DATE_FORMAT).strftime(
-            self.DATE_FORMAT)
+        self.date = time.strftime(self.DATE_FORMAT,
+                                  time.strptime(date, PERIOD_DATE_FORMAT))
         self.eid = int(eid)
 
     def __str__(self):

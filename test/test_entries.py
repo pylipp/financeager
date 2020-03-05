@@ -5,25 +5,25 @@ from financeager.entries import prettify as prettify_entry
 
 
 class BaseEntryTestCase(unittest.TestCase):
-    def setUp(self):
-        self.date = "08-10"
-        self.entry = BaseEntry(**{
+    def test_attributes(self):
+        entry = BaseEntry(**{
             "name": "groceries",
             "value": 123.45,
-            "date": self.date
+            "date": "08-10"
         })
 
-    def test_name(self):
-        self.assertEqual(self.entry.name, "groceries")
+        self.assertEqual(entry.name, "groceries")
+        self.assertAlmostEqual(entry.value, 123.45, places=5)
+        self.assertEqual(entry.date, "08-10")
+        self.assertEqual(entry.eid, 0)
 
-    def test_value(self):
-        self.assertAlmostEqual(self.entry.value, 123.45, places=5)
-
-    def test_date(self):
-        self.assertEqual(self.entry.date, self.date)
-
-    def test_eid(self):
-        self.assertEqual(self.entry.eid, 0)
+    def test_leap_year_date(self):
+        entry = BaseEntry(**{
+            "name": "leap",
+            "value": 1,
+            "date": "02-29",
+        })
+        self.assertEqual(entry.date, "02-29")
 
 
 class NegativeBaseEntryTestCase(unittest.TestCase):

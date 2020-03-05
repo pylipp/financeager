@@ -49,6 +49,16 @@ class TinyDbPeriodStandardEntryTestCase(unittest.TestCase):
         self.eid = self.period.add_entry(
             name="Bicycle", value=-999.99, date="01-01")
 
+    @unittest.skip("missing support for leap year validation in marshmallow")
+    def test_leap_year_date(self):
+        eid = self.period.add_entry(
+            name="leap win",
+            value=2,
+            date="02-29",
+        )
+        entry = self.period.get_entry(eid)
+        self.assertEqual(entry["date"], "02-29")
+
     def test_get_entries(self):
         entries = self.period.get_entries(filters={"date": "01-"})
         self.assertEqual("bicycle", entries[DEFAULT_TABLE][1]["name"])

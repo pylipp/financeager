@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - financeager log files are now properly rotated.
 - financeager exits with a non-zero exit code if execution errored.
 - When invoked without any arguments, financeager now shows usage info instead of a confusing exception traceback.
+- Entries added on February 29th can be displayed as result of `list` or `get`.
 
 ## [v0.23.0.0] - 2019-12-30
 ### Added

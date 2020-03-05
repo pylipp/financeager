@@ -4,6 +4,7 @@
 import argparse
 import os
 import sys
+import time
 from datetime import datetime
 
 import argcomplete
@@ -130,8 +131,8 @@ def _preprocess(data, date_format=None):
     # has already been converted
     if date is not None and date_format is not None:
         try:
-            date = datetime.strptime(date,
-                                     date_format).strftime(PERIOD_DATE_FORMAT)
+            date = time.strftime(PERIOD_DATE_FORMAT,
+                                 time.strptime(date, date_format))
             data["date"] = date
         except ValueError:
             raise exceptions.PreprocessingError("Invalid date format.")
