@@ -502,7 +502,10 @@ class TinyDbPeriod(Period):
             if pattern is None:
                 continue
 
-            new_condition = (entry[field].search(pattern.lower()))
+            if field == "value":
+                new_condition = (entry[field] == float(pattern))
+            else:
+                new_condition = (entry[field].search(pattern.lower()))
 
             if condition is None:
                 condition = new_condition

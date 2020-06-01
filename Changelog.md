@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [unreleased]
+### Fixed
+- Filtering by the 'value' field when using the `list` command now works. (#58)
+
 ## [v0.23.1.0] - 2020-03-05
 ### Added
 - Configuration.get_option() returns converted option value if an option was assigned a type (int, float, boolean). Available option types are also used for validating configuration. PluginConfiguration.init_option_types() is added to enable option typing in plugins. (#56)

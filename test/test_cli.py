@@ -219,6 +219,12 @@ default_category = no-category"""
             "list -m {}", format_args=month_nr, log_method="error")
         self.assertEqual(response, "Invalid month: {}".format(month_nr))
 
+    def test_list_filter_value(self):
+        self.cli_run("add money 10")
+        response = self.cli_run("list -f value=10").lower()
+        self.assertIn("money", response)
+        self.assertIn("10.00", response)
+
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CliFlaskTestCase(CliTestCase):
