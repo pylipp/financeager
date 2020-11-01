@@ -40,11 +40,13 @@ class Listing:
         if category_percentage:
             entry_options["total_listing_value"] = self.total_value()
 
+            # yapf: disable
             header_line = "{3:{0}} {4:{1}} {5:>{2}} {6}".format(
                 CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
                 BaseEntry.DATE_LENGTH,
                 *[k.capitalize() for k in BaseEntry.ITEM_TYPES[:2]], "%",
                 BaseEntry.EID_LENGTH * " ")
+            # yapf: enable
 
         else:
             header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
