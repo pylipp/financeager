@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
+### Added
+- The app is tested against Python 3.9.
 ### Fixed
 - Filtering by the 'value' field when using the `list` command now works. (#58)
 
