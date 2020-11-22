@@ -28,14 +28,6 @@ DATA_DIR = os.path.expanduser("~/.local/share/financeager")
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 OFFLINE_FILEPATH = os.path.join(DATA_DIR, "offline.json")
 
-# URL endpoints
-PERIODS_TAIL = "/periods"
-COPY_TAIL = "/copy"
-
-# HTTP communication defaults
-DEFAULT_HOST = "http://127.0.0.1:5000"
-DEFAULT_TIMEOUT = 10
-
 
 def default_period_name():
     """The current year as string (format YYYY)."""

@@ -52,9 +52,6 @@ setup(
     install_requires=[
         "tinydb==3.2.1",
         "python-dateutil==2.6.0",
-        "Flask==1.0.2",
-        "Flask-RESTful==0.3.5",
-        "requests>=2.20.0",
         "marshmallow==3.3.0",
         "argcomplete==1.11.1",
     ],

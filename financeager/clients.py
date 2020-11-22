@@ -4,7 +4,7 @@ from collections import namedtuple
 
 import financeager
 
-from . import exceptions, httprequests, localserver, offline, plugin
+from . import exceptions, localserver, plugin
 
 logger = financeager.init_logger(__name__)
 
@@ -17,7 +17,6 @@ def create(*, configuration, sinks, plugins):
     """
     clients = {
         "none": LocalServerClient,
-        "flask": FlaskClient,
     }
 
     plugins = plugins or []
@@ -78,52 +77,6 @@ class Client:
 
     def shutdown(self):
         """Routine to run at the end of the Client lifecycle."""
-
-
-class FlaskClient(Client):
-    """Client for communicating with the financeager Flask webservice."""
-
-    def __init__(self, *, configuration, sinks):
-        """Set up proxy and urllib3 logger."""
-        super().__init__(configuration=configuration, sinks=sinks)
-        self.proxy = httprequests.Proxy(
-            http_config=configuration.get_section("SERVICE:FLASK"))
-
-        financeager.init_logger("urllib3")
-
-        logger.warning(
-            "Flask-webservice related functionality will be moved to a "
-            "dedicated plugin.\n"
-            "Check the Changelog when updating your financeager version.")
-
-    def safely_run(self, command, **params):
-        """Execute base functionality.
-        If successful, attempt to recover offline backup. Otherwise store
-        request in offline backup.
-        Return whether execution was successful.
-
-        :return: bool
-        """
-        success = super().safely_run(command, **params)
-
-        if success:
-            try:
-                # Avoid recursion by passing base class for invoking safely_run
-                if offline.recover(super()):
-                    self.sinks.info("Recovered offline backup.")
-
-            except exceptions.OfflineRecoveryError:
-                self.sinks.error("Offline backup recovery failed!")
-                success = False
-
-        # If request was erroneous, it's not supposed to be stored offline
-        if not isinstance(self.latest_exception, exceptions.InvalidRequest) and\
-                self.latest_exception is not None and\
-                offline.add(command, **params):
-            self.sinks.info(
-                "Stored '{}' request in offline backup.".format(command))
-
-        return success
 
 
 class LocalServerClient(Client):

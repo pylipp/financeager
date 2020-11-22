@@ -5,7 +5,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 import financeager
 from financeager import plugin
 
-from . import DEFAULT_HOST, DEFAULT_TIMEOUT, init_logger
+from . import init_logger
 from .entries import BaseEntry, CategoryEntry
 from .exceptions import InvalidConfigError
 
@@ -50,23 +50,11 @@ class Configuration:
             "default_category": CategoryEntry.DEFAULT_NAME,
             "date_format": BaseEntry.DATE_FORMAT.replace("%", "%%"),
         }
-        self._parser["SERVICE:FLASK"] = {
-            "host": DEFAULT_HOST,
-            "timeout": DEFAULT_TIMEOUT,
-            "username": "",
-            "password": "",
-        }
 
         for p in self._plugins:
             p.config.init_defaults(self._parser)
 
     def _init_option_types(self):
-        self._option_types = {
-            "SERVICE:FLASK": {
-                "timeout": "int",
-            },
-        }
-
         for p in self._plugins:
             p.config.init_option_types(self._option_types)
 
@@ -127,7 +115,7 @@ class Configuration:
 
         :raises: InvalidConfigError
         """
-        valid_services = ["none", "flask"]
+        valid_services = ["none"]
         for p in self._plugins:
             if isinstance(p, plugin.ServicePlugin):
                 valid_services.append(p.name)
