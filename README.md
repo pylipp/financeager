@@ -4,7 +4,7 @@
 FINANCEAGER
 ===========
 
-An application (possibly running as Flask webservice) that helps you administering your daily expenses and earnings. Interact via the command line interface.
+An application that helps you administering your daily expenses and earnings. Interact via the command line interface.
 
 The `financeager` backend holds databases (internally referred to as 'periods'). A period contains entries of a certain year.
 
@@ -42,34 +42,7 @@ The user request invoked from the CLI is passed to the backend which opens the a
 
 ### Client-server mode
 
->   Flask-webservice related functionality will be moved to a dedicated plugin, see #53.
-
-To run `financeager` as client-server application, start the flask webservice by
-
-    export FLASK_APP=financeager/fflask.py
-    flask run  # --help for more info
-
->   This does not store data persistently! Specify the environment variable `FINANCEAGER_DATA_DIR`.
-
->   For production use, you should wrap `app = fflask.create_app(data_dir=...)` in a WSGI or FCGI (see `examples/` directory).
-
-To communicate with the webservice, the `financeager` configuration has to be adjusted. Create and open the file `~/.config/financeager/config`. If you're on the machine that runs the webservice, put the lines
-
-    [SERVICE]
-    name = flask
-
-If you're on an actual remote 'client' machine, put
-
-    [SERVICE]
-    name = flask
-
-    [SERVICE:FLASK]
-    host = https://foo.pythonanywhere.com
-    timeout = 10
-    username = foouser
-    password = S3cr3t
-
-This specifies the timeout for HTTP requests and username/password for basic auth, if required by the server.
+Install the [financeager-flask](https://github.com/pylipp/financeager-flask) plugin.
 
 In any case, you're all set up! See the next section about the available client CLI commands and options.
 
@@ -172,7 +145,6 @@ The `financeager` command line client tries to read the configuration from `~/.c
 
 ### More Goodies
 
-- `financeager` will store requests if the server is not reachable (the timeout is configurable). The offline backup is restored the next time a connection is established. This feature is only available when running financeager with flask.
 - Command line tab completion is provided by the `argcomplete` package (for bash; limited support for zsh, fish, tcsh). Completion has to be enabled by running `activate-global-python-argcomplete`. Read the [instructions](https://github.com/kislyuk/argcomplete#activating-global-completion) if you want to know more.
 
 ### Expansion
@@ -185,6 +157,10 @@ The `financeager` core package can be extended by Python plugins.
 The supported groups are:
 
 - `financeager.services`
+
+Available plugins are:
+
+- [financeager-flask](https://github.com/pylipp/financeager-flask)
 
 #### All plugin types
 
@@ -243,9 +219,9 @@ The following diagram sketches the relationship between financeager's modules. S
           +--------+
            ¦      ¦
            V      V
-    +--------+   +-----------+   +---------+
-    | config |-->|    cli    |<->| offline |
-    +--------+   +-----------+   +---------+
+    +--------+   +-----------+
+    | config |-->|    cli    |
+    +--------+   +-----------+
 
                      ¦   Λ                     +---------+     +---------+
     [pre-processing] ¦   ¦  [formatting]  <--  | listing | <-- | entries |
@@ -258,15 +234,13 @@ The following diagram sketches the relationship between financeager's modules. S
             ¦                     Λ
             V                     ¦
 
-    +--------------+   |   +--------------+
-    | httprequests |   |   |              |     FRONTEND
-    +--------------+   |   |              |
-    ================   |   |              |    ==========
-    +--------------+   |   | localserver  |
-    |    fflask    |   |   |              |     BACKEND
-    +--------------+   |   |              |
-    |  resources   |   |   |              |
-    +--------------+   |   +--------------+
+    +-------------------------------------+
+    |                                     |     FRONTEND
+    |                                     |
+    |            localserver              |    ==========
+    |                                     |
+    |                                     |     BACKEND
+    +-------------------------------------+
 
             ¦                     Λ
             V                     ¦
