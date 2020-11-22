@@ -120,8 +120,10 @@ class Configuration:
             if isinstance(p, plugin.ServicePlugin):
                 valid_services.append(p.name)
 
-        if self.get_option("SERVICE", "name") not in valid_services:
-            raise InvalidConfigError("Unknown service name!")
+        service_name = self.get_option("SERVICE", "name")
+        if service_name not in valid_services:
+            raise InvalidConfigError(
+                "Unknown service name: {}".format(service_name))
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
