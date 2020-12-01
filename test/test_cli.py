@@ -219,6 +219,20 @@ default_category = no-category"""
         self.assertIn("money", response)
         self.assertIn("10.00", response)
 
+    @mock.patch("financeager.server.Server.run")
+    def test_communication_error(self, mocked_run):
+        # Raise exception on first call, behave fine on stop call
+        mocked_run.side_effect = [Exception(), {}]
+        response = self.cli_run("list", log_method="error")
+        self.assertEqual(response, "Unexpected error")
+
+    @mock.patch("financeager.localserver.Proxy.run")
+    def test_unexpected_error(self, mocked_run):
+        # Raise exception on first call, behave fine on stop call
+        mocked_run.side_effect = [Exception(), {}]
+        response = self.cli_run("list", log_method="error")
+        self.assertTrue(response.startswith("Unexpected error: Traceback"))
+
 
 class PreprocessTestCase(unittest.TestCase):
     def test_date_format(self):
