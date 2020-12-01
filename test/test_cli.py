@@ -4,10 +4,12 @@ import unittest
 from datetime import datetime as dt
 from unittest import mock
 
-from financeager import cli, clients, config, exceptions
+from financeager import (cli, clients, config, exceptions,
+                         setup_log_file_handler)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
+setup_log_file_handler(TEST_DATA_DIR)
 
 
 class CliTestCase(unittest.TestCase):

@@ -61,13 +61,13 @@ def init_logger(name):
     return logger
 
 
-def setup_log_file_handler():
+def setup_log_file_handler(data_dir=DATA_DIR):
     """Create RotatingFileHandler for package logger, storing logs in
-    'DATA_DIR'. The directory is created if not existing.
+    'data_dir' (default: DATA_DIR). The directory is created if not existing.
     """
-    os.makedirs(DATA_DIR, exist_ok=True)
+    os.makedirs(data_dir, exist_ok=True)
     file_handler = handlers.RotatingFileHandler(
-        os.path.join(DATA_DIR, "log"), maxBytes=5e6, backupCount=5)
+        os.path.join(data_dir, "log"), maxBytes=5e6, backupCount=5)
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
 
