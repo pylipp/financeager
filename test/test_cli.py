@@ -1,4 +1,3 @@
-import os
 import tempfile
 import unittest
 from datetime import datetime as dt
@@ -30,13 +29,6 @@ class CliTestCase(unittest.TestCase):
         # Mocks to record output of cli.run() call
         self.info = mock.MagicMock()
         self.error = mock.MagicMock()
-
-    def tearDown(self):
-        database_filepath = os.path.join(
-            TEST_DATA_DIR, "{}.json".format(self.__class__.period))
-        # Not all test cases produce database files
-        if os.path.exists(database_filepath):
-            os.remove(database_filepath)
 
     def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
