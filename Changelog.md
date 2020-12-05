@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The app is tested against Python 3.9.
 ### Fixed
 - Filtering by the 'value' field when using the `list` command now works. (#58)
+### Removed
+- As announced in v0.23.0.0, flask-webservice related functionality has been moved to a dedicated plugin, [financeager-flask](https://github.com/pylipp/financeager-flask). If you were using the flask-webservice before, install the new package when updating financeager, at least on the client side. (#53)
 
 ## [v0.23.1.0] - 2020-03-05
 ### Added
