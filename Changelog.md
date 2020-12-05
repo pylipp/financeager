@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [v0.24.0.0] - 2020-12-05
+### Added
 - The app is tested against Python 3.9.
 ### Changed
 - The 'none' value for the `SERVICE.name` configuration option is renamed to 'local'.
