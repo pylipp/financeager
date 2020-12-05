@@ -17,9 +17,5 @@ class CommunicationError(FinanceagerException):
     """Error in client-server communication."""
 
 
-class OfflineRecoveryError(FinanceagerException):
-    """Error during recovering of offline backup."""
-
-
 class InvalidConfigError(FinanceagerException):
     """Invalid configuration encountered."""
