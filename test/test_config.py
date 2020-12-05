@@ -16,8 +16,8 @@ class ConfigTestCase(unittest.TestCase):
     @mock.patch("financeager.CONFIG_FILEPATH", "/tmp/non-existing-config")
     def test_get_option(self):
         config = Configuration()
-        self.assertEqual(config.get_option("SERVICE", "name"), "none")
-        self.assertDictEqual(config.get_section("SERVICE"), {"name": "none"})
+        self.assertEqual(config.get_option("SERVICE", "name"), "local")
+        self.assertDictEqual(config.get_section("SERVICE"), {"name": "local"})
 
     def test_invalid_config(self):
         filepath = "/tmp/{}".format(int(time.time()))

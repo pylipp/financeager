@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [unreleased]
 ### Added
 - The app is tested against Python 3.9.
+### Changed
+- The 'none' value for the `SERVICE.name` configuration option is renamed to 'local'.
 ### Fixed
 - Filtering by the 'value' field when using the `list` command now works. (#58)
 ### Removed

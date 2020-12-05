@@ -44,7 +44,7 @@ class Configuration:
 
     def _init_defaults(self):
         self._parser["SERVICE"] = {
-            "name": "none",
+            "name": "local",
         }
         self._parser["FRONTEND"] = {
             "default_category": CategoryEntry.DEFAULT_NAME,
@@ -115,7 +115,7 @@ class Configuration:
 
         :raises: InvalidConfigError
         """
-        valid_services = ["none"]
+        valid_services = ["local"]
         for p in self._plugins:
             if isinstance(p, plugin.ServicePlugin):
                 valid_services.append(p.name)

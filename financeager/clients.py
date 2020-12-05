@@ -16,7 +16,7 @@ def create(*, configuration, sinks, plugins):
     The sinks are passed into the Client.
     """
     clients = {
-        "none": LocalServerClient,
+        "local": LocalServerClient,
     }
 
     plugins = plugins or []

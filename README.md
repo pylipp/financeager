@@ -40,6 +40,13 @@ You can use `financeager` as a client-server or a serverless application (defaul
 
 The user request invoked from the CLI is passed to the backend which opens the appropriate database, processes the request, closes the database and returns a response. All communication happens within a single process, hence the label 'serverless'. The databases are stored in `~/.local/share/financeager`.
 
+This option can be stored in the configuration file via
+
+    [SERVICE]
+    name = local
+
+In vanilla financeager, this is little relevant since it is the default anyways.
+
 ### Client-server mode
 
 Install the [financeager-flask](https://github.com/pylipp/financeager-flask) plugin.
