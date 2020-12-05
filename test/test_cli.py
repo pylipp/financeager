@@ -22,8 +22,7 @@ class CliTestCase(unittest.TestCase):
 
     def setUp(self):
         # Separate test runs by running individual test methods using distinct
-        # periods (especially crucial for CliFlaskTestCase which uses a single
-        # Flask instance for all tests)
+        # periods
         self.__class__.period += 1
 
         # Mocks to record output of cli.run() call
