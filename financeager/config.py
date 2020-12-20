@@ -1,8 +1,6 @@
 """Configuration of the financeager application."""
-import os.path
 from configparser import ConfigParser, NoOptionError, NoSectionError
 
-import financeager
 from financeager import plugin
 
 from . import init_logger
@@ -27,10 +25,7 @@ class Configuration:
 
         :raises: InvalidConfigError if validation fails
         """
-        if filepath is None and os.path.exists(financeager.CONFIG_FILEPATH):
-            self._filepath = financeager.CONFIG_FILEPATH
-        else:
-            self._filepath = filepath
+        self._filepath = filepath
 
         self._plugins = plugins or []
         self._parser = ConfigParser()

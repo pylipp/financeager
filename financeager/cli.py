@@ -376,6 +376,7 @@ least a frequency, start date and end date are optional. Default:
         subparser.add_argument(
             "-C",
             "--config-filepath",
+            default=financeager.CONFIG_FILEPATH,
             help="path to config file. Default: {}".format(
                 financeager.CONFIG_FILEPATH))
         subparser.add_argument(
