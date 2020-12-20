@@ -293,6 +293,7 @@ If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug f
 
 1. Tag the latest commit on master by incrementing the current version accordingly (scheme `v0.major.minor.patch`).
 1. Run `make release`.
+1. The package is automatically published to PyPI using a Github action.
 
 PERSONAL NOTE
 -------------

@@ -1,0 +1,29 @@
+name: Upload Python Package
+
+on:
+  push:
+    tags:
+      - v*.*.*.*
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        pip install -U .[packaging]
+    - name: Build and publish
+      uses: actions/create-release@v1
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python setup.py bdist_wheel --universal
+        twine upload dist/*

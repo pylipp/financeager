@@ -17,9 +17,6 @@ test:
 release: Changelog.md setup.py
 	git push --tags origin master
 	hub release create -e -m $(VERSION) -m "$$(awk -v RS='' '/\[$(VERSION)\]/' Changelog.md | tail -n+2)" $(VERSION)
-	rm -rf dist build
-	python setup.py bdist_wheel --universal
-	twine upload dist/*
 
 coverage:
 	coverage erase
