@@ -19,16 +19,19 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -U .[packaging]
-    - name: Build and publish
+    - name: Create Github release
       uses: actions/create-release@v1
       env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
         release_name: ${{ github.ref }}
         body: |
             awk -v RS='' '/\[${{ github.ref }}\]/ {print $0}'  Changelog.md  | tail -n+2
+    - name: Build package and publish to PyPI
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
         python setup.py bdist_wheel --universal
         twine upload dist/*
