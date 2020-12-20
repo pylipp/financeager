@@ -51,7 +51,7 @@ jobs:
         run: |
           pre-commit run --all-files
           coverage run --source financeager setup.py test
-          # bash test/integration.bash
+          bash test/integration.bash
       - name: Upload coverage result
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
