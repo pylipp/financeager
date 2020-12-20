@@ -24,6 +24,11 @@ jobs:
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: |
+            awk -v RS='' '/\[${{ github.ref }}\]/ {print $0}'  Changelog.md  | tail -n+2
       run: |
         python setup.py bdist_wheel --universal
         twine upload dist/*

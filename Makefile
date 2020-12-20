@@ -1,5 +1,3 @@
-VERSION=$$(git describe --tags --abbrev=0)
-
 .PHONY: all test install release coverage lint format style-check
 
 all:
@@ -14,9 +12,8 @@ install:
 test:
 	python setup.py test
 
-release: Changelog.md setup.py
+release:
 	git push --tags origin master
-	hub release create -e -m $(VERSION) -m "$$(awk -v RS='' '/\[$(VERSION)\]/' Changelog.md | tail -n+2)" $(VERSION)
 
 coverage:
 	coverage erase

@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 - CI tests are now executed via Github actions instead of Travis.
+- The release procedure is executed entirely via Github actions.
 ### Fixed
 ### Removed
 ### Deprecated
