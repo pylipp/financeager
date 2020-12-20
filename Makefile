@@ -1,4 +1,4 @@
-VERSION=$$(python setup.py --version)
+VERSION=$$(git describe --tags --abbrev=0)
 
 .PHONY: all test install release coverage lint format style-check
 
@@ -15,7 +15,7 @@ test:
 
 release: Changelog.md setup.py
 	git push --tags origin master
-	hub release create -e -m v$(VERSION) -m "$$(awk -v RS='' '/\[v$(VERSION)\]/' Changelog.md | tail -n+2)" v$(VERSION)
+	hub release create -e -m $(VERSION) -m "$$(awk -v RS='' '/\[$(VERSION)\]/' Changelog.md | tail -n+2)" $(VERSION)
 	rm -rf dist build
 	python setup.py bdist_wheel --universal
 	twine upload dist/*
