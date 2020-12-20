@@ -3,7 +3,7 @@
 FINANCEAGER
 ===========
 
-An application that helps you administering your daily expenses and earnings. Interact via the command line interface.
+An application that helps you administering your daily expenses and earnings. Interact via the command line interface `fina`.
 
 The `financeager` backend holds databases (internally referred to as 'periods'). A period contains entries of a certain year.
 
@@ -52,9 +52,11 @@ Install the [financeager-flask](https://github.com/pylipp/financeager-flask) plu
 
 In any case, you're all set up! See the next section about the available client CLI commands and options.
 
-### Command line client
+### Command line interface
 
-    usage: financeager [-h] [-V] {add,get,remove,update,copy,list,periods} ...
+The main CLI entry point is called `fina`.
+
+    usage: fina [-h] [-V] {add,get,remove,update,copy,list,periods} ...
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -75,32 +77,32 @@ On the client side, `financeager` provides the following commands to interact wi
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
-    > financeager add burgers -19.99 --category Restaurants
-    > financeager add lottery 123.45 --date 03-14
+    > fina add burgers -19.99 --category Restaurants
+    > fina add lottery 123.45 --date 03-14
 
 Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
 *Add recurrent* entries using the `-t recurrent` flag (`t` for table name) and specify the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
 
-    > financeager add rent -500 -t recurrent -f monthly -s 01-01 -c rent
+    > fina add rent -500 -t recurrent -f monthly -s 01-01 -c rent
 
 If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
 
 Did you make a mistake when adding a new entry? *Update* one or more fields by calling the `update` command with the entry's ID and the respective corrected fields:
 
-    > financeager update 1 --name "McKing Burgers" --value -18.59
+    > fina update 1 --name "McKing Burgers" --value -18.59
 
 *Remove* an entry by specifying its ID (visible in the output of the `list` command). This removes the `burgers` entry:
 
-    > financeager remove 1
+    > fina remove 1
 
 This would remove the recurrent rent entries (ID is also 1 because standard and recurrent entries are stored in separate tables):
 
-    > financeager remove 1 --table-name recurrent
+    > fina remove 1 --table-name recurrent
 
 Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filters` option, e.g. `--filters category=food` to show entries in the categories `food`)
 
-    > financeager list
+    > fina list
 
                    Earnings               |                Expenses
     Name               Value    Date  ID  | Name               Value    Date  ID
@@ -114,28 +116,28 @@ Show a side-by-side *overview* of earnings and expenses (filter by date/category
 
 It might be convenient to list entries of the current, or a specific month only (example output is omitted):
 
-    > financeager list --month
-    > financeager list --month January
-    > financeager list --month Dec
-    > financeager list --month 7
-    > financeager list --month 03
+    > fina list --month
+    > fina list --month January
+    > fina list --month Dec
+    > fina list --month 7
+    > fina list --month 03
 
 The aforementioned `financeager` commands operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
 
-    > financeager add xmas-gifts -42 --date 12-23 --period 2016
+    > fina add xmas-gifts -42 --date 12-23 --period 2016
 
 *Copy* an entry from one database to another by specifying entry ID and source/destination period:
 
-    > financeager copy 1 --source 2017 --destination 2018
+    > fina copy 1 --source 2017 --destination 2018
 
 Detailed information is available from
 
-    > financeager --help
-    > financeager <subcommand> --help
+    > fina --help
+    > fina <subcommand> --help
 
 You can turn on printing debug messages to the terminal using the `--verbose` option, e.g.
 
-    > financeager list --verbose
+    > fina list --verbose
 
 You can find a log of interactions at `~/.local/share/financeager/log` (on both the client machine and the server).
 
@@ -147,7 +149,7 @@ Besides specifying the backend to communicate with, you can also configure front
     default_category = unspecified
     date_format = %%m-%%d
 
-The `financeager` command line client tries to read the configuration from `~/.config/financeager/config`. You can specify a custom path by passing it along with the `-C`/`--config` command line option.
+The CLI `fina` tries to read the configuration from `~/.config/financeager/config`. You can specify a custom path by passing it along with the `-C`/`--config` command line option.
 
 ### More Goodies
 

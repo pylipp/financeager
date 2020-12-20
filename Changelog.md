@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - CI tests are now executed via Github actions instead of Travis.
 ### Fixed
 ### Removed
+### Deprecated
+- The main command `financeager` is replaced by the shorter and more pleasant `fina`.
 
 ## [v0.24.0.0] - 2020-12-05
 ### Added

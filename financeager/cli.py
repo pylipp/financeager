@@ -55,6 +55,13 @@ def main():
     sys.exit(exit_code)
 
 
+def deprecated_main():
+    logger.warning(
+        "The 'financeager' main command will be renamed to 'fina' in an "
+        "upcoming release.\nUse the 'fina' command to avoid this warning.")
+    main()
+
+
 def run(command,
         configuration,
         plugins=None,

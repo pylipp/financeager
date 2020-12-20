@@ -45,7 +45,12 @@ setup(
         "Topic :: Utilities",
     ],
     packages=find_packages(exclude=["test"]),
-    entry_points={"console_scripts": ["financeager = financeager.cli:main"]},
+    entry_points={
+        "console_scripts": [
+            "fina = financeager.cli:main",
+            "financeager = financeager.cli:deprecated_main",
+        ],
+    },
     setup_requires=[
         "setuptools_scm",
     ],
