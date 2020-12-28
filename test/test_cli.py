@@ -101,7 +101,7 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
 
     @mock.patch("tinydb.storages.MemoryStorage.write")
     def test_add_entry(self, mocked_write):
-        entry_id = self.cli_run("add more 1337")
+        entry_id = str(self.cli_run("add more 1337"))
         # Verify that data is written to memory
         self.assertDictContainsSubset({
             "name": "more",
@@ -153,7 +153,7 @@ default_category = no-category"""
 
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
-        self.assertEqual(response, "Invalid request: Element not found.")
+        self.assertEqual(response, "Invalid request: Entry not found.")
 
     def test_preprocessing_error(self):
         response = self.cli_run("add car -1000 -d ups", log_method="error")

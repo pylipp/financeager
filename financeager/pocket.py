@@ -8,7 +8,7 @@ from datetime import datetime as dt
 from dateutil import rrule
 from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import Query, TinyDB, storages
-from tinydb.database import Element
+from tinydb.database import Document
 
 from . import DEFAULT_TABLE, POCKET_DATE_FORMAT, default_pocket_name
 
@@ -307,13 +307,13 @@ class TinyDbPocket(Pocket):
         :type eid: int or str
 
         :raise: PocketException if element not found
-        :return: found element (tinydb.Element)
+        :return: found element (tinydb.Document)
         """
 
         table_name = table_name or DEFAULT_TABLE
-        element = self._db.table(table_name).get(eid=int(eid))
+        element = self._db.table(table_name).get(doc_id=int(eid))
         if element is None:
-            raise PocketException("Element not found.")
+            raise PocketException("Entry not found.")
 
         return element
 
@@ -337,7 +337,7 @@ class TinyDbPocket(Pocket):
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
 
         element_id = self._db.table(table_name).update(
-            fields, eids=[int(eid)])[0]
+            fields, doc_ids=[int(eid)])[0]
 
         return element_id
 
@@ -345,10 +345,10 @@ class TinyDbPocket(Pocket):
         """Search both the standard table and the recurrent table for elements
         that satisfy the given condition.
 
-        The elements' `eid` attribute is used as key in the returned subdicts
+        The entries' `doc_id` attribute is used as key in the returned subdicts
         because it is lost in the client-server communication protocol (on
         `financeager print`, the server calls Pocket.get_entries, yet the
-        JSON response returned drops the Element.eid attribute s.t. it's not
+        JSON response returned drops the Document.doc_id attribute s.t. it's not
         available when calling prettify on the client side).
 
         :param query_impl: condition for the search. If none (default), all
@@ -366,11 +366,11 @@ class TinyDbPocket(Pocket):
             matching_standard_elements = self._db.search(query_impl)
 
         for element in matching_standard_elements:
-            elements[DEFAULT_TABLE][element.eid] = element
+            elements[DEFAULT_TABLE][element.doc_id] = element
 
         # all recurrent elements are generated, and the ones matching the
         # query are appended to a list that is stored under their generating
-        # element's eid in the 'recurrent' subdictionary
+        # element's doc_id in the 'recurrent' subdictionary
         for element in self._db.table("recurrent").all():
             for e in self._create_recurrent_elements(element):
                 matching_recurrent_element = None
@@ -382,7 +382,7 @@ class TinyDbPocket(Pocket):
                         matching_recurrent_element = e
 
                 if matching_recurrent_element is not None:
-                    elements["recurrent"][element.eid].append(
+                    elements["recurrent"][element.doc_id].append(
                         matching_recurrent_element)
 
         return elements
@@ -431,12 +431,14 @@ class TinyDbPocket(Pocket):
             elif frequency == "DAILY":
                 name = "{}, day {}".format(name, date.strftime("%-j").lower())
 
-            yield Element(
-                dict(
+            yield Document(
+                doc_id=None,
+                value=dict(
                     name=name,
                     value=element["value"],
                     category=element["category"],
-                    date=date.strftime(POCKET_DATE_FORMAT)))
+                    date=date.strftime(POCKET_DATE_FORMAT)),
+            )
 
     def remove_entry(self, eid, table_name=None):
         """Remove an entry from the Pocket database given its ID. The category
@@ -456,10 +458,10 @@ class TinyDbPocket(Pocket):
         # might raise PocketException if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-        self._db.table(table_name).remove(eids=[entry.eid])
+        self._db.table(table_name).remove(doc_ids=[entry.doc_id])
         self._update_category_cache(removing=True, **entry)
 
-        return entry.eid
+        return entry.doc_id
 
     @staticmethod
     def _create_query_condition(**filters):
@@ -520,8 +522,8 @@ class TinyDbPocket(Pocket):
         filters and uses it to query all tables.
 
         :return: dict{
-                    DEFAULT_TABLE:  dict{ int: tinydb.Element },
-                    "recurrent": dict{ int: list[tinydb.Element] }
+                    DEFAULT_TABLE:  dict{ int: tinydb.Document },
+                    "recurrent": dict{ int: list[tinydb.Document] }
                     }
         """
 
@@ -534,4 +536,4 @@ class TinyDbPocket(Pocket):
         self._db.close()
 
 
-TinyDB.DEFAULT_TABLE = DEFAULT_TABLE
+TinyDB.default_table_name = DEFAULT_TABLE

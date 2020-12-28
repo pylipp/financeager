@@ -55,7 +55,7 @@ setup(
         "setuptools_scm",
     ],
     install_requires=[
-        "tinydb==3.2.1",
+        "tinydb==4.3.0",
         "python-dateutil==2.6.0",
         "marshmallow==3.3.0",
         "argcomplete==1.11.1",

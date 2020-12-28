@@ -225,8 +225,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             table_name="recurrent",
             frequency="monthly",
             start="10-01")
-        self.assertSetEqual({DEFAULT_TABLE, "recurrent"},
-                            self.pocket._db.tables())
+        self.assertSetEqual({"recurrent"}, self.pocket._db.tables())
 
         self.assertEqual(len(self.pocket._db.table("recurrent").all()), 1)
         element = self.pocket._db.table("recurrent").all()[0]
@@ -243,11 +242,11 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             filters={"date": "11"})["recurrent"]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(matching_elements[eid][0]["name"], "rent, november")
-        # the eid attribute is None because a new Element instance has been
+        # the doc_id attribute is None because a new Document instance has been
         # created in Pocket._create_recurrent_elements. The 'eid' entry
         # however is 1 because the parent element is the first in the
         # "recurrent" table
-        self.assertIsNone(matching_elements[eid][0].eid)
+        self.assertIsNone(matching_elements[eid][0].doc_id)
 
     def test_recurrent_quarter_yearly_entries(self):
         eid = self.pocket.add_entry(
@@ -513,14 +512,11 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
         cls.data_dir = "/tmp"
         cls.year = 1999
         cls.pocket = TinyDbPocket(name=cls.year, data_dir=cls.data_dir)
+        cls.data_filepath = os.path.join(cls.data_dir,
+                                         "{}.json".format(cls.year))
 
     def test_json_file_exists(self):
-        data_filepath = os.path.join(self.data_dir, "{}.json".format(self.year))
-        self.assertTrue(os.path.exists(data_filepath))
-
-        with open(data_filepath) as file:
-            data = json.load(file)
-        self.assertDictEqual({"standard": {}}, data)
+        self.assertTrue(os.path.exists(self.data_filepath))
 
     def test_add_get(self):
         name = "pineapple"
@@ -532,6 +528,7 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
     @classmethod
     def tearDown(cls):
         cls.pocket.close()
+        os.remove(cls.data_filepath)
 
 
 if __name__ == '__main__':

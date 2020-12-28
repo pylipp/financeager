@@ -168,7 +168,7 @@ Date    : 04-01
 Category: {}""".format(CategoryEntry.DEFAULT_NAME.capitalize()))
 
 
-class PrettifyRecurrentElementTestCase(unittest.TestCase):
+class PrettifyRecurrentEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.element = dict(
             name="retirement money",
