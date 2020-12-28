@@ -3,7 +3,7 @@ query results."""
 
 import time
 
-from . import DEFAULT_BASE_ENTRY_SORT_KEY, PERIOD_DATE_FORMAT
+from . import DEFAULT_BASE_ENTRY_SORT_KEY, POCKET_DATE_FORMAT
 
 
 class Entry:
@@ -43,7 +43,7 @@ class BaseEntry(Entry):
         """
         super().__init__(name, value)
         self.date = time.strftime(self.DATE_FORMAT,
-                                  time.strptime(date, PERIOD_DATE_FORMAT))
+                                  time.strptime(date, POCKET_DATE_FORMAT))
         self.eid = int(eid)
 
     def __str__(self):

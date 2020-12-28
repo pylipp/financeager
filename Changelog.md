@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - CI tests are now executed via Github actions instead of Travis.
 - The release procedure is executed entirely via Github actions.
+- The term 'period' is replaced by 'pocket'. (#52)
 ### Fixed
 ### Removed
 ### Deprecated

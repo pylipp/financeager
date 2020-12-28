@@ -12,7 +12,7 @@ __version__ = get_distribution(__name__).version
 #
 
 # fixed date format for database
-PERIOD_DATE_FORMAT = "%m-%d"
+POCKET_DATE_FORMAT = "%m-%d"
 
 # default table name of database
 DEFAULT_TABLE = "standard"
@@ -29,7 +29,7 @@ CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 OFFLINE_FILEPATH = os.path.join(DATA_DIR, "offline.json")
 
 
-def default_period_name():
+def default_pocket_name():
     """The current year as string (format YYYY)."""
     return str(dt.today().year)
 

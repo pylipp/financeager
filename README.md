@@ -5,7 +5,7 @@ FINANCEAGER
 
 An application that helps you administering your daily expenses and earnings. Interact via the command line interface `fina`.
 
-The `financeager` backend holds databases (internally referred to as 'periods'). A period contains entries of a certain year.
+The `financeager` backend holds databases (internally referred to as 'pockets'). A pocket contains entries for a certain project.
 
 ## Quickstart
 
@@ -56,24 +56,24 @@ In any case, you're all set up! See the next section about the available client 
 
 The main CLI entry point is called `fina`.
 
-    usage: fina [-h] [-V] {add,get,remove,update,copy,list,periods} ...
+    usage: fina [-h] [-V] {add,get,remove,update,copy,list,pockets} ...
 
     optional arguments:
       -h, --help            show this help message and exit
       -V, --version         display version info and exit
 
     subcommands:
-      {add,get,remove,update,copy,list,periods}
+      {add,get,remove,update,copy,list,pockets}
                             list of available subcommands
         add                 add an entry to the database
         get                 show information about single entry
         remove              remove an entry from the database
         update              update one or more fields of an database entry
-        copy                copy an entry from one period to another
-        list                list all entries in the period database
-        periods             list all period databases
+        copy                copy an entry from one pocket to another
+        list                list all entries in the pocket database
+        pockets             list all pocket databases
 
-On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `remove`, `get`, `list`, `periods`, `copy`.
+On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `remove`, `get`, `list`, `pockets`, `copy`.
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -122,11 +122,11 @@ It might be convenient to list entries of the current, or a specific month only 
     > fina list --month 7
     > fina list --month 03
 
-The aforementioned `financeager` commands operate on the default database (named by the current year, e.g. 2017) unless another period is specified by the `--period` flag.
+The aforementioned `financeager` commands operate on the default database (`main`) unless another pocket is specified by the `--pocket` flag.
 
-    > fina add xmas-gifts -42 --date 12-23 --period 2016
+    > fina add xmas-gifts -42 --date 12-23 --pocket personal
 
-*Copy* an entry from one database to another by specifying entry ID and source/destination period:
+*Copy* an entry from one database to another by specifying entry ID and source/destination pocket:
 
     > fina copy 1 --source 2017 --destination 2018
 
@@ -157,7 +157,7 @@ The CLI `fina` tries to read the configuration from `~/.config/financeager/confi
 
 ### Expansion
 
-Want to use a different database? Should be straightforward by deriving from `Period` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new period type.
+Want to use a different database? Should be straightforward by deriving from `Pocket` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new pocket type.
 
 ### Plugin support
 
@@ -258,7 +258,7 @@ The following diagram sketches the relationship between financeager's modules. S
             ¦                     Λ
             V                     ¦
     +-------------------------------------+
-    |                period               |
+    |                pocket               |
     +-------------------------------------+
 
 ## Known bugs

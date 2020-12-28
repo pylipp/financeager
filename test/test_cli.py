@@ -18,12 +18,12 @@ class CliTestCase(unittest.TestCase):
         with open(TEST_CONFIG_FILEPATH, "w") as file:
             file.write(cls.CONFIG_FILE_CONTENT)
 
-        cls.period = 1900
+        cls.pocket = 1900
 
     def setUp(self):
         # Separate test runs by running individual test methods using distinct
-        # periods
-        self.__class__.period += 1
+        # pockets
+        self.__class__.pocket += 1
 
         # Mocks to record output of cli.run() call
         self.info = mock.MagicMock()
@@ -31,7 +31,7 @@ class CliTestCase(unittest.TestCase):
 
     def cli_run(self, command_line, log_method="info", format_args=()):
         """Wrapper around cli.run() function. Adds convenient command line
-        options (period and config filepath). Executes the actual run() function
+        options (pocket and config filepath). Executes the actual run() function
         while patching the module logger info and error methods to catch their
         call arguments.
 
@@ -54,8 +54,8 @@ class CliTestCase(unittest.TestCase):
         command = args[0]
 
         # Exclude option from subcommand parsers that would be confused
-        if command not in ["copy", "periods"]:
-            args.extend(["--period", str(self.period)])
+        if command not in ["copy", "pockets"]:
+            args.extend(["--pocket", str(self.pocket)])
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
 
@@ -84,7 +84,7 @@ class CliTestCase(unittest.TestCase):
         if command in ["add", "update", "remove", "copy"]:
             return response["id"]
 
-        if command in ["get", "list", "periods"] and log_method == "info":
+        if command in ["get", "list", "pockets"] and log_method == "info":
             return cli._format_response(
                 response,
                 command,
@@ -110,12 +110,12 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
 
     @mock.patch("builtins.print")
     @mock.patch("financeager.cli.logger.info")
-    def test_periods(self, mocked_info, mocked_print):
+    def test_pockets(self, mocked_info, mocked_print):
         cli.run(
-            "periods",
+            "pockets",
             configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH))
 
-        mocked_info.assert_called_once_with({"periods": []})
+        mocked_info.assert_called_once_with({"pockets": []})
         mocked_print.assert_called_once_with("")
 
     @mock.patch("builtins.print")
@@ -124,12 +124,12 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
         # Cover the behavior of cli._format_response() given a str
         mocked_run.return_value = "response"
         cli.run(
-            "periods",
+            "pockets",
             configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH))
 
         self.assertListEqual(
             mocked_run.mock_calls,
-            [mock.call("periods"), mock.call("stop")])
+            [mock.call("pockets"), mock.call("stop")])
         mocked_print.assert_called_once_with("response")
 
 

@@ -2,8 +2,8 @@ import os.path
 import tempfile
 import unittest
 
-from financeager import DEFAULT_TABLE, default_period_name, entries
-from financeager import period as pd
+from financeager import DEFAULT_TABLE, default_pocket_name, entries
+from financeager import pocket as pd
 from financeager import server
 
 
@@ -16,14 +16,14 @@ class AddEntryToServerTestCase(unittest.TestCase):
             name="Hiking boots",
             value=-111.11,
             category="outdoors",
-            period="0")
+            pocket="0")
 
-    def test_period_name(self):
-        self.assertEqual("0", self.server._periods["0"].name)
+    def test_pocket_name(self):
+        self.assertEqual("0", self.server._pockets["0"].name)
 
-    def test_periods(self):
-        response = self.server.run("periods")
-        self.assertListEqual(response["periods"], ["0"])
+    def test_pockets(self):
+        response = self.server.run("pockets")
+        self.assertListEqual(response["pockets"], ["0"])
 
     def test_unknown_command(self):
         response = self.server.run("peace")
@@ -33,7 +33,7 @@ class AddEntryToServerTestCase(unittest.TestCase):
 class RecurrentEntryServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = server.Server()
-        self.period = "2000"
+        self.pocket = "2000"
         self.entry_id = self.server.run(
             "add",
             name="rent",
@@ -42,21 +42,21 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
             frequency="monthly",
             start="01-02",
             end="07-01",
-            period=self.period)["id"]
+            pocket=self.pocket)["id"]
 
     def test_recurrent_entries(self):
         elements = self.server.run(
-            "list", period=self.period,
+            "list", pocket=self.pocket,
             filters={"name": "rent"})["elements"]["recurrent"][self.entry_id]
         self.assertEqual(len(elements), 6)
 
     def test_recurrent_copy(self):
-        destination_period = "2001"
+        destination_pocket = "2001"
         response = self.server.run(
             "copy",
-            source_period=self.period,
+            source_pocket=self.pocket,
             table_name="recurrent",
-            destination_period=destination_period,
+            destination_pocket=destination_pocket,
             eid=self.entry_id)
         copied_entry_id = response["id"]
         # copied and added as first element, hence ID 1
@@ -64,13 +64,13 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
 
         source_entry = self.server.run(
             "get",
-            period=self.period,
+            pocket=self.pocket,
             table_name="recurrent",
             eid=self.entry_id)["element"]
         destination_entry = self.server.run(
             "get",
             table_name="recurrent",
-            period=destination_period,
+            pocket=destination_pocket,
             eid=copied_entry_id)["element"]
         self.assertDictEqual(source_entry, destination_entry)
 
@@ -78,25 +78,25 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
 class FindEntryServerTestCase(unittest.TestCase):
     def setUp(self):
         self.server = server.Server()
-        self.period = "0"
+        self.pocket = "0"
         self.entry_id = self.server.run(
-            "add", name="Hiking boots", value=-111.11, period=self.period)["id"]
+            "add", name="Hiking boots", value=-111.11, pocket=self.pocket)["id"]
 
-    def test_get_period(self):
-        period = self.server._get_period(self.period)
-        self.assertEqual(period.name, self.period)
+    def test_get_pocket(self):
+        pocket = self.server._get_pocket(self.pocket)
+        self.assertEqual(pocket.name, self.pocket)
 
-        another_period = "foo"
-        period = self.server._get_period(another_period)
-        self.assertEqual(period.name, another_period)
+        another_pocket = "foo"
+        pocket = self.server._get_pocket(another_pocket)
+        self.assertEqual(pocket.name, another_pocket)
 
-        period = self.server._get_period(None)
-        self.assertEqual(period.name, default_period_name())
+        pocket = self.server._get_pocket(None)
+        self.assertEqual(pocket.name, default_pocket_name())
 
     def test_query_and_reset_response(self):
         category = entries.CategoryEntry.DEFAULT_NAME
         response = self.server.run(
-            "list", period=self.period, filters={"category": category})
+            "list", pocket=self.pocket, filters={"category": category})
         self.assertGreater(len(response), 0)
         self.assertIsInstance(response, dict)
         self.assertIsInstance(response["elements"], dict)
@@ -104,17 +104,17 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertIsInstance(response["elements"]["recurrent"], dict)
 
     def test_response_is_none(self):
-        response = self.server.run("get", period=self.period, eid=self.entry_id)
+        response = self.server.run("get", pocket=self.pocket, eid=self.entry_id)
         self.assertIn("element", response)
         self.assertEqual(response["element"].eid, self.entry_id)
 
         response = self.server.run(
-            "remove", period=self.period, eid=self.entry_id)
+            "remove", pocket=self.pocket, eid=self.entry_id)
         self.assertEqual(response["id"], self.entry_id)
 
         response = self.server.run(
             "list",
-            period=self.period,
+            pocket=self.pocket,
             filters={
                 "name": "Hiking boots",
                 "category": entries.CategoryEntry.DEFAULT_NAME
@@ -127,51 +127,51 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.server.run(
             "update",
             eid=self.entry_id,
-            period=self.period,
+            pocket=self.pocket,
             category=new_category)
         element = self.server.run(
-            "get", eid=self.entry_id, period=self.period)["element"]
+            "get", eid=self.entry_id, pocket=self.pocket)["element"]
         self.assertEqual(element["category"], new_category.lower())
 
     def test_copy(self):
-        destination_period = "1"
+        destination_pocket = "1"
         response = self.server.run(
             "copy",
-            source_period=self.period,
-            destination_period=destination_period,
+            source_pocket=self.pocket,
+            destination_pocket=destination_pocket,
             eid=self.entry_id)
         copied_entry_id = response["id"]
         # copied and added as first element, hence ID 1
         self.assertEqual(copied_entry_id, 1)
 
         source_entry = self.server.run(
-            "get", period=self.period, eid=self.entry_id)["element"]
+            "get", pocket=self.pocket, eid=self.entry_id)["element"]
         destination_entry = self.server.run(
-            "get", period=destination_period, eid=copied_entry_id)["element"]
+            "get", pocket=destination_pocket, eid=copied_entry_id)["element"]
         self.assertDictEqual(source_entry, destination_entry)
 
     def test_unsuccessful_copy(self):
         self.assertRaises(
-            pd.PeriodException,
+            pd.PocketException,
             self.server._copy_entry,
-            source_period=self.period,
-            destination_period="1",
+            source_pocket=self.pocket,
+            destination_pocket="1",
             eid=42)
 
 
-class JsonPeriodsServerTestCase(unittest.TestCase):
-    def test_periods(self):
+class JsonPocketsServerTestCase(unittest.TestCase):
+    def test_pockets(self):
         tmp_dir = tempfile.mkdtemp()
         self.server = server.Server(data_dir=tmp_dir)
 
-        self.assertDictEqual(self.server.run("periods"), {"periods": []})
+        self.assertDictEqual(self.server.run("pockets"), {"pockets": []})
 
         # Create dummy JSON files
-        periods = ["1000", "1500"]
-        for p in periods:
+        pockets = ["1000", "1500"]
+        for p in pockets:
             open(os.path.join(tmp_dir, "{}.json".format(p)), "w").close()
 
-        self.assertDictEqual(self.server.run("periods"), {"periods": periods})
+        self.assertDictEqual(self.server.run("pockets"), {"pockets": pockets})
 
 
 if __name__ == '__main__':

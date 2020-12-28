@@ -1,4 +1,4 @@
-"""Tabular, frontend-representation of financeager period."""
+"""Tabular, frontend-representation of financeager pocket."""
 from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE
 from .entries import BaseEntry, CategoryEntry
 
@@ -125,7 +125,7 @@ class Listing:
 
 
 def prettify(elements, stacked_layout=False, **listing_options):
-    """Sort the given elements (type acc. to Period._search_all_tables) by
+    """Sort the given elements (type acc. to Pocket._search_all_tables) by
     positive and negative value and return pretty string build from the
     corresponding Listings.
 

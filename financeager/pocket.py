@@ -1,4 +1,4 @@
-"""Defines Period database object holding per-year financial data."""
+"""Defines Pocket database object holding per-year financial data."""
 
 import os.path
 import re
@@ -10,7 +10,7 @@ from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import Query, TinyDB, storages
 from tinydb.database import Element
 
-from . import DEFAULT_TABLE, PERIOD_DATE_FORMAT, default_period_name
+from . import DEFAULT_TABLE, POCKET_DATE_FORMAT, default_pocket_name
 
 _DEFAULT_CATEGORY = None
 
@@ -23,7 +23,7 @@ class EntryBaseSchema(Schema):
 
 
 class StandardEntrySchema(EntryBaseSchema):
-    date = fields.Date(format=PERIOD_DATE_FORMAT, missing=None)
+    date = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
 
 
 class RecurrentEntrySchema(EntryBaseSchema):
@@ -34,16 +34,16 @@ class RecurrentEntrySchema(EntryBaseSchema):
         ]),
         required=True,
         allow_none=True)
-    start = fields.Date(format=PERIOD_DATE_FORMAT, missing=None)
-    end = fields.Date(format=PERIOD_DATE_FORMAT, missing=None)
+    start = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
+    end = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
 
 
-class Period:
+class Pocket:
     def __init__(self, name=None):
-        """Create Period object. Its name defaults to the current year if not
+        """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
-        self._name = "{}".format(name or default_period_name())
+        self._name = "{}".format(name or default_pocket_name())
 
     @property
     def name(self):
@@ -51,19 +51,19 @@ class Period:
 
     @property
     def year(self):
-        """Return period year as integer."""
+        """Return pocket year as integer."""
         return int(self._name)
 
 
-class PeriodException(Exception):
+class PocketException(Exception):
     pass
 
 
-class TinyDbPeriod(Period):
+class TinyDbPocket(Pocket):
     def __init__(self, name=None, data_dir=None, **kwargs):
-        """Create a period with a TinyDB database backend, identified by 'name'.
+        """Create a pocket with a TinyDB database backend, identified by 'name'.
         If 'data_dir' is given, the database storage type is JSON (the storage
-        filepath is derived from the Period's name). Otherwise the data is
+        filepath is derived from the Pocket's name). Otherwise the data is
         stored in memory.
         Keyword args are passed to the TinyDB constructor. See the respective
         docs for detailed information.
@@ -101,12 +101,12 @@ class TinyDbPeriod(Period):
         :param partial: indicates whether preprocessing is performed before
             adding (False) or updating (True) the database
 
-        :raise: PeriodException if validation failed or table name unknown
+        :raise: PocketException if validation failed or table name unknown
         """
 
         table_name = table_name or DEFAULT_TABLE
         if table_name not in ["recurrent", DEFAULT_TABLE]:
-            raise PeriodException("Unknown table name: {}".format(table_name))
+            raise PocketException("Unknown table name: {}".format(table_name))
 
         self._remove_redundant_fields(table_name, raw_data)
 
@@ -141,7 +141,7 @@ class TinyDbPeriod(Period):
         """Validate raw entry data acc. to ValidationSchema.
 
         :return: primitive (type-correct) representation of fields
-        :raise: PeriodException if validation failed
+        :raise: PocketException if validation failed
         """
 
         ValidationSchema = RecurrentEntrySchema \
@@ -156,7 +156,7 @@ class TinyDbPeriod(Period):
                 "{}: {}".format(field, "; ".join(messages))
                 for field, messages in e.messages.items()
             ]
-            raise PeriodException("Invalid input data:\n{}".format(
+            raise PocketException("Invalid input data:\n{}".format(
                 "\n".join(infos)))
 
     @staticmethod
@@ -186,15 +186,15 @@ class TinyDbPeriod(Period):
         if table_name == "recurrent":
             if fields.get("start") is None:
                 substituted_fields["start"] = dt.today().strftime(
-                    PERIOD_DATE_FORMAT)
+                    POCKET_DATE_FORMAT)
             if fields.get("end") is None:
                 substituted_fields["end"] = \
                     dt.today().replace(month=12,
-                                       day=31).strftime(PERIOD_DATE_FORMAT)
+                                       day=31).strftime(POCKET_DATE_FORMAT)
         else:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(
-                    PERIOD_DATE_FORMAT)
+                    POCKET_DATE_FORMAT)
 
         if fields.get("category") is None:
             name = fields["name"]
@@ -229,7 +229,7 @@ class TinyDbPeriod(Period):
         :param removing: indicate updating cache after removing an entry
         :param fields: preprossed entry fields to be inserted in the database
 
-        :raise: PeriodException if element not found when updating
+        :raise: PocketException if element not found when updating
         """
 
         if eid is None:
@@ -240,7 +240,7 @@ class TinyDbPeriod(Period):
             else:
                 self._category_cache[name].update([category])
         else:
-            # raises a PeriodException if eid is not found
+            # raises a PocketException if eid is not found
             old_entry = self.get_entry(eid=eid, table_name=table_name)
             old_name = old_entry["name"]
             old_category = old_entry["category"]
@@ -276,7 +276,7 @@ class TinyDbPeriod(Period):
 
         The following kwarg is optional for standard entries:
             :param date: entry date. Defaults to current date
-            :type date: str of ``PERIOD_DATE_FORMAT``
+            :type date: str of ``POCKET_DATE_FORMAT``
 
         The following kwarg is mandatory for recurrent entries:
             :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
@@ -284,9 +284,9 @@ class TinyDbPeriod(Period):
 
         The following kwargs are optional for recurrent entries:
             :param start: start date (defaults to current date)
-            :param end: end date (defaults to last day of the period's year)
+            :param end: end date (defaults to last day of the pocket's year)
 
-        :raise: PeriodException if validation failed or table name unknown
+        :raise: PocketException if validation failed or table name unknown
         :return: TinyDB ID of new entry (int)
         """
 
@@ -306,19 +306,19 @@ class TinyDbPeriod(Period):
 
         :type eid: int or str
 
-        :raise: PeriodException if element not found
+        :raise: PocketException if element not found
         :return: found element (tinydb.Element)
         """
 
         table_name = table_name or DEFAULT_TABLE
         element = self._db.table(table_name).get(eid=int(eid))
         if element is None:
-            raise PeriodException("Element not found.")
+            raise PocketException("Element not found.")
 
         return element
 
     def update_entry(self, eid, table_name=None, **kwargs):
-        """Update one or more fields of a single entry of the Period.
+        """Update one or more fields of a single entry of the Pocket.
 
         :param eid: entry ID of the entry to be updated
         :param table_name: table that the entry is stored in (default:
@@ -326,7 +326,7 @@ class TinyDbPeriod(Period):
         :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
             'end' for recurrent entries; any of 'name', 'value', 'category' for
             either entry type
-        :raise: PeriodException if element not found
+        :raise: PocketException if element not found
         :return: ID of the updated entry
         """
 
@@ -347,7 +347,7 @@ class TinyDbPeriod(Period):
 
         The elements' `eid` attribute is used as key in the returned subdicts
         because it is lost in the client-server communication protocol (on
-        `financeager print`, the server calls Period.get_entries, yet the
+        `financeager print`, the server calls Pocket.get_entries, yet the
         JSON response returned drops the Element.eid attribute s.t. it's not
         available when calling prettify on the client side).
 
@@ -394,9 +394,9 @@ class TinyDbPeriod(Period):
 
         # parse dates to datetime objects
         start = dt.strptime(element["start"],
-                            PERIOD_DATE_FORMAT).replace(year=self.year)
+                            POCKET_DATE_FORMAT).replace(year=self.year)
         end = dt.strptime(element["end"],
-                          PERIOD_DATE_FORMAT).replace(year=self.year)
+                          POCKET_DATE_FORMAT).replace(year=self.year)
 
         now = dt.now()
         if end > now:
@@ -436,10 +436,10 @@ class TinyDbPeriod(Period):
                     name=name,
                     value=element["value"],
                     category=element["category"],
-                    date=date.strftime(PERIOD_DATE_FORMAT)))
+                    date=date.strftime(POCKET_DATE_FORMAT)))
 
     def remove_entry(self, eid, table_name=None):
-        """Remove an entry from the Period database given its ID. The category
+        """Remove an entry from the Pocket database given its ID. The category
         cache is updated.
 
         :param eid: ID of the element to be deleted.
@@ -448,12 +448,12 @@ class TinyDbPeriod(Period):
             Default: 'standard'
         :type table_name: str
 
-        :raise: PeriodException if element/ID not found.
+        :raise: PocketException if element/ID not found.
         :return: element ID if removal was successful
         """
 
         table_name = table_name or DEFAULT_TABLE
-        # might raise PeriodException if ID not existing
+        # might raise PocketException if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
         self._db.table(table_name).remove(eids=[entry.eid])
