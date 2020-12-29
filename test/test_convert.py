@@ -39,7 +39,7 @@ class ConvertTestCase(unittest.TestCase):
         self.assertDictEqual(actual_content, expected_content)
 
     def test_convert_single_period(self):
-        expected_content = {
+        period_content = {
             DEFAULT_TABLE: {
                 "1": {
                     "value": 42.0,
@@ -62,13 +62,78 @@ class ConvertTestCase(unittest.TestCase):
 
         period_filepath = os.path.join(TEST_DATA_DIR, "1235.json")
         with open(period_filepath, "w") as f:
-            json.dump(expected_content, f)
+            json.dump(period_content, f)
         convert.run(period_filepaths=[period_filepath])
+
+        self.assertTrue(os.path.exists(self.POCKET_FILEPATH))
+
+        expected_content = period_content.copy()
+        expected_content[DEFAULT_TABLE]["1"]["date"] = "1235-12-28"
+        expected_content["recurrent"]["1"]["start"] = "1235-01-01"
+        expected_content["recurrent"]["1"]["end"] = "1235-12-31"
+
+        with open(self.POCKET_FILEPATH) as f:
+            actual_content = json.load(f)
+
+        self.assertDictEqual(actual_content, expected_content)
+
+    def test_convert_multiple_periods(self):
+        period_content = {
+            DEFAULT_TABLE: {
+                "1": {
+                    "value": 42.0,
+                    "category": None,
+                    "name": "entry",
+                    "date": "12-28",
+                },
+            },
+            "recurrent": {
+                "1": {
+                    "value": -500.0,
+                    "category": None,
+                    "name": "rent",
+                    "start": "01-01",
+                    "end": "12-31",
+                    "frequency": "monthly",
+                },
+            },
+        }
+        period_filepath = os.path.join(TEST_DATA_DIR, "1236.json")
+        with open(period_filepath, "w") as f:
+            json.dump(period_content, f)
+        period_filepaths = [period_filepath]
+
+        expected_content = period_content.copy()
+        expected_content[DEFAULT_TABLE]["1"]["date"] = "1236-12-28"
+        expected_content["recurrent"]["1"]["start"] = "1236-01-01"
+        expected_content["recurrent"]["1"]["end"] = "1236-12-31"
+
+        period_content = {
+            DEFAULT_TABLE: {
+                "1": {
+                    "value": -5.0,
+                    "category": "food",
+                    "name": "burrito",
+                    "date": "03-04",
+                },
+            },
+        }
+        period_filepath = os.path.join(TEST_DATA_DIR, "1237.json")
+        with open(period_filepath, "w") as f:
+            json.dump(period_content, f)
+        period_filepaths.append(period_filepath)
+
+        expected_content[DEFAULT_TABLE]["2"] =\
+            period_content[DEFAULT_TABLE]["1"].copy()
+        expected_content[DEFAULT_TABLE]["2"]["date"] = "1237-03-04"
+
+        convert.run(period_filepaths=period_filepaths)
 
         self.assertTrue(os.path.exists(self.POCKET_FILEPATH))
 
         with open(self.POCKET_FILEPATH) as f:
             actual_content = json.load(f)
+
         self.assertDictEqual(actual_content, expected_content)
 
 
