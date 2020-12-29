@@ -1,9 +1,12 @@
+import copy
+import json
+import os.path
 import tempfile
 import unittest
 from datetime import datetime as dt
 from unittest import mock
 
-from financeager import (cli, clients, config, exceptions,
+from financeager import (DEFAULT_TABLE, cli, clients, config, exceptions,
                          setup_log_file_handler)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
@@ -54,7 +57,7 @@ class CliTestCase(unittest.TestCase):
         command = args[0]
 
         # Exclude option from subcommand parsers that would be confused
-        if command not in ["copy", "pockets"]:
+        if command not in ["copy", "pockets", "convert-periods-to-pocket"]:
             args.extend(["--pocket", str(self.pocket)])
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
@@ -225,6 +228,134 @@ default_category = no-category"""
         mocked_run.side_effect = [Exception(), {}]
         response = self.cli_run("list", log_method="error")
         self.assertTrue(response.startswith("Unexpected error: Traceback"))
+
+    def test_convert_periods_to_pocket(self):
+        period_filepath = os.path.join(TEST_DATA_DIR,
+                                       "{}.json".format(self.pocket))
+        period_content = {
+            DEFAULT_TABLE: {
+                "1": {
+                    "value": 42.0,
+                    "category": None,
+                    "name": "entry",
+                    "date": "12-28",
+                },
+            },
+        }
+        with open(period_filepath, "w") as f:
+            json.dump(period_content, f)
+
+        response = self.cli_run(
+            "convert-periods-to-pocket --period-filepaths {}".format(
+                period_filepath))
+        self.assertEqual(response, "Converting 1 period(s)...")
+
+        pocket_filepath = os.path.join(TEST_DATA_DIR, "main.json")
+        self.assertTrue(os.path.exists(pocket_filepath))
+
+        expected_content = copy.deepcopy(period_content)
+        expected_content[DEFAULT_TABLE]["1"]["date"] = "{}-12-28".format(
+            self.pocket)
+        expected_content["recurrent"] = {}
+
+        with open(pocket_filepath) as f:
+            actual_content = json.load(f)
+        self.assertDictEqual(actual_content, expected_content)
+
+        # Verify that original period file remains unchanged
+        with open(period_filepath) as f:
+            disk_period_content = json.load(f)
+        self.assertDictEqual(period_content, disk_period_content)
+
+
+CONVERT_TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-convert-")
+
+
+@mock.patch("financeager.DATA_DIR", CONVERT_TEST_DATA_DIR)
+class CliConvertTestCase(CliTestCase):
+
+    CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
+
+    def tearDown(self):
+        pocket_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "main.json")
+        if os.path.exists(pocket_filepath):
+            os.remove(pocket_filepath)
+
+    def test_convert_non_existing_period_filepath(self):
+        response = self.cli_run(
+            "convert-periods-to-pocket --period-filepaths nope.json",
+            log_method="error",
+        )
+        self.assertEqual(response,
+                         "One or more non-existing filepaths:\nnope.json")
+
+    def test_convert_invalid_period_filepath(self):
+        period_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "invalid.json")
+        open(period_filepath, "w").close()
+
+        response = self.cli_run(
+            "convert-periods-to-pocket --period-filepaths {}".format(
+                period_filepath),
+            log_method="error",
+        )
+        lines = response.splitlines()
+        self.assertEqual(lines[0], "One or more invalid filepaths:")
+        self.assertTrue(lines[1].endswith("invalid.json"))
+        os.remove(period_filepath)
+
+    def test_convert_exclude_existing_main_pocket_filepath(self):
+        pocket_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "main.json")
+        open(pocket_filepath, "w").close()
+        response = self.cli_run("convert-periods-to-pocket")
+        self.assertEqual(response, "Converting 0 period(s)...")
+
+        with open(pocket_filepath) as f:
+            self.assertEqual(f.read(), "")
+
+    def test_convert_periods_to_pocket(self):
+        base_year = 2000
+        period_contents = []
+        nr_periods = 3
+
+        for i in range(nr_periods):
+            year = base_year + i
+            period_filepath = os.path.join(CONVERT_TEST_DATA_DIR,
+                                           "{}.json".format(year))
+            period_content = {
+                DEFAULT_TABLE: {
+                    "1": {
+                        "value": i,
+                        "category": None,
+                        "name": "abc" * (i + 1),
+                        "date": "12-28",
+                    },
+                },
+            }
+            with open(period_filepath, "w") as f:
+                json.dump(period_content, f)
+
+            period_contents.append(period_content[DEFAULT_TABLE]["1"])
+
+        response = self.cli_run("convert-periods-to-pocket")
+        self.assertEqual(response,
+                         "Converting {} period(s)...".format(nr_periods))
+
+        pocket_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "main.json")
+        self.assertTrue(os.path.exists(pocket_filepath))
+
+        expected_content = {}
+        expected_content[DEFAULT_TABLE] = {
+            str(i + 1): c
+            for i, c in enumerate(period_contents)
+        }
+        for i in range(nr_periods):
+            expected_content[DEFAULT_TABLE][str(
+                i + 1)]["date"] = "{}-12-28".format(base_year + i)
+        expected_content["recurrent"] = {}
+
+        with open(pocket_filepath) as f:
+            actual_content = json.load(f)
+        self.assertDictEqual(actual_content, expected_content)
 
 
 class PreprocessTestCase(unittest.TestCase):

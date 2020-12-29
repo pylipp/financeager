@@ -12,8 +12,8 @@ import pkg_resources
 
 import financeager
 
-from . import (POCKET_DATE_FORMAT, __version__, clients, config, entries,
-               exceptions, init_logger, listing,
+from . import (POCKET_DATE_FORMAT, __version__, clients, config, convert,
+               entries, exceptions, init_logger, listing,
                make_log_stream_handler_verbose, setup_log_file_handler)
 
 logger = init_logger(__name__)
@@ -97,6 +97,9 @@ def run(command,
         print(response)
 
     sinks = sinks or clients.Client.Sinks(_info, logger.error)
+
+    if command == "convert-periods-to-pocket":
+        return SUCCESS if convert.main(sinks=sinks, **params) else FAILURE
 
     date_format = configuration.get_option("FRONTEND", "date_format")
     try:
@@ -378,6 +381,15 @@ least a frequency, start date and end date are optional. Default:
     pockets_parser = subparsers.add_parser(
         "pockets", help="list all pocket databases")
 
+    convert_parser = subparsers.add_parser(
+        "convert-periods-to-pocket",
+        help="convert period databases into single pocket database",
+    )
+    convert_parser.add_argument(
+        "--period-filepaths",
+        nargs="*",
+        help="filepath(s) of period JSON file(s)",
+    )
     # Add common options to subparsers
     for subparser in subparsers.choices.values():
         subparser.add_argument(
@@ -391,7 +403,7 @@ least a frequency, start date and end date are optional. Default:
             action="store_true",
             help="Be verbose about internal workings")
 
-        if subparser not in [pockets_parser, copy_parser]:
+        if subparser not in [pockets_parser, copy_parser, convert_parser]:
             subparser.add_argument(
                 "-p", "--pocket", help="name of pocket to modify or query")
 

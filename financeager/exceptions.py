@@ -19,3 +19,7 @@ class CommunicationError(FinanceagerException):
 
 class InvalidConfigError(FinanceagerException):
     """Invalid configuration encountered."""
+
+
+class ConversionError(FinanceagerException):
+    """Invalid input for database conversion."""

@@ -1,11 +1,53 @@
 """Conversion of 'period' into 'pocket' database format."""
+import glob
 import os.path
 
 from tinydb import database
 
 import financeager
 
-from . import pocket
+from . import exceptions, pocket
+
+
+def main(*, sinks, period_filepaths=None):
+    """Validate given period filepaths and run conversion. If no filepaths
+    given, use all JSON files in `financeager.DATA_DIR`.
+    Return True on success, otherwise False.
+    """
+    if period_filepaths is None:
+        period_filepaths = sorted(
+            glob.glob(os.path.join(financeager.DATA_DIR, "*.json")))
+    else:
+        non_existing_filepaths = [
+            f for f in period_filepaths if not os.path.exists(f)
+        ]
+        if non_existing_filepaths:
+            sinks.error(
+                exceptions.ConversionError(
+                    "One or more non-existing filepaths:\n{}".format(
+                        "\n".join(non_existing_filepaths))))
+            return False
+
+    period_filepaths = [
+        f for f in period_filepaths if not f.endswith("main.json")
+    ]
+
+    invalid_filepaths = []
+    for filepath in period_filepaths:
+        try:
+            _extract_year_from_filepath(filepath)
+        except ValueError:
+            invalid_filepaths.append(filepath)
+    if invalid_filepaths:
+        sinks.error(
+            exceptions.ConversionError(
+                "One or more invalid filepaths:\n{}".format(
+                    "\n".join(invalid_filepaths))))
+        return False
+
+    sinks.info("Converting {} period(s)...".format(len(period_filepaths)))
+    run(period_filepaths)
+    return True
 
 
 def run(period_filepaths):
@@ -18,7 +60,7 @@ def run(period_filepaths):
         data_dir=financeager.DATA_DIR, name="main")
 
     for filepath in period_filepaths:
-        year = int(os.path.splitext(os.path.basename(filepath))[0])
+        year = _extract_year_from_filepath(filepath)
 
         with database.TinyDB(filepath) as db:
             table_name = financeager.DEFAULT_TABLE
@@ -35,3 +77,7 @@ def run(period_filepaths):
             main_pocket._db.table(table_name).insert_multiple(documents)
 
     main_pocket.close()
+
+
+def _extract_year_from_filepath(filepath):
+    return int(os.path.splitext(os.path.basename(filepath))[0])
