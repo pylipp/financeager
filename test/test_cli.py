@@ -365,7 +365,7 @@ class PreprocessTestCase(unittest.TestCase):
     @unittest.skip("DD.MM. not recognized as date format by dateutil")
     def test_date_format(self):
         data = {"date": "31.01."}
-        cli._preprocess(data, date_format="%d.%m.")
+        cli._preprocess(data)
         self.assertDictEqual(data, {"date": "01-31"})
 
     def test_leap_year_date(self):

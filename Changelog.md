@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The dependency `python-dateutil` is updated to version 2.8.1. (#52)
 ### Fixed
 ### Removed
+- The `date_format` configuration option is removed. (#52)
 ### Deprecated
 - The main command `financeager` is replaced by the shorter and more pleasant `fina`.
 

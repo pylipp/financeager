@@ -4,7 +4,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 from financeager import plugin
 
 from . import init_logger
-from .entries import BaseEntry, CategoryEntry
+from .entries import CategoryEntry
 from .exceptions import InvalidConfigError
 
 logger = init_logger(__name__)
@@ -43,7 +43,6 @@ class Configuration:
         }
         self._parser["FRONTEND"] = {
             "default_category": CategoryEntry.DEFAULT_NAME,
-            "date_format": BaseEntry.DATE_FORMAT.replace("%", "%%"),
         }
 
         for p in self._plugins:

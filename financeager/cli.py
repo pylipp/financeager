@@ -102,9 +102,8 @@ def run(command,
     if command == "convert-periods-to-pocket":
         return SUCCESS if convert.main(sinks=sinks, **params) else FAILURE
 
-    date_format = configuration.get_option("FRONTEND", "date_format")
     try:
-        _preprocess(params, date_format)
+        _preprocess(params)
     except exceptions.PreprocessingError as e:
         sinks.error(e)
         return FAILURE
@@ -131,7 +130,7 @@ def run(command,
     return exit_code
 
 
-def _preprocess(data, date_format=None):
+def _preprocess(data):
     """Preprocess data to be passed to Client (e.g. convert date format, parse
     'filters' and 'month' options passed with list command).
 

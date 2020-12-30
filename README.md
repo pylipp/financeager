@@ -143,11 +143,10 @@ You can find a log of interactions at `~/.local/share/financeager/log` (on both 
 
 ### More on configuration
 
-Besides specifying the backend to communicate with, you can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry) and the date format (string that `datetime.strptime` understands; note the double percent). The defaults are:
+Besides specifying the backend to communicate with, you can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry). The defaults are:
 
     [FRONTEND]
     default_category = unspecified
-    date_format = %%m-%%d
 
 The CLI `fina` tries to read the configuration from `~/.config/financeager/config`. You can specify a custom path by passing it along with the `-C`/`--config` command line option.
 
