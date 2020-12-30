@@ -56,7 +56,7 @@ setup(
     ],
     install_requires=[
         "tinydb==4.3.0",
-        "python-dateutil==2.6.0",
+        "python-dateutil==2.8.1",
         "marshmallow==3.3.0",
         "argcomplete==1.11.1",
     ],
