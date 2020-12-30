@@ -29,8 +29,8 @@ class BaseEntry(Entry):
     NAME_LENGTH = 16
     VALUE_LENGTH = 8  # 00000.00
     VALUE_DIGITS = 2
-    DATE_FORMAT = "%m-%d"
-    DATE_LENGTH = 5  # mm-dd
+    DATE_FORMAT = "%y-%m-%d"
+    DATE_LENGTH = 8  # yy-mm-dd
     SHOW_EID = True
     EID_LENGTH = 3 if SHOW_EID else 0
     # add spaces separating name/value, value/date and date/eid
