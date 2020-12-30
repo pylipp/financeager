@@ -9,6 +9,7 @@ from datetime import datetime
 
 import argcomplete
 import pkg_resources
+from dateutil import parser as du_parser
 
 import financeager
 
@@ -137,12 +138,10 @@ def _preprocess(data, date_format=None):
     :raises: PreprocessError if preprocessing failed.
     """
     date = data.get("date")
-    # recovering offline data does not bring any date format because the data
-    # has already been converted
-    if date is not None and date_format is not None:
+    if date is not None:
         try:
             date = time.strftime(POCKET_DATE_FORMAT,
-                                 time.strptime(date, date_format))
+                                 du_parser.parse(date).timetuple())
             data["date"] = date
         except ValueError:
             raise exceptions.PreprocessingError("Invalid date format.")
