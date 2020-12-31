@@ -136,14 +136,15 @@ def _preprocess(data):
 
     :raises: PreprocessError if preprocessing failed.
     """
-    date = data.get("date")
-    if date is not None:
-        try:
-            date = time.strftime(POCKET_DATE_FORMAT,
-                                 du_parser.parse(date).timetuple())
-            data["date"] = date
-        except ValueError:
-            raise exceptions.PreprocessingError("Invalid date format.")
+    for field in ["date", "start", "end"]:
+        date = data.get(field)
+        if date is not None:
+            try:
+                date = time.strftime(POCKET_DATE_FORMAT,
+                                     du_parser.parse(date).timetuple())
+                data[field] = date
+            except ValueError:
+                raise exceptions.PreprocessingError("Invalid date format.")
 
     filter_items = data.get("filters")
     if filter_items is not None:

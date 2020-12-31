@@ -270,6 +270,30 @@ default_category = no-category"""
             disk_period_content = json.load(f)
         self.assertDictEqual(period_content, disk_period_content)
 
+    def test_add_recurrent_entry(self):
+        entry_id = self.cli_run(
+            "add credit -100 -t recurrent -f monthly -s 01-01")
+        self.assertEqual(entry_id, 1)
+
+        year = dt.today().year
+        response = self.cli_run("get {} -t recurrent", format_args=entry_id)
+        self.assertEqual(
+            response, """\
+Name     : Credit
+Value    : -100.0
+Frequency: Monthly
+Start    : {}-01-01
+End      : None
+Category : No-Category""".format(year))
+
+        entry_id = self.cli_run(
+            "add gift -200 -t recurrent -f quarter-yearly -e 12-31")
+        self.assertEqual(entry_id, 2)
+
+        response = self.cli_run("get {} -t recurrent", format_args=entry_id)
+
+        self.assertIn("End      : {}-12-31".format(year), response)
+
 
 CONVERT_TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-convert-")
 

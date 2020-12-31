@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The dependency `tinydb` is updated to version 4.3.0. (#52)
 - The dependency `python-dateutil` is updated to version 2.8.1. (#52)
 ### Fixed
+- Preprocess `--start`/`--end` CLI options for `add` command. (#52)
 ### Removed
 - The `date_format` configuration option is removed. (#52)
 ### Deprecated
