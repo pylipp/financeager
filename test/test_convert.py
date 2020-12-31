@@ -4,14 +4,15 @@ import tempfile
 import unittest
 from unittest import mock
 
-from financeager import DEFAULT_TABLE, convert
+from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, convert
 
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class ConvertTestCase(unittest.TestCase):
-    POCKET_FILEPATH = os.path.join(TEST_DATA_DIR, "main.json")
+    POCKET_FILEPATH = os.path.join(TEST_DATA_DIR,
+                                   "{}.json".format(DEFAULT_POCKET_NAME))
 
     def tearDown(self):
         if os.path.exists(self.POCKET_FILEPATH):

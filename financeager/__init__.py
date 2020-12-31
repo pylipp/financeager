@@ -1,5 +1,4 @@
 import os.path
-from datetime import datetime as dt
 from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
 
 # versioning information
@@ -10,6 +9,9 @@ __version__ = get_distribution(__name__).version
 #
 # Global constants
 #
+
+# default name of database
+DEFAULT_POCKET_NAME = "main"
 
 # fixed date format for database
 POCKET_DATE_FORMAT = "%Y-%m-%d"
@@ -27,12 +29,6 @@ DATA_DIR = os.path.expanduser("~/.local/share/financeager")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 OFFLINE_FILEPATH = os.path.join(DATA_DIR, "offline.json")
-
-
-def default_pocket_name():
-    """The current year as string (format YYYY)."""
-    return str(dt.today().year)
-
 
 # Set up the package logger
 LOGGER = getLogger(__package__)

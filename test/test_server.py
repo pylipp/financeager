@@ -2,7 +2,7 @@ import os.path
 import tempfile
 import unittest
 
-from financeager import DEFAULT_TABLE, default_pocket_name, entries
+from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, entries
 from financeager import pocket as pd
 from financeager import server
 
@@ -91,7 +91,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertEqual(pocket.name, another_pocket)
 
         pocket = self.server._get_pocket(None)
-        self.assertEqual(pocket.name, default_pocket_name())
+        self.assertEqual(pocket.name, DEFAULT_POCKET_NAME)
 
     def test_query_and_reset_response(self):
         category = entries.CategoryEntry.DEFAULT_NAME

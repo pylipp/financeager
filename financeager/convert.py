@@ -29,7 +29,8 @@ def main(*, sinks, period_filepaths=None):
             return False
 
     period_filepaths = [
-        f for f in period_filepaths if not f.endswith("main.json")
+        f for f in period_filepaths
+        if not f.endswith("{}.json".format(financeager.DEFAULT_POCKET_NAME))
     ]
 
     invalid_filepaths = []
@@ -51,13 +52,12 @@ def main(*, sinks, period_filepaths=None):
 
 
 def run(period_filepaths):
-    """Read in period databases at given filepaths and create a single 'main'
+    """Read in period databases at given filepaths and create a single main
     Pocket from their contents. Date-related fields are updated with the
     according year.
     It has to be guaranteed that the period filepaths exist.
     """
-    main_pocket = pocket.TinyDbPocket(
-        data_dir=financeager.DATA_DIR, name="main")
+    main_pocket = pocket.TinyDbPocket(data_dir=financeager.DATA_DIR)
 
     for filepath in period_filepaths:
         year = _extract_year_from_filepath(filepath)

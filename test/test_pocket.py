@@ -8,7 +8,7 @@ from collections import Counter
 
 from marshmallow import ValidationError
 
-from financeager import DEFAULT_TABLE, POCKET_DATE_FORMAT
+from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT
 from financeager.pocket import (_DEFAULT_CATEGORY, EntryBaseSchema, Pocket,
                                 PocketException, RecurrentEntrySchema,
                                 StandardEntrySchema, TinyDbPocket)
@@ -22,8 +22,7 @@ class Entry:
 class CreateEmptyPocketTestCase(unittest.TestCase):
     def test_default_name(self):
         pocket = Pocket()
-        year = dt.date.today().year
-        self.assertEqual(pocket.name, str(year))
+        self.assertEqual(pocket.name, DEFAULT_POCKET_NAME)
 
     def test_load_category_cache(self):
         # Create data file with one entry and load it into TinyDbPocket

@@ -2,7 +2,7 @@
 import glob
 import os.path
 
-from . import default_pocket_name, init_logger, pocket
+from . import DEFAULT_POCKET_NAME, init_logger, pocket
 
 logger = init_logger(__name__)
 
@@ -70,7 +70,7 @@ class Server:
         :type name: str or None
         :return: Pocket object
         """
-        name = name or default_pocket_name()
+        name = name or DEFAULT_POCKET_NAME
         try:
             pd = self._pockets[name]
         except KeyError:

@@ -10,7 +10,7 @@ from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import Query, TinyDB, storages
 from tinydb.database import Document
 
-from . import DEFAULT_TABLE, POCKET_DATE_FORMAT, default_pocket_name
+from . import DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT
 
 _DEFAULT_CATEGORY = None
 
@@ -43,7 +43,7 @@ class Pocket:
         """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
-        self._name = "{}".format(name or default_pocket_name())
+        self._name = "{}".format(name or DEFAULT_POCKET_NAME)
 
     @property
     def name(self):
