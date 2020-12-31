@@ -23,7 +23,6 @@ class CreateEmptyPocketTestCase(unittest.TestCase):
     def test_default_name(self):
         pocket = Pocket()
         year = dt.date.today().year
-        self.assertEqual(pocket.year, year)
         self.assertEqual(pocket.name, str(year))
 
     def test_load_category_cache(self):

@@ -49,11 +49,6 @@ class Pocket:
     def name(self):
         return self._name
 
-    @property
-    def year(self):
-        """Return pocket year as integer."""
-        return int(self._name)
-
 
 class PocketException(Exception):
     pass
