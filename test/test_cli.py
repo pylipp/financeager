@@ -371,7 +371,7 @@ class PreprocessTestCase(unittest.TestCase):
     def test_leap_year_date(self):
         data = {"date": "02-29"}
         cli._preprocess(data)
-        self.assertDictEqual(data, {"date": "02-29"})
+        self.assertDictEqual(data, {"date": "{}-02-29".format(dt.today().year)})
 
     def test_date_format_error(self):
         data = {"date": "01_01"}

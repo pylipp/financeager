@@ -393,10 +393,8 @@ class TinyDbPocket(Pocket):
         """
 
         # parse dates to datetime objects
-        start = dt.strptime(element["start"],
-                            POCKET_DATE_FORMAT).replace(year=self.year)
-        end = dt.strptime(element["end"],
-                          POCKET_DATE_FORMAT).replace(year=self.year)
+        start = dt.strptime(element["start"], POCKET_DATE_FORMAT)
+        end = dt.strptime(element["end"], POCKET_DATE_FORMAT)
 
         now = dt.now()
         if end > now:

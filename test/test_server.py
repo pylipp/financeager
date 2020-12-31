@@ -40,8 +40,8 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
             value=-1000,
             table_name="recurrent",
             frequency="monthly",
-            start="01-02",
-            end="07-01",
+            start="2000-01-02",
+            end="2000-07-01",
             pocket=self.pocket)["id"]
 
     def test_recurrent_entries(self):

@@ -12,7 +12,7 @@ __version__ = get_distribution(__name__).version
 #
 
 # fixed date format for database
-POCKET_DATE_FORMAT = "%m-%d"
+POCKET_DATE_FORMAT = "%Y-%m-%d"
 
 # default table name of database
 DEFAULT_TABLE = "standard"

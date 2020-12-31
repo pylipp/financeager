@@ -9,7 +9,7 @@ class BaseEntryTestCase(unittest.TestCase):
         entry = BaseEntry(**{
             "name": "groceries",
             "value": 123.45,
-            "date": "08-10"
+            "date": "2000-08-10"
         })
 
         self.assertEqual(entry.name, "groceries")
@@ -21,7 +21,7 @@ class BaseEntryTestCase(unittest.TestCase):
         entry = BaseEntry(**{
             "name": "leap",
             "value": 1,
-            "date": "02-29",
+            "date": "2000-02-29",
         })
         self.assertEqual(entry.date, "00-02-29")
 
@@ -32,7 +32,7 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
         cls.entry = BaseEntry(**{
             "name": "vw bully",
             "value": -6000,
-            "date": "01-01"
+            "date": "2000-01-01"
         })
 
     def test_name(self):
@@ -78,7 +78,7 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.entry = CategoryEntry(
             name="This is quite a LOOONG Category",
-            entries=[BaseEntry("entry", -100, "08-13")])
+            entries=[BaseEntry("entry", -100, "2000-08-13")])
 
     def test_name(self):
         self.assertEqual(self.entry.name, "this is quite a looong category")
@@ -101,7 +101,7 @@ class SortBaseEntriesTestCase(unittest.TestCase):
         self.entry = CategoryEntry(
             name="letters",
             entries=[
-                BaseEntry(l, v, "0{}-11".format(9 - v), i)
+                BaseEntry(l, v, "2000-0{}-11".format(9 - v), i)
                 for l, v, i in zip("abc", (1, 5, 3), (7, 1, 3))
             ])
 

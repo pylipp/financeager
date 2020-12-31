@@ -36,7 +36,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.listing = Listing()
         self.item_name = "Aldi"
         self.item_value = 66.6
-        self.item_date = "11-08"
+        self.item_date = "2000-11-08"
         self.item_category = "Groceries"
         self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
@@ -72,7 +72,7 @@ class SortCategoryEntriesTestCase(unittest.TestCase):
     def setUp(self):
         self.listing = Listing()
         for c, v in zip("ab", [20, 10]):
-            self.listing.add_entry(BaseEntry("foo", v, "01-01"), c)
+            self.listing.add_entry(BaseEntry("foo", v, "2000-01-01"), c)
 
     def test_sort_by_name(self):
         self.assertEqual(
@@ -102,7 +102,7 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
         self.listing = Listing()
         self.item_name = "Aldi"
         self.item_value = -66.6
-        self.item_date = "11-08"
+        self.item_date = "2000-11-08"
         self.item_category = "Groceries"
         self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
@@ -123,7 +123,7 @@ class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
         self.listing = Listing()
         self.item_name = "Aldi"
         self.item_value = 66.6
-        self.item_date = "11-08"
+        self.item_date = "2009-11-08"
         self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
             category_name=CategoryEntry.DEFAULT_NAME)
@@ -139,7 +139,7 @@ class AddTwoBaseEntriesTestCase(unittest.TestCase):
         self.item_a_value = 66.6
         self.item_b_value = 10.01
         self.item_category = "Groceries"
-        self.date = "11-11"
+        self.date = "2008-11-11"
         self.listing.add_entry(
             BaseEntry("Aldi", self.item_a_value, self.date), self.item_category)
         self.listing.add_entry(
@@ -156,13 +156,13 @@ class ListingFromElementsTestCase(unittest.TestCase):
     def setUp(self):
         self.name = "Dinner for one"
         self.value = 99.9
-        self.date = "12-31"
+        self.date = "1980-12-31"
         self.listing = Listing.from_elements(
             [dict(name=self.name, value=self.value, date=self.date, eid=0)],
             default_category=CategoryEntry.DEFAULT_NAME)
 
     def test_contains_an_entry(self):
-        self.assertIn(self.date, self.listing.prettify())
+        self.assertIn(self.date[2:], self.listing.prettify())
 
     def test_category_item_names(self):
         parsed_listing_entry_names = list(self.listing.category_entry_names)
@@ -181,20 +181,20 @@ class PrettifyListingsTestCase(unittest.TestCase):
                 1: {
                     "name": "food",
                     "value": -100.01,
-                    "date": "03-03",
+                    "date": "2000-03-03",
                     "category": "groceries"
                 },
                 999: {
                     "name": "money",
                     "value": 299.99,
-                    "date": "03-03"
+                    "date": "2000-03-03"
                 }
             },
             "recurrent": {
                 42: [{
                     "name": "gold",
                     "value": 4321,
-                    "date": "01-01",
+                    "date": "2000-01-01",
                     "category": "bank"
                 }]
             }
@@ -235,13 +235,13 @@ class PrettifyListingsTestCase(unittest.TestCase):
                 2: {
                     "name": "shirt",
                     "value": -199,
-                    "date": "04-01",
+                    "date": "2000-04-01",
                     "category": "clothes",
                 },
                 3: {
                     "name": "lunch",
                     "value": -20,
-                    "date": "04-01",
+                    "date": "2000-04-01",
                     "category": "food",
                 }
             },
