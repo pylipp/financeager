@@ -355,11 +355,11 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             name="Fee",
             value=-100,
             start="2015-01-01",
-            end="2019-03-02",
+            end=None,
             table_name="recurrent",
             frequency="yearly")
         recurrent_entries = self.pocket.get_entries()["recurrent"][eid]
-        self.assertEqual(len(recurrent_entries), 5)
+        self.assertEqual(len(recurrent_entries), dt.date.today().year - 2014)
         self.assertEqual(recurrent_entries[0]["date"], "2015-01-01")
         self.assertEqual(recurrent_entries[0]["name"], "fee, 2015")
 

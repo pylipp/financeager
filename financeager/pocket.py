@@ -183,9 +183,7 @@ class TinyDbPocket(Pocket):
                 substituted_fields["start"] = dt.today().strftime(
                     POCKET_DATE_FORMAT)
             if fields.get("end") is None:
-                substituted_fields["end"] = \
-                    dt.today().replace(month=12,
-                                       day=31).strftime(POCKET_DATE_FORMAT)
+                substituted_fields["end"] = None
         else:
             if fields.get("date") is None:
                 substituted_fields["date"] = dt.today().strftime(
@@ -279,7 +277,8 @@ class TinyDbPocket(Pocket):
 
         The following kwargs are optional for recurrent entries:
             :param start: start date (defaults to current date)
-            :param end: end date (defaults to last day of the pocket's year)
+            :param end: end date (defaults to None which evaluates to the
+                current day when the entry is queried)
 
         :raise: PocketException if validation failed or table name unknown
         :return: TinyDB ID of new entry (int)
@@ -389,9 +388,10 @@ class TinyDbPocket(Pocket):
 
         # parse dates to datetime objects
         start = dt.strptime(element["start"], POCKET_DATE_FORMAT)
-        end = dt.strptime(element["end"], POCKET_DATE_FORMAT)
-
         now = dt.now()
+        end = element["end"]
+        end = now if end is None else dt.strptime(end, POCKET_DATE_FORMAT)
+
         if end > now:
             # don't show entries that are in the future
             end = now

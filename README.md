@@ -86,7 +86,7 @@ Category and date can be optionally specified. They default to None and the curr
 
     > fina add rent -500 -t recurrent -f monthly -s 01-01 -c rent
 
-If not specified, the start date defaults to the current date and the end date to the last day of the database's year.
+By default, the start date is the current date. The entry exists for infinite times, i.e. the end date is evaluated as the current date at query runtime.
 
 Did you make a mistake when adding a new entry? *Update* one or more fields by calling the `update` command with the entry's ID and the respective corrected fields:
 
