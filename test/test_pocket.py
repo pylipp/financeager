@@ -361,7 +361,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         recurrent_entries = self.pocket.get_entries()["recurrent"][eid]
         self.assertEqual(len(recurrent_entries), 5)
         self.assertEqual(recurrent_entries[0]["date"], "2015-01-01")
-        self.assertEqual(recurrent_entries[0]["name"], "fee")
+        self.assertEqual(recurrent_entries[0]["name"], "fee, 2015")
 
     def tearDown(self):
         self.pocket.close()

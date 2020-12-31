@@ -417,7 +417,9 @@ class TinyDbPocket(Pocket):
         for date in rule:
             # add date description to name
             name = element["name"]
-            if frequency == "MONTHLY":
+            if frequency == "YEARLY":
+                name = "{}, {}".format(name, date.strftime("%Y"))
+            elif frequency == "MONTHLY":
                 name = "{}, {}".format(name, date.strftime("%B").lower())
             elif frequency == "WEEKLY":
                 name = "{}, week {}".format(name, date.strftime("%W").lower())
