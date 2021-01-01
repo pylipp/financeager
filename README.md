@@ -1,3 +1,4 @@
+![Build Status](https://github.com/pylipp/financeager/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pylipp/financeager/badge.svg?branch=master)](https://coveralls.io/github/pylipp/financeager?branch=master)
 
 FINANCEAGER
