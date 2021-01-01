@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [unreleased]
 ### Added
 ### Changed
+### Fixed
+### Removed
+
+## [v0.25.0.0] - 2021-01-01
+### Changed
 - CI tests are now executed via Github actions instead of Travis.
 - The release procedure is executed entirely via Github actions.
 - The database structure underwent a major change. It is intended that a single database spans more than a year, and refers to a specific project. Please run the `convert-periods-to-pocket` command to transfer existing data into the new format. The term 'period' is replaced by 'pocket'. Date fields are stored including the year. By default, recurrent entries last infinitely. (#52)
