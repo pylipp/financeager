@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Preprocess `--start`/`--end` CLI options for `add` command. (#52)
 ### Removed
 - The `date_format` configuration option is removed. (#52)
+- Support for Python 3.5 is removed. The program might become incompatible with that version in an upcoming release.
 ### Deprecated
 - The main command `financeager` is replaced by the shorter and more pleasant `fina`.
 
