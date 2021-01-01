@@ -19,6 +19,8 @@ NOTE
 ----
 The project is actively developed. Expect things to break - e.g. the command line interface, the REST API definitions, ... - before version 1.0.0 is released.
 
+> If you have been using the app before `v0.25.0.0`, please run the `convert-periods-to-pocket` command to adjust for the new database structure. See the Changelog and #52 for details.
+
 ## Installation
 
 ### From PyPI package
@@ -81,6 +83,8 @@ On the client side, `financeager` provides the following commands to interact wi
     > fina add lottery 123.45 --date 03-14
 
 Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
+
+> The date format can be anything that the [parser module](https://dateutil.readthedocs.io/en/stable/parser.html) of the `python-dateutil` library understands (e.g. YYYY-MM-DD, or MM-DD).
 
 *Add recurrent* entries using the `-t recurrent` flag (`t` for table name) and specify the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
 

@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - CI tests are now executed via Github actions instead of Travis.
 - The release procedure is executed entirely via Github actions.
-- The term 'period' is replaced by 'pocket'. Date fields are stored including the year. By default, recurrent entries last infinitely. (#52)
+- The database structure underwent a major change. It is intended that a single database spans more than a year, and refers to a specific project. Please run the `convert-periods-to-pocket` command to transfer existing data into the new format. The term 'period' is replaced by 'pocket'. Date fields are stored including the year. By default, recurrent entries last infinitely. (#52)
 - CLI date parsing is now executed by the `python-dateutil` package instead of only supporting a single format. (#52)
 - The dependency `tinydb` is updated to version 4.3.0. (#52)
 - The dependency `python-dateutil` is updated to version 2.8.1. (#52)
