@@ -9,11 +9,12 @@ from datetime import datetime
 
 import argcomplete
 import pkg_resources
+from dateutil import parser as du_parser
 
 import financeager
 
-from . import (PERIOD_DATE_FORMAT, __version__, clients, config, entries,
-               exceptions, init_logger, listing,
+from . import (POCKET_DATE_FORMAT, __version__, clients, config, convert,
+               entries, exceptions, init_logger, listing,
                make_log_stream_handler_verbose, setup_log_file_handler)
 
 logger = init_logger(__name__)
@@ -88,6 +89,8 @@ def run(command,
     if verbose:
         make_log_stream_handler_verbose()
 
+    formatting_options = {}
+
     def _info(message):
         """Wrapper to format message and propagate it to stdout. The original
         message is logged at INFO-level.
@@ -98,14 +101,15 @@ def run(command,
 
     sinks = sinks or clients.Client.Sinks(_info, logger.error)
 
-    date_format = configuration.get_option("FRONTEND", "date_format")
+    if command == "convert-periods-to-pocket":
+        return SUCCESS if convert.main(sinks=sinks, **params) else FAILURE
+
     try:
-        _preprocess(params, date_format)
+        _preprocess(params)
     except exceptions.PreprocessingError as e:
         sinks.error(e)
         return FAILURE
 
-    formatting_options = {}
     formatting_options["default_category"] = configuration.get_option(
         "FRONTEND", "default_category")
     if command == "list":
@@ -127,22 +131,21 @@ def run(command,
     return exit_code
 
 
-def _preprocess(data, date_format=None):
+def _preprocess(data):
     """Preprocess data to be passed to Client (e.g. convert date format, parse
     'filters' and 'month' options passed with list command).
 
     :raises: PreprocessError if preprocessing failed.
     """
-    date = data.get("date")
-    # recovering offline data does not bring any date format because the data
-    # has already been converted
-    if date is not None and date_format is not None:
-        try:
-            date = time.strftime(PERIOD_DATE_FORMAT,
-                                 time.strptime(date, date_format))
-            data["date"] = date
-        except ValueError:
-            raise exceptions.PreprocessingError("Invalid date format.")
+    for field in ["date", "start", "end"]:
+        date = data.get(field)
+        if date is not None:
+            try:
+                date = time.strftime(POCKET_DATE_FORMAT,
+                                     du_parser.parse(date).timetuple())
+                data[field] = date
+            except ValueError:
+                raise exceptions.PreprocessingError("Invalid date format.")
 
     filter_items = data.get("filters")
     if filter_items is not None:
@@ -202,7 +205,7 @@ def _format_response(response, command, **listing_options):
     """Format the given response (dict or str) into human-readable text.
     If the response is a string, it is immediately returned.
     If the response does not contain any of the fields 'id', 'elements',
-    'element', or 'periods', an empty string is returned.
+    'element', or 'pockets', an empty string is returned.
     The 'listing_options' are passed to listing.prettify().
 
     :return: str
@@ -229,8 +232,8 @@ def _format_response(response, command, **listing_options):
         return entries.prettify(
             element, default_category=listing_options["default_category"])
 
-    periods = response.get("periods", [])
-    return "\n".join([p for p in periods])
+    pockets = response.get("pockets", [])
+    return "\n".join([p for p in pockets])
 
 
 def _parse_command(args=None):
@@ -318,20 +321,20 @@ least a frequency, start date and end date are optional. Default:
         "-e", "--end", help="new end date (for recurrent entries only)")
 
     copy_parser = subparsers.add_parser(
-        "copy", help="copy an entry from one period to another")
+        "copy", help="copy an entry from one pocket to another")
     copy_parser.add_argument("eid", help="entry ID")
     copy_parser.add_argument(
         "-s",
         "--source",
         default=None,
-        dest="source_period",
-        help="period to copy the entry from")
+        dest="source_pocket",
+        help="pocket to copy the entry from")
     copy_parser.add_argument(
         "-d",
         "--destination",
         default=None,
-        dest="destination_period",
-        help="period to copy the entry to")
+        dest="destination_pocket",
+        help="pocket to copy the entry to")
     copy_parser.add_argument(
         "-t",
         "--table-name",
@@ -339,7 +342,7 @@ least a frequency, start date and end date are optional. Default:
         help="Table to copy the entry from/to. Default: 'standard'.")
 
     list_parser = subparsers.add_parser(
-        "list", help="list all entries in the period database")
+        "list", help="list all entries in the pocket database")
     list_parser.add_argument(
         "-f",
         "--filters",
@@ -375,9 +378,18 @@ least a frequency, start date and end date are optional. Default:
         help="show only entries of given month (default to current one)",
     )
 
-    periods_parser = subparsers.add_parser(
-        "periods", help="list all period databases")
+    pockets_parser = subparsers.add_parser(
+        "pockets", help="list all pocket databases")
 
+    convert_parser = subparsers.add_parser(
+        "convert-periods-to-pocket",
+        help="convert period databases into single pocket database",
+    )
+    convert_parser.add_argument(
+        "--period-filepaths",
+        nargs="*",
+        help="filepath(s) of period JSON file(s)",
+    )
     # Add common options to subparsers
     for subparser in subparsers.choices.values():
         subparser.add_argument(
@@ -391,9 +403,9 @@ least a frequency, start date and end date are optional. Default:
             action="store_true",
             help="Be verbose about internal workings")
 
-        if subparser not in [periods_parser, copy_parser]:
+        if subparser not in [pockets_parser, copy_parser, convert_parser]:
             subparser.add_argument(
-                "-p", "--period", help="name of period to modify or query")
+                "-p", "--pocket", help="name of pocket to modify or query")
 
     argcomplete.autocomplete(parser)
     return vars(parser.parse_args(args=args))
