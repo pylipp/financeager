@@ -89,6 +89,8 @@ def run(command,
     if verbose:
         make_log_stream_handler_verbose()
 
+    formatting_options = {}
+
     def _info(message):
         """Wrapper to format message and propagate it to stdout. The original
         message is logged at INFO-level.
@@ -108,7 +110,6 @@ def run(command,
         sinks.error(e)
         return FAILURE
 
-    formatting_options = {}
     formatting_options["default_category"] = configuration.get_option(
         "FRONTEND", "default_category")
     if command == "list":
