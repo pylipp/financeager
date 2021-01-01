@@ -10,14 +10,14 @@ install:
 	gitlint install-hook
 
 test:
-	python setup.py test
+	python -m unittest
 
 release:
 	git push --tags origin master
 
 coverage:
 	coverage erase
-	coverage run --source financeager setup.py test
+	coverage run --source financeager -m unittest
 	coverage report
 	coverage html
 

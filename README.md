@@ -288,7 +288,7 @@ Install development dependencies
 You're all set for hacking!
 Please adhere to test-driven development, if possible: When adding a feature, or fixing a bug, try to construct a test first, and subsequently adapt the implementation. Run the tests from the root directory via
 
-    python setup.py test
+    make test
 
 If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug fix or a new feature), please update `Changelog.md` accordingly as well. Check this README whether the content is still up to date.
 
