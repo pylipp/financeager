@@ -423,7 +423,7 @@ class TinyDbPocket(Pocket):
                 name = "{}, {}".format(name, date.strftime("%B").lower())
             elif frequency == "WEEKLY":
                 name = "{}, week {}".format(name, date.strftime("%W").lower())
-            elif frequency == "DAILY":
+            else:  # DAILY
                 name = "{}, day {}".format(name, date.strftime("%-j").lower())
 
             yield Document(
