@@ -141,8 +141,9 @@ def _preprocess(data):
         date = data.get(field)
         if date is not None:
             try:
-                date = time.strftime(POCKET_DATE_FORMAT,
-                                     du_parser.parse(date).timetuple())
+                date = time.strftime(
+                    POCKET_DATE_FORMAT,
+                    du_parser.parse(date, yearfirst=True).timetuple())
                 data[field] = date
             except ValueError:
                 raise exceptions.PreprocessingError("Invalid date format.")

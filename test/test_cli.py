@@ -154,6 +154,13 @@ default_category = no-category"""
         response = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("no-category", response.lower())
 
+    def test_add_entry_with_date(self):
+        entry_id = self.cli_run("add something -1 -d 20-03-04")
+        self.assertEqual(entry_id, 1)
+
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertIn("Date    : 2020-03-04", response)
+
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
         self.assertEqual(response, "Invalid request: Entry not found.")
