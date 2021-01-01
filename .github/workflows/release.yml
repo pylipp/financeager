@@ -23,7 +23,7 @@ jobs:
       id: construct
       run: |
         echo "RELEASEBODY<<EOF" >> $GITHUB_ENV
-        awk -v RS='' '/\\[${${{ github.ref }}#*refs/tags/}\\]/ {print $0}'  Changelog.md  | tail -n+2 >> $GITHUB_ENV
+        awk -v RS='' '/## \\[v/ {print $0; exit}' Changelog.md | tail -n+2 >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
       env:
         REPOSITORY: ${{ github.event.repository.name }}
