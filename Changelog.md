@@ -7,9 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 ### Fixed
+### Removed
+
+## [v0.25.0.1] - 2021-01-02
+### Fixed
 - Specifying a date by format YY-MM-DD for a CLI option is correctly parsed.
 - Support four-digit entry IDs (i.e. up to 9999).
-### Removed
 
 ## [v0.25.0.0] - 2021-01-01
 ### Changed
