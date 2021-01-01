@@ -32,7 +32,7 @@ class BaseEntry(Entry):
     DATE_FORMAT = "%y-%m-%d"
     DATE_LENGTH = 8  # yy-mm-dd
     SHOW_EID = True
-    EID_LENGTH = 3 if SHOW_EID else 0
+    EID_LENGTH = 4 if SHOW_EID else 0
     # add spaces separating name/value, value/date and date/eid
     TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + \
         3 if SHOW_EID else 2

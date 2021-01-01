@@ -46,9 +46,9 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.assertEqual(
             self.listing.prettify(), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                "Name               Value    Date     ID ",
-                "Groceries             66.60" + 13 * " ",
-                "  Aldi                66.60 00-11-08   0"
+                "Name               Value    Date     ID  ",
+                "Groceries             66.60" + 14 * " ",
+                "  Aldi                66.60 00-11-08    0"
             ]))
 
     def test_str_no_eid(self):
@@ -59,7 +59,7 @@ class AddBaseEntryTestCase(unittest.TestCase):
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
                 "Name               Value    Date    ",
                 # TODO: fix this; category entry line has to be shorter
-                "Groceries             66.60             ",
+                "Groceries             66.60              ",
                 "  Aldi                66.60 00-11-08"
             ]))
         BaseEntry.SHOW_EID = True
@@ -78,22 +78,22 @@ class SortCategoryEntriesTestCase(unittest.TestCase):
         self.assertEqual(
             self.listing.prettify(category_sort="name"), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                "Name               Value    Date     ID ",
-                "A                     20.00" + 13 * " ",
-                "  Foo                 20.00 00-01-01   0",
-                "B                     10.00" + 13 * " ",
-                "  Foo                 10.00 00-01-01   0",
+                "Name               Value    Date     ID  ",
+                "A                     20.00" + 14 * " ",
+                "  Foo                 20.00 00-01-01    0",
+                "B                     10.00" + 14 * " ",
+                "  Foo                 10.00 00-01-01    0",
             ]))
 
     def test_sort_by_value(self):
         self.assertEqual(
             self.listing.prettify(), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                "Name               Value    Date     ID ",
-                "B                     10.00" + 13 * " ",
-                "  Foo                 10.00 00-01-01   0",
-                "A                     20.00" + 13 * " ",
-                "  Foo                 20.00 00-01-01   0",
+                "Name               Value    Date     ID  ",
+                "B                     10.00" + 14 * " ",
+                "  Foo                 10.00 00-01-01    0",
+                "A                     20.00" + 14 * " ",
+                "  Foo                 20.00 00-01-01    0",
             ]))
 
 
@@ -112,9 +112,9 @@ class AddNegativeBaseEntryTestCase(unittest.TestCase):
         self.assertEqual(
             self.listing.prettify(), '\n'.join([
                 "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                "Name               Value    Date     ID ",
-                "Groceries             66.60" + 13 * " ",
-                "  Aldi                66.60 00-11-08   0"
+                "Name               Value    Date     ID  ",
+                "Groceries             66.60" + 14 * " ",
+                "  Aldi                66.60 00-11-08    0"
             ]))
 
 
@@ -204,15 +204,15 @@ class PrettifyListingsTestCase(unittest.TestCase):
         self.assertEqual(
             prettify(
                 elements_copy, default_category=CategoryEntry.DEFAULT_NAME),
-            "                Earnings                 |                 Expenses                \n"  # noqa
-            "Name               Value    Date     ID  | Name               Value    Date     ID \n"  # noqa
-            "Unspecified          299.99              | Groceries            100.01             \n"  # noqa
-            "  Money              299.99 00-03-03 999 |   Food               100.01 00-03-03   1\n"  # noqa
-            "Bank                4321.00              | \n"  # noqa
-            "  Gold              4321.00 00-01-01  42 | \n"  # noqa
-            "===================================================================================\n"  # noqa
-            "Total               4620.99              | Total                100.01             \n"  # noqa
-            "Difference          4520.98             ")
+            "                Earnings                  |                 Expenses                 \n"  # noqa
+            "Name               Value    Date     ID   | Name               Value    Date     ID  \n"  # noqa
+            "Unspecified          299.99               | Groceries            100.01              \n"  # noqa
+            "  Money              299.99 00-03-03  999 |   Food               100.01 00-03-03    1\n"  # noqa
+            "Bank                4321.00               | \n"  # noqa
+            "  Gold              4321.00 00-01-01   42 | \n"  # noqa
+            "=====================================================================================\n"  # noqa
+            "Total               4620.99               | Total                100.01              \n"  # noqa
+            "Difference          4520.98              ")
         # Assert that original data was not modified
         self.assertDictEqual(elements, elements_copy)
 
@@ -221,13 +221,13 @@ class PrettifyListingsTestCase(unittest.TestCase):
                 elements_copy,
                 default_category=CategoryEntry.DEFAULT_NAME,
                 category_percentage=True),
-            "                Earnings                 |                 Expenses                \n"  # noqa
-            "Name               Value           %     | Name               Value           %    \n"  # noqa
-            "Unspecified          299.99      6.5     | Groceries            100.01    100.0    \n"  # noqa
-            "Bank                4321.00     93.5     | \n"  # noqa
-            "===================================================================================\n"  # noqa
-            "Total               4620.99              | Total                100.01             \n"  # noqa
-            "Difference          4520.98             ")
+            "                Earnings                  |                 Expenses                 \n"  # noqa
+            "Name               Value           %      | Name               Value           %     \n"  # noqa
+            "Unspecified          299.99      6.5      | Groceries            100.01    100.0     \n"  # noqa
+            "Bank                4321.00     93.5      | \n"  # noqa
+            "=====================================================================================\n"  # noqa
+            "Total               4620.99               | Total                100.01              \n"  # noqa
+            "Difference          4520.98              ")
 
     def test_prettify_stacked_layout(self):
         elements = {
@@ -250,21 +250,21 @@ class PrettifyListingsTestCase(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(
             prettify(elements, stacked_layout=True), "\
-                Earnings                " + "\n\
-Name               Value    Date     ID " + "\n\
-========================================" + "\n\
-Total                  0.00             " + """
+                Earnings                 " + "\n\
+Name               Value    Date     ID  " + "\n\
+=========================================" + "\n\
+Total                  0.00              " + """
 
 """ + "\
-                Expenses                " + "\n\
-Name               Value    Date     ID " + "\n\
-Food                  20.00             " + "\n\
-  Lunch               20.00 00-04-01   3" + "\n\
-Clothes              199.00             " + "\n\
-  Shirt              199.00 00-04-01   2" + "\n\
-========================================" + "\n\
-Total                219.00             " + "\n\
-Difference          -219.00             ")
+                Expenses                 " + "\n\
+Name               Value    Date     ID  " + "\n\
+Food                  20.00              " + "\n\
+  Lunch               20.00 00-04-01    3" + "\n\
+Clothes              199.00              " + "\n\
+  Shirt              199.00 00-04-01    2" + "\n\
+=========================================" + "\n\
+Total                219.00              " + "\n\
+Difference          -219.00              ")
 
 
 if __name__ == '__main__':
