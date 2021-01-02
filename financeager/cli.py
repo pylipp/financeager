@@ -201,6 +201,10 @@ def _preprocess(data):
         # Overwrite 'filters' setting
         data["filters"]["date"] = "{}-".format(date.strftime("%m"))
 
+    if data.get("frequency") is not None:
+        # Assume that entry should be added to recurrent table
+        data["table_name"] = "recurrent"
+
 
 def _format_response(response, command, **listing_options):
     """Format the given response (dict or str) into human-readable text.
@@ -276,9 +280,9 @@ least a frequency, start date and end date are optional. Default:
     add_parser.add_argument(
         "-f",
         "--frequency",
-        help="frequency of recurrent "
-        "entry; one of yearly, half-yearly, quarterly, monthly, weekly, "
-        "daily.")
+        help="""frequency of recurrent entry; one of yearly, half-yearly,
+quarterly, monthly, weekly, daily. If specified, '--table-name=recurrent'
+is assumed""")
     add_parser.add_argument(
         "-s", "--start", default=None, help="start date of recurrent entry")
     add_parser.add_argument(

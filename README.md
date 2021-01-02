@@ -87,9 +87,9 @@ Category and date can be optionally specified. They default to None and the curr
 
 > The date format can be anything that the [parser module](https://dateutil.readthedocs.io/en/stable/parser.html) of the `python-dateutil` library understands (e.g. YYYY-MM-DD, YY-MM-DD or MM-DD).
 
-*Add recurrent* entries using the `-t recurrent` flag (`t` for table name) and specify the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
+*Add recurrent* entries by specifying the frequency (yearly, half-yearly, quarterly, bi-monthly, monthly, weekly, daily) with the `-f` flag and optionally start and end date with the `-s` and `-e` flags, resp.
 
-    > fina add rent -500 -t recurrent -f monthly -s 01-01 -c rent
+    > fina add rent -500 -f monthly -s 01-01 -c rent
 
 By default, the start date is the current date. The entry exists for infinite times, i.e. the end date is evaluated as the current date at query runtime.
 
