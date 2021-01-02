@@ -69,7 +69,7 @@ def run(period_filepaths):
                 doc["date"] = "{}-{}".format(year, doc["date"])
             main_pocket._db.table(table_name).insert_multiple(documents)
 
-            table_name = "recurrent"
+            table_name = financeager.RECURRENT_TABLE
             documents = db.table(table_name).all()
             for doc in documents:
                 doc["start"] = "{}-{}".format(year, doc["start"])

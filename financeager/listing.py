@@ -1,5 +1,5 @@
 """Tabular, frontend-representation of financeager pocket."""
-from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE
+from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE, RECURRENT_TABLE
 from .entries import BaseEntry, CategoryEntry
 
 
@@ -153,7 +153,7 @@ def prettify(elements, stacked_layout=False, **listing_options):
         _sort(eid, element)
 
     # process recurrent elements, i.e. for each eid iterate list
-    for eid, recurrent_elements in elements["recurrent"].items():
+    for eid, recurrent_elements in elements[RECURRENT_TABLE].items():
         for element in recurrent_elements:
             _sort(eid, element)
 

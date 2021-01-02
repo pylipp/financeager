@@ -10,7 +10,8 @@ from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import Query, TinyDB, storages
 from tinydb.database import Document
 
-from . import DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT
+from . import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
+               RECURRENT_TABLE)
 
 _DEFAULT_CATEGORY = None
 
@@ -100,7 +101,7 @@ class TinyDbPocket(Pocket):
         """
 
         table_name = table_name or DEFAULT_TABLE
-        if table_name not in ["recurrent", DEFAULT_TABLE]:
+        if table_name not in [RECURRENT_TABLE, DEFAULT_TABLE]:
             raise PocketException("Unknown table name: {}".format(table_name))
 
         self._remove_redundant_fields(table_name, raw_data)
@@ -123,7 +124,7 @@ class TinyDbPocket(Pocket):
         redundant fields in `raw_data` in-place.
         """
 
-        if table_name == "recurrent":
+        if table_name == RECURRENT_TABLE:
             redundant_fields = ["date"]
         else:
             redundant_fields = ["start", "end", "frequency"]
@@ -140,7 +141,7 @@ class TinyDbPocket(Pocket):
         """
 
         ValidationSchema = RecurrentEntrySchema \
-            if table_name == "recurrent" else StandardEntrySchema
+            if table_name == RECURRENT_TABLE else StandardEntrySchema
 
         try:
             schema = ValidationSchema(**schema_kwargs)
@@ -178,7 +179,7 @@ class TinyDbPocket(Pocket):
         substituted_fields = fields.copy()
 
         # table_name is either of two values; verified in _preprocess_entry
-        if table_name == "recurrent":
+        if table_name == RECURRENT_TABLE:
             if fields.get("start") is None:
                 substituted_fields["start"] = dt.today().strftime(
                     POCKET_DATE_FORMAT)
@@ -352,7 +353,7 @@ class TinyDbPocket(Pocket):
         :return: dict
         """
 
-        elements = {DEFAULT_TABLE: {}, "recurrent": defaultdict(list)}
+        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
         if query_impl is None:
             matching_standard_elements = self._db.all()
@@ -365,7 +366,7 @@ class TinyDbPocket(Pocket):
         # all recurrent elements are generated, and the ones matching the
         # query are appended to a list that is stored under their generating
         # element's doc_id in the 'recurrent' subdictionary
-        for element in self._db.table("recurrent").all():
+        for element in self._db.table(RECURRENT_TABLE).all():
             for e in self._create_recurrent_elements(element):
                 matching_recurrent_element = None
 
@@ -376,7 +377,7 @@ class TinyDbPocket(Pocket):
                         matching_recurrent_element = e
 
                 if matching_recurrent_element is not None:
-                    elements["recurrent"][element.doc_id].append(
+                    elements[RECURRENT_TABLE][element.doc_id].append(
                         matching_recurrent_element)
 
         return elements
@@ -518,7 +519,7 @@ class TinyDbPocket(Pocket):
 
         :return: dict{
                     DEFAULT_TABLE:  dict{ int: tinydb.Document },
-                    "recurrent": dict{ int: list[tinydb.Document] }
+                    RECURRENT_TABLE: dict{ int: list[tinydb.Document] }
                     }
         """
 

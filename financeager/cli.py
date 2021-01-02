@@ -13,8 +13,8 @@ from dateutil import parser as du_parser
 
 import financeager
 
-from . import (POCKET_DATE_FORMAT, __version__, clients, config, convert,
-               entries, exceptions, init_logger, listing,
+from . import (POCKET_DATE_FORMAT, RECURRENT_TABLE, __version__, clients,
+               config, convert, entries, exceptions, init_logger, listing,
                make_log_stream_handler_verbose, setup_log_file_handler)
 
 logger = init_logger(__name__)
@@ -203,7 +203,7 @@ def _preprocess(data):
 
     if data.get("frequency") is not None:
         # Assume that entry should be added to recurrent table
-        data["table_name"] = "recurrent"
+        data["table_name"] = RECURRENT_TABLE
 
 
 def _format_response(response, command, **listing_options):

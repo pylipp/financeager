@@ -16,8 +16,9 @@ DEFAULT_POCKET_NAME = "main"
 # fixed date format for database
 POCKET_DATE_FORMAT = "%Y-%m-%d"
 
-# default table name of database
+# tables name of database
 DEFAULT_TABLE = "standard"
+RECURRENT_TABLE = "recurrent"
 
 # Formatting option defaults
 DEFAULT_CATEGORY_ENTRY_SORT_KEY = "value"

@@ -1,6 +1,6 @@
 import unittest
 
-from financeager import DEFAULT_TABLE
+from financeager import DEFAULT_TABLE, RECURRENT_TABLE
 from financeager.entries import BaseEntry, CategoryEntry
 from financeager.listing import Listing, prettify
 
@@ -172,7 +172,7 @@ class ListingFromElementsTestCase(unittest.TestCase):
 
 class PrettifyListingsTestCase(unittest.TestCase):
     def test_prettify_no_elements(self):
-        elements = {DEFAULT_TABLE: {}, "recurrent": {}}
+        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: {}}
         self.assertEqual(prettify(elements), "")
 
     def test_prettify(self):
@@ -190,7 +190,7 @@ class PrettifyListingsTestCase(unittest.TestCase):
                     "date": "2000-03-03"
                 }
             },
-            "recurrent": {
+            RECURRENT_TABLE: {
                 42: [{
                     "name": "gold",
                     "value": 4321,
@@ -245,7 +245,7 @@ class PrettifyListingsTestCase(unittest.TestCase):
                     "category": "food",
                 }
             },
-            "recurrent": {}
+            RECURRENT_TABLE: {}
         }
         self.maxDiff = None
         self.assertEqual(

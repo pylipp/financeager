@@ -2,7 +2,8 @@ import os.path
 import tempfile
 import unittest
 
-from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, entries
+from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, RECURRENT_TABLE,
+                         entries)
 from financeager import pocket as pd
 from financeager import server
 
@@ -38,7 +39,7 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
             "add",
             name="rent",
             value=-1000,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="monthly",
             start="2000-01-02",
             end="2000-07-01",
@@ -47,7 +48,8 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
     def test_recurrent_entries(self):
         elements = self.server.run(
             "list", pocket=self.pocket,
-            filters={"name": "rent"})["elements"]["recurrent"][self.entry_id]
+            filters={"name":
+                     "rent"})["elements"][RECURRENT_TABLE][self.entry_id]
         self.assertEqual(len(elements), 6)
 
     def test_recurrent_copy(self):
@@ -55,7 +57,7 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
         response = self.server.run(
             "copy",
             source_pocket=self.pocket,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             destination_pocket=destination_pocket,
             eid=self.entry_id)
         copied_entry_id = response["id"]
@@ -65,11 +67,11 @@ class RecurrentEntryServerTestCase(unittest.TestCase):
         source_entry = self.server.run(
             "get",
             pocket=self.pocket,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             eid=self.entry_id)["element"]
         destination_entry = self.server.run(
             "get",
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             pocket=destination_pocket,
             eid=copied_entry_id)["element"]
         self.assertDictEqual(source_entry, destination_entry)
@@ -101,7 +103,7 @@ class FindEntryServerTestCase(unittest.TestCase):
         self.assertIsInstance(response, dict)
         self.assertIsInstance(response["elements"], dict)
         self.assertIsInstance(response["elements"][DEFAULT_TABLE], dict)
-        self.assertIsInstance(response["elements"]["recurrent"], dict)
+        self.assertIsInstance(response["elements"][RECURRENT_TABLE], dict)
 
     def test_response_is_none(self):
         response = self.server.run("get", pocket=self.pocket, eid=self.entry_id)
@@ -120,7 +122,7 @@ class FindEntryServerTestCase(unittest.TestCase):
                 "category": entries.CategoryEntry.DEFAULT_NAME
             })
         self.assertDictEqual(response["elements"][DEFAULT_TABLE], {})
-        self.assertDictEqual(response["elements"]["recurrent"], {})
+        self.assertDictEqual(response["elements"][RECURRENT_TABLE], {})
 
     def test_update(self):
         new_category = "Outdoorsy shit"

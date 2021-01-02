@@ -6,8 +6,8 @@ import unittest
 from datetime import datetime as dt
 from unittest import mock
 
-from financeager import (DEFAULT_TABLE, cli, clients, config, exceptions,
-                         setup_log_file_handler)
+from financeager import (DEFAULT_TABLE, RECURRENT_TABLE, cli, clients, config,
+                         exceptions, setup_log_file_handler)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -272,7 +272,7 @@ default_category = no-category"""
         expected_content = copy.deepcopy(period_content)
         expected_content[DEFAULT_TABLE]["1"]["date"] = "{}-12-28".format(
             self.pocket)
-        expected_content["recurrent"] = {}
+        expected_content[RECURRENT_TABLE] = {}
 
         with open(pocket_filepath) as f:
             actual_content = json.load(f)
@@ -391,7 +391,7 @@ class CliConvertTestCase(CliTestCase):
         for i in range(nr_periods):
             expected_content[DEFAULT_TABLE][str(
                 i + 1)]["date"] = "{}-12-28".format(base_year + i)
-        expected_content["recurrent"] = {}
+        expected_content[RECURRENT_TABLE] = {}
 
         with open(pocket_filepath) as f:
             actual_content = json.load(f)

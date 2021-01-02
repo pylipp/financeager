@@ -4,7 +4,8 @@ import tempfile
 import unittest
 from unittest import mock
 
-from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, convert
+from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, RECURRENT_TABLE,
+                         convert)
 
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
 
@@ -26,7 +27,7 @@ class ConvertTestCase(unittest.TestCase):
             self.assertEqual(f.read(), "")
 
     def test_convert_empty_period(self):
-        expected_content = {DEFAULT_TABLE: {}, "recurrent": {}}
+        expected_content = {DEFAULT_TABLE: {}, RECURRENT_TABLE: {}}
 
         period_filepath = os.path.join(TEST_DATA_DIR, "1234.json")
         with open(period_filepath, "w") as f:
@@ -49,7 +50,7 @@ class ConvertTestCase(unittest.TestCase):
                     "date": "12-28",
                 },
             },
-            "recurrent": {
+            RECURRENT_TABLE: {
                 "1": {
                     "value": -500.0,
                     "category": None,
@@ -70,8 +71,8 @@ class ConvertTestCase(unittest.TestCase):
 
         expected_content = period_content.copy()
         expected_content[DEFAULT_TABLE]["1"]["date"] = "1235-12-28"
-        expected_content["recurrent"]["1"]["start"] = "1235-01-01"
-        expected_content["recurrent"]["1"]["end"] = "1235-12-31"
+        expected_content[RECURRENT_TABLE]["1"]["start"] = "1235-01-01"
+        expected_content[RECURRENT_TABLE]["1"]["end"] = "1235-12-31"
 
         with open(self.POCKET_FILEPATH) as f:
             actual_content = json.load(f)
@@ -88,7 +89,7 @@ class ConvertTestCase(unittest.TestCase):
                     "date": "12-28",
                 },
             },
-            "recurrent": {
+            RECURRENT_TABLE: {
                 "1": {
                     "value": -500.0,
                     "category": None,
@@ -106,8 +107,8 @@ class ConvertTestCase(unittest.TestCase):
 
         expected_content = period_content.copy()
         expected_content[DEFAULT_TABLE]["1"]["date"] = "1236-12-28"
-        expected_content["recurrent"]["1"]["start"] = "1236-01-01"
-        expected_content["recurrent"]["1"]["end"] = "1236-12-31"
+        expected_content[RECURRENT_TABLE]["1"]["start"] = "1236-01-01"
+        expected_content[RECURRENT_TABLE]["1"]["end"] = "1236-12-31"
 
         period_content = {
             DEFAULT_TABLE: {

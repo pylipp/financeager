@@ -8,7 +8,8 @@ from collections import Counter
 
 from marshmallow import ValidationError
 
-from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT
+from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
+                         RECURRENT_TABLE)
 from financeager.pocket import (_DEFAULT_CATEGORY, EntryBaseSchema, Pocket,
                                 PocketException, RecurrentEntrySchema,
                                 StandardEntrySchema, TinyDbPocket)
@@ -202,11 +203,11 @@ class TinyDbPocketRecurrentEntryNowTestCase(unittest.TestCase):
 
         elements = pocket.get_entries()
         self.assertEqual(len(elements[DEFAULT_TABLE]), 0)
-        self.assertEqual(len(elements["recurrent"]), 0)
+        self.assertEqual(len(elements[RECURRENT_TABLE]), 0)
 
         today = dt.date.today().replace(year=1993)
         entry_id = pocket.add_entry(
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             name="lunch",
             value=-5,
             frequency="daily",
@@ -216,7 +217,7 @@ class TinyDbPocketRecurrentEntryNowTestCase(unittest.TestCase):
 
         day_nr = today.timetuple().tm_yday
         elements = pocket.get_entries()
-        self.assertEqual(len(elements["recurrent"][entry_id]), day_nr)
+        self.assertEqual(len(elements[RECURRENT_TABLE][entry_id]), day_nr)
 
 
 class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
@@ -227,15 +228,15 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         eid = self.pocket.add_entry(
             name="rent",
             value=-500,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="monthly",
             start="2007-10-01",
             end="2008-11-30",
         )
-        self.assertSetEqual({"recurrent"}, self.pocket._db.tables())
+        self.assertSetEqual({RECURRENT_TABLE}, self.pocket._db.tables())
 
-        self.assertEqual(len(self.pocket._db.table("recurrent").all()), 1)
-        element = self.pocket._db.table("recurrent").all()[0]
+        self.assertEqual(len(self.pocket._db.table(RECURRENT_TABLE).all()), 1)
+        element = self.pocket._db.table(RECURRENT_TABLE).all()[0]
         recurrent_elements = list(
             self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 14)
@@ -250,26 +251,26 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         )
 
         matching_elements = self.pocket.get_entries(
-            filters={"date": "11"})["recurrent"]
+            filters={"date": "11"})[RECURRENT_TABLE]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(matching_elements[eid][0]["name"], "rent, november")
         # the doc_id attribute is None because a new Document instance has been
         # created in Pocket._create_recurrent_elements. The 'eid' entry
         # however is 1 because the parent element is the first in the
-        # "recurrent" table
+        # recurrent table
         self.assertIsNone(matching_elements[eid][0].doc_id)
 
     def test_recurrent_quarter_yearly_entries(self):
         eid = self.pocket.add_entry(
             name="interest",
             value=25,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="quarter-yearly",
             start="1991-01-01",
             end="1991-12-31",
         )
 
-        element = self.pocket._db.table("recurrent").all()[0]
+        element = self.pocket._db.table(RECURRENT_TABLE).all()[0]
         recurrent_elements = list(
             self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 4)
@@ -281,20 +282,21 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
                 "interest, october"
             })
 
-        recurrent_table_size = len(self.pocket._db.table("recurrent"))
-        self.pocket.remove_entry(eid=eid, table_name="recurrent")
+        recurrent_table_size = len(self.pocket._db.table(RECURRENT_TABLE))
+        self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(
-            len(self.pocket._db.table("recurrent")), recurrent_table_size - 1)
+            len(self.pocket._db.table(RECURRENT_TABLE)),
+            recurrent_table_size - 1)
 
     def test_recurrent_bimonthly_entries(self):
         eid = self.pocket.add_entry(
             name="interest",
             value=25,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="bimonthly",
             start="2012-01-08",
             end="2012-03-08")
-        recurrent_elements = self.pocket.get_entries()["recurrent"][eid]
+        recurrent_elements = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_elements), 2)
         self.assertEqual(recurrent_elements[0]["name"], "interest, january")
 
@@ -302,11 +304,11 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         eid = self.pocket.add_entry(
             name="interest",
             value=25,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="weekly",
             start="2000-01-08",
             end="2000-01-14")
-        recurrent_elements = self.pocket.get_entries()["recurrent"][eid]
+        recurrent_elements = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_elements), 1)
         self.assertEqual(recurrent_elements[0]["name"], "interest, week 01")
 
@@ -314,7 +316,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         eid = self.pocket.add_entry(
             name="interest",
             value=25,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="quarter-yearly",
             start="2020-01-01")
 
@@ -323,31 +325,31 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             frequency="half-yearly",
             start="2020-03-01",
             end="2020-06-30",
-            table_name="recurrent")
+            table_name=RECURRENT_TABLE)
 
-        entry = self.pocket.get_entry(eid=eid, table_name="recurrent")
+        entry = self.pocket.get_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(entry["frequency"], "half-yearly")
         self.assertEqual(entry["start"], "2020-03-01")
         self.assertEqual(entry["end"], "2020-06-30")
 
-        recurrent_entries = self.pocket.get_entries()["recurrent"][eid]
+        recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_entries), 1)
         self.assertEqual(recurrent_entries[0]["date"], "2020-03-01")
 
         self.pocket.update_entry(
-            eid=eid, value=30, frequency=None, table_name="recurrent")
+            eid=eid, value=30, frequency=None, table_name=RECURRENT_TABLE)
 
     def test_update_recurrent_entry_incorrectly(self):
         eid = self.pocket.add_entry(
             name="interest",
             value=25,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="quarter-yearly",
             start="2020-01-01")
 
         with self.assertRaises(PocketException) as context:
             self.pocket.update_entry(
-                eid=eid, end="Dec-24", table_name="recurrent")
+                eid=eid, end="Dec-24", table_name=RECURRENT_TABLE)
         self.assertIn("end", str(context.exception))
 
     def test_recurrent_yearly_entry(self):
@@ -356,9 +358,9 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             value=-100,
             start="2015-01-01",
             end=None,
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="yearly")
-        recurrent_entries = self.pocket.get_entries()["recurrent"][eid]
+        recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_entries), dt.date.today().year - 2014)
         self.assertEqual(recurrent_entries[0]["date"], "2015-01-01")
         self.assertEqual(recurrent_entries[0]["name"], "fee, 2015")
@@ -371,10 +373,10 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             value=-100,
             start="{}-01-01".format(year),
             end="{}-12-31".format(year),
-            table_name="recurrent",
+            table_name=RECURRENT_TABLE,
             frequency="monthly",
         )
-        recurrent_entries = self.pocket.get_entries()["recurrent"][eid]
+        recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_entries), today.month)
         self.assertEqual(recurrent_entries[0]["date"], "{}-01-01".format(year))
         self.assertEqual(recurrent_entries[0]["name"], "insurance, january")
@@ -476,7 +478,7 @@ class ValidateEntryTestCase(unittest.TestCase):
             "start": "2020-06-01"
         }
         fields = self.pocket._preprocess_entry(
-            raw_data=raw_data, table_name="recurrent")
+            raw_data=raw_data, table_name=RECURRENT_TABLE)
 
         self.assertEqual(fields["frequency"], "bimonthly")
         self.assertEqual(fields["start"], raw_data["start"])
@@ -492,7 +494,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         }
         with self.assertRaises(PocketException) as context:
             self.pocket._preprocess_entry(
-                raw_data=raw_data, table_name="recurrent")
+                raw_data=raw_data, table_name=RECURRENT_TABLE)
         self.assertIn("frequency", str(context.exception))
         self.assertIn("category", str(context.exception))
 
@@ -506,7 +508,8 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertEqual(converted_fields["value"], 123.0)
 
     def test_substitute_none_recurrent_fields(self):
-        fields = self.pocket._substitute_none_fields("recurrent", name="baz")
+        fields = self.pocket._substitute_none_fields(
+            RECURRENT_TABLE, name="baz")
         self.assertIn("start", fields)
         self.assertIn("end", fields)
         # contains name, category, start, end
@@ -526,7 +529,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         }
         TinyDbPocket._remove_redundant_fields(None, raw_data)
         self.assertDictEqual(raw_data, {"date": None})
-        TinyDbPocket._remove_redundant_fields("recurrent", raw_data)
+        TinyDbPocket._remove_redundant_fields(RECURRENT_TABLE, raw_data)
         self.assertDictEqual(raw_data, {})
 
     def test_invalid_table_name(self):
