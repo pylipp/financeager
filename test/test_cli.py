@@ -106,10 +106,9 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
     def test_add_entry(self, mocked_write):
         entry_id = str(self.cli_run("add more 1337"))
         # Verify that data is written to memory
-        self.assertDictContainsSubset({
-            "name": "more",
-            "value": 1337.0
-        }, mocked_write.call_args[0][0]["standard"][entry_id])
+        data = mocked_write.call_args[0][0]["standard"][entry_id]
+        self.assertEqual(data["name"], "more")
+        self.assertEqual(data["value"], 1337.0)
 
     @mock.patch("builtins.print")
     @mock.patch("financeager.cli.logger.info")
