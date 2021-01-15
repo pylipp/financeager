@@ -96,7 +96,16 @@ class FindEntryServerTestCase(unittest.TestCase):
     def test_get_nonexisting_entry(self):
         response = self.server.run("get", pocket=self.pocket, eid=-1)
         error = response["error"]
+        self.assertIsInstance(error, exceptions.PocketEntryNotFound)
         self.assertEqual(str(error), "Entry not found.")
+
+    def test_invalid_update(self):
+        response = self.server.run(
+            "update", pocket=self.pocket, value="one", eid=1)
+        error = response["error"]
+        self.assertIsInstance(error, exceptions.PocketValidationFailure)
+        self.assertEqual(
+            str(error), "Invalid input data:\nvalue: Not a valid number.")
 
     def test_query_and_reset_response(self):
         category = entries.CategoryEntry.DEFAULT_NAME

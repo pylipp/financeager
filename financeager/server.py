@@ -60,7 +60,7 @@ class Server:
                 return response
 
         except exceptions.PocketException as e:
-            return {"error": str(e)}
+            return {"error": e}
 
     def _get_pocket(self, name=None):
         """Get the Pocket identified by 'name' from the Pockets dictionary. If
