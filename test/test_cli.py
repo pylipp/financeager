@@ -1,6 +1,7 @@
 import copy
 import json
 import os.path
+import shlex
 import tempfile
 import unittest
 from datetime import datetime as dt
@@ -53,7 +54,7 @@ class CliTestCase(unittest.TestCase):
 
         if not isinstance(format_args, tuple):
             format_args = (format_args,)
-        args = command_line.format(*format_args).split()
+        args = shlex.split(command_line.format(*format_args))
         command = args[0]
 
         # Exclude option from subcommand parsers that would be confused
@@ -154,11 +155,12 @@ default_category = no-category"""
         self.assertIn("no-category", response.lower())
 
     def test_add_entry_with_date(self):
-        entry_id = self.cli_run("add something -1 -d 20-03-04")
+        entry_id = self.cli_run("add something -1 -d 20-03-04 -c ' very good '")
         self.assertEqual(entry_id, 1)
 
         response = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("Date    : 2020-03-04", response)
+        self.assertIn("Category: Very Good", response)
 
     def test_add_recurrent_entry_without_tablename(self):
         entry_id = self.cli_run("add flowers -5 -f weekly")
@@ -170,6 +172,14 @@ default_category = no-category"""
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
         self.assertEqual(response, "Invalid request: Entry not found.")
+
+    def test_add_empty_name(self):
+        response = self.cli_run('add "" 1', log_method="error")
+        self.assertEqual(response, "Empty name given.")
+
+    def test_update_empty_category(self):
+        response = self.cli_run('update 1 --category ""', log_method="error")
+        self.assertEqual(response, "Empty category given.")
 
     def test_preprocessing_error(self):
         response = self.cli_run("add car -1000 -d ups", log_method="error")

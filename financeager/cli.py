@@ -205,6 +205,16 @@ def _preprocess(data):
         # Assume that entry should be added to recurrent table
         data["table_name"] = RECURRENT_TABLE
 
+    for field_name in ["category", "name"]:
+        field = data.get(field_name)
+        if field is not None:
+            field = field.strip()
+            if not len(field):
+                raise exceptions.PreprocessingError(
+                    "Empty {} given.".format(field_name))
+            # Update with sanitized data field
+            data[field_name] = field
+
 
 def _format_response(response, command, **listing_options):
     """Format the given response (dict or str) into human-readable text.

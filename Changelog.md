@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - If the `--frequency` option is used with the `add` command, it is assumed that a recurrent entry shall be added. This avoids accidentally adding a standard entry when missing the `--table-name recurrent` option. (#62)
 ### Fixed
+- The `name` and `category` fields for `add` or `update` commands are validated at CLI level for being non-empty. This avoids passing invalid data to the backend which would result in a failing validation in the `pockets` module. Trailing whitespace is stripped from `name` and `category` fields.
 ### Removed
 
 ## [v0.25.0.1] - 2021-01-02
