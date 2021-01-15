@@ -3,9 +3,7 @@ import tempfile
 import unittest
 
 from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, RECURRENT_TABLE,
-                         entries)
-from financeager import pocket as pd
-from financeager import server
+                         entries, exceptions, server)
 
 
 class AddEntryToServerTestCase(unittest.TestCase):
@@ -95,6 +93,11 @@ class FindEntryServerTestCase(unittest.TestCase):
         pocket = self.server._get_pocket(None)
         self.assertEqual(pocket.name, DEFAULT_POCKET_NAME)
 
+    def test_get_nonexisting_entry(self):
+        response = self.server.run("get", pocket=self.pocket, eid=-1)
+        error = response["error"]
+        self.assertEqual(str(error), "Entry not found.")
+
     def test_query_and_reset_response(self):
         category = entries.CategoryEntry.DEFAULT_NAME
         response = self.server.run(
@@ -154,7 +157,7 @@ class FindEntryServerTestCase(unittest.TestCase):
 
     def test_unsuccessful_copy(self):
         self.assertRaises(
-            pd.PocketException,
+            exceptions.PocketEntryNotFound,
             self.server._copy_entry,
             source_pocket=self.pocket,
             destination_pocket="1",

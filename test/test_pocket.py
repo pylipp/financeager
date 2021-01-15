@@ -9,10 +9,10 @@ from collections import Counter
 from marshmallow import ValidationError
 
 from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
-                         RECURRENT_TABLE)
+                         RECURRENT_TABLE, exceptions)
 from financeager.pocket import (_DEFAULT_CATEGORY, EntryBaseSchema, Pocket,
-                                PocketException, RecurrentEntrySchema,
-                                StandardEntrySchema, TinyDbPocket)
+                                RecurrentEntrySchema, StandardEntrySchema,
+                                TinyDbPocket)
 
 
 class Entry:
@@ -109,7 +109,8 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
             ]), -51)
 
     def test_remove_nonexisting_entry(self):
-        self.assertRaises(PocketException, self.pocket.remove_entry, eid=0)
+        self.assertRaises(
+            exceptions.PocketEntryNotFound, self.pocket.remove_entry, eid=0)
 
     def test_add_remove_via_eid(self):
         entry_name = "penguin sale"
@@ -124,7 +125,8 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
             self.pocket._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
 
     def test_get_nonexisting_entry(self):
-        self.assertRaises(PocketException, self.pocket.get_entry, eid=-1)
+        self.assertRaises(
+            exceptions.PocketEntryNotFound, self.pocket.get_entry, eid=-1)
 
     def test_add_entry_default_date(self):
         name = "new backpack"
@@ -179,14 +181,14 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
 
     def test_update_nonexisting_entry(self):
         self.assertRaises(
-            PocketException,
+            exceptions.PocketEntryNotFound,
             self.pocket.update_entry,
             eid=0,
             name="I shall fail")
 
     def test_add_invalid_entry(self):
         self.assertRaises(
-            PocketException,
+            exceptions.PocketValidationFailure,
             self.pocket.add_entry,
             name="I'm invalid",
             date="1.1",
@@ -347,7 +349,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             frequency="quarter-yearly",
             start="2020-01-01")
 
-        with self.assertRaises(PocketException) as context:
+        with self.assertRaises(exceptions.PocketValidationFailure) as context:
             self.pocket.update_entry(
                 eid=eid, end="Dec-24", table_name=RECURRENT_TABLE)
         self.assertIn("end", str(context.exception))
@@ -466,7 +468,7 @@ class ValidateEntryTestCase(unittest.TestCase):
 
     def test_validate_invalid_standard_entry(self):
         raw_data = {"name": "not valid", "value": "hundred"}
-        with self.assertRaises(PocketException) as context:
+        with self.assertRaises(exceptions.PocketValidationFailure) as context:
             self.pocket._preprocess_entry(raw_data=raw_data)
         self.assertIn("value", str(context.exception))
 
@@ -492,7 +494,7 @@ class ValidateEntryTestCase(unittest.TestCase):
             "start": "06-01",
             "category": ""
         }
-        with self.assertRaises(PocketException) as context:
+        with self.assertRaises(exceptions.PocketValidationFailure) as context:
             self.pocket._preprocess_entry(
                 raw_data=raw_data, table_name=RECURRENT_TABLE)
         self.assertIn("frequency", str(context.exception))
@@ -534,7 +536,7 @@ class ValidateEntryTestCase(unittest.TestCase):
 
     def test_invalid_table_name(self):
         self.assertRaises(
-            PocketException,
+            exceptions.PocketValidationFailure,
             self.pocket._preprocess_entry,
             table_name="unknown table")
 

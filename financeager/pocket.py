@@ -11,7 +11,7 @@ from tinydb import Query, TinyDB, storages
 from tinydb.database import Document
 
 from . import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
-               RECURRENT_TABLE)
+               RECURRENT_TABLE, exceptions)
 
 _DEFAULT_CATEGORY = None
 
@@ -49,10 +49,6 @@ class Pocket:
     @property
     def name(self):
         return self._name
-
-
-class PocketException(Exception):
-    pass
 
 
 class TinyDbPocket(Pocket):
@@ -97,12 +93,14 @@ class TinyDbPocket(Pocket):
         :param partial: indicates whether preprocessing is performed before
             adding (False) or updating (True) the database
 
-        :raise: PocketException if validation failed or table name unknown
+        :raise: PocketValidationFailure if validation failed or table name
+            unknown
         """
 
         table_name = table_name or DEFAULT_TABLE
         if table_name not in [RECURRENT_TABLE, DEFAULT_TABLE]:
-            raise PocketException("Unknown table name: {}".format(table_name))
+            raise exceptions.PocketValidationFailure(
+                "Unknown table name: {}".format(table_name))
 
         self._remove_redundant_fields(table_name, raw_data)
 
@@ -137,7 +135,7 @@ class TinyDbPocket(Pocket):
         """Validate raw entry data acc. to ValidationSchema.
 
         :return: primitive (type-correct) representation of fields
-        :raise: PocketException if validation failed
+        :raise: PocketValidationFailure if validation failed
         """
 
         ValidationSchema = RecurrentEntrySchema \
@@ -152,8 +150,8 @@ class TinyDbPocket(Pocket):
                 "{}: {}".format(field, "; ".join(messages))
                 for field, messages in e.messages.items()
             ]
-            raise PocketException("Invalid input data:\n{}".format(
-                "\n".join(infos)))
+            raise exceptions.PocketValidationFailure(
+                "Invalid input data:\n{}".format("\n".join(infos)))
 
     @staticmethod
     def _convert_fields(**fields):
@@ -223,7 +221,7 @@ class TinyDbPocket(Pocket):
         :param removing: indicate updating cache after removing an entry
         :param fields: preprossed entry fields to be inserted in the database
 
-        :raise: PocketException if element not found when updating
+        :raise: PocketEntryNotFound if element not found when updating
         """
 
         if eid is None:
@@ -234,7 +232,7 @@ class TinyDbPocket(Pocket):
             else:
                 self._category_cache[name].update([category])
         else:
-            # raises a PocketException if eid is not found
+            # raises a PocketEntryNotFound if eid is not found
             old_entry = self.get_entry(eid=eid, table_name=table_name)
             old_name = old_entry["name"]
             old_category = old_entry["category"]
@@ -281,7 +279,7 @@ class TinyDbPocket(Pocket):
             :param end: end date (defaults to None which evaluates to the
                 current day when the entry is queried)
 
-        :raise: PocketException if validation failed or table name unknown
+        :raise: PocketValidationFailure if validation failed
         :return: TinyDB ID of new entry (int)
         """
 
@@ -301,14 +299,14 @@ class TinyDbPocket(Pocket):
 
         :type eid: int or str
 
-        :raise: PocketException if element not found
+        :raise: PocketEntryNotFound if element not found
         :return: found element (tinydb.Document)
         """
 
         table_name = table_name or DEFAULT_TABLE
         element = self._db.table(table_name).get(doc_id=int(eid))
         if element is None:
-            raise PocketException("Entry not found.")
+            raise exceptions.PocketEntryNotFound("Entry not found.")
 
         return element
 
@@ -321,7 +319,7 @@ class TinyDbPocket(Pocket):
         :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
             'end' for recurrent entries; any of 'name', 'value', 'category' for
             either entry type
-        :raise: PocketException if element not found
+        :raise: PocketEntryNotFound if element not found
         :return: ID of the updated entry
         """
 
@@ -446,12 +444,12 @@ class TinyDbPocket(Pocket):
             Default: 'standard'
         :type table_name: str
 
-        :raise: PocketException if element/ID not found.
+        :raise: PocketEntryNotFound if element/ID not found.
         :return: element ID if removal was successful
         """
 
         table_name = table_name or DEFAULT_TABLE
-        # might raise PocketException if ID not existing
+        # might raise PocketEntryNotFound if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
         self._db.table(table_name).remove(doc_ids=[entry.doc_id])

@@ -23,3 +23,15 @@ class InvalidConfigError(FinanceagerException):
 
 class ConversionError(FinanceagerException):
     """Invalid input for database conversion."""
+
+
+class PocketException(FinanceagerException):
+    """Base exception for pockets module."""
+
+
+class PocketValidationFailure(PocketException):
+    """Invalid input for pocket backend."""
+
+
+class PocketEntryNotFound(PocketException):
+    """Requested entry not found in database."""

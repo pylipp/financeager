@@ -2,7 +2,7 @@
 import glob
 import os.path
 
-from . import DEFAULT_POCKET_NAME, init_logger, pocket
+from . import DEFAULT_POCKET_NAME, exceptions, init_logger, pocket
 
 logger = init_logger(__name__)
 
@@ -59,7 +59,7 @@ class Server:
                     }
                 return response
 
-        except pocket.PocketException as e:
+        except exceptions.PocketException as e:
             return {"error": str(e)}
 
     def _get_pocket(self, name=None):
