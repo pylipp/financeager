@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+- Data and config directories are now sensible for non-UNIX operating systems. XDG environment variables are respected. The dependency `appdirs` is introduced (version 1.4.4) (#65)
 ### Changed
 - If the `--frequency` option is used with the `add` command, it is assumed that a recurrent entry shall be added. This avoids accidentally adding a standard entry when missing the `--table-name recurrent` option. (#62)
 - In case of an error, `Server.run` returns the Exception object instead of an exception string. This allows for more fine-grained handling in downstream code built on the `server` module. (#49)

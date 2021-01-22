@@ -1,6 +1,7 @@
 import os.path
 from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
 
+import appdirs
 # versioning information
 from pkg_resources import get_distribution
 
@@ -25,8 +26,8 @@ DEFAULT_CATEGORY_ENTRY_SORT_KEY = "value"
 DEFAULT_BASE_ENTRY_SORT_KEY = "name"
 
 # directories for application data and log file
-CONFIG_DIR = os.path.expanduser("~/.config/financeager")
-DATA_DIR = os.path.expanduser("~/.local/share/financeager")
+CONFIG_DIR = appdirs.user_config_dir("financeager")
+DATA_DIR = appdirs.user_data_dir("financeager")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 

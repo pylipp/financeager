@@ -59,6 +59,7 @@ setup(
         "python-dateutil==2.8.1",
         "marshmallow==3.3.0",
         "argcomplete==1.11.1",
+        "appdirs==1.4.4",
     ],
     extras_require={
         "packaging": [
