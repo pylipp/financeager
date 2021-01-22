@@ -28,6 +28,7 @@ DEFAULT_BASE_ENTRY_SORT_KEY = "name"
 # directories for application data and log file
 CONFIG_DIR = appdirs.user_config_dir("financeager")
 DATA_DIR = appdirs.user_data_dir("financeager")
+LOG_DIR = appdirs.user_log_dir("financeager")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 
@@ -58,13 +59,13 @@ def init_logger(name):
     return logger
 
 
-def setup_log_file_handler(data_dir=DATA_DIR):
+def setup_log_file_handler(log_dir=LOG_DIR):
     """Create RotatingFileHandler for package logger, storing logs in
-    'data_dir' (default: DATA_DIR). The directory is created if not existing.
+    'log_dir' (default: LOG_DIR). The directory is created if not existing.
     """
-    os.makedirs(data_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True)
     file_handler = handlers.RotatingFileHandler(
-        os.path.join(data_dir, "log"), maxBytes=5e6, backupCount=5)
+        os.path.join(log_dir, "log"), maxBytes=5e6, backupCount=5)
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
 
