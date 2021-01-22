@@ -4,7 +4,7 @@
 FINANCEAGER
 ===========
 
-An application that helps you administering your daily expenses and earnings. Interact via the command line interface `fina`.
+An application that helps you administering your daily expenses and earnings using single-entry book-keeping. Interact via the command line interface `fina`.
 
 The `financeager` backend holds databases (internally referred to as 'pockets'). A pocket contains entries for a certain project.
 
@@ -26,7 +26,7 @@ The project is actively developed. Expect things to break - e.g. the command lin
 
 ### From PyPI package
 
-    pip install --user financeager
+    pip install --user --upgrade financeager
 
 ### Using pipx
 
@@ -304,3 +304,12 @@ PERSONAL NOTE
 This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture, programming best practices (cough) and general Python development.
 
 Feel free to browse the project and give feedback (comments, issues, pull requests).
+
+## Related projects
+
+`financeager` aims to be simple in functionality. A related command-line tool is [expenses](https://github.com/manojkarthick/expenses).
+
+For more holistic management of your financial affairs you might consider double-entry book-keeping. The following projects provide mature support:
+
+- [beancount](https://github.com/beancount/beancount)
+- [ledger](https://www.ledger-cli.org/index.html)
