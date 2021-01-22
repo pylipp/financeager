@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [v0.26.0.0] - 2021-01-22
+### Added
 - Data and config directories are now sensible for non-UNIX operating systems. XDG environment variables are respected. The dependency `appdirs` is introduced (version 1.4.4) (#65)
 ### Changed
 - Application logs are now stored in an OS-specific cache directory (previously: `~/.local/share/financeager`).
@@ -12,7 +18,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - In case of an error, `Server.run` returns the Exception object instead of an exception string. This allows for more fine-grained handling in downstream code built on the `server` module. (#49)
 ### Fixed
 - The `name` and `category` fields for `add` or `update` commands are validated at CLI level for being non-empty. This avoids passing invalid data to the backend which would result in a failing validation in the `pockets` module. Trailing whitespace is stripped from `name` and `category` fields.
-### Removed
 
 ## [v0.25.0.1] - 2021-01-02
 ### Fixed
