@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [unreleased]
 ### Added
 - dependabot configuration for automated dependency updates.
+- Officially support Python 3.10.
 ### Changed
 ### Fixed
 ### Removed
