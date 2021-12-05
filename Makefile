@@ -5,7 +5,6 @@ all:
 
 install:
 	pip install -U -e .[develop]
-	pip install -U -e .[packaging]
 	pre-commit install
 	gitlint install-hook
 
