@@ -422,8 +422,25 @@ is assumed""")
             subparser.add_argument(
                 "-p", "--pocket", help="name of pocket to modify or query")
 
+    for subparser in [
+            add_parser, get_parser, remove_parser, update_parser, copy_parser
+    ]:
+        subparser.add_argument(
+            "-r",
+            "--recurrent",
+            action="store_true",
+            help="""alias for '-t recurrent'. If the -t option is simultaneously
+specified, the -r option is ignored""",
+        )
     argcomplete.autocomplete(parser)
-    return vars(parser.parse_args(args=args))
+    parsed_args = vars(parser.parse_args(args=args))
+
+    # Set table name if not specified
+    recurrent = parsed_args.pop("recurrent", None)
+    if recurrent and parsed_args["table_name"] is None:
+        parsed_args["table_name"] = RECURRENT_TABLE
+
+    return parsed_args
 
 
 if __name__ == "__main__":

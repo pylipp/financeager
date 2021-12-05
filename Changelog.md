@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+- Add `-r`/`--recurrent` option as alias for `-t recurrent` for several commands (#68).
 - dependabot configuration for automated dependency updates.
 - Officially support Python 3.10.
 ### Changed

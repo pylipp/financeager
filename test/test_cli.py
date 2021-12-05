@@ -162,6 +162,12 @@ default_category = no-category"""
         self.assertIn("Date    : 2020-03-04", response)
         self.assertIn("Category: Very Good", response)
 
+    def test_add_entry_with_tablename_and_recurrent(self):
+        entry_id = self.cli_run("add stuff 1 -t standard -r")
+        self.assertEqual(entry_id, 1)
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertIn("stuff", response.lower())
+
     def test_add_recurrent_entry_without_tablename(self):
         entry_id = self.cli_run("add flowers -5 -f weekly")
         self.assertEqual(entry_id, 1)
@@ -296,11 +302,11 @@ default_category = no-category"""
 
     def test_add_recurrent_entry(self):
         entry_id = self.cli_run(
-            "add credit -100 -t recurrent -f monthly -s 01-01")
+            "add credit -100 --recurrent -f monthly -s 01-01")
         self.assertEqual(entry_id, 1)
 
         year = dt.today().year
-        response = self.cli_run("get {} -t recurrent", format_args=entry_id)
+        response = self.cli_run("get {} -r", format_args=entry_id)
         self.assertEqual(
             response, """\
 Name     : Credit

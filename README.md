@@ -103,7 +103,7 @@ Did you make a mistake when adding a new entry? *Update* one or more fields by c
 
 This would remove the recurrent rent entries (ID is also 1 because standard and recurrent entries are stored in separate tables):
 
-    > fina remove 1 --table-name recurrent
+    > fina remove 1 --recurrent
 
 Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filters` option, e.g. `--filters category=food` to show entries in the categories `food`)
 
