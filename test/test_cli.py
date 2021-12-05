@@ -198,11 +198,12 @@ default_category = no-category"""
             month_nr = 2
             month_variants = ["02", "Feb", "February"]
         month_variants.append(month_nr)
+        self.pocket = 1999
 
         self.cli_run(
-            "add beans -4 -d {}-0{}-01", format_args=(self.pocket, month_nr))
+            "add beans -4 -d {}-0{}-15", format_args=(self.pocket, month_nr))
         self.cli_run(
-            "add chili -4 -d {}-0{}-01",
+            "add chili -4 -d {}-0{}-15",
             format_args=(self.pocket, month_nr + 1))
 
         for m in month_variants:
