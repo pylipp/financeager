@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
-- Support extending `fina` CLI in plugins by providing a `plugin.PluginCliOptions` utility class.
 ### Changed
 ### Fixed
 ### Removed
+
+## [v0.26.2.0] - 2021-12-12
+### Added
+- Support extending `fina` CLI in plugins by providing a `plugin.PluginCliOptions` utility class.
 
 ## [v0.26.1.0] - 2021-12-05
 ### Added
