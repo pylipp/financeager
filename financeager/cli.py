@@ -43,7 +43,7 @@ def main():
         for ep in pkg_resources.iter_entry_points("financeager.services")
     ]
 
-    args = _parse_command()
+    args = _parse_command(plugins=plugins)
     try:
         configuration = config.Configuration(
             args.pop("config_filepath"), plugins=plugins)
@@ -393,8 +393,7 @@ is assumed""")
         help="show only entries of given month (default to current one)",
     )
 
-    pockets_parser = subparsers.add_parser(
-        "pockets", help="list all pocket databases")
+    subparsers.add_parser("pockets", help="list all pocket databases")
 
     convert_parser = subparsers.add_parser(
         "convert-periods-to-pocket",
@@ -405,6 +404,12 @@ is assumed""")
         nargs="*",
         help="filepath(s) of period JSON file(s)",
     )
+
+    # Extend with plugin parsers
+    plugins = plugins or []
+    for plugin in plugins:
+        plugin.cli_options.extend(subparsers)
+
     # Add common options to subparsers
     for subparser in subparsers.choices.values():
         subparser.add_argument(
@@ -418,7 +423,13 @@ is assumed""")
             action="store_true",
             help="Be verbose about internal workings")
 
-        if subparser not in [pockets_parser, copy_parser, convert_parser]:
+        if subparser in [
+                add_parser,
+                get_parser,
+                remove_parser,
+                update_parser,
+                list_parser,
+        ]:
             subparser.add_argument(
                 "-p", "--pocket", help="name of pocket to modify or query")
 
@@ -432,11 +443,6 @@ is assumed""")
             help="""alias for '-t recurrent'. If the -t option is simultaneously
 specified, the -r option is ignored""",
         )
-
-    # Extend with plugin parsers
-    plugins = plugins or []
-    for plugin in plugins:
-        plugin.cli_options.extend(subparsers)
 
     argcomplete.autocomplete(parser)
     parsed_args = vars(parser.parse_args(args=args))
