@@ -251,7 +251,7 @@ def _format_response(response, command, **listing_options):
     return "\n".join([p for p in pockets])
 
 
-def _parse_command(args=None):
+def _parse_command(args=None, plugins=None):
     """Parse the given list of args and return the result as dict."""
 
     parser = argparse.ArgumentParser(
@@ -432,6 +432,12 @@ is assumed""")
             help="""alias for '-t recurrent'. If the -t option is simultaneously
 specified, the -r option is ignored""",
         )
+
+    # Extend with plugin parsers
+    plugins = plugins or []
+    for plugin in plugins:
+        plugin.cli_options.extend(subparsers)
+
     argcomplete.autocomplete(parser)
     parsed_args = vars(parser.parse_args(args=args))
 

@@ -8,7 +8,7 @@ from datetime import datetime as dt
 from unittest import mock
 
 from financeager import (DEFAULT_TABLE, RECURRENT_TABLE, cli, clients, config,
-                         exceptions, setup_log_file_handler)
+                         exceptions, plugin, setup_log_file_handler)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -471,6 +471,44 @@ class FormatResponseTestCase(unittest.TestCase):
     def test_copy(self):
         self.assertEqual("Copied element 1.",
                          cli._format_response({"id": 1}, "copy"))
+
+
+class TestPluginCliOptions(plugin.PluginCliOptions):
+    def extend(self, command_parser):
+        bird_parser = command_parser.add_parser("bird")
+        bird_parser.add_argument("--sound")
+
+
+class TestClient(clients.Client):
+    def safely_run(self, command, **params):
+        if command != "bird":
+            raise ValueError
+
+        if "sound" not in params:
+            raise ValueError
+
+        return True
+
+
+class PluginCliOptionsTestCase(unittest.TestCase):
+    def test_cli_options(self):
+        test_plugin = plugin.ServicePlugin(
+            name="test-plugin",
+            config=None,
+            cli_options=TestPluginCliOptions(),
+            client=TestClient,
+        )
+
+        args = cli._parse_command(
+            "bird --sound tweet".split(), plugins=[test_plugin])
+        self.assertEqual(args["command"], "bird")
+        self.assertEqual(args["sound"], "tweet")
+
+        configuration = config.Configuration()
+        configuration._parser["SERVICE"] = {"name": "test-plugin"}
+        exit_code = cli.run(
+            **args, configuration=configuration, plugins=[test_plugin])
+        self.assertEqual(exit_code, cli.SUCCESS)
 
 
 if __name__ == "__main__":

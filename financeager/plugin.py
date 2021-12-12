@@ -27,11 +27,27 @@ class PluginConfiguration(abc.ABC):
         """
 
 
+class PluginCliOptions(abc.ABC):
+    """Utility to provide CLI options specific to the plugin.
+    When developing a plugin, optionally provide an implementation derived from
+    this class."""
+
+    @abc.abstractmethod
+    def extend(self, command_parser):
+        """Extend the 'command' subparser of the financeager CLI by additional commands
+        and/or arguments.
+        Remember that the corresponding Client class must provide an
+        implementation to handle the new commands.
+        """
+
+
 class PluginBase:
-    def __init__(self, *, name, config):
-        """Set plugin name and config (a PluginConfiguration instance)."""
+    def __init__(self, *, name, config, cli_options=None):
+        """Set plugin name, config (a PluginConfiguration instance), and optional CLI
+        options (a PluginCliOptions instance)."""
         self.name = name
         self.config = config
+        self.cli_options = cli_options
 
 
 class ServicePlugin(PluginBase):
@@ -40,6 +56,6 @@ class ServicePlugin(PluginBase):
     communication with the service.
     """
 
-    def __init__(self, *, name, config, client):
-        super().__init__(name=name, config=config)
+    def __init__(self, *, name, config, client, cli_options=None):
+        super().__init__(name=name, config=config, cli_options=cli_options)
         self.client = client
