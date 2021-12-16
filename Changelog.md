@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## [v0.26.2.1] - 2021-12-16
+### Fixed
+- Avoid crash in `cli._parse_command()` when using plugin without `cli_options` attribute.
+
 ## [v0.26.2.0] - 2021-12-12
 ### Added
 - Support extending `fina` CLI in plugins by providing a `plugin.PluginCliOptions` utility class.

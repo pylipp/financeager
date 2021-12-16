@@ -41,13 +41,18 @@ class PluginCliOptions(abc.ABC):
         """
 
 
+class DefaultPluginCliOptions(PluginCliOptions):
+    def extend(self, _):
+        pass
+
+
 class PluginBase:
     def __init__(self, *, name, config, cli_options=None):
         """Set plugin name, config (a PluginConfiguration instance), and optional CLI
         options (a PluginCliOptions instance)."""
         self.name = name
         self.config = config
-        self.cli_options = cli_options
+        self.cli_options = cli_options or DefaultPluginCliOptions()
 
 
 class ServicePlugin(PluginBase):

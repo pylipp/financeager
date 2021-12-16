@@ -1,6 +1,6 @@
 import unittest
 
-from financeager import clients, config, plugin
+from financeager import cli, clients, config, plugin
 
 from . import test_config
 
@@ -33,6 +33,11 @@ class CreateClientsTestCase(unittest.TestCase):
         # Then the correct client instance is returned
         self.assertIsNone(client.sinks)
         self.assertIsInstance(client, TestClient)
+
+        # And running the CLI parser does not error
+        self.assertEqual(
+            cli._parse_command(["list"], plugins=[some_plugin])["command"],
+            "list")
 
 
 if __name__ == "__main__":
