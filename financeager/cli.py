@@ -376,10 +376,10 @@ is assumed""")
     list_parser.add_argument(
         "--entry-sort",
         choices=[
-            "name", "value", "date", "eid", "id", "category", "start", "end",
+            "name", "value", "date", "eid", "category", "start", "end",
             "frequency"
         ],
-        help="key to sort entries by. The latter five keys can only be applied "
+        help="key to sort entries by. The latter four keys can only be applied "
         "in combination with the --recurrent-only option",
     )
     list_parser.add_argument(

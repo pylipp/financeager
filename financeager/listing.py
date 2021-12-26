@@ -164,6 +164,7 @@ def prettify(elements,
 
         # Sort elements acc. to 'entry_sort' option, and format them
         entry_sort = listing_options.get("entry_sort") or "id"
+        entry_sort = "id" if entry_sort == "eid" else entry_sort
         for element in sorted(elements, key=lambda e: e[entry_sort]):
             lines.append(sep.join(_format(element, f) for f in fields))
 
