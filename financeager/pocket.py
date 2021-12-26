@@ -510,16 +510,27 @@ class TinyDbPocket(Pocket):
 
         return condition
 
-    def get_entries(self, filters=None):
+    def get_entries(self, filters=None, recurrent_only=False):
         """Get dict of standard and recurrent entries that match the items of
         the filters dict, if specified. Constructs a condition from the given
         filters and uses it to query all tables.
+        If `recurrent_only` is true, return a list of all entries of the
+        recurrent table. No filters are applied.
 
         :return: dict{
                     DEFAULT_TABLE:  dict{ int: tinydb.Document },
                     RECURRENT_TABLE: dict{ int: list[tinydb.Document] }
-                    }
+                    } or
+                 list[tinydb.Document]
         """
+        if recurrent_only:
+            # Flatten tinydb Document into dict
+            return [{
+                **e,
+                **{
+                    "id": e.doc_id
+                }
+            } for e in self._db.table(RECURRENT_TABLE).all()]
 
         filters = filters or {}
         condition = self._create_query_condition(**filters)

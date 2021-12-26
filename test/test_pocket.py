@@ -314,6 +314,28 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         self.assertEqual(len(recurrent_elements), 1)
         self.assertEqual(recurrent_elements[0]["name"], "interest, week 01")
 
+    def test_get_entries_of_recurrent_table(self):
+        interest_fields = dict(
+            name="interest",
+            value=25.0,
+            frequency="weekly",
+            start="2000-01-08",
+            end="2000-01-14")
+        rent_fields = dict(
+            name="rent",
+            value=-400.0,
+            category="living",
+            frequency="monthly",
+            start="2020-01-01",
+        )
+        eid = self.pocket.add_entry(
+            table_name=RECURRENT_TABLE, **interest_fields)
+        eid2 = self.pocket.add_entry(table_name=RECURRENT_TABLE, **rent_fields)
+        recurrent_elements = self.pocket.get_entries(recurrent_only=True)
+        interest_fields.update({"category": None, "id": eid})
+        rent_fields.update({"end": None, "id": eid2})
+        self.assertEqual(recurrent_elements, [interest_fields, rent_fields])
+
     def test_update_recurrent_entry(self):
         eid = self.pocket.add_entry(
             name="interest",
