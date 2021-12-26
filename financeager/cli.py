@@ -119,6 +119,8 @@ def run(command,
                 "category_percentage"
         ]:
             formatting_options[option] = params.pop(option)
+        if params["recurrent_only"]:
+            formatting_options["recurrent_only"] = True
 
     exit_code = FAILURE
     client = clients.create(
@@ -391,6 +393,12 @@ is assumed""")
         nargs="?",
         const="current",
         help="show only entries of given month (default to current one)",
+    )
+    list_parser.add_argument(
+        "-r",
+        "--recurrent-only",
+        action="store_true",
+        help="show only recurrent entries",
     )
 
     subparsers.add_parser("pockets", help="list all pocket databases")

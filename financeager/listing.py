@@ -124,15 +124,49 @@ class Listing:
         return sum(v for v in self.category_fields("value"))
 
 
-def prettify(elements, stacked_layout=False, **listing_options):
+def prettify(elements,
+             stacked_layout=False,
+             recurrent_only=False,
+             **listing_options):
     """Sort the given elements (type acc. to Pocket._search_all_tables) by
     positive and negative value and return pretty string build from the
     corresponding Listings.
 
     :param stacked_layout: If True, listings are displayed one by one
+    :param recurrent_only: If True, assume that given elements are purely
+        recurrent ones, and return them formatted as table
     :param listing_options: Options passed to Listing.prettify(), and
         Listing.from_elements()
     """
+
+    if recurrent_only:
+        fields = [
+            "id", "name", "value", "category", "start", "end", "frequency"
+        ]
+        field_lengths = {f: len(f) for f in fields}
+        # Determine max. field length and convert some field types
+        for element in elements:
+            element["category"] = element["category"] or "Unspecified"
+            element["end"] = element["end"] or "-"
+            element["id"] = str(element["id"])
+            element["value"] = str(element["value"])
+            for field, length in field_lengths.items():
+                field_lengths[field] = max(length, len(element[field]))
+
+        sep = " | "
+        # Add all-uppercase header row
+        lines = [sep.join(f.upper().ljust(l) for f, l in field_lengths.items())]
+
+        def _format(element, field):
+            # Numeric values shall be right-aligned, others left-aligned
+            if field in ["id", "value"]:
+                return element[field].rjust(field_lengths[field])
+            return element[field].capitalize().ljust(field_lengths[field])
+
+        for element in elements:
+            lines.append(sep.join(_format(element, f) for f in fields))
+
+        return "\n".join(lines)
 
     earnings = []
     expenses = []

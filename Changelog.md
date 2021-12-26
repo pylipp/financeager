@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+- Add `--recurrent-only` option for `list` command. (#51)
 ### Changed
 ### Fixed
 ### Removed
