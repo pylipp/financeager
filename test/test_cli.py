@@ -260,6 +260,18 @@ default_category = no-category"""
         "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" +  # noqa
         " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   \n" +  # noqa
         " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ") # noqa
+
+        response = self.cli_run("list --recurrent-only -f name=int")
+        self.assertEqual(
+            response,
+        "ID | NAME     | VALUE | CATEGORY | START      | END | FREQUENCY\n" +  # noqa
+        " 1 | Interest |  20.0 | Banking  | 2020-01-01 | -   | Yearly   ") # noqa
+
+        response = self.cli_run("list --recurrent-only -f frequency=month")
+        self.assertEqual(
+            response,
+        "ID | NAME | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" +  # noqa
+        " 2 | Rent | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ") # noqa
         # yapf: enable
 
     @mock.patch("financeager.server.Server.run")

@@ -515,7 +515,7 @@ class TinyDbPocket(Pocket):
         the filters dict, if specified. Constructs a condition from the given
         filters and uses it to query all tables.
         If `recurrent_only` is true, return a list of all entries of the
-        recurrent table. No filters are applied.
+        recurrent table. Filters are applied.
 
         :return: dict{
                     DEFAULT_TABLE:  dict{ int: tinydb.Document },
@@ -523,6 +523,9 @@ class TinyDbPocket(Pocket):
                     } or
                  list[tinydb.Document]
         """
+        filters = filters or {}
+        condition = self._create_query_condition(**filters) or Query().noop()
+
         if recurrent_only:
             # Flatten tinydb Document into dict
             return [{
@@ -530,10 +533,8 @@ class TinyDbPocket(Pocket):
                 **{
                     "id": e.doc_id
                 }
-            } for e in self._db.table(RECURRENT_TABLE).all()]
+            } for e in self._db.table(RECURRENT_TABLE).search(condition)]
 
-        filters = filters or {}
-        condition = self._create_query_condition(**filters)
         return self._search_all_tables(condition)
 
     def close(self):
