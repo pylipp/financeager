@@ -379,14 +379,15 @@ is assumed""")
             "name", "value", "date", "eid", "id", "category", "start", "end",
             "frequency"
         ],
-        default=financeager.DEFAULT_BASE_ENTRY_SORT_KEY,
         help="key to sort entries by. The latter five keys can only be applied "
         "in combination with the --recurrent-only option",
     )
     list_parser.add_argument(
         "--category-sort",
         choices=["name", "value"],
-        default=financeager.DEFAULT_CATEGORY_ENTRY_SORT_KEY)
+        help="key to sort categories by. Not effective in combination with "
+        "--recurrent-only option",
+    )
     list_parser.add_argument(
         "-P",
         "--category-percentage",

@@ -86,10 +86,7 @@ class CategoryEntry(Entry):
         self.entries.append(base_entry)
         self.value += base_entry.value
 
-    def string(self,
-               *,
-               entry_sort=DEFAULT_BASE_ENTRY_SORT_KEY,
-               total_listing_value=None):
+    def string(self, *, entry_sort=None, total_listing_value=None):
         """Return a formatted string representing the entry including its
         children (i.e. BaseEntries). The category representation is supposed
         to be longer than the BaseEntry representation so that the latter is
@@ -118,6 +115,7 @@ class CategoryEntry(Entry):
         if total_listing_value is not None:
             return lines[0]
 
+        entry_sort = entry_sort or DEFAULT_BASE_ENTRY_SORT_KEY
         sort_key = lambda e: getattr(e, entry_sort)
         for entry in sorted(self.entries, key=sort_key):
             lines.append(self.BASE_ENTRY_INDENT * " " + str(entry))

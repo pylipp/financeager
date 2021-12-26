@@ -23,7 +23,7 @@ class Listing:
 
     def prettify(self,
                  *,
-                 category_sort=DEFAULT_CATEGORY_ENTRY_SORT_KEY,
+                 category_sort=None,
                  category_percentage=False,
                  **entry_options):
         """Format listing (incl. name and header).
@@ -58,6 +58,7 @@ class Listing:
 
         result.append(header_line)
 
+        category_sort = category_sort or DEFAULT_CATEGORY_ENTRY_SORT_KEY
         sort_key = lambda e: getattr(e, category_sort)
         for category in sorted(self.categories, key=sort_key):
             result.append(category.string(**entry_options))
@@ -164,8 +165,8 @@ def prettify(elements,
             return element[field].capitalize().ljust(field_lengths[field])
 
         # Sort elements acc. to 'entry_sort' option, and format them
-        for element in sorted(
-                elements, key=lambda e: e[listing_options["entry_sort"]]):
+        entry_sort = listing_options.get("entry_sort") or "id"
+        for element in sorted(elements, key=lambda e: e[entry_sort]):
             lines.append(sep.join(_format(element, f) for f in fields))
 
         return "\n".join(lines)
