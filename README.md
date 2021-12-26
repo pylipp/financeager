@@ -127,6 +127,14 @@ It might be convenient to list entries of the current, or a specific month only 
     > fina list --month 7
     > fina list --month 03
 
+In order to only list category entries incl. their respective percentage of earnings/expenses use
+
+    > fina list --category-percentage
+
+In order to only list recurrent entries run (you can apply additional filtering and sorting)
+
+    > fina list --recurrent-only
+
 The aforementioned `financeager` commands operate on the default database (`main`) unless another pocket is specified by the `--pocket` flag.
 
     > fina add xmas-gifts -42 --date 12-23 --pocket personal
