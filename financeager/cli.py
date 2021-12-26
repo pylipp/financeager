@@ -375,8 +375,14 @@ is assumed""")
         "otherwise side-by-side")
     list_parser.add_argument(
         "--entry-sort",
-        choices=["name", "value", "date", "eid"],
-        default=financeager.DEFAULT_BASE_ENTRY_SORT_KEY)
+        choices=[
+            "name", "value", "date", "eid", "id", "category", "start", "end",
+            "frequency"
+        ],
+        default=financeager.DEFAULT_BASE_ENTRY_SORT_KEY,
+        help="key to sort entries by. The latter five keys can only be applied "
+        "in combination with the --recurrent-only option",
+    )
     list_parser.add_argument(
         "--category-sort",
         choices=["name", "value"],

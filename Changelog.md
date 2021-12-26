@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
-- Add `--recurrent-only` option for `list` command. Filtering using `-f` is supported. (#51)
+- Add `--recurrent-only` option for `list` command. Filtering using `-f` and sorting using `--entry-sort` are supported. (#51)
 ### Changed
 ### Fixed
 ### Removed

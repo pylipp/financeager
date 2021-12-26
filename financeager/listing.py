@@ -163,7 +163,9 @@ def prettify(elements,
                 return element[field].rjust(field_lengths[field])
             return element[field].capitalize().ljust(field_lengths[field])
 
-        for element in elements:
+        # Sort elements acc. to 'entry_sort' option, and format them
+        for element in sorted(
+                elements, key=lambda e: e[listing_options["entry_sort"]]):
             lines.append(sep.join(_format(element, f) for f in fields))
 
         return "\n".join(lines)

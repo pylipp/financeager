@@ -95,6 +95,7 @@ class CliTestCase(unittest.TestCase):
                 default_category=configuration.get_option(
                     "FRONTEND", "default_category"),
                 recurrent_only=params.get("recurrent_only", False),
+                entry_sort=params.get("entry_sort"),
             )
 
         return response
@@ -272,6 +273,13 @@ default_category = no-category"""
             response,
         "ID | NAME | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" +  # noqa
         " 2 | Rent | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ") # noqa
+
+        response = self.cli_run("list --recurrent-only --entry-sort frequency")
+        self.assertEqual(
+            response,
+        "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" + # noqa
+        " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  \n" + # noqa
+        " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   ") # noqa
         # yapf: enable
 
     @mock.patch("financeager.server.Server.run")
