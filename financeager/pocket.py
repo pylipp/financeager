@@ -334,7 +334,7 @@ class TinyDbPocket(Pocket):
 
         return element_id
 
-    def _search_all_tables(self, query_impl=None):
+    def _search_all_tables(self, condition):
         """Search both the standard table and the recurrent table for elements
         that satisfy the given condition.
 
@@ -344,39 +344,24 @@ class TinyDbPocket(Pocket):
         JSON response returned drops the Document.doc_id attribute s.t. it's not
         available when calling prettify on the client side).
 
-        :param query_impl: condition for the search. If none (default), all
-            elements are returned.
-        :type query_impl: tinydb.queries.QueryImpl
+        :param condition: condition for the search
+        :type condition: tinydb.queries.QueryInstance
 
         :return: dict
         """
 
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
-        if query_impl is None:
-            matching_standard_elements = self._db.all()
-        else:
-            matching_standard_elements = self._db.search(query_impl)
-
-        for element in matching_standard_elements:
+        for element in self._db.search(condition):
             elements[DEFAULT_TABLE][element.doc_id] = element
 
         # all recurrent elements are generated, and the ones matching the
-        # query are appended to a list that is stored under their generating
+        # condition are appended to a list that is stored under their generating
         # element's doc_id in the 'recurrent' subdictionary
         for element in self._db.table(RECURRENT_TABLE).all():
             for e in self._create_recurrent_elements(element):
-                matching_recurrent_element = None
-
-                if query_impl is None:
-                    matching_recurrent_element = e
-                else:
-                    if query_impl(e):
-                        matching_recurrent_element = e
-
-                if matching_recurrent_element is not None:
-                    elements[RECURRENT_TABLE][element.doc_id].append(
-                        matching_recurrent_element)
+                if condition(e):
+                    elements[RECURRENT_TABLE][element.doc_id].append(e)
 
         return elements
 
@@ -465,14 +450,13 @@ class TinyDbPocket(Pocket):
         'category'. Patterns must be of type string, or None (only for the field
         'category'; indicates filtering for all entries of the default
         category).
-        :return: tinydb.queries.QueryImpl object or None.
+        :return: tinydb.queries.QueryInstance (default: noop)
         """
+        condition = Query().noop()
         if not filters:
-            return
+            return condition
 
-        condition = None
         entry = Query()
-
         try:
             # The 'category' field is of type string or None. The condition is
             # constructed depending on the filter pattern
@@ -503,10 +487,7 @@ class TinyDbPocket(Pocket):
             else:
                 new_condition = (entry[field].search(pattern.lower()))
 
-            if condition is None:
-                condition = new_condition
-            else:
-                condition &= new_condition
+            condition &= new_condition
 
         return condition
 
@@ -524,7 +505,7 @@ class TinyDbPocket(Pocket):
                  list[tinydb.Document]
         """
         filters = filters or {}
-        condition = self._create_query_condition(**filters) or Query().noop()
+        condition = self._create_query_condition(**filters)
 
         if recurrent_only:
             # Flatten tinydb Document into dict
