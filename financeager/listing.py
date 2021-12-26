@@ -149,10 +149,8 @@ def prettify(elements,
         for element in elements:
             element["category"] = element["category"] or "Unspecified"
             element["end"] = element["end"] or "-"
-            element["id"] = str(element["id"])
-            element["value"] = str(element["value"])
             for field, length in field_lengths.items():
-                field_lengths[field] = max(length, len(element[field]))
+                field_lengths[field] = max(length, len(str(element[field])))
 
         sep = " | "
         # Add all-uppercase header row
@@ -161,7 +159,7 @@ def prettify(elements,
         def _format(element, field):
             # Numeric values shall be right-aligned, others left-aligned
             if field in ["id", "value"]:
-                return element[field].rjust(field_lengths[field])
+                return str(element[field]).rjust(field_lengths[field])
             return element[field].capitalize().ljust(field_lengths[field])
 
         # Sort elements acc. to 'entry_sort' option, and format them
