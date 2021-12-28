@@ -34,16 +34,18 @@ class BaseEntry(Entry):
     SHOW_EID = True
     EID_LENGTH = 4 if SHOW_EID else 0
     # add spaces separating name/value, value/date and date/eid
-    TOTAL_LENGTH = NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + \
-        3 if SHOW_EID else 2
+    TOTAL_LENGTH = (
+        NAME_LENGTH + VALUE_LENGTH + DATE_LENGTH + EID_LENGTH + 3 if SHOW_EID else 2
+    )
 
     def __init__(self, name, value, date, eid=0):
         """:type eid: int or string, will be converted to int
         :type date: str of valid format
         """
         super().__init__(name, value)
-        self.date = time.strftime(self.DATE_FORMAT,
-                                  time.strptime(date, POCKET_DATE_FORMAT))
+        self.date = time.strftime(
+            self.DATE_FORMAT, time.strptime(date, POCKET_DATE_FORMAT)
+        )
         self.eid = int(eid)
 
     def __str__(self):
@@ -55,7 +57,8 @@ class BaseEntry(Entry):
             self.VALUE_DIGITS,
             name=self.name.title(),
             value=self.value,
-            date=self.date)
+            date=self.date,
+        )
         if self.SHOW_EID:
             string += " {1:{0}d}".format(self.EID_LENGTH, self.eid)
         return string
@@ -99,7 +102,8 @@ class CategoryEntry(Entry):
         percent = ""
         if total_listing_value is not None:
             percent = "{1:>{0}.1f}".format(
-                BaseEntry.DATE_LENGTH, 100 * self.value / total_listing_value)
+                BaseEntry.DATE_LENGTH, 100 * self.value / total_listing_value
+            )
 
         lines = [
             "{name:{0}.{0}} {value:>{1}.{2}f} {percent}".format(
@@ -120,7 +124,7 @@ class CategoryEntry(Entry):
         for entry in sorted(self.entries, key=sort_key):
             lines.append(self.BASE_ENTRY_INDENT * " " + str(entry))
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
 
 def prettify(element, *, default_category):
@@ -149,8 +153,10 @@ def prettify(element, *, default_category):
 
     lines = []
     for p in properties:
-        lines.append("{}: {}".format(
-            p.capitalize().ljust(longest_property_length),
-            str(element[p]).title()))
+        lines.append(
+            "{}: {}".format(
+                p.capitalize().ljust(longest_property_length), str(element[p]).title()
+            )
+        )
 
     return "\n".join(lines)

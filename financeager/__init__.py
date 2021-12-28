@@ -2,6 +2,7 @@ import os.path
 from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
 
 import appdirs
+
 # versioning information
 from pkg_resources import get_distribution
 
@@ -41,8 +42,7 @@ LOGGER.setLevel(DEBUG)
 _stream_handler = StreamHandler()
 _stream_handler.setLevel(WARN)
 LOGGER.addHandler(_stream_handler)
-FORMATTER = Formatter(
-    fmt='%(levelname)s %(asctime)s %(name)s:%(lineno)d %(message)s')
+FORMATTER = Formatter(fmt="%(levelname)s %(asctime)s %(name)s:%(lineno)d %(message)s")
 
 
 def init_logger(name):
@@ -68,7 +68,8 @@ def setup_log_file_handler(log_dir=LOG_DIR):
     """
     os.makedirs(log_dir, exist_ok=True)
     file_handler = handlers.RotatingFileHandler(
-        os.path.join(log_dir, "log"), maxBytes=5e6, backupCount=5)
+        os.path.join(log_dir, "log"), maxBytes=5e6, backupCount=5
+    )
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
 

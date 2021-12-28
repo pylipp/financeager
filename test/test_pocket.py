@@ -8,11 +8,21 @@ from collections import Counter
 
 from marshmallow import ValidationError
 
-from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
-                         RECURRENT_TABLE, exceptions)
-from financeager.pocket import (_DEFAULT_CATEGORY, EntryBaseSchema, Pocket,
-                                RecurrentEntrySchema, StandardEntrySchema,
-                                TinyDbPocket)
+from financeager import (
+    DEFAULT_POCKET_NAME,
+    DEFAULT_TABLE,
+    POCKET_DATE_FORMAT,
+    RECURRENT_TABLE,
+    exceptions,
+)
+from financeager.pocket import (
+    _DEFAULT_CATEGORY,
+    EntryBaseSchema,
+    Pocket,
+    RecurrentEntrySchema,
+    StandardEntrySchema,
+    TinyDbPocket,
+)
 
 
 class Entry:
@@ -31,12 +41,8 @@ class CreateEmptyPocketTestCase(unittest.TestCase):
         name = 1234
         with open(os.path.join(data_dir, "{}.json".format(name)), "w") as file:
             json.dump(
-                {DEFAULT_TABLE: {
-                    1: {
-                        "name": "climbing",
-                        "category": "sport"
-                    }
-                }}, file)
+                {DEFAULT_TABLE: {1: {"name": "climbing", "category": "sport"}}}, file
+            )
         pocket = TinyDbPocket(name=name, data_dir=data_dir)
         # Expect that 'sport' has been counted once
         self.assertEqual(pocket._category_cache["climbing"], Counter(["sport"]))
@@ -47,7 +53,8 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
     def setUp(self):
         self.pocket = TinyDbPocket(name=1901)
         self.eid = self.pocket.add_entry(
-            name="Bicycle", value=-999.99, date="2020-01-01")
+            name="Bicycle", value=-999.99, date="2020-01-01"
+        )
 
     @unittest.skip("missing support for leap year validation in marshmallow")
     def test_leap_year_date(self):
@@ -70,70 +77,66 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
 
     def test_create_models_query_kwargs(self):
         eid = self.pocket.add_entry(
-            name="Xmas gifts", value=500, date="2002-12-23", category="gifts")
-        standard_elements = self.pocket.get_entries(
-            filters={"date": "12"})[DEFAULT_TABLE]
+            name="Xmas gifts", value=500, date="2002-12-23", category="gifts"
+        )
+        standard_elements = self.pocket.get_entries(filters={"date": "12"})[
+            DEFAULT_TABLE
+        ]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
-        standard_elements = self.pocket.get_entries(
-            filters={"category": None})[DEFAULT_TABLE]
+        standard_elements = self.pocket.get_entries(filters={"category": None})[
+            DEFAULT_TABLE
+        ]
         self.assertEqual(len(standard_elements), 1)
 
-        standard_elements = self.pocket.get_entries(
-            filters={"category": "gi"})[DEFAULT_TABLE]
+        standard_elements = self.pocket.get_entries(filters={"category": "gi"})[
+            DEFAULT_TABLE
+        ]
         self.assertEqual(len(standard_elements), 1)
 
         self.pocket.add_entry(name="hammer", value=-33, date="2015-12-20")
-        standard_elements = self.pocket.get_entries(filters={
-            "name": "xmas",
-            "date": "12"
-        })[DEFAULT_TABLE]
+        standard_elements = self.pocket.get_entries(
+            filters={"name": "xmas", "date": "12"}
+        )[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
 
     def test_category_cache(self):
         self.pocket.add_entry(
-            name="walmart",
-            value=-50.01,
-            category="groceries",
-            date="1999-02-02")
+            name="walmart", value=-50.01, category="groceries", date="1999-02-02"
+        )
         self.pocket.add_entry(name="walmart", value=-0.99, date="1999-02-03")
 
-        groceries_elements = self.pocket.get_entries(
-            filters={"category": "groceries"})
+        groceries_elements = self.pocket.get_entries(filters={"category": "groceries"})
         self.assertEqual(len(groceries_elements), 2)
         self.assertEqual(
-            sum([
-                e["value"] for e in groceries_elements[DEFAULT_TABLE].values()
-            ]), -51)
+            sum([e["value"] for e in groceries_elements[DEFAULT_TABLE].values()]), -51
+        )
 
     def test_remove_nonexisting_entry(self):
         self.assertRaises(
-            exceptions.PocketEntryNotFound, self.pocket.remove_entry, eid=0)
+            exceptions.PocketEntryNotFound, self.pocket.remove_entry, eid=0
+        )
 
     def test_add_remove_via_eid(self):
         entry_name = "penguin sale"
-        entry_id = self.pocket.add_entry(
-            name=entry_name, value=1337, date="2010-12-01")
+        entry_id = self.pocket.add_entry(name=entry_name, value=1337, date="2010-12-01")
         nr_entries = len(self.pocket._db)
 
         removed_entry_id = self.pocket.remove_entry(eid=entry_id)
         self.assertEqual(removed_entry_id, entry_id)
         self.assertEqual(len(self.pocket._db), nr_entries - 1)
-        self.assertEqual(
-            self.pocket._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
+        self.assertEqual(self.pocket._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
 
     def test_get_nonexisting_entry(self):
-        self.assertRaises(
-            exceptions.PocketEntryNotFound, self.pocket.get_entry, eid=-1)
+        self.assertRaises(exceptions.PocketEntryNotFound, self.pocket.get_entry, eid=-1)
 
     def test_add_entry_default_date(self):
         name = "new backpack"
         entry_id = self.pocket.add_entry(name=name, value=-49.95, date=None)
         element = self.pocket.get_entry(entry_id)
-        self.assertEqual(element["date"],
-                         dt.date.today().strftime(POCKET_DATE_FORMAT))
+        self.assertEqual(element["date"], dt.date.today().strftime(POCKET_DATE_FORMAT))
         self.pocket.remove_entry(eid=entry_id)
 
     def test_update_standard_entry(self):
@@ -144,47 +147,50 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
         # kwargs with None-value should be ignored; they are passed e.g. by the
         # flask_restful RequestParser
         self.pocket.update_entry(
-            eid=self.eid, name="Trekking Bicycle", value=None, category=None)
+            eid=self.eid, name="Trekking Bicycle", value=None, category=None
+        )
         element = self.pocket.get_entry(eid=self.eid)
         self.assertEqual(element["name"], "trekking bicycle")
 
-        self.assertEqual(self.pocket._category_cache["bicycle"],
-                         Counter({_DEFAULT_CATEGORY: 0}))
-        self.assertEqual(self.pocket._category_cache["trekking bicycle"],
-                         Counter({_DEFAULT_CATEGORY: 1}))
+        self.assertEqual(
+            self.pocket._category_cache["bicycle"], Counter({_DEFAULT_CATEGORY: 0})
+        )
+        self.assertEqual(
+            self.pocket._category_cache["trekking bicycle"],
+            Counter({_DEFAULT_CATEGORY: 1}),
+        )
 
         self.pocket.update_entry(eid=self.eid, category="Sports", name=None)
         element = self.pocket.get_entry(eid=self.eid)
         self.assertEqual(element["category"], "sports")
 
-        self.assertEqual(self.pocket._category_cache["trekking bicycle"],
-                         Counter({
-                             "sports": 1,
-                             _DEFAULT_CATEGORY: 0
-                         }))
+        self.assertEqual(
+            self.pocket._category_cache["trekking bicycle"],
+            Counter({"sports": 1, _DEFAULT_CATEGORY: 0}),
+        )
 
         # string-eids should be internally converted to int
         self.pocket.update_entry(
-            eid=str(self.eid), name="MTB Tandem", category="Fun", value=-1000)
+            eid=str(self.eid), name="MTB Tandem", category="Fun", value=-1000
+        )
         element = self.pocket.get_entry(eid=self.eid)
         self.assertEqual(element["name"], "mtb tandem")
         self.assertEqual(element["value"], -1000.0)
         self.assertEqual(element["category"], "fun")
 
-        self.assertEqual(self.pocket._category_cache["trekking bicycle"],
-                         Counter({
-                             "sports": 0,
-                             _DEFAULT_CATEGORY: 0
-                         }))
-        self.assertEqual(self.pocket._category_cache["mtb tandem"],
-                         Counter({"fun": 1}))
+        self.assertEqual(
+            self.pocket._category_cache["trekking bicycle"],
+            Counter({"sports": 0, _DEFAULT_CATEGORY: 0}),
+        )
+        self.assertEqual(self.pocket._category_cache["mtb tandem"], Counter({"fun": 1}))
 
     def test_update_nonexisting_entry(self):
         self.assertRaises(
             exceptions.PocketEntryNotFound,
             self.pocket.update_entry,
             eid=0,
-            name="I shall fail")
+            name="I shall fail",
+        )
 
     def test_add_invalid_entry(self):
         self.assertRaises(
@@ -192,7 +198,8 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
             self.pocket.add_entry,
             name="I'm invalid",
             date="1.1",
-            value="hundred")
+            value="hundred",
+        )
 
     def tearDown(self):
         self.pocket.close()
@@ -239,21 +246,18 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
 
         self.assertEqual(len(self.pocket._db.table(RECURRENT_TABLE).all()), 1)
         element = self.pocket._db.table(RECURRENT_TABLE).all()[0]
-        recurrent_elements = list(
-            self.pocket._create_recurrent_elements(element))
+        recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 14)
 
         rep_element_names = {e["name"] for e in recurrent_elements}
         self.assertSetEqual(
             rep_element_names,
-            {
-                "rent, {}".format(calendar.month_name[m + 1].lower())
-                for m in range(12)
-            },
+            {"rent, {}".format(calendar.month_name[m + 1].lower()) for m in range(12)},
         )
 
-        matching_elements = self.pocket.get_entries(
-            filters={"date": "11"})[RECURRENT_TABLE]
+        matching_elements = self.pocket.get_entries(filters={"date": "11"})[
+            RECURRENT_TABLE
+        ]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(matching_elements[eid][0]["name"], "rent, november")
         # the doc_id attribute is None because a new Document instance has been
@@ -273,22 +277,25 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         )
 
         element = self.pocket._db.table(RECURRENT_TABLE).all()[0]
-        recurrent_elements = list(
-            self.pocket._create_recurrent_elements(element))
+        recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 4)
 
         rep_element_names = {e["name"] for e in recurrent_elements}
         self.assertSetEqual(
-            rep_element_names, {
-                "interest, january", "interest, april", "interest, july",
-                "interest, october"
-            })
+            rep_element_names,
+            {
+                "interest, january",
+                "interest, april",
+                "interest, july",
+                "interest, october",
+            },
+        )
 
         recurrent_table_size = len(self.pocket._db.table(RECURRENT_TABLE))
         self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(
-            len(self.pocket._db.table(RECURRENT_TABLE)),
-            recurrent_table_size - 1)
+            len(self.pocket._db.table(RECURRENT_TABLE)), recurrent_table_size - 1
+        )
 
     def test_recurrent_bimonthly_entries(self):
         eid = self.pocket.add_entry(
@@ -297,7 +304,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             table_name=RECURRENT_TABLE,
             frequency="bimonthly",
             start="2012-01-08",
-            end="2012-03-08")
+            end="2012-03-08",
+        )
         recurrent_elements = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_elements), 2)
         self.assertEqual(recurrent_elements[0]["name"], "interest, january")
@@ -309,7 +317,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             table_name=RECURRENT_TABLE,
             frequency="weekly",
             start="2000-01-08",
-            end="2000-01-14")
+            end="2000-01-14",
+        )
         recurrent_elements = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_elements), 1)
         self.assertEqual(recurrent_elements[0]["name"], "interest, week 01")
@@ -320,7 +329,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             value=25.0,
             frequency="weekly",
             start="2000-01-08",
-            end="2000-01-14")
+            end="2000-01-14",
+        )
         rent_fields = dict(
             name="rent",
             value=-400.0,
@@ -328,8 +338,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             frequency="monthly",
             start="2020-01-01",
         )
-        eid = self.pocket.add_entry(
-            table_name=RECURRENT_TABLE, **interest_fields)
+        eid = self.pocket.add_entry(table_name=RECURRENT_TABLE, **interest_fields)
         eid2 = self.pocket.add_entry(table_name=RECURRENT_TABLE, **rent_fields)
         recurrent_elements = self.pocket.get_entries(recurrent_only=True)
         interest_fields.update({"category": None, "id": eid})
@@ -342,14 +351,16 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             value=25,
             table_name=RECURRENT_TABLE,
             frequency="quarter-yearly",
-            start="2020-01-01")
+            start="2020-01-01",
+        )
 
         self.pocket.update_entry(
             eid=eid,
             frequency="half-yearly",
             start="2020-03-01",
             end="2020-06-30",
-            table_name=RECURRENT_TABLE)
+            table_name=RECURRENT_TABLE,
+        )
 
         entry = self.pocket.get_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(entry["frequency"], "half-yearly")
@@ -361,7 +372,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         self.assertEqual(recurrent_entries[0]["date"], "2020-03-01")
 
         self.pocket.update_entry(
-            eid=eid, value=30, frequency=None, table_name=RECURRENT_TABLE)
+            eid=eid, value=30, frequency=None, table_name=RECURRENT_TABLE
+        )
 
     def test_update_recurrent_entry_incorrectly(self):
         eid = self.pocket.add_entry(
@@ -369,11 +381,11 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             value=25,
             table_name=RECURRENT_TABLE,
             frequency="quarter-yearly",
-            start="2020-01-01")
+            start="2020-01-01",
+        )
 
         with self.assertRaises(exceptions.PocketValidationFailure) as context:
-            self.pocket.update_entry(
-                eid=eid, end="Dec-24", table_name=RECURRENT_TABLE)
+            self.pocket.update_entry(eid=eid, end="Dec-24", table_name=RECURRENT_TABLE)
         self.assertIn("end", str(context.exception))
 
     def test_recurrent_yearly_entry(self):
@@ -383,7 +395,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             start="2015-01-01",
             end=None,
             table_name=RECURRENT_TABLE,
-            frequency="yearly")
+            frequency="yearly",
+        )
         recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_entries), dt.date.today().year - 2014)
         self.assertEqual(recurrent_entries[0]["date"], "2015-01-01")
@@ -418,22 +431,16 @@ class ValidationTestCase(unittest.TestCase):
         self.assertIsNone(entry.category)
 
     def test_valid_base_entry_category_none(self):
-        data = EntryBaseSchema().load({
-            "name": "entry",
-            "value": "5",
-            "category": None
-        })
+        data = EntryBaseSchema().load({"name": "entry", "value": "5", "category": None})
         entry = Entry(**data)
         self.assertEqual(entry.name, "entry")
         self.assertEqual(entry.value, 5)
         self.assertIsNone(entry.category)
 
     def test_valid_standard_entry(self):
-        data = StandardEntrySchema().load({
-            "name": "entry",
-            "value": 5,
-            "date": "1900-05-01"
-        })
+        data = StandardEntrySchema().load(
+            {"name": "entry", "value": 5, "date": "1900-05-01"}
+        )
         entry = Entry(**data)
         self.assertEqual(entry.date, dt.date(year=1900, month=5, day=1))
 
@@ -453,12 +460,14 @@ class ValidationTestCase(unittest.TestCase):
         self.assertListEqual(["value"], list(context.exception.messages.keys()))
 
     def test_valid_recurrent_entry(self):
-        data = RecurrentEntrySchema().load({
-            "name": "rent",
-            "value": -400,
-            "frequency": "monthly",
-            "start": "1900-01-02"
-        })
+        data = RecurrentEntrySchema().load(
+            {
+                "name": "rent",
+                "value": -400,
+                "frequency": "monthly",
+                "start": "1900-01-02",
+            }
+        )
         entry = Entry(**data)
         self.assertEqual(entry.frequency, "monthly")
         self.assertEqual(entry.start, dt.date(year=1900, month=1, day=2))
@@ -466,14 +475,15 @@ class ValidationTestCase(unittest.TestCase):
 
     def test_invalid_recurrent_entry(self):
         with self.assertRaises(ValidationError) as context:
-            RecurrentEntrySchema().load({
-                "name": "rent",
-                "value": -400,
-                "frequency": "yaerly",
-                "start": "2020-01-02"
-            })
-        self.assertListEqual(["frequency"],
-                             list(context.exception.messages.keys()))
+            RecurrentEntrySchema().load(
+                {
+                    "name": "rent",
+                    "value": -400,
+                    "frequency": "yaerly",
+                    "start": "2020-01-02",
+                }
+            )
+        self.assertListEqual(["frequency"], list(context.exception.messages.keys()))
 
 
 class ValidateEntryTestCase(unittest.TestCase):
@@ -499,10 +509,11 @@ class ValidateEntryTestCase(unittest.TestCase):
             "name": "income",
             "value": "1111",
             "frequency": "bimonthly",
-            "start": "2020-06-01"
+            "start": "2020-06-01",
         }
         fields = self.pocket._preprocess_entry(
-            raw_data=raw_data, table_name=RECURRENT_TABLE)
+            raw_data=raw_data, table_name=RECURRENT_TABLE
+        )
 
         self.assertEqual(fields["frequency"], "bimonthly")
         self.assertEqual(fields["start"], raw_data["start"])
@@ -514,11 +525,10 @@ class ValidateEntryTestCase(unittest.TestCase):
             "value": "1111",
             "frequency": "hourly",
             "start": "06-01",
-            "category": ""
+            "category": "",
         }
         with self.assertRaises(exceptions.PocketValidationFailure) as context:
-            self.pocket._preprocess_entry(
-                raw_data=raw_data, table_name=RECURRENT_TABLE)
+            self.pocket._preprocess_entry(raw_data=raw_data, table_name=RECURRENT_TABLE)
         self.assertIn("frequency", str(context.exception))
         self.assertIn("category", str(context.exception))
 
@@ -532,8 +542,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertEqual(converted_fields["value"], 123.0)
 
     def test_substitute_none_recurrent_fields(self):
-        fields = self.pocket._substitute_none_fields(
-            RECURRENT_TABLE, name="baz")
+        fields = self.pocket._substitute_none_fields(RECURRENT_TABLE, name="baz")
         self.assertIn("start", fields)
         self.assertIn("end", fields)
         # contains name, category, start, end
@@ -547,10 +556,7 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertEqual(len(fields), 3)
 
     def test_remove_redundant_fields(self):
-        raw_data = {
-            field: None
-            for field in ["date", "start", "end", "frequency"]
-        }
+        raw_data = {field: None for field in ["date", "start", "end", "frequency"]}
         TinyDbPocket._remove_redundant_fields(None, raw_data)
         self.assertDictEqual(raw_data, {"date": None})
         TinyDbPocket._remove_redundant_fields(RECURRENT_TABLE, raw_data)
@@ -560,7 +566,8 @@ class ValidateEntryTestCase(unittest.TestCase):
         self.assertRaises(
             exceptions.PocketValidationFailure,
             self.pocket._preprocess_entry,
-            table_name="unknown table")
+            table_name="unknown table",
+        )
 
 
 class JsonTinyDbPocketTestCase(unittest.TestCase):
@@ -569,8 +576,7 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
         cls.data_dir = "/tmp"
         cls.year = 1999
         cls.pocket = TinyDbPocket(name=cls.year, data_dir=cls.data_dir)
-        cls.data_filepath = os.path.join(cls.data_dir,
-                                         "{}.json".format(cls.year))
+        cls.data_filepath = os.path.join(cls.data_dir, "{}.json".format(cls.year))
 
     def test_json_file_exists(self):
         self.assertTrue(os.path.exists(self.data_filepath))
@@ -588,5 +594,5 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
         os.remove(cls.data_filepath)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

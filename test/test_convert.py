@@ -4,16 +4,14 @@ import tempfile
 import unittest
 from unittest import mock
 
-from financeager import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, RECURRENT_TABLE,
-                         convert)
+from financeager import DEFAULT_POCKET_NAME, DEFAULT_TABLE, RECURRENT_TABLE, convert
 
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class ConvertTestCase(unittest.TestCase):
-    POCKET_FILEPATH = os.path.join(TEST_DATA_DIR,
-                                   "{}.json".format(DEFAULT_POCKET_NAME))
+    POCKET_FILEPATH = os.path.join(TEST_DATA_DIR, "{}.json".format(DEFAULT_POCKET_NAME))
 
     def tearDown(self):
         if os.path.exists(self.POCKET_FILEPATH):
@@ -125,8 +123,7 @@ class ConvertTestCase(unittest.TestCase):
             json.dump(period_content, f)
         period_filepaths.append(period_filepath)
 
-        expected_content[DEFAULT_TABLE]["2"] =\
-            period_content[DEFAULT_TABLE]["1"].copy()
+        expected_content[DEFAULT_TABLE]["2"] = period_content[DEFAULT_TABLE]["1"].copy()
         expected_content[DEFAULT_TABLE]["2"]["date"] = "1237-03-04"
 
         convert.run(period_filepaths=period_filepaths)

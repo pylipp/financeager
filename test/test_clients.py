@@ -22,8 +22,7 @@ class CreateClientsTestCase(unittest.TestCase):
             name="test",
             client=TestClient,
         )
-        some_plugin = plugin.PluginBase(
-            name="some-plugin", config=plugin_config)
+        some_plugin = plugin.PluginBase(name="some-plugin", config=plugin_config)
         client = clients.create(
             configuration=app_config,
             sinks=None,
@@ -36,8 +35,8 @@ class CreateClientsTestCase(unittest.TestCase):
 
         # And running the CLI parser does not error
         self.assertEqual(
-            cli._parse_command(["list"], plugins=[some_plugin])["command"],
-            "list")
+            cli._parse_command(["list"], plugins=[some_plugin])["command"], "list"
+        )
 
 
 if __name__ == "__main__":

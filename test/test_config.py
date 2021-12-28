@@ -9,8 +9,7 @@ from financeager.config import Configuration, InvalidConfigError
 class ConfigTestCase(unittest.TestCase):
     def test_sections(self):
         config = Configuration()
-        self.assertSetEqual(
-            set(config._parser.sections()), {"SERVICE", "FRONTEND"})
+        self.assertSetEqual(set(config._parser.sections()), {"SERVICE", "FRONTEND"})
 
     def test_get_option(self):
         config = Configuration()
@@ -21,35 +20,31 @@ class ConfigTestCase(unittest.TestCase):
         filepath = "/tmp/{}".format(int(time.time()))
 
         for content in (
-                "[SERVICE]\nname = sillyservice\n",
-                "[FRONTEND]\ndefault_category = ",
+            "[SERVICE]\nname = sillyservice\n",
+            "[FRONTEND]\ndefault_category = ",
         ):
             with open(filepath, "w") as file:
                 file.write(content)
-            self.assertRaises(
-                InvalidConfigError, Configuration, filepath=filepath)
+            self.assertRaises(InvalidConfigError, Configuration, filepath=filepath)
 
     def test_nonexisting_config_filepath(self):
         filepath = "/tmp/{}".format(time.time())
         with self.assertRaises(InvalidConfigError) as cm:
             Configuration(filepath=filepath)
         self.assertTrue(
-            cm.exception.args[0].endswith("Config filepath does not exist!"))
+            cm.exception.args[0].endswith("Config filepath does not exist!")
+        )
 
 
 class TestPluginConfiguration(plugin.PluginConfiguration):
     def init_defaults(self, config_parser):
-        config_parser["TESTSECTION"] = {
-            "test": 42,
-            "flag": "off",
-            "number": 1.0
-        }
+        config_parser["TESTSECTION"] = {"test": 42, "flag": "off", "number": 1.0}
 
     def init_option_types(self, option_types):
         option_types["TESTSECTION"] = {
             "test": "int",
             "flag": "boolean",
-            "number": "float"
+            "number": "float",
         }
 
 
@@ -57,7 +52,8 @@ class PluginConfigTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.plugin = plugin.PluginBase(
-            name="test-plugin", config=TestPluginConfiguration())
+            name="test-plugin", config=TestPluginConfiguration()
+        )
 
     def test_init_defaults(self):
         config = Configuration(plugins=[self.plugin])
@@ -69,11 +65,9 @@ class PluginConfigTestCase(unittest.TestCase):
         self.assertEqual(config.get_option("TESTSECTION", "number"), 1.0)
 
         self.assertDictEqual(
-            config.get_section("TESTSECTION"), {
-                "test": 42,
-                "flag": False,
-                "number": 1.0
-            })
+            config.get_section("TESTSECTION"),
+            {"test": 42, "flag": False, "number": 1.0},
+        )
 
     def test_load_custom_test_section(self):
         filepath = tempfile.mkstemp()[1]
@@ -89,14 +83,13 @@ class PluginConfigTestCase(unittest.TestCase):
             file.write("[TESTSECTION]\ntest = no-int\n")
 
         self.assertRaises(
-            InvalidConfigError,
-            Configuration,
-            filepath=filepath,
-            plugins=[self.plugin])
+            InvalidConfigError, Configuration, filepath=filepath, plugins=[self.plugin]
+        )
 
     def test_load_service_plugin_config(self):
         pl = plugin.ServicePlugin(
-            name="test-plugin", config=TestPluginConfiguration(), client=None)
+            name="test-plugin", config=TestPluginConfiguration(), client=None
+        )
         filepath = tempfile.mkstemp()[1]
         with open(filepath, "w") as file:
             file.write("[SERVICE]\nname = {}\n".format(pl.name))

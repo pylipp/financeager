@@ -16,20 +16,23 @@ def main(*, sinks, period_filepaths=None):
     """
     if period_filepaths is None:
         period_filepaths = sorted(
-            glob.glob(os.path.join(financeager.DATA_DIR, "*.json")))
+            glob.glob(os.path.join(financeager.DATA_DIR, "*.json"))
+        )
     else:
-        non_existing_filepaths = [
-            f for f in period_filepaths if not os.path.exists(f)
-        ]
+        non_existing_filepaths = [f for f in period_filepaths if not os.path.exists(f)]
         if non_existing_filepaths:
             sinks.error(
                 exceptions.ConversionError(
                     "One or more non-existing filepaths:\n{}".format(
-                        "\n".join(non_existing_filepaths))))
+                        "\n".join(non_existing_filepaths)
+                    )
+                )
+            )
             return False
 
     period_filepaths = [
-        f for f in period_filepaths
+        f
+        for f in period_filepaths
         if not f.endswith("{}.json".format(financeager.DEFAULT_POCKET_NAME))
     ]
 
@@ -43,7 +46,10 @@ def main(*, sinks, period_filepaths=None):
         sinks.error(
             exceptions.ConversionError(
                 "One or more invalid filepaths:\n{}".format(
-                    "\n".join(invalid_filepaths))))
+                    "\n".join(invalid_filepaths)
+                )
+            )
+        )
         return False
 
     sinks.info("Converting {} period(s)...".format(len(period_filepaths)))

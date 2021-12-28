@@ -7,8 +7,16 @@ import unittest
 from datetime import datetime as dt
 from unittest import mock
 
-from financeager import (DEFAULT_TABLE, RECURRENT_TABLE, cli, clients, config,
-                         exceptions, plugin, setup_log_file_handler)
+from financeager import (
+    DEFAULT_TABLE,
+    RECURRENT_TABLE,
+    cli,
+    clients,
+    config,
+    exceptions,
+    plugin,
+    setup_log_file_handler,
+)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -74,8 +82,9 @@ class CliTestCase(unittest.TestCase):
         response = getattr(self, log_method).call_args[0][0]
 
         # Verify exit code
-        self.assertEqual(exit_code,
-                         cli.SUCCESS if log_method == "info" else cli.FAILURE)
+        self.assertEqual(
+            exit_code, cli.SUCCESS if log_method == "info" else cli.FAILURE
+        )
 
         # Immediately return str messages
         if isinstance(response, str):
@@ -93,7 +102,8 @@ class CliTestCase(unittest.TestCase):
                 response,
                 command,
                 default_category=configuration.get_option(
-                    "FRONTEND", "default_category"),
+                    "FRONTEND", "default_category"
+                ),
                 recurrent_only=params.get("recurrent_only", False),
                 entry_sort=params.get("entry_sort"),
             )
@@ -118,8 +128,8 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
     @mock.patch("financeager.cli.logger.info")
     def test_pockets(self, mocked_info, mocked_print):
         cli.run(
-            "pockets",
-            configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH))
+            "pockets", configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH)
+        )
 
         mocked_info.assert_called_once_with({"pockets": []})
         mocked_print.assert_called_once_with("")
@@ -130,12 +140,12 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
         # Cover the behavior of cli._format_response() given a str
         mocked_run.return_value = "response"
         cli.run(
-            "pockets",
-            configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH))
+            "pockets", configuration=config.Configuration(filepath=TEST_CONFIG_FILEPATH)
+        )
 
         self.assertListEqual(
-            mocked_run.mock_calls,
-            [mock.call("pockets"), mock.call("stop")])
+            mocked_run.mock_calls, [mock.call("pockets"), mock.call("stop")]
+        )
         mocked_print.assert_called_once_with("response")
 
 
@@ -218,11 +228,10 @@ default_category = no-category"""
         month_variants.append(month_nr)
         self.pocket = 1999
 
+        self.cli_run("add beans -4 -d {}-0{}-15", format_args=(self.pocket, month_nr))
         self.cli_run(
-            "add beans -4 -d {}-0{}-15", format_args=(self.pocket, month_nr))
-        self.cli_run(
-            "add chili -4 -d {}-0{}-15",
-            format_args=(self.pocket, month_nr + 1))
+            "add chili -4 -d {}-0{}-15", format_args=(self.pocket, month_nr + 1)
+        )
 
         for m in month_variants:
             response = self.cli_run("list --month {}", format_args=m).lower()
@@ -231,8 +240,8 @@ default_category = no-category"""
 
         # Verify overwriting of 'filters' option
         response = self.cli_run(
-            "list --month {} --filters date=0{}-",
-            format_args=(month_nr, month_nr + 1)).lower()
+            "list --month {} --filters date=0{}-", format_args=(month_nr, month_nr + 1)
+        ).lower()
         self.assertIn("beans", response)
         self.assertNotIn("chili", response)
 
@@ -250,8 +259,7 @@ default_category = no-category"""
 
     def test_list_invalid_month(self):
         month_nr = 13
-        response = self.cli_run(
-            "list -m {}", format_args=month_nr, log_method="error")
+        response = self.cli_run("list -m {}", format_args=month_nr, log_method="error")
         self.assertEqual(response, "Invalid month: {}".format(month_nr))
 
     def test_list_filter_value(self):
@@ -306,8 +314,7 @@ default_category = no-category"""
         self.assertTrue(response.startswith("Unexpected error: Traceback"))
 
     def test_convert_periods_to_pocket(self):
-        period_filepath = os.path.join(TEST_DATA_DIR,
-                                       "{}.json".format(self.pocket))
+        period_filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(self.pocket))
         period_content = {
             DEFAULT_TABLE: {
                 "1": {
@@ -322,16 +329,15 @@ default_category = no-category"""
             json.dump(period_content, f)
 
         response = self.cli_run(
-            "convert-periods-to-pocket --period-filepaths {}".format(
-                period_filepath))
+            "convert-periods-to-pocket --period-filepaths {}".format(period_filepath)
+        )
         self.assertEqual(response, "Converting 1 period(s)...")
 
         pocket_filepath = os.path.join(TEST_DATA_DIR, "main.json")
         self.assertTrue(os.path.exists(pocket_filepath))
 
         expected_content = copy.deepcopy(period_content)
-        expected_content[DEFAULT_TABLE]["1"]["date"] = "{}-12-28".format(
-            self.pocket)
+        expected_content[DEFAULT_TABLE]["1"]["date"] = "{}-12-28".format(self.pocket)
         expected_content[RECURRENT_TABLE] = {}
 
         with open(pocket_filepath) as f:
@@ -344,23 +350,25 @@ default_category = no-category"""
         self.assertDictEqual(period_content, disk_period_content)
 
     def test_add_recurrent_entry(self):
-        entry_id = self.cli_run(
-            "add credit -100 --recurrent -f monthly -s 01-01")
+        entry_id = self.cli_run("add credit -100 --recurrent -f monthly -s 01-01")
         self.assertEqual(entry_id, 1)
 
         year = dt.today().year
         response = self.cli_run("get {} -r", format_args=entry_id)
         self.assertEqual(
-            response, """\
+            response,
+            """\
 Name     : Credit
 Value    : -100.0
 Frequency: Monthly
 Start    : {}-01-01
 End      : None
-Category : No-Category""".format(year))
+Category : No-Category""".format(
+                year
+            ),
+        )
 
-        entry_id = self.cli_run(
-            "add gift -200 -t recurrent -f quarter-yearly -e 12-31")
+        entry_id = self.cli_run("add gift -200 -t recurrent -f quarter-yearly -e 12-31")
         self.assertEqual(entry_id, 2)
 
         response = self.cli_run("get {} -t recurrent", format_args=entry_id)
@@ -386,16 +394,14 @@ class CliConvertTestCase(CliTestCase):
             "convert-periods-to-pocket --period-filepaths nope.json",
             log_method="error",
         )
-        self.assertEqual(response,
-                         "One or more non-existing filepaths:\nnope.json")
+        self.assertEqual(response, "One or more non-existing filepaths:\nnope.json")
 
     def test_convert_invalid_period_filepath(self):
         period_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "invalid.json")
         open(period_filepath, "w").close()
 
         response = self.cli_run(
-            "convert-periods-to-pocket --period-filepaths {}".format(
-                period_filepath),
+            "convert-periods-to-pocket --period-filepaths {}".format(period_filepath),
             log_method="error",
         )
         lines = response.splitlines()
@@ -419,8 +425,9 @@ class CliConvertTestCase(CliTestCase):
 
         for i in range(nr_periods):
             year = base_year + i
-            period_filepath = os.path.join(CONVERT_TEST_DATA_DIR,
-                                           "{}.json".format(year))
+            period_filepath = os.path.join(
+                CONVERT_TEST_DATA_DIR, "{}.json".format(year)
+            )
             period_content = {
                 DEFAULT_TABLE: {
                     "1": {
@@ -437,20 +444,19 @@ class CliConvertTestCase(CliTestCase):
             period_contents.append(period_content[DEFAULT_TABLE]["1"])
 
         response = self.cli_run("convert-periods-to-pocket")
-        self.assertEqual(response,
-                         "Converting {} period(s)...".format(nr_periods))
+        self.assertEqual(response, "Converting {} period(s)...".format(nr_periods))
 
         pocket_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "main.json")
         self.assertTrue(os.path.exists(pocket_filepath))
 
         expected_content = {}
         expected_content[DEFAULT_TABLE] = {
-            str(i + 1): c
-            for i, c in enumerate(period_contents)
+            str(i + 1): c for i, c in enumerate(period_contents)
         }
         for i in range(nr_periods):
-            expected_content[DEFAULT_TABLE][str(
-                i + 1)]["date"] = "{}-12-28".format(base_year + i)
+            expected_content[DEFAULT_TABLE][str(i + 1)]["date"] = "{}-12-28".format(
+                base_year + i
+            )
         expected_content[RECURRENT_TABLE] = {}
 
         with open(pocket_filepath) as f:
@@ -500,20 +506,20 @@ class PreprocessTestCase(unittest.TestCase):
 
 class FormatResponseTestCase(unittest.TestCase):
     def test_add(self):
-        self.assertEqual("Added element 1.",
-                         cli._format_response({"id": 1}, "add"))
+        self.assertEqual("Added element 1.", cli._format_response({"id": 1}, "add"))
 
     def test_update(self):
-        self.assertEqual("Updated element 1.",
-                         cli._format_response({"id": 1}, "update"))
+        self.assertEqual(
+            "Updated element 1.", cli._format_response({"id": 1}, "update")
+        )
 
     def test_remove(self):
-        self.assertEqual("Removed element 1.",
-                         cli._format_response({"id": 1}, "remove"))
+        self.assertEqual(
+            "Removed element 1.", cli._format_response({"id": 1}, "remove")
+        )
 
     def test_copy(self):
-        self.assertEqual("Copied element 1.",
-                         cli._format_response({"id": 1}, "copy"))
+        self.assertEqual("Copied element 1.", cli._format_response({"id": 1}, "copy"))
 
 
 class TestPluginCliOptions(plugin.PluginCliOptions):
@@ -542,15 +548,13 @@ class PluginCliOptionsTestCase(unittest.TestCase):
             client=TestClient,
         )
 
-        args = cli._parse_command(
-            "bird --sound tweet".split(), plugins=[test_plugin])
+        args = cli._parse_command("bird --sound tweet".split(), plugins=[test_plugin])
         self.assertEqual(args["command"], "bird")
         self.assertEqual(args["sound"], "tweet")
 
         configuration = config.Configuration()
         configuration._parser["SERVICE"] = {"name": "test-plugin"}
-        exit_code = cli.run(
-            **args, configuration=configuration, plugins=[test_plugin])
+        exit_code = cli.run(**args, configuration=configuration, plugins=[test_plugin])
         self.assertEqual(exit_code, cli.SUCCESS)
 
 

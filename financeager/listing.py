@@ -21,11 +21,9 @@ class Listing:
             listing.add_entry(BaseEntry(**element), category_name=category)
         return listing
 
-    def prettify(self,
-                 *,
-                 category_sort=None,
-                 category_percentage=False,
-                 **entry_options):
+    def prettify(
+        self, *, category_sort=None, category_percentage=False, **entry_options
+    ):
         """Format listing (incl. name and header).
         Category entries are sorted acc. to the given 'category_sort'.
         'entry_options' are passed to CategoryEntry.string().
@@ -50,9 +48,11 @@ class Listing:
 
         else:
             header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
-                CategoryEntry.NAME_LENGTH, BaseEntry.VALUE_LENGTH,
+                CategoryEntry.NAME_LENGTH,
+                BaseEntry.VALUE_LENGTH,
                 BaseEntry.DATE_LENGTH,
-                *[k.capitalize() for k in BaseEntry.ITEM_TYPES])
+                *[k.capitalize() for k in BaseEntry.ITEM_TYPES]
+            )
             if BaseEntry.SHOW_EID:
                 header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
 
@@ -63,7 +63,7 @@ class Listing:
         for category in sorted(self.categories, key=sort_key):
             result.append(category.string(**entry_options))
 
-        return '\n'.join(result)
+        return "\n".join(result)
 
     def add_entry(self, entry, category_name=None):
         """Add a Category- or BaseEntry to the listing.
@@ -125,10 +125,7 @@ class Listing:
         return sum(v for v in self.category_fields("value"))
 
 
-def prettify(elements,
-             stacked_layout=False,
-             recurrent_only=False,
-             **listing_options):
+def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_options):
     """Sort the given elements (type acc. to Pocket._search_all_tables) by
     positive and negative value and return pretty string build from the
     corresponding Listings.
@@ -141,9 +138,7 @@ def prettify(elements,
     """
 
     if recurrent_only:
-        fields = [
-            "id", "name", "value", "category", "start", "end", "frequency"
-        ]
+        fields = ["id", "name", "value", "category", "start", "end", "frequency"]
         field_lengths = {f: len(f) for f in fields}
         # Determine max. field length and convert some field types
         for element in elements:
@@ -198,9 +193,11 @@ def prettify(elements,
 
     default_category = listing_options.pop("default_category", None)
     listing_earnings = Listing.from_elements(
-        earnings, default_category=default_category, name="Earnings")
+        earnings, default_category=default_category, name="Earnings"
+    )
     listing_expenses = Listing.from_elements(
-        expenses, default_category=default_category, name="Expenses")
+        expenses, default_category=default_category, name="Expenses"
+    )
     listings = [listing_earnings, listing_expenses]
 
     total_values = []
@@ -229,9 +226,7 @@ def prettify(elements,
         )
     else:
         result = []
-        listings_str = [
-            ls.prettify(**listing_options).splitlines() for ls in listings
-        ]
+        listings_str = [ls.prettify(**listing_options).splitlines() for ls in listings]
         for row in zip(*listings_str):
             result.append(" | ".join(row))
         earnings_size = len(listings_str[0])
@@ -250,4 +245,4 @@ def prettify(elements,
         result.append(" | ".join(total_entries))
         result.append(diff_entry)
 
-        return '\n'.join(result)
+        return "\n".join(result)

@@ -81,10 +81,7 @@ class Configuration:
         """Return a dictionary of options of the requested section.
         If an option is typed, a converted value is returned.
         """
-        return {
-            o: self.get_option(section, o)
-            for o in self._parser.options(section)
-        }
+        return {o: self.get_option(section, o) for o in self._parser.options(section)}
 
     def get_option(self, section, option):
         """Return the requested option of the configuration.
@@ -116,8 +113,7 @@ class Configuration:
 
         service_name = self.get_option("SERVICE", "name")
         if service_name not in valid_services:
-            raise InvalidConfigError(
-                "Unknown service name: {}".format(service_name))
+            raise InvalidConfigError("Unknown service name: {}".format(service_name))
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
@@ -129,7 +125,9 @@ class Configuration:
                 except ValueError:
                     raise InvalidConfigError(
                         "Wrong type for option {} in section {}.".format(
-                            option, section))
+                            option, section
+                        )
+                    )
 
         for p in self._plugins:
             p.config.validate(self)

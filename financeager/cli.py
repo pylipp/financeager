@@ -13,10 +13,21 @@ from dateutil import parser as du_parser
 
 import financeager
 
-from . import (POCKET_DATE_FORMAT, RECURRENT_TABLE, UNSET_INDICATOR,
-               __version__, clients, config, convert, entries, exceptions,
-               init_logger, listing, make_log_stream_handler_verbose,
-               setup_log_file_handler)
+from . import (
+    POCKET_DATE_FORMAT,
+    RECURRENT_TABLE,
+    UNSET_INDICATOR,
+    __version__,
+    clients,
+    config,
+    convert,
+    entries,
+    exceptions,
+    init_logger,
+    listing,
+    make_log_stream_handler_verbose,
+    setup_log_file_handler,
+)
 
 logger = init_logger(__name__)
 
@@ -40,14 +51,14 @@ def main():
     setup_log_file_handler()
 
     plugins = [
-        ep.load()()
-        for ep in pkg_resources.iter_entry_points("financeager.services")
+        ep.load()() for ep in pkg_resources.iter_entry_points("financeager.services")
     ]
 
     args = _parse_command(plugins=plugins)
     try:
         configuration = config.Configuration(
-            args.pop("config_filepath"), plugins=plugins)
+            args.pop("config_filepath"), plugins=plugins
+        )
         exit_code = run(configuration=configuration, plugins=plugins, **args)
 
     except exceptions.InvalidConfigError as e:
@@ -60,16 +71,12 @@ def main():
 def deprecated_main():
     logger.warning(
         "The 'financeager' main command will be renamed to 'fina' in an "
-        "upcoming release.\nUse the 'fina' command to avoid this warning.")
+        "upcoming release.\nUse the 'fina' command to avoid this warning."
+    )
     main()
 
 
-def run(command,
-        configuration,
-        plugins=None,
-        verbose=False,
-        sinks=None,
-        **params):
+def run(command, configuration, plugins=None, verbose=False, sinks=None, **params):
     """Run 'command' request using additional 'params'.
 
     All 'params' except for formatting-related options are passed to
@@ -112,20 +119,22 @@ def run(command,
         return FAILURE
 
     formatting_options["default_category"] = configuration.get_option(
-        "FRONTEND", "default_category")
+        "FRONTEND", "default_category"
+    )
     if command == "list":
         # Extract formatting options; irrelevant, event confusing for Server
         for option in [
-                "stacked_layout", "entry_sort", "category_sort",
-                "category_percentage"
+            "stacked_layout",
+            "entry_sort",
+            "category_sort",
+            "category_percentage",
         ]:
             formatting_options[option] = params.pop(option)
         if params["recurrent_only"]:
             formatting_options["recurrent_only"] = True
 
     exit_code = FAILURE
-    client = clients.create(
-        configuration=configuration, sinks=sinks, plugins=plugins)
+    client = clients.create(configuration=configuration, sinks=sinks, plugins=plugins)
     if client.safely_run(command, **params):
         exit_code = SUCCESS
 
@@ -149,7 +158,8 @@ def _preprocess(data):
             try:
                 date = time.strftime(
                     POCKET_DATE_FORMAT,
-                    du_parser.parse(date, yearfirst=True).timetuple())
+                    du_parser.parse(date, yearfirst=True).timetuple(),
+                )
                 data[field] = date
             except ValueError:
                 raise exceptions.PreprocessingError("Invalid date format.")
@@ -165,8 +175,7 @@ def _preprocess(data):
 
             try:
                 # Substitute category default name
-                if parsed_items["category"] ==\
-                        entries.CategoryEntry.DEFAULT_NAME:
+                if parsed_items["category"] == entries.CategoryEntry.DEFAULT_NAME:
                     parsed_items["category"] = None
             except KeyError:
                 # No 'category' field present
@@ -176,7 +185,8 @@ def _preprocess(data):
         except ValueError:
             # splitting returned less than two parts due to missing separator
             raise exceptions.PreprocessingError(
-                "Invalid filter format: {}".format(item))
+                "Invalid filter format: {}".format(item)
+            )
 
     month = data.pop("month", None)
     if month is not None:
@@ -198,8 +208,7 @@ def _preprocess(data):
                     continue
 
             if date is None:
-                raise exceptions.PreprocessingError(
-                    "Invalid month: {}".format(month))
+                raise exceptions.PreprocessingError("Invalid month: {}".format(month))
 
         if filter_items is None:
             data["filters"] = {}
@@ -217,7 +226,8 @@ def _preprocess(data):
             field = field.strip()
             if not len(field):
                 raise exceptions.PreprocessingError(
-                    "Empty {} given.".format(field_name))
+                    "Empty {} given.".format(field_name)
+                )
             # Update with sanitized data field
             data[field_name] = field
 
@@ -240,7 +250,7 @@ def _format_response(response, command, **listing_options):
             "add": "Added",
             "update": "Updated",
             "remove": "Removed",
-            "copy": "Copied"
+            "copy": "Copied",
         }[command]
         return "{} element {}.".format(verb, eid)
 
@@ -251,7 +261,8 @@ def _format_response(response, command, **listing_options):
     element = response.get("element")
     if element is not None:
         return entries.prettify(
-            element, default_category=listing_options["default_category"])
+            element, default_category=listing_options["default_category"]
+        )
 
     pockets = response.get("pockets", [])
     return "\n".join([p for p in pockets])
@@ -262,14 +273,16 @@ def _parse_command(args=None, plugins=None):
 
     parser = argparse.ArgumentParser(
         description="An application "
-        "that helps you administering your daily expenses and earnings.")
+        "that helps you administering your daily expenses and earnings."
+    )
 
     parser.add_argument(
         "-V",
         "--version",
         action="version",
         version="financeager version {}".format(__version__),
-        help="display version info and exit")  # pragma: no cover
+        help="display version info and exit",
+    )  # pragma: no cover
 
     subparsers = parser.add_subparsers(
         dest="command",
@@ -277,13 +290,11 @@ def _parse_command(args=None, plugins=None):
     )
     subparsers.required = True
 
-    add_parser = subparsers.add_parser(
-        "add", help="add an entry to the database")
+    add_parser = subparsers.add_parser("add", help="add an entry to the database")
 
     add_parser.add_argument("name", help="entry name")
     add_parser.add_argument("value", type=float, help="entry value")
-    add_parser.add_argument(
-        "-c", "--category", default=None, help="entry category")
+    add_parser.add_argument("-c", "--category", default=None, help="entry category")
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
 
     add_parser.add_argument(
@@ -292,96 +303,121 @@ def _parse_command(args=None, plugins=None):
         default=None,
         help="""table to add the entry to. With 'recurrent', specify at
 least a frequency, start date and end date are optional. Default:
-'standard'""")
+'standard'""",
+    )
     add_parser.add_argument(
         "-f",
         "--frequency",
         help="""frequency of recurrent entry; one of yearly, half-yearly,
 quarterly, monthly, weekly, daily. If specified, '--table-name=recurrent'
-is assumed""")
+is assumed""",
+    )
     add_parser.add_argument(
-        "-s", "--start", default=None, help="start date of recurrent entry")
+        "-s", "--start", default=None, help="start date of recurrent entry"
+    )
     add_parser.add_argument(
-        "-e", "--end", default=None, help="end date of recurrent entry")
+        "-e", "--end", default=None, help="end date of recurrent entry"
+    )
 
     get_parser = subparsers.add_parser(
-        "get", help="show information about single entry")
+        "get", help="show information about single entry"
+    )
     get_parser.add_argument("eid", help="entry ID")
     get_parser.add_argument(
         "-t",
         "--table-name",
         default=None,
-        help="Table to get the entry from. Default: 'standard'.")
+        help="Table to get the entry from. Default: 'standard'.",
+    )
 
     remove_parser = subparsers.add_parser(
-        "remove", help="remove an entry from the database")
+        "remove", help="remove an entry from the database"
+    )
     remove_parser.add_argument("eid", help="entry ID")
     remove_parser.add_argument(
         "-t",
         "--table-name",
         default=None,
-        help="Table to remove the entry from. Default: 'standard'.")
+        help="Table to remove the entry from. Default: 'standard'.",
+    )
 
     update_parser = subparsers.add_parser(
-        "update", help="update one or more fields of an database entry")
+        "update", help="update one or more fields of an database entry"
+    )
     update_parser.add_argument("eid", type=int, help="entry ID")
     update_parser.add_argument(
-        "-t",
-        "--table-name",
-        help="Table containing the entry. Default: 'standard'")
+        "-t", "--table-name", help="Table containing the entry. Default: 'standard'"
+    )
     update_parser.add_argument("-n", "--name", help="new name")
     update_parser.add_argument("-v", "--value", type=float, help="new value")
     update_parser.add_argument("-c", "--category", help="new category")
     update_parser.add_argument(
-        "-d", "--date", help="new date (for standard entries only)")
+        "-d", "--date", help="new date (for standard entries only)"
+    )
     update_parser.add_argument(
-        "-f", "--frequency", help="new frequency (for recurrent entries only)")
+        "-f", "--frequency", help="new frequency (for recurrent entries only)"
+    )
     update_parser.add_argument(
-        "-s", "--start", help="new start date (for recurrent entries only)")
+        "-s", "--start", help="new start date (for recurrent entries only)"
+    )
     update_parser.add_argument(
-        "-e", "--end", help="new end date (for recurrent entries only)")
+        "-e", "--end", help="new end date (for recurrent entries only)"
+    )
 
     copy_parser = subparsers.add_parser(
-        "copy", help="copy an entry from one pocket to another")
+        "copy", help="copy an entry from one pocket to another"
+    )
     copy_parser.add_argument("eid", help="entry ID")
     copy_parser.add_argument(
         "-s",
         "--source",
         default=None,
         dest="source_pocket",
-        help="pocket to copy the entry from")
+        help="pocket to copy the entry from",
+    )
     copy_parser.add_argument(
         "-d",
         "--destination",
         default=None,
         dest="destination_pocket",
-        help="pocket to copy the entry to")
+        help="pocket to copy the entry to",
+    )
     copy_parser.add_argument(
         "-t",
         "--table-name",
         default=None,
-        help="Table to copy the entry from/to. Default: 'standard'.")
+        help="Table to copy the entry from/to. Default: 'standard'.",
+    )
 
     list_parser = subparsers.add_parser(
-        "list", help="list all entries in the pocket database")
+        "list", help="list all entries in the pocket database"
+    )
     list_parser.add_argument(
         "-f",
         "--filters",
         default=None,
         nargs="+",
         help="filter for name, "
-        "date and/or category substring, e.g. name=beer category=groceries")
+        "date and/or category substring, e.g. name=beer category=groceries",
+    )
     list_parser.add_argument(
         "-s",
         "--stacked-layout",
         action="store_true",
         help="if true, display earnings and expenses in stacked layout, "
-        "otherwise side-by-side")
+        "otherwise side-by-side",
+    )
     list_parser.add_argument(
         "--entry-sort",
         choices=[
-            "name", "value", "date", "eid", "category", "start", "end",
-            "frequency"
+            "name",
+            "value",
+            "date",
+            "eid",
+            "category",
+            "start",
+            "end",
+            "frequency",
         ],
         help="key to sort entries by. The latter four keys can only be applied "
         "in combination with the --recurrent-only option",
@@ -435,25 +471,29 @@ is assumed""")
             "-C",
             "--config-filepath",
             default=financeager.CONFIG_FILEPATH,
-            help="path to config file. Default: {}".format(
-                financeager.CONFIG_FILEPATH))
+            help="path to config file. Default: {}".format(financeager.CONFIG_FILEPATH),
+        )
         subparser.add_argument(
-            "--verbose",
-            action="store_true",
-            help="Be verbose about internal workings")
+            "--verbose", action="store_true", help="Be verbose about internal workings"
+        )
 
         if subparser in [
-                add_parser,
-                get_parser,
-                remove_parser,
-                update_parser,
-                list_parser,
+            add_parser,
+            get_parser,
+            remove_parser,
+            update_parser,
+            list_parser,
         ]:
             subparser.add_argument(
-                "-p", "--pocket", help="name of pocket to modify or query")
+                "-p", "--pocket", help="name of pocket to modify or query"
+            )
 
     for subparser in [
-            add_parser, get_parser, remove_parser, update_parser, copy_parser
+        add_parser,
+        get_parser,
+        remove_parser,
+        update_parser,
+        copy_parser,
     ]:
         subparser.add_argument(
             "-r",

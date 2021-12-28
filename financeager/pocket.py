@@ -10,15 +10,22 @@ from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import Query, TinyDB, storages
 from tinydb.database import Document
 
-from . import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
-               RECURRENT_TABLE, UNSET_INDICATOR, exceptions)
+from . import (
+    DEFAULT_POCKET_NAME,
+    DEFAULT_TABLE,
+    POCKET_DATE_FORMAT,
+    RECURRENT_TABLE,
+    UNSET_INDICATOR,
+    exceptions,
+)
 
 _DEFAULT_CATEGORY = None
 
 
 class EntryBaseSchema(Schema):
     name = fields.String(
-        required=True, validate=validate.Length(min=1), allow_none=True)
+        required=True, validate=validate.Length(min=1), allow_none=True
+    )
     value = fields.Float(required=True, allow_none=True)
     category = fields.String(validate=validate.Length(min=1), missing=None)
 
@@ -29,12 +36,20 @@ class StandardEntrySchema(EntryBaseSchema):
 
 class RecurrentEntrySchema(EntryBaseSchema):
     frequency = fields.String(
-        validate=validate.OneOf(choices=[
-            "yearly", "half-yearly", "quarter-yearly", "bimonthly", "monthly",
-            "weekly", "daily"
-        ]),
+        validate=validate.OneOf(
+            choices=[
+                "yearly",
+                "half-yearly",
+                "quarter-yearly",
+                "bimonthly",
+                "monthly",
+                "weekly",
+                "daily",
+            ]
+        ),
         required=True,
-        allow_none=True)
+        allow_none=True,
+    )
     start = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
     end = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
 
@@ -100,17 +115,20 @@ class TinyDbPocket(Pocket):
         table_name = table_name or DEFAULT_TABLE
         if table_name not in [RECURRENT_TABLE, DEFAULT_TABLE]:
             raise exceptions.PocketValidationFailure(
-                "Unknown table name: {}".format(table_name))
+                "Unknown table name: {}".format(table_name)
+            )
 
         self._remove_redundant_fields(table_name, raw_data)
 
         validated_fields = self._validate_entry(
-            raw_data=raw_data, table_name=table_name, partial=partial)
+            raw_data=raw_data, table_name=table_name, partial=partial
+        )
         converted_fields = self._convert_fields(**validated_fields)
 
         if not partial:
             converted_fields = self._substitute_none_fields(
-                table_name=table_name, **converted_fields)
+                table_name=table_name, **converted_fields
+            )
 
         return converted_fields
 
@@ -138,8 +156,11 @@ class TinyDbPocket(Pocket):
         :raise: PocketValidationFailure if validation failed
         """
 
-        ValidationSchema = RecurrentEntrySchema \
-            if table_name == RECURRENT_TABLE else StandardEntrySchema
+        ValidationSchema = (
+            RecurrentEntrySchema
+            if table_name == RECURRENT_TABLE
+            else StandardEntrySchema
+        )
 
         try:
             schema = ValidationSchema(**schema_kwargs)
@@ -151,7 +172,8 @@ class TinyDbPocket(Pocket):
                 for field, messages in e.messages.items()
             ]
             raise exceptions.PocketValidationFailure(
-                "Invalid input data:\n{}".format("\n".join(infos)))
+                "Invalid input data:\n{}".format("\n".join(infos))
+            )
 
     @staticmethod
     def _convert_fields(**fields):
@@ -179,14 +201,12 @@ class TinyDbPocket(Pocket):
         # table_name is either of two values; verified in _preprocess_entry
         if table_name == RECURRENT_TABLE:
             if fields.get("start") is None:
-                substituted_fields["start"] = dt.today().strftime(
-                    POCKET_DATE_FORMAT)
+                substituted_fields["start"] = dt.today().strftime(POCKET_DATE_FORMAT)
             if fields.get("end") is None:
                 substituted_fields["end"] = None
         else:
             if fields.get("date") is None:
-                substituted_fields["date"] = dt.today().strftime(
-                    POCKET_DATE_FORMAT)
+                substituted_fields["date"] = dt.today().strftime(POCKET_DATE_FORMAT)
 
         if fields.get("category") is None:
             name = fields["name"]
@@ -198,21 +218,19 @@ class TinyDbPocket(Pocket):
             most_common_categories = self._category_cache[name].most_common(2)
             nr_most_common_categories = len(most_common_categories)
 
-            if nr_most_common_categories == 1 or \
-                    (nr_most_common_categories > 1 and
-                     most_common_categories[0][1] !=
-                     most_common_categories[1][1]):
+            if nr_most_common_categories == 1 or (
+                nr_most_common_categories > 1
+                and most_common_categories[0][1] != most_common_categories[1][1]
+            ):
                 category = most_common_categories[0][0]
 
             substituted_fields["category"] = category
 
         return substituted_fields
 
-    def _update_category_cache(self,
-                               eid=None,
-                               table_name=None,
-                               removing=False,
-                               **fields):
+    def _update_category_cache(
+        self, eid=None, table_name=None, removing=False, **fields
+    ):
         """Update the category cache when adding or updating an entry. The `eid`
         kwarg is used to distinguish the use cases.
 
@@ -238,12 +256,11 @@ class TinyDbPocket(Pocket):
             old_category = old_entry["category"]
 
             # update category cache if one of name or category was changed
-            if fields.get("name") is not None or \
-                    fields.get("category") is not None:
+            if fields.get("name") is not None or fields.get("category") is not None:
                 self._category_cache[old_name][old_category] -= 1
-                self._category_cache[fields.get("name") or
-                                     old_name][fields.get("category") or
-                                               old_category] += 1
+                self._category_cache[fields.get("name") or old_name][
+                    fields.get("category") or old_category
+                ] += 1
 
     def add_entry(self, table_name=None, **kwargs):
         """
@@ -323,7 +340,8 @@ class TinyDbPocket(Pocket):
             del raw_data["category"]
 
         fields = self._preprocess_entry(
-            raw_data=raw_data, table_name=table_name, partial=True)
+            raw_data=raw_data, table_name=table_name, partial=True
+        )
 
         # Unset fields
         if end == UNSET_INDICATOR:
@@ -348,12 +366,12 @@ class TinyDbPocket(Pocket):
 
         table_name = table_name or DEFAULT_TABLE
         fields = self._preprocess_entry_for_update(
-            raw_data=kwargs, table_name=table_name)
+            raw_data=kwargs, table_name=table_name
+        )
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
 
-        element_id = self._db.table(table_name).update(
-            fields, doc_ids=[int(eid)])[0]
+        element_id = self._db.table(table_name).update(fields, doc_ids=[int(eid)])[0]
 
         return element_id
 
@@ -416,10 +434,8 @@ class TinyDbPocket(Pocket):
             interval = 6
 
         rule = rrule.rrule(
-            getattr(rrule, frequency),
-            dtstart=start,
-            until=end,
-            interval=interval)
+            getattr(rrule, frequency), dtstart=start, until=end, interval=interval
+        )
 
         for date in rule:
             # add date description to name
@@ -439,7 +455,8 @@ class TinyDbPocket(Pocket):
                     name=name,
                     value=element["value"],
                     category=element["category"],
-                    date=date.strftime(POCKET_DATE_FORMAT)),
+                    date=date.strftime(POCKET_DATE_FORMAT),
+                ),
             )
 
     def remove_entry(self, eid, table_name=None):
@@ -486,7 +503,7 @@ class TinyDbPocket(Pocket):
             pattern = filters["category"]
 
             if pattern is None:
-                condition = (entry["category"] == None)  # noqa
+                condition = entry["category"] == None  # noqa
             else:
                 # Use regex searching of the filter pattern in the field if it
                 # is not None
@@ -495,7 +512,7 @@ class TinyDbPocket(Pocket):
                         return False
                     return re.compile(pattern).search(e)
 
-                condition = (entry["category"].test(test))
+                condition = entry["category"].test(test)
 
         except KeyError:
             # No 'category' filter present
@@ -506,9 +523,9 @@ class TinyDbPocket(Pocket):
                 continue
 
             if field == "value":
-                new_condition = (entry[field] == float(pattern))
+                new_condition = entry[field] == float(pattern)
             else:
-                new_condition = (entry[field].search(pattern.lower()))
+                new_condition = entry[field].search(pattern.lower())
 
             condition &= new_condition
 
@@ -532,12 +549,10 @@ class TinyDbPocket(Pocket):
 
         if recurrent_only:
             # Flatten tinydb Document into dict
-            return [{
-                **e,
-                **{
-                    "id": e.doc_id
-                }
-            } for e in self._db.table(RECURRENT_TABLE).search(condition)]
+            return [
+                {**e, **{"id": e.doc_id}}
+                for e in self._db.table(RECURRENT_TABLE).search(condition)
+            ]
 
         return self._search_all_tables(condition)
 

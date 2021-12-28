@@ -24,7 +24,8 @@ class Proxy(server.Server):
             raise exceptions.CommunicationError("Unexpected error")
 
         if "error" in response:
-            raise exceptions.InvalidRequest("Invalid request: {}".format(
-                response["error"]))
+            raise exceptions.InvalidRequest(
+                "Invalid request: {}".format(response["error"])
+            )
 
         return response

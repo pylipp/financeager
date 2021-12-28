@@ -54,9 +54,7 @@ class Server:
                 elif command == "update":
                     response = {"id": pd.update_entry(**kwargs)}
                 else:
-                    response = {
-                        "error": "Server: unknown command '{}'".format(command)
-                    }
+                    response = {"error": "Server: unknown command '{}'".format(command)}
                 return response
 
         except exceptions.PocketException as e:
@@ -93,15 +91,16 @@ class Server:
 
         data_dir = self._pocket_kwargs.get("data_dir")
         if data_dir is not None:
-            names.update({
-                os.path.splitext(os.path.basename(f))[0]
-                for f in glob.glob(os.path.join(data_dir, "*.json"))
-            })
+            names.update(
+                {
+                    os.path.splitext(os.path.basename(f))[0]
+                    for f in glob.glob(os.path.join(data_dir, "*.json"))
+                }
+            )
 
         return sorted(names)
 
-    def _copy_entry(self, source_pocket=None, destination_pocket=None,
-                    **kwargs):
+    def _copy_entry(self, source_pocket=None, destination_pocket=None, **kwargs):
         """Copy an entry (specified by ID and table_name) from the source pocket
         to the destination pocket.
 
@@ -114,4 +113,5 @@ class Server:
 
         destination_pocket = self._get_pocket(destination_pocket)
         return destination_pocket.add_entry(
-            table_name=kwargs.get("table_name"), **entry_to_copy)
+            table_name=kwargs.get("table_name"), **entry_to_copy
+        )
