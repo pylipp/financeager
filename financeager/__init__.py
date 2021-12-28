@@ -17,6 +17,9 @@ DEFAULT_POCKET_NAME = "main"
 # fixed date format for database
 POCKET_DATE_FORMAT = "%Y-%m-%d"
 
+# indicator char for unsetting field during update
+UNSET_INDICATOR = "-"
+
 # tables name of database
 DEFAULT_TABLE = "standard"
 RECURRENT_TABLE = "recurrent"

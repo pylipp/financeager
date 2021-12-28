@@ -97,6 +97,8 @@ Did you make a mistake when adding a new entry? *Update* one or more fields by c
 
     > fina update 1 --name "McKing Burgers" --value -18.59
 
+To unset the end date of a recurrent entry use a special indicator: `--end -`
+
 *Remove* an entry by specifying its ID (visible in the output of the `list` command). This removes the `burgers` entry:
 
     > fina remove 1

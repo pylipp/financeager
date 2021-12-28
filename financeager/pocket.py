@@ -11,7 +11,7 @@ from tinydb import Query, TinyDB, storages
 from tinydb.database import Document
 
 from . import (DEFAULT_POCKET_NAME, DEFAULT_TABLE, POCKET_DATE_FORMAT,
-               RECURRENT_TABLE, exceptions)
+               RECURRENT_TABLE, UNSET_INDICATOR, exceptions)
 
 _DEFAULT_CATEGORY = None
 
@@ -310,6 +310,21 @@ class TinyDbPocket(Pocket):
 
         return element
 
+    def _preprocess_entry_for_update(self, *, table_name, raw_data):
+        """Handle special case for unsetting 'end' field of recurrent entry while
+        preprocessing the entry.
+        """
+        end = raw_data.get("end")
+        if end == UNSET_INDICATOR:
+            del raw_data["end"]  # skip for validation
+
+        fields = self._preprocess_entry(
+            raw_data=raw_data, table_name=table_name, partial=True)
+        if end == UNSET_INDICATOR:
+            fields["end"] = None  # unset field
+
+        return fields
+
     def update_entry(self, eid, table_name=None, **kwargs):
         """Update one or more fields of a single entry of the Pocket.
 
@@ -324,8 +339,8 @@ class TinyDbPocket(Pocket):
         """
 
         table_name = table_name or DEFAULT_TABLE
-        fields = self._preprocess_entry(
-            raw_data=kwargs, table_name=table_name, partial=True)
+        fields = self._preprocess_entry_for_update(
+            raw_data=kwargs, table_name=table_name)
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
 

@@ -172,11 +172,15 @@ default_category = no-category"""
         self.assertIn("stuff", response.lower())
 
     def test_add_recurrent_entry_without_tablename(self):
-        entry_id = self.cli_run("add flowers -5 -f weekly")
+        entry_id = self.cli_run("add flowers -5 -f weekly -e 2020-06-30")
         self.assertEqual(entry_id, 1)
 
         response = self.cli_run("get {} -t recurrent", format_args=entry_id)
         self.assertIn("Weekly", response)
+
+        self.cli_run("update {} -r -e -", format_args=entry_id)
+        response = self.cli_run("get {} -r", format_args=entry_id)
+        self.assertNotIn("2020-06-30", response)
 
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")

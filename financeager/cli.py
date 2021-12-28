@@ -13,9 +13,10 @@ from dateutil import parser as du_parser
 
 import financeager
 
-from . import (POCKET_DATE_FORMAT, RECURRENT_TABLE, __version__, clients,
-               config, convert, entries, exceptions, init_logger, listing,
-               make_log_stream_handler_verbose, setup_log_file_handler)
+from . import (POCKET_DATE_FORMAT, RECURRENT_TABLE, UNSET_INDICATOR,
+               __version__, clients, config, convert, entries, exceptions,
+               init_logger, listing, make_log_stream_handler_verbose,
+               setup_log_file_handler)
 
 logger = init_logger(__name__)
 
@@ -141,6 +142,9 @@ def _preprocess(data):
     """
     for field in ["date", "start", "end"]:
         date = data.get(field)
+        if field == "end" and date == UNSET_INDICATOR:
+            continue  # skip validation
+
         if date is not None:
             try:
                 date = time.strftime(
