@@ -2,9 +2,6 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
-    ignore:
-      - dependency-name: "pre-commit"
-      - dependency-name: "gitlint"
     schedule:
       interval: "weekly"
     assignees:

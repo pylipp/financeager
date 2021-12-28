@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 ### Fixed
 ### Removed
+- Remove support for Python 3.5 for good (broken since v0.26.1.0 anyways). (#59)
 ### Deprecated
 - The `convert-periods-to-pocket` command will be removed in version `1.0.0`.
 
