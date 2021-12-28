@@ -311,17 +311,25 @@ class TinyDbPocket(Pocket):
         return element
 
     def _preprocess_entry_for_update(self, *, table_name, raw_data):
-        """Handle special case for unsetting 'end' field of recurrent entry while
+        """Handle special case for unsetting 'category' and/or 'end' fields while
         preprocessing the entry.
         """
+        # Skip field for validation if indicator value present
         end = raw_data.get("end")
         if end == UNSET_INDICATOR:
-            del raw_data["end"]  # skip for validation
+            del raw_data["end"]
+        category = raw_data.get("category")
+        if category == UNSET_INDICATOR:
+            del raw_data["category"]
 
         fields = self._preprocess_entry(
             raw_data=raw_data, table_name=table_name, partial=True)
+
+        # Unset fields
         if end == UNSET_INDICATOR:
-            fields["end"] = None  # unset field
+            fields["end"] = None
+        if category == UNSET_INDICATOR:
+            fields["category"] = None
 
         return fields
 

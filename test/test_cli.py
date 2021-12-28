@@ -165,6 +165,11 @@ default_category = no-category"""
         self.assertIn("Date    : 2020-03-04", response)
         self.assertIn("Category: Very Good", response)
 
+        self.cli_run("update {} -c -", format_args=entry_id)
+        response = self.cli_run("get {}", format_args=entry_id)
+        self.assertNotIn("Very Good", response)
+        self.assertNotIn("Category: -", response)
+
     def test_add_entry_with_tablename_and_recurrent(self):
         entry_id = self.cli_run("add stuff 1 -t standard -r")
         self.assertEqual(entry_id, 1)

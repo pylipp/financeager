@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add `--recurrent-only` option for `list` command. Filtering using `-f` and sorting using `--entry-sort` are supported. (#51)
 - Support updating `end` field for recurrent entries as unset (i.e. indicating no end).
+- Support updating `category` field for entries as unset (i.e. indicating unspecified category).
 ### Changed
 ### Fixed
 ### Removed
