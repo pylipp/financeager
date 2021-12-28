@@ -1,22 +1,28 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.1.0
+  # - repo: https://github.com/pre-commit/pre-commit-hooks
+  #   rev: v2.1.0
+  #   hooks:
+  #   -   id: trailing-whitespace
+  #   -   id: end-of-file-fixer
+  - repo: local
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.7
-    hooks:
-    -   id: flake8
--   repo: https://github.com/pre-commit/mirrors-yapf
-    rev: v0.26.0
-    hooks:
-    -   id: yapf
--   repo: https://github.com/asottile/seed-isort-config
-    rev: v1.9.4
-    hooks:
-    -   id: seed-isort-config
--   repo: https://github.com/timothycrosley/isort
-    rev: 4.3.21-2
-    hooks:
-    -   id: isort
+      - id: yapf
+        name: yapf
+        entry: yapf
+        types: [python]
+        language: system
+        require_serial: true
+        args: ['--in-place']
+      - id: flake8
+        name: flake8
+        entry: flake8
+        types: [python]
+        language: system
+        require_serial: true
+      - id: isort
+        name: isort
+        entry: isort
+        types_or: [cython, pyi, python]
+        language: system
+        require_serial: true
+        args: ['--filter-files']
