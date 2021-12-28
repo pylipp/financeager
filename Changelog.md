@@ -5,12 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+### Changed
+### Fixed
+### Removed
+### Deprecated
+
+## [v0.26.3.0] - 2021-12-28
+### Added
 - Add `--recurrent-only` option for `list` command. Filtering using `-f` and sorting using `--entry-sort` are supported. (#51)
 - Support updating `end` field for recurrent entries as unset (i.e. indicating no end).
 - Support updating `category` field for entries as unset (i.e. indicating unspecified category).
 ### Changed
 - Use `black` as code formatter.
-### Fixed
 ### Removed
 - Remove support for Python 3.5 for good (broken since v0.26.1.0 anyways). (#59)
 ### Deprecated
