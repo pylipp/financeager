@@ -101,8 +101,8 @@ class SortBaseEntriesTestCase(unittest.TestCase):
         self.entry = CategoryEntry(
             name="letters",
             entries=[
-                BaseEntry(l, v, "2000-0{}-11".format(9 - v), i)
-                for l, v, i in zip("abc", (1, 5, 3), (7, 1, 3))
+                BaseEntry(lt, v, "2000-0{}-11".format(9 - v), i)
+                for lt, v, i in zip("abc", (1, 5, 3), (7, 1, 3))
             ])
 
     def test_sort_by_name(self):

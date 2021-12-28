@@ -230,7 +230,7 @@ def prettify(elements,
     else:
         result = []
         listings_str = [
-            l.prettify(**listing_options).splitlines() for l in listings
+            ls.prettify(**listing_options).splitlines() for ls in listings
         ]
         for row in zip(*listings_str):
             result.append(" | ".join(row))
