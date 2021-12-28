@@ -24,13 +24,15 @@ The project is actively developed. Expect things to break - e.g. the command lin
 
 ## Installation
 
+`financeager` requires Python 3.6 or higher.
+
 ### From PyPI package
 
     pip install --user --upgrade financeager
 
 ### Using pipx
 
-If you're using Python >= 3.6 and have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `financeager` into an isolated environment via
+If you have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `financeager` into an isolated environment via
 
     pipx install financeager
 
