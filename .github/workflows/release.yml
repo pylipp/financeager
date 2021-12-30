@@ -23,20 +23,12 @@ jobs:
     - name: Construct release body
       id: construct
       run: |
-        echo "RELEASEBODY<<EOF" >> $GITHUB_ENV
-        awk -v RS='' '/## \\[v/ {print $0; exit}' Changelog.md | tail -n+2 >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-      env:
-        REPOSITORY: ${{ github.event.repository.name }}
+        awk -v RS='' '/\\[v/ {print $0; exit}' Changelog.md | tail -n+2 > release_notes.md
     - name: Create Github release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ github.ref }}
-        body: |
-          $RELEASEBODY
+        body_path: release_notes.md
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Build package and publish to PyPI
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}

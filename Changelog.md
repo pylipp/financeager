@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v0.26.3.1] - 2021-12-30
+### Changed
+- Update action for publishing Github release.
+
 ## [v0.26.3.0] - 2021-12-28
 ### Added
 - Add `--recurrent-only` option for `list` command. Filtering using `-f` and sorting using `--entry-sort` are supported. (#51)
