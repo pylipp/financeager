@@ -221,22 +221,28 @@ default_category = no-category"""
     def test_list_month(self):
         month_nr = 1
         month_variants = ["01", "Jan", "January"]
-        current_month = dt.today().month
+        today = dt.today()
+        current_month = today.month
         if current_month == month_nr:
             month_nr = 2
             month_variants = ["02", "Feb", "February"]
         month_variants.append(month_nr)
-        self.pocket = 1999
+        self.pocket = today.year
+        previous_year = self.pocket - 1
 
         self.cli_run("add beans -4 -d {}-0{}-15", format_args=(self.pocket, month_nr))
         self.cli_run(
             "add chili -4 -d {}-0{}-15", format_args=(self.pocket, month_nr + 1)
+        )
+        self.cli_run(
+            "add tomatos -6 -d {}-0{}-15", format_args=(previous_year, month_nr)
         )
 
         for m in month_variants:
             response = self.cli_run("list --month {}", format_args=m).lower()
             self.assertIn("beans", response)
             self.assertNotIn("chili", response)
+            self.assertNotIn("tomatos", response)
 
         # Verify overwriting of 'filters' option
         response = self.cli_run(
@@ -244,6 +250,7 @@ default_category = no-category"""
         ).lower()
         self.assertIn("beans", response)
         self.assertNotIn("chili", response)
+        self.assertNotIn("tomatos", response)
 
         # Verify default behavior
         response = self.cli_run("list --month").lower()
@@ -256,6 +263,7 @@ default_category = no-category"""
         else:
             self.assertNotIn("beans", response)
             self.assertNotIn("chili", response)
+        self.assertNotIn("tomatos", response)
 
     def test_list_invalid_month(self):
         month_nr = 13
@@ -502,6 +510,11 @@ class PreprocessTestCase(unittest.TestCase):
         data = {"filters": ["category=unspecified"]}
         cli._preprocess(data)
         self.assertEqual(data["filters"], {"category": None})
+
+    def test_month_filter(self):
+        data = {"month": "Jan"}
+        cli._preprocess(data)
+        self.assertEqual(data["filters"], {"date": f"{dt.today().year}-01-"})
 
 
 class FormatResponseTestCase(unittest.TestCase):

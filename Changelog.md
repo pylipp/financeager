@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v0.X] -
+### Changed
+- Using the `list` command with the `--month` option only returns entries of specified month in current year. (#79)
+
 ## [v0.26.3.4] - 2021-12-30
 ### Fixed
 - Prefix path for release notes in Github action.

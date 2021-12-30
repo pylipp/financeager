@@ -190,8 +190,9 @@ def _preprocess(data):
 
     month = data.pop("month", None)
     if month is not None:
+        today = datetime.today()
         if month == "current":
-            date = datetime.today()
+            date = today
 
         else:
             # Attempt to convert value for 'month' option (number (zero-padded
@@ -202,7 +203,7 @@ def _preprocess(data):
             # -m / #m for parsing non-zero-padded numbers on UNIX / Windows
             for fmt in ["b", "B", "m", "-m", "#m"]:
                 try:
-                    date = datetime.strptime(month, "%{}".format(fmt))
+                    date = datetime.strptime(month, f"%{fmt}").replace(year=today.year)
                     break
                 except ValueError:
                     continue
@@ -213,8 +214,8 @@ def _preprocess(data):
         if filter_items is None:
             data["filters"] = {}
 
-        # Overwrite 'filters' setting
-        data["filters"]["date"] = "{}-".format(date.strftime("%m"))
+        # Overwrite 'filters' setting. Filter for entries of current year
+        data["filters"]["date"] = "{}-".format(date.strftime("%Y-%m"))
 
     if data.get("frequency") is not None:
         # Assume that entry should be added to recurrent table
@@ -439,7 +440,7 @@ is assumed""",
         "--month",
         nargs="?",
         const="current",
-        help="show only entries of given month (default to current one)",
+        help="show only entries of given month (default: current) in current year)",
     )
     list_parser.add_argument(
         "-r",
