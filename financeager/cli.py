@@ -62,7 +62,7 @@ def main():
         exit_code = run(configuration=configuration, plugins=plugins, **args)
 
     except exceptions.InvalidConfigError as e:
-        logger.critical("Invalid configuration: {}".format(e))
+        logger.critical(f"Invalid configuration: {e}")
         exit_code = FAILURE
 
     sys.exit(exit_code)
@@ -184,9 +184,7 @@ def _preprocess(data):
             data["filters"] = parsed_items
         except ValueError:
             # splitting returned less than two parts due to missing separator
-            raise exceptions.PreprocessingError(
-                "Invalid filter format: {}".format(item)
-            )
+            raise exceptions.PreprocessingError(f"Invalid filter format: {item}")
 
     month = data.pop("month", None)
     if month is not None:
@@ -209,13 +207,13 @@ def _preprocess(data):
                     continue
 
             if date is None:
-                raise exceptions.PreprocessingError("Invalid month: {}".format(month))
+                raise exceptions.PreprocessingError(f"Invalid month: {month}")
 
         if filter_items is None:
             data["filters"] = {}
 
         # Overwrite 'filters' setting. Filter for entries of current year
-        data["filters"]["date"] = "{}-".format(date.strftime("%Y-%m"))
+        data["filters"]["date"] = f"{date.strftime('%Y-%m')}-"
 
     if data.get("frequency") is not None:
         # Assume that entry should be added to recurrent table
@@ -226,9 +224,7 @@ def _preprocess(data):
         if field is not None:
             field = field.strip()
             if not len(field):
-                raise exceptions.PreprocessingError(
-                    "Empty {} given.".format(field_name)
-                )
+                raise exceptions.PreprocessingError(f"Empty {field_name} given.")
             # Update with sanitized data field
             data[field_name] = field
 
@@ -253,7 +249,7 @@ def _format_response(response, command, **listing_options):
             "remove": "Removed",
             "copy": "Copied",
         }[command]
-        return "{} element {}.".format(verb, eid)
+        return f"{verb} element {eid}."
 
     elements = response.get("elements")
     if elements is not None:
@@ -281,7 +277,7 @@ def _parse_command(args=None, plugins=None):
         "-V",
         "--version",
         action="version",
-        version="financeager version {}".format(__version__),
+        version=f"financeager version {__version__}",
         help="display version info and exit",
     )  # pragma: no cover
 
@@ -472,7 +468,7 @@ is assumed""",
             "-C",
             "--config-filepath",
             default=financeager.CONFIG_FILEPATH,
-            help="path to config file. Default: {}".format(financeager.CONFIG_FILEPATH),
+            help=f"path to config file. Default: {financeager.CONFIG_FILEPATH}",
         )
         subparser.add_argument(
             "--verbose", action="store_true", help="Be verbose about internal workings"

@@ -59,7 +59,7 @@ class Pocket:
         """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
-        self._name = "{}".format(name or DEFAULT_POCKET_NAME)
+        self._name = f"{name or DEFAULT_POCKET_NAME}"
 
     @property
     def name(self):
@@ -84,7 +84,7 @@ class TinyDbPocket(Pocket):
             args = []
             kwargs["storage"] = storages.MemoryStorage
         else:
-            args = [os.path.join(data_dir, "{}.json".format(self.name))]
+            args = [os.path.join(data_dir, f"{self.name}.json")]
             kwargs["storage"] = storages.JSONStorage
 
         self._db = TinyDB(*args, **kwargs)
@@ -115,7 +115,7 @@ class TinyDbPocket(Pocket):
         table_name = table_name or DEFAULT_TABLE
         if table_name not in [RECURRENT_TABLE, DEFAULT_TABLE]:
             raise exceptions.PocketValidationFailure(
-                "Unknown table name: {}".format(table_name)
+                f"Unknown table name: {table_name}"
             )
 
         self._remove_redundant_fields(table_name, raw_data)
@@ -168,7 +168,7 @@ class TinyDbPocket(Pocket):
             return schema.dump(validated_data)
         except ValidationError as e:
             infos = [
-                "{}: {}".format(field, "; ".join(messages))
+                f"{field}: {'; '.join(messages)}"
                 for field, messages in e.messages.items()
             ]
             raise exceptions.PocketValidationFailure(
@@ -441,13 +441,13 @@ class TinyDbPocket(Pocket):
             # add date description to name
             name = element["name"]
             if frequency == "YEARLY":
-                name = "{}, {}".format(name, date.strftime("%Y"))
+                name = f"{name}, {date.strftime('%Y')}"
             elif frequency == "MONTHLY":
-                name = "{}, {}".format(name, date.strftime("%B").lower())
+                name = f"{name}, {date.strftime('%B').lower()}"
             elif frequency == "WEEKLY":
-                name = "{}, week {}".format(name, date.strftime("%W").lower())
+                name = f"{name}, week {date.strftime('%W').lower()}"
             else:  # DAILY
-                name = "{}, day {}".format(name, date.strftime("%-j").lower())
+                name = f"{name}, day {date.strftime('%-j').lower()}"
 
             yield Document(
                 doc_id=None,

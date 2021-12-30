@@ -33,7 +33,7 @@ def main(*, sinks, period_filepaths=None):
     period_filepaths = [
         f
         for f in period_filepaths
-        if not f.endswith("{}.json".format(financeager.DEFAULT_POCKET_NAME))
+        if not f.endswith(f"{financeager.DEFAULT_POCKET_NAME}.json")
     ]
 
     invalid_filepaths = []
@@ -52,7 +52,7 @@ def main(*, sinks, period_filepaths=None):
         )
         return False
 
-    sinks.info("Converting {} period(s)...".format(len(period_filepaths)))
+    sinks.info(f"Converting {len(period_filepaths)} period(s)...")
     run(period_filepaths)
     return True
 
@@ -72,14 +72,14 @@ def run(period_filepaths):
             table_name = financeager.DEFAULT_TABLE
             documents = db.table(table_name).all()
             for doc in documents:
-                doc["date"] = "{}-{}".format(year, doc["date"])
+                doc["date"] = f"{year}-{doc['date']}"
             main_pocket._db.table(table_name).insert_multiple(documents)
 
             table_name = financeager.RECURRENT_TABLE
             documents = db.table(table_name).all()
             for doc in documents:
-                doc["start"] = "{}-{}".format(year, doc["start"])
-                doc["end"] = "{}-{}".format(year, doc["end"])
+                doc["start"] = f"{year}-{doc['start']}"
+                doc["end"] = f"{year}-{doc['end']}"
             main_pocket._db.table(table_name).insert_multiple(documents)
 
     main_pocket.close()

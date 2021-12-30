@@ -189,7 +189,7 @@ class JsonPocketsServerTestCase(unittest.TestCase):
         # Create dummy JSON files
         pockets = ["1000", "1500"]
         for p in pockets:
-            open(os.path.join(tmp_dir, "{}.json".format(p)), "w").close()
+            open(os.path.join(tmp_dir, f"{p}.json"), "w").close()
 
         self.assertDictEqual(self.server.run("pockets"), {"pockets": pockets})
 

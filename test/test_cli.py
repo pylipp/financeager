@@ -268,7 +268,7 @@ default_category = no-category"""
     def test_list_invalid_month(self):
         month_nr = 13
         response = self.cli_run("list -m {}", format_args=month_nr, log_method="error")
-        self.assertEqual(response, "Invalid month: {}".format(month_nr))
+        self.assertEqual(response, f"Invalid month: {month_nr}")
 
     def test_list_filter_value(self):
         self.cli_run("add money 10")
@@ -322,7 +322,7 @@ default_category = no-category"""
         self.assertTrue(response.startswith("Unexpected error: Traceback"))
 
     def test_convert_periods_to_pocket(self):
-        period_filepath = os.path.join(TEST_DATA_DIR, "{}.json".format(self.pocket))
+        period_filepath = os.path.join(TEST_DATA_DIR, f"{self.pocket}.json")
         period_content = {
             DEFAULT_TABLE: {
                 "1": {
@@ -337,7 +337,7 @@ default_category = no-category"""
             json.dump(period_content, f)
 
         response = self.cli_run(
-            "convert-periods-to-pocket --period-filepaths {}".format(period_filepath)
+            f"convert-periods-to-pocket --period-filepaths {period_filepath}"
         )
         self.assertEqual(response, "Converting 1 period(s)...")
 
@@ -345,7 +345,7 @@ default_category = no-category"""
         self.assertTrue(os.path.exists(pocket_filepath))
 
         expected_content = copy.deepcopy(period_content)
-        expected_content[DEFAULT_TABLE]["1"]["date"] = "{}-12-28".format(self.pocket)
+        expected_content[DEFAULT_TABLE]["1"]["date"] = f"{self.pocket}-12-28"
         expected_content[RECURRENT_TABLE] = {}
 
         with open(pocket_filepath) as f:
@@ -365,15 +365,12 @@ default_category = no-category"""
         response = self.cli_run("get {} -r", format_args=entry_id)
         self.assertEqual(
             response,
-            """\
-Name     : Credit
+            f"""Name     : Credit
 Value    : -100.0
 Frequency: Monthly
-Start    : {}-01-01
+Start    : {year}-01-01
 End      : None
-Category : No-Category""".format(
-                year
-            ),
+Category : No-Category""",
         )
 
         entry_id = self.cli_run("add gift -200 -t recurrent -f quarter-yearly -e 12-31")
@@ -381,7 +378,7 @@ Category : No-Category""".format(
 
         response = self.cli_run("get {} -t recurrent", format_args=entry_id)
 
-        self.assertIn("End      : {}-12-31".format(year), response)
+        self.assertIn(f"End      : {year}-12-31", response)
 
 
 CONVERT_TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-convert-")
@@ -409,7 +406,7 @@ class CliConvertTestCase(CliTestCase):
         open(period_filepath, "w").close()
 
         response = self.cli_run(
-            "convert-periods-to-pocket --period-filepaths {}".format(period_filepath),
+            f"convert-periods-to-pocket --period-filepaths {period_filepath}",
             log_method="error",
         )
         lines = response.splitlines()
@@ -433,9 +430,7 @@ class CliConvertTestCase(CliTestCase):
 
         for i in range(nr_periods):
             year = base_year + i
-            period_filepath = os.path.join(
-                CONVERT_TEST_DATA_DIR, "{}.json".format(year)
-            )
+            period_filepath = os.path.join(CONVERT_TEST_DATA_DIR, f"{year}.json")
             period_content = {
                 DEFAULT_TABLE: {
                     "1": {
@@ -452,7 +447,7 @@ class CliConvertTestCase(CliTestCase):
             period_contents.append(period_content[DEFAULT_TABLE]["1"])
 
         response = self.cli_run("convert-periods-to-pocket")
-        self.assertEqual(response, "Converting {} period(s)...".format(nr_periods))
+        self.assertEqual(response, f"Converting {nr_periods} period(s)...")
 
         pocket_filepath = os.path.join(CONVERT_TEST_DATA_DIR, "main.json")
         self.assertTrue(os.path.exists(pocket_filepath))
@@ -482,7 +477,7 @@ class PreprocessTestCase(unittest.TestCase):
     def test_date(self):
         data = {"date": "02-28"}
         cli._preprocess(data)
-        self.assertDictEqual(data, {"date": "{}-02-28".format(dt.today().year)})
+        self.assertDictEqual(data, {"date": f"{dt.today().year}-02-28"})
 
     def test_date_format_error(self):
         data = {"date": "01_01"}

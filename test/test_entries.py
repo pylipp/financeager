@@ -113,7 +113,7 @@ class SortBaseEntriesTestCase(unittest.TestCase):
         self.entry = CategoryEntry(
             name="letters",
             entries=[
-                BaseEntry(lt, v, "2000-0{}-11".format(9 - v), i)
+                BaseEntry(lt, v, f"2000-0{9 - v}-11", i)
                 for lt, v, i in zip("abc", (1, 5, 3), (7, 1, 3))
             ],
         )
@@ -185,13 +185,10 @@ Category: Sport Equipment""",
         element["category"] = None
         self.assertEqual(
             prettify_entry(element, default_category=CategoryEntry.DEFAULT_NAME),
-            """\
-Name    : Soccer Shoes
+            f"""Name    : Soccer Shoes
 Value   : -123.45
 Date    : 04-01
-Category: {}""".format(
-                CategoryEntry.DEFAULT_NAME.capitalize()
-            ),
+Category: {CategoryEntry.DEFAULT_NAME.capitalize()}""",
         )
 
 

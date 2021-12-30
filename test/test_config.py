@@ -17,7 +17,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertDictEqual(config.get_section("SERVICE"), {"name": "local"})
 
     def test_invalid_config(self):
-        filepath = "/tmp/{}".format(int(time.time()))
+        filepath = f"/tmp/{int(time.time())}"
 
         for content in (
             "[SERVICE]\nname = sillyservice\n",
@@ -28,7 +28,7 @@ class ConfigTestCase(unittest.TestCase):
             self.assertRaises(InvalidConfigError, Configuration, filepath=filepath)
 
     def test_nonexisting_config_filepath(self):
-        filepath = "/tmp/{}".format(time.time())
+        filepath = f"/tmp/{time.time()}"
         with self.assertRaises(InvalidConfigError) as cm:
             Configuration(filepath=filepath)
         self.assertTrue(
@@ -92,7 +92,7 @@ class PluginConfigTestCase(unittest.TestCase):
         )
         filepath = tempfile.mkstemp()[1]
         with open(filepath, "w") as file:
-            file.write("[SERVICE]\nname = {}\n".format(pl.name))
+            file.write(f"[SERVICE]\nname = {pl.name}\n")
 
         config = Configuration(filepath=filepath, plugins=[pl])
         self.assertEqual(config.get_option("SERVICE", "name"), pl.name)

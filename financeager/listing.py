@@ -51,7 +51,7 @@ class Listing:
                 CategoryEntry.NAME_LENGTH,
                 BaseEntry.VALUE_LENGTH,
                 BaseEntry.DATE_LENGTH,
-                *[k.capitalize() for k in BaseEntry.ITEM_TYPES]
+                *[k.capitalize() for k in BaseEntry.ITEM_TYPES],
             )
             if BaseEntry.SHOW_EID:
                 header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
@@ -82,7 +82,7 @@ class Listing:
             category_entry = self._get_category_entry(category_name)
             category_entry.append(entry)
         else:
-            raise TypeError("Invalid entry type: {}".format(entry))
+            raise TypeError(f"Invalid entry type: {entry}")
 
     def category_fields(self, field_type):
         """Generator iterating over the field specified by `field_type` of the

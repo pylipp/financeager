@@ -11,7 +11,7 @@ TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class ConvertTestCase(unittest.TestCase):
-    POCKET_FILEPATH = os.path.join(TEST_DATA_DIR, "{}.json".format(DEFAULT_POCKET_NAME))
+    POCKET_FILEPATH = os.path.join(TEST_DATA_DIR, f"{DEFAULT_POCKET_NAME}.json")
 
     def tearDown(self):
         if os.path.exists(self.POCKET_FILEPATH):

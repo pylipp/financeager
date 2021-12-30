@@ -58,7 +58,7 @@ def init_logger(name):
 
     logger.propagate = True
 
-    LOGGER.debug("Set up logger: {}".format(name))
+    LOGGER.debug(f"Set up logger: {name}")
     return logger
 
 

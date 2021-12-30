@@ -39,7 +39,7 @@ class CreateEmptyPocketTestCase(unittest.TestCase):
         # Create data file with one entry and load it into TinyDbPocket
         data_dir = tempfile.mkdtemp(prefix="financeager-")
         name = 1234
-        with open(os.path.join(data_dir, "{}.json".format(name)), "w") as file:
+        with open(os.path.join(data_dir, f"{name}.json"), "w") as file:
             json.dump(
                 {DEFAULT_TABLE: {1: {"name": "climbing", "category": "sport"}}}, file
             )
@@ -252,7 +252,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         rep_element_names = {e["name"] for e in recurrent_elements}
         self.assertSetEqual(
             rep_element_names,
-            {"rent, {}".format(calendar.month_name[m + 1].lower()) for m in range(12)},
+            {f"rent, {calendar.month_name[m + 1].lower()}" for m in range(12)},
         )
 
         matching_elements = self.pocket.get_entries(filters={"date": "11"})[
@@ -408,14 +408,14 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         eid = self.pocket.add_entry(
             name="insurance",
             value=-100,
-            start="{}-01-01".format(year),
-            end="{}-12-31".format(year),
+            start=f"{year}-01-01",
+            end=f"{year}-12-31",
             table_name=RECURRENT_TABLE,
             frequency="monthly",
         )
         recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
         self.assertEqual(len(recurrent_entries), today.month)
-        self.assertEqual(recurrent_entries[0]["date"], "{}-01-01".format(year))
+        self.assertEqual(recurrent_entries[0]["date"], f"{year}-01-01")
         self.assertEqual(recurrent_entries[0]["name"], "insurance, january")
 
     def tearDown(self):
@@ -576,7 +576,7 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
         cls.data_dir = "/tmp"
         cls.year = 1999
         cls.pocket = TinyDbPocket(name=cls.year, data_dir=cls.data_dir)
-        cls.data_filepath = os.path.join(cls.data_dir, "{}.json".format(cls.year))
+        cls.data_filepath = os.path.join(cls.data_dir, f"{cls.year}.json")
 
     def test_json_file_exists(self):
         self.assertTrue(os.path.exists(self.data_filepath))

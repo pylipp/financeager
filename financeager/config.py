@@ -57,7 +57,7 @@ class Configuration:
         if self._filepath is None:
             return
 
-        logger.debug("Loading custom config from {}".format(self._filepath))
+        logger.debug(f"Loading custom config from {self._filepath}")
 
         custom_config = ConfigParser()
         # read() silently ignores non-existing paths but returns list of paths
@@ -94,7 +94,7 @@ class Configuration:
             option_type = None
 
         if option_type in ("int", "float", "boolean"):
-            get = getattr(self._parser, "get{}".format(option_type))
+            get = getattr(self._parser, f"get{option_type}")
         else:
             get = self._parser.get
 
@@ -113,7 +113,7 @@ class Configuration:
 
         service_name = self.get_option("SERVICE", "name")
         if service_name not in valid_services:
-            raise InvalidConfigError("Unknown service name: {}".format(service_name))
+            raise InvalidConfigError(f"Unknown service name: {service_name}")
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
@@ -124,9 +124,7 @@ class Configuration:
                     self.get_option(section, option)
                 except ValueError:
                     raise InvalidConfigError(
-                        "Wrong type for option {} in section {}.".format(
-                            option, section
-                        )
+                        f"Wrong type for option {option} in section {section}."
                     )
 
         for p in self._plugins:

@@ -27,7 +27,7 @@ class Server:
         :return: dict
             key is one of 'id', 'element', 'elements', 'error', 'pockets'
         """
-        logger.debug("Running '{}' with {}".format(command, kwargs))
+        logger.debug(f"Running '{command}' with {kwargs}")
 
         try:
             if command == "pockets":
@@ -54,7 +54,7 @@ class Server:
                 elif command == "update":
                     response = {"id": pd.update_entry(**kwargs)}
                 else:
-                    response = {"error": "Server: unknown command '{}'".format(command)}
+                    response = {"error": f"Server: unknown command '{command}'"}
                 return response
 
         except exceptions.PocketException as e:
@@ -72,7 +72,7 @@ class Server:
         try:
             pd = self._pockets[name]
         except KeyError:
-            logger.debug("Creating new Pocket '{}'".format(name))
+            logger.debug(f"Creating new Pocket '{name}'")
             pd = pocket.TinyDbPocket(name, **self._pocket_kwargs)
             self._pockets[pd.name] = pd
 

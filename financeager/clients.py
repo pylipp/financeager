@@ -69,7 +69,7 @@ class Client:
             self.latest_exception = e
 
         except Exception as e:
-            self.sinks.error("Unexpected error: {}".format(traceback.format_exc()))
+            self.sinks.error(f"Unexpected error: {traceback.format_exc()}")
             self.latest_exception = e
 
         return success
