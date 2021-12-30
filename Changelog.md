@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v0.26.3.4] - 2021-12-30
+### Fixed
+- Prefix path for release notes in Github action.
+
 ## [v0.26.3.1] - 2021-12-30
 ### Changed
 - Update action for publishing Github release.
