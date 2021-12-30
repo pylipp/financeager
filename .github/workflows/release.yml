@@ -23,7 +23,8 @@ jobs:
     - name: Construct release body
       id: construct
       run: |
-        awk -v RS='' '/\\[v/ {print $0; exit}' Changelog.md | tail -n+2 > release_notes.md
+        awk -v RS='' '/\[v/ {print $0; exit}' Changelog.md | tail -n+2 > release_notes.md
+        cat release_notes.md
     - name: Create Github release
       uses: softprops/action-gh-release@v1
       with:
