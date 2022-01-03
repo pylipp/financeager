@@ -20,8 +20,6 @@ NOTE
 ----
 The project is actively developed. Expect things to break - e.g. the command line interface, the REST API definitions, ... - before version 1.0.0 is released.
 
-> If you have been using the app before `v0.25.0.0`, please run the `convert-periods-to-pocket` command to adjust for the new database structure. See the Changelog and #52 for details.
-
 ## Installation
 
 `financeager` requires Python 3.6 or higher.

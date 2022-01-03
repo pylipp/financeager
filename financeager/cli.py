@@ -20,7 +20,6 @@ from . import (
     __version__,
     clients,
     config,
-    convert,
     entries,
     exceptions,
     init_logger,
@@ -100,9 +99,6 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
         print(response)
 
     sinks = sinks or clients.Client.Sinks(_info, logger.error)
-
-    if command == "convert-periods-to-pocket":
-        return SUCCESS if convert.main(sinks=sinks, **params) else FAILURE
 
     try:
         _preprocess(params)
@@ -438,16 +434,6 @@ is assumed""",
     )
 
     subparsers.add_parser("pockets", help="list all pocket databases")
-
-    convert_parser = subparsers.add_parser(
-        "convert-periods-to-pocket",
-        help="convert period databases into single pocket database",
-    )
-    convert_parser.add_argument(
-        "--period-filepaths",
-        nargs="*",
-        help="filepath(s) of period JSON file(s)",
-    )
 
     # Extend with plugin parsers
     plugins = plugins or []
