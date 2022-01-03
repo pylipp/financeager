@@ -10,9 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v0.X] -
+## [v0.27.0.0] - 2022-01-03
 ### Changed
 - Using the `list` command with the `--month` option only returns entries of specified month in current year. (#79)
+### Removed
+- Remove `financeager` command line entry point (deprecated for one year, see v0.25.0.0) (#76)
 
 ## [v0.26.3.4] - 2021-12-30
 ### Fixed
