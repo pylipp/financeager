@@ -51,7 +51,9 @@ jobs:
         uses: pre-commit/action@v2.0.0
       - name: Run test suite
         run: |
+          coverage erase
           coverage run -m unittest
+          coverage report
           bash test/integration.bash
       - name: Upload coverage result
         env:
