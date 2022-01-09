@@ -54,7 +54,6 @@ jobs:
           coverage erase
           coverage run -m unittest
           coverage report
-          bash test/integration.bash
       - name: Upload coverage result
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
