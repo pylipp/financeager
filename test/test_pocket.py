@@ -418,6 +418,31 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         self.assertEqual(recurrent_entries[0]["date"], f"{year}-01-01")
         self.assertEqual(recurrent_entries[0]["name"], "insurance, january")
 
+    def test_filter_recurrent_entries_with_indefinite_end(self):
+        eid = self.pocket.add_entry(
+            name="fees",
+            value=-5,
+            table_name=RECURRENT_TABLE,
+            frequency="monthly",
+        )
+        recurrent_entries = self.pocket.get_entries(
+            filters={"end": None}, recurrent_only=True
+        )
+        self.assertEqual(
+            recurrent_entries,
+            [
+                {
+                    "name": "fees",
+                    "value": -5.00,
+                    "category": None,
+                    "start": dt.date.today().isoformat(),
+                    "end": None,
+                    "frequency": "monthly",
+                    "id": eid,
+                }
+            ],
+        )
+
     def tearDown(self):
         self.pocket.close()
 

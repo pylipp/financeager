@@ -161,13 +161,16 @@ def _preprocess(data):
                 key, value = item.split("=")
                 parsed_items[key] = value.lower()
 
-            try:
-                # Substitute category default name
-                if parsed_items["category"] == entries.CategoryEntry.DEFAULT_NAME:
-                    parsed_items["category"] = None
-            except KeyError:
-                # No 'category' field present
-                pass
+            for field, indicator in zip(
+                ["category", "end"], [entries.CategoryEntry.DEFAULT_NAME, ""]
+            ):
+                # Substitute category default name, or empty string for end
+                try:
+                    if parsed_items[field] == indicator:
+                        parsed_items[field] = None
+                except KeyError:
+                    # No field present
+                    pass
 
             data["filters"] = parsed_items
         except ValueError:

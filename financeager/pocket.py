@@ -487,9 +487,9 @@ class TinyDbPocket(Pocket):
         """Construct query condition according to given filters. A filter is
         given by a key-value pair. The key indicates the field, the value the
         pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
-        'category'. Patterns must be of type string, or None (only for the field
-        'category'; indicates filtering for all entries of the default
-        category).
+        'category'. Patterns must be of type string, or None (only for the fields
+        'category' and 'end; indicates filtering for all entries of the default
+        category, and recurrent entries with indefinite end, resp.).
         :return: tinydb.queries.QueryInstance (default: noop)
         """
         condition = Query().noop()
@@ -497,26 +497,27 @@ class TinyDbPocket(Pocket):
             return condition
 
         entry = Query()
-        try:
-            # The 'category' field is of type string or None. The condition is
-            # constructed depending on the filter pattern
-            pattern = filters["category"]
+        for field in ["category", "end"]:
+            try:
+                # The 'category' and 'end' fields are of type string or None. The
+                # condition is constructed depending on the filter pattern
+                pattern = filters[field]
 
-            if pattern is None:
-                condition = entry["category"] == None  # noqa
-            else:
-                # Use regex searching of the filter pattern in the field if it
-                # is not None
-                def test(e):
-                    if e is None:
-                        return False
-                    return re.compile(pattern).search(e)
+                if pattern is None:
+                    condition = entry[field] == None  # noqa
+                else:
+                    # Use regex searching of the filter pattern in the field if it
+                    # is not None
+                    def test(e):
+                        if e is None:
+                            return False
+                        return re.compile(pattern).search(e)
 
-                condition = entry["category"].test(test)
+                    condition = entry[field].test(test)
 
-        except KeyError:
-            # No 'category' filter present
-            pass
+            except KeyError:
+                # No field filter present
+                pass
 
         for field, pattern in filters.items():
             if pattern is None:

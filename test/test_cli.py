@@ -391,6 +391,11 @@ class PreprocessTestCase(unittest.TestCase):
             self.assertEqual(data["filters"], {name: value})
             self.assertTrue(data["recurrent_only"])
 
+    def test_filter_indefinite_end(self):
+        data = {"filters": ["end="]}
+        cli._preprocess(data)
+        self.assertEqual(data["filters"], {"end": None})
+
 
 class FormatResponseTestCase(unittest.TestCase):
     def test_add(self):
