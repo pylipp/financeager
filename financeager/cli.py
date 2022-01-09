@@ -379,9 +379,10 @@ is assumed""",
     )
     list_parser.add_argument(
         "-f",
-        "--filters",
+        "--filter",
         default=None,
-        nargs="+",
+        action="append",
+        dest="filters",
         help="filter for name, "
         "date and/or category substring, e.g. name=beer category=groceries",
     )

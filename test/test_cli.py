@@ -234,7 +234,7 @@ default_category = no-category"""
 
         # Verify overwriting of 'filters' option
         response = self.cli_run(
-            "list --month {} --filters date=0{}-", format_args=(month_nr, month_nr + 1)
+            "list --month {} --filter date=0{}-", format_args=(month_nr, month_nr + 1)
         ).lower()
         self.assertIn("beans", response)
         self.assertNotIn("chili", response)
@@ -263,6 +263,8 @@ default_category = no-category"""
         response = self.cli_run("list -f value=10").lower()
         self.assertIn("money", response)
         self.assertIn("10.00", response)
+        response = self.cli_run("list -f value=10 -f name=cash")
+        self.assertEqual(response, "")
 
     def test_list_recurrent_only(self):
         self.cli_run("add interest 20 -s 2020-01-01 -f yearly -c banking")
