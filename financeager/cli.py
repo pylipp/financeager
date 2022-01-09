@@ -397,7 +397,7 @@ is assumed""",
         "--stacked-layout",
         action="store_true",
         help="if true, display earnings and expenses in stacked layout, "
-        "otherwise side-by-side",
+        "otherwise side-by-side. Not effective with --recurrent-only option",
     )
     list_parser.add_argument(
         "--entry-sort",
@@ -424,7 +424,8 @@ is assumed""",
         "-P",
         "--category-percentage",
         action="store_true",
-        help="show only category entries incl. percentage",
+        help="show only category entries incl. percentage. Not effective in "
+        "combination with --recurrent-only option",
     )
     list_parser.add_argument(
         "-m",
