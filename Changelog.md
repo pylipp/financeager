@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - For filtering the output of the `list` command, the `-f` option can now be specified multiple times with one argument each (previously, multiple arguments could be passed but when using `-f` multiple times, the last occurrence would overrule the previous ones). The filters are combined. The long option is called `--filter` (singular). (#83)
 - If the `list -f` option is used with a filter for frequency, start, or end, the `-r/--recurrent-only` option is automatically added. (#83)
+- Update dependency `argcomplete`. (#81)
 ### Removed
 - Remove `convert-periods-to-pocket` command. (#78)
 
