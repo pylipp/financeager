@@ -379,6 +379,18 @@ class PreprocessTestCase(unittest.TestCase):
         cli._preprocess(data)
         self.assertEqual(data["filters"], {"date": f"{dt.today().year}-01-"})
 
+    def test_recurrent_only_fields_filter(self):
+        filters = {
+            "frequency": "year",
+            "start": "2021-",
+            "end": "2020-",
+        }
+        for name, value in filters.items():
+            data = {"filters": [f"{name}={value}"]}
+            cli._preprocess(data)
+            self.assertEqual(data["filters"], {name: value})
+            self.assertTrue(data["recurrent_only"])
+
 
 class FormatResponseTestCase(unittest.TestCase):
     def test_add(self):

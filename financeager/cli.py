@@ -153,9 +153,9 @@ def _preprocess(data):
                 raise exceptions.PreprocessingError("Invalid date format.")
 
     filter_items = data.get("filters")
+    parsed_items = {}
     if filter_items is not None:
         # convert list of "key=value" strings into dictionary
-        parsed_items = {}
         try:
             for item in filter_items:
                 key, value = item.split("=")
@@ -206,6 +206,9 @@ def _preprocess(data):
     if data.get("frequency") is not None:
         # Assume that entry should be added to recurrent table
         data["table_name"] = RECURRENT_TABLE
+    if any(n in parsed_items for n in ["start", "end", "frequency"]):
+        # Assume that only recurrent table shall be displayed
+        data["recurrent_only"] = True
 
     for field_name in ["category", "name"]:
         field = data.get(field_name)
