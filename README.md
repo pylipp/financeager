@@ -1,5 +1,10 @@
+[![pypi](https://badge.fury.io/py/financeager.svg)](https://pypi.org/project/flake8-pytest-style)
+[![Python: 3.6+](https://img.shields.io/badge/Python-3.6+-blue.svg)](https://pypi.org/project/financeager)
+[![Downloads](https://img.shields.io/pypi/dm/financeager.svg)](https://pypistats.org/packages/flake8-pytest-style)
 ![Build Status](https://github.com/pylipp/financeager/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pylipp/financeager/badge.svg?branch=master)](https://coveralls.io/github/pylipp/financeager?branch=master)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_3)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 FINANCEAGER
 ===========
