@@ -206,7 +206,7 @@ def _preprocess(data):
         # Overwrite 'filters' setting. Filter for entries of current year
         data["filters"]["date"] = f"{date.strftime('%Y-%m')}-"
 
-    if data.get("frequency") is not None:
+    if any([data.get(f) for f in ["frequency", "start", "end"]]):
         # Assume that entry should be added to recurrent table
         data["table_name"] = RECURRENT_TABLE
     if any(n in parsed_items for n in ["start", "end", "frequency"]):

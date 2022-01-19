@@ -181,9 +181,13 @@ default_category = no-category"""
         response = self.cli_run("get {} -t recurrent", format_args=entry_id)
         self.assertIn("Weekly", response)
 
-        self.cli_run("update {} -r -e -", format_args=entry_id)
+        self.cli_run("update {} -e -", format_args=entry_id)
         response = self.cli_run("get {} -r", format_args=entry_id)
         self.assertNotIn("2020-06-30", response)
+
+        self.cli_run("update {} -s 2020-01-01", format_args=entry_id)
+        response = self.cli_run("get {} -r", format_args=entry_id)
+        self.assertIn("2020-01-01", response)
 
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
