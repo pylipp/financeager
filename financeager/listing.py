@@ -200,6 +200,15 @@ def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_opt
     )
     listings = [listing_earnings, listing_expenses]
 
+    try:  # pragma: no cover
+        from .rich import richify_listings
+
+        return richify_listings(
+            listings, stacked_layout=stacked_layout, **listing_options
+        )
+    except ImportError:
+        pass
+
     total_values = []
     total_entries = []
     for listing in listings:
