@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - If the `list -f` option is used with a filter for frequency, start, or end, the `-r/--recurrent-only` option is automatically added. (#83)
 - If the `update` command is used with the option `--start` and/or `--end`, it is assumed to operate on recurrent entries. (#84)
 - Update dependencies `argcomplete` and `tinydb`. (#81,#85)
+### Fixed
+- Avoid `Invalid configuration` error if default config file does not exist.
 ### Removed
 - Remove `convert-periods-to-pocket` command. (#78)
 
