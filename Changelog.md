@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v0.27.0.1] - 2022-01-24
+### Fixed
+- Avoid `Invalid configuration` error if default config file does not exist.
+
 ## [v0.27.0.0] - 2022-01-03
 ### Changed
 - Using the `list` command with the `--month` option only returns entries of specified month in current year. (#79)
