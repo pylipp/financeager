@@ -54,11 +54,22 @@ def richify_listings(
                     str(entry.eid),
                 )
 
-    # Bottom panels for listing totals
-    panels = [
-        Panel(f"Total: {total:.2f}", style="bold", box=box.HORIZONTALS)
-        for total in totals
-    ]
+    def nr_rows(listing):
+        return len(listing.categories) + sum(len(c.entries) for c in listing.categories)
+
+    # Fill shorter table with empty rows
+    if not stacked_layout:
+        nr_earnings_rows = nr_rows(listings[0])
+        nr_expenses_rows = nr_rows(listings[1])
+        nr_rows_diff = nr_earnings_rows - nr_expenses_rows
+        shorter_table = tables[1] if nr_rows_diff > 0 else tables[0]
+        for _ in range(abs(nr_rows_diff)):
+            shorter_table.add_row("")
+
+    # Bottom rows for listing totals
+    for table, total in zip(tables, totals):
+        table.add_row("")
+        table.add_row("Total", f"{total:.2f}", "", "", style="bold")
 
     grid = Table.grid(expand=False, pad_edge=True, padding=(0, 1, 0, 1))
     grid.add_column(min_width=50)
@@ -66,14 +77,11 @@ def richify_listings(
     if stacked_layout:
         # Single column
         grid.add_row(tables[0])
-        grid.add_row(panels[0])
         grid.add_row(tables[1])
-        grid.add_row(panels[1])
     else:
         # Two columns side-by-side
         grid.add_column(min_width=50)
         grid.add_row(*tables)
-        grid.add_row(*panels)
 
     diff = totals[0] - totals[1]
     grid.add_row(Panel(f"Difference: {diff:.2f}"), style="red" if diff < 0 else "green")
