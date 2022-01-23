@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Command line interface of financeager application."""
 # PYTHON_ARGCOMPLETE_OK
 import argparse
@@ -497,7 +496,3 @@ specified, the -r option is ignored""",
         parsed_args["table_name"] = RECURRENT_TABLE
 
     return parsed_args
-
-
-if __name__ == "__main__":
-    main()
