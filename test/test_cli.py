@@ -480,6 +480,53 @@ class FormatResponseTestCase(unittest.TestCase):
             ),
         )
 
+        for options in [{}, {"stacked_layout": True}, {"category_percentage": True}]:
+            self.assertEqual(
+                "",
+                cli._format_response(
+                    {
+                        "elements": {
+                            DEFAULT_TABLE: {
+                                1: {
+                                    "name": "icecream",
+                                    "value": -5,
+                                    "date": "2020-06-25",
+                                    "category": "food",
+                                },
+                            },
+                            RECURRENT_TABLE: {},
+                        }
+                    },
+                    "list",
+                    **options,
+                ),
+            )
+
+    def test_list_recurrent_only(self):
+        self.assertEqual(
+            "", cli._format_response({"elements": []}, "list", recurrent_only=True)
+        )
+        self.assertEqual(
+            "",
+            cli._format_response(
+                {
+                    "elements": [
+                        {
+                            "eid": 1,
+                            "name": "rent",
+                            "value": -500,
+                            "start": "2020-01-01",
+                            "end": None,
+                            "frequency": "monthly",
+                            "category": "living",
+                        }
+                    ]
+                },
+                "list",
+                recurrent_only=True,
+            ),
+        )
+
 
 class TestPluginCliOptions(plugin.PluginCliOptions):
     def extend(self, command_parser):
