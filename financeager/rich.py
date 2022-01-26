@@ -114,7 +114,7 @@ def richify_recurrent_elements(elements, entry_sort=None):
             field.upper(), justify="right" if field in ["id", "value"] else "left"
         )
 
-    entry_sort = entry_sort or DEFAULT_BASE_ENTRY_SORT_KEY
+    entry_sort = entry_sort or "eid"
     for element in sorted(elements, key=lambda e: e[entry_sort]):
         element["category"] = element["category"] or "Unspecified"
         element["end"] = element["end"] or "-"
