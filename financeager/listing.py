@@ -126,7 +126,13 @@ class Listing:
         return sum(v for v in self.category_fields("value"))
 
 
-def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_options):
+def prettify(
+    elements,
+    default_category=None,
+    stacked_layout=False,
+    recurrent_only=False,
+    **listing_options,
+):
     """Sort the given elements (type acc. to Pocket._search_all_tables) by
     positive and negative value and return pretty string build from the
     corresponding Listings.
@@ -145,33 +151,22 @@ def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_opt
             return richify_recurrent_elements(elements, **listing_options)
         except ImportError:
             pass
-        fields = ["id", "name", "value", "category", "start", "end", "frequency"]
-        field_lengths = {f: len(f) for f in fields}
-        # Determine max. field length and convert some field types
-        for element in elements:
-            element["category"] = element["category"] or "Unspecified"
-            element["end"] = element["end"] or "-"
-            for field, length in field_lengths.items():
-                field_lengths[field] = max(length, len(str(element[field])))
 
-        sep = " | "
-        # Add all-uppercase header row
-        lines = [sep.join(f.upper().ljust(l) for f, l in field_lengths.items())]
+    listings = _derive_listings(elements, default_category=default_category)
+    if not listings:
+        return ""
 
-        def _format(element, field):
-            # Numeric values shall be right-aligned, others left-aligned
-            if field in ["id", "value"]:
-                return str(element[field]).rjust(field_lengths[field])
-            return element[field].capitalize().ljust(field_lengths[field])
+    try:  # pragma: no cover
+        from .rich import richify_listings
 
-        # Sort elements acc. to 'entry_sort' option, and format them
-        entry_sort = listing_options.get("entry_sort") or "id"
-        entry_sort = "id" if entry_sort == "eid" else entry_sort
-        for element in sorted(elements, key=lambda e: e[entry_sort]):
-            lines.append(sep.join(_format(element, f) for f in fields))
+        return richify_listings(
+            listings, stacked_layout=stacked_layout, **listing_options
+        )
+    except ImportError:
+        pass
 
-        return "\n".join(lines)
 
+def _derive_listings(elements, *, default_category):
     earnings = []
     expenses = []
 
@@ -196,69 +191,12 @@ def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_opt
             _sort(eid, element)
 
     if not earnings and not expenses:
-        return ""
+        return
 
-    default_category = listing_options.pop("default_category", None)
     listing_earnings = Listing.from_elements(
         earnings, default_category=default_category, name="Earnings"
     )
     listing_expenses = Listing.from_elements(
         expenses, default_category=default_category, name="Expenses"
     )
-    listings = [listing_earnings, listing_expenses]
-
-    try:  # pragma: no cover
-        from .rich import richify_listings
-
-        return richify_listings(
-            listings, stacked_layout=stacked_layout, **listing_options
-        )
-    except ImportError:
-        pass
-
-    total_values = []
-    total_entries = []
-    for listing in listings:
-        total_entry = CategoryEntry(name="TOTAL")
-        total_entry.value = listing.total_value()
-        total_values.append(total_entry.value)
-        total_entries.append(total_entry.string())
-
-    # Compute difference of total earnings and expenses
-    diff_entry = CategoryEntry(name="Difference")
-    diff_entry.value = total_values[0] - total_values[1]
-    diff_entry = diff_entry.string()
-
-    if stacked_layout:
-        line = CategoryEntry.TOTAL_LENGTH * "="
-        return "{}\n{}\n{}\n\n{}\n{}\n{}\n{}".format(
-            listing_earnings.prettify(**listing_options),
-            line,
-            total_entries[0],
-            listing_expenses.prettify(**listing_options),
-            line,
-            total_entries[1],
-            diff_entry,
-        )
-    else:
-        result = []
-        listings_str = [ls.prettify(**listing_options).splitlines() for ls in listings]
-        for row in zip(*listings_str):
-            result.append(" | ".join(row))
-        earnings_size = len(listings_str[0])
-        expenses_size = len(listings_str[1])
-        diff = earnings_size - expenses_size
-        if diff > 0:
-            for row in listings_str[0][expenses_size:]:
-                result.append(row + " | ")
-        else:
-            for row in listings_str[1][earnings_size:]:
-                result.append(CategoryEntry.TOTAL_LENGTH * " " + " | " + row)
-        # add 3 to take central separator " | " into account
-        result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
-
-        # add total value of earnings and expenses, and difference thereof
-        result.append(" | ".join(total_entries))
-        result.append(diff_entry)
-
-        return "\n".join(result)
+    return [listing_earnings, listing_expenses]
