@@ -98,7 +98,10 @@ def richify_listings(
 
 
 def richify_recurrent_elements(elements, entry_sort=None):
-    """Print recurrent elements acc. to given options in rich.Table."""
+    """Print recurrent elements acc. to given options in rich.Table.
+    :param entry_sort: Field governing base entry sorting (name, value, ID, category,
+        start, end, frequency)
+    """
     fields = ["eid", "name", "value", "category", "start", "end", "frequency"]
     table = Table(
         show_edge=False, box=box.SIMPLE_HEAVY, expand=False, row_styles=["i", ""]
@@ -108,7 +111,9 @@ def richify_recurrent_elements(elements, entry_sort=None):
         table.add_column(
             field.upper(), justify="right" if field in ["id", "value"] else "left"
         )
-    for element in elements:
+
+    entry_sort = entry_sort or DEFAULT_BASE_ENTRY_SORT_KEY
+    for element in sorted(elements, key=lambda e: e[entry_sort]):
         element["category"] = element["category"] or "Unspecified"
         element["end"] = element["end"] or "-"
         table.add_row(
