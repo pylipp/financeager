@@ -84,30 +84,27 @@ class Listing:
 
 def prettify(
     elements,
-    default_category=None,
-    stacked_layout=False,
     recurrent_only=False,
+    default_category=None,
     **listing_options,
 ):
     """Sort the given elements (type acc. to Pocket._search_all_tables) by
-    positive and negative value and return pretty string build from the
-    corresponding Listings.
+    positive and negative value and print tabular representation.
 
-    :param stacked_layout: If True, listings are displayed one by one
     :param recurrent_only: If True, assume that given elements are purely
-        recurrent ones, and return them formatted as table
-    :param listing_options: Options passed to Listing.prettify(), and
-        Listing.from_elements()
+        recurrent ones
+    :param listing_options: Options passed to rich.richify_listings()
     """
 
     if recurrent_only:
-        return richify_recurrent_elements(elements, **listing_options)
+        entry_sort = listing_options.get("entry_sort")
+        return richify_recurrent_elements(elements, entry_sort=entry_sort)
 
     listings = _derive_listings(elements, default_category=default_category)
     if not listings:
         return ""
 
-    return richify_listings(listings, stacked_layout=stacked_layout, **listing_options)
+    return richify_listings(listings, **listing_options)
 
 
 def _derive_listings(elements, *, default_category):

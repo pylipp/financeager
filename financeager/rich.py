@@ -13,6 +13,13 @@ def richify_listings(
     category_percentage=False,
     entry_sort=None,
 ):
+    """Print listings acc. to given options in rich.Table.
+    :param stacked_layout: If True, listings are displayed one by one
+    :param category_sort: Field governing category sorting (name, value)
+    :param category_percentage: If True, display the share in the listing total of each
+        category
+    :param entry_sort: Field governing base entry sorting (name, value, date, ID)
+    """
     tables = []
     category_sort = category_sort or DEFAULT_CATEGORY_ENTRY_SORT_KEY
     entry_sort = entry_sort or DEFAULT_BASE_ENTRY_SORT_KEY
@@ -90,7 +97,8 @@ def richify_listings(
     return ""
 
 
-def richify_recurrent_elements(elements, entry_sort=None, **_):
+def richify_recurrent_elements(elements, entry_sort=None):
+    """Print recurrent elements acc. to given options in rich.Table."""
     fields = ["id", "name", "value", "category", "start", "end", "frequency"]
     table = Table(
         show_edge=False, box=box.SIMPLE_HEAVY, expand=False, row_styles=["i", ""]
