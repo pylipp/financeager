@@ -1,6 +1,7 @@
 """Tabular, frontend-representation of financeager pocket."""
 from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE, RECURRENT_TABLE
 from .entries import BaseEntry, CategoryEntry
+from .rich import richify_listings, richify_recurrent_elements
 
 
 class Listing:
@@ -145,25 +146,13 @@ def prettify(
     """
 
     if recurrent_only:
-        try:  # pragma: no cover
-            from .rich import richify_recurrent_elements
-
-            return richify_recurrent_elements(elements, **listing_options)
-        except ImportError:
-            pass
+        return richify_recurrent_elements(elements, **listing_options)
 
     listings = _derive_listings(elements, default_category=default_category)
     if not listings:
         return ""
 
-    try:  # pragma: no cover
-        from .rich import richify_listings
-
-        return richify_listings(
-            listings, stacked_layout=stacked_layout, **listing_options
-        )
-    except ImportError:
-        pass
+    return richify_listings(listings, stacked_layout=stacked_layout, **listing_options)
 
 
 def _derive_listings(elements, *, default_category):
