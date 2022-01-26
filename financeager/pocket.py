@@ -551,7 +551,7 @@ class TinyDbPocket(Pocket):
         if recurrent_only:
             # Flatten tinydb Document into dict
             return [
-                {**e, **{"id": e.doc_id}}
+                {**e, **{"eid": e.doc_id}}
                 for e in self._db.table(RECURRENT_TABLE).search(condition)
             ]
 

@@ -298,7 +298,7 @@ default_category = no-category"""
             {
                 "elements": [
                     {
-                        "id": id1,
+                        "eid": id1,
                         "name": "interest",
                         "value": 20.0,
                         "start": "2020-01-01",
@@ -307,7 +307,7 @@ default_category = no-category"""
                         "category": "banking",
                     },
                     {
-                        "id": id2,
+                        "eid": id2,
                         "name": "rent",
                         "value": -300.0,
                         "start": "2020-06-15",
@@ -325,7 +325,7 @@ default_category = no-category"""
             {
                 "elements": [
                     {
-                        "id": id1,
+                        "eid": id1,
                         "name": "interest",
                         "value": 20.0,
                         "start": "2020-01-01",
@@ -343,7 +343,7 @@ default_category = no-category"""
             {
                 "elements": [
                     {
-                        "id": id2,
+                        "eid": id2,
                         "name": "rent",
                         "value": -300.0,
                         "start": "2020-06-15",

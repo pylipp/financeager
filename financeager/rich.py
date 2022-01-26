@@ -99,11 +99,12 @@ def richify_listings(
 
 def richify_recurrent_elements(elements, entry_sort=None):
     """Print recurrent elements acc. to given options in rich.Table."""
-    fields = ["id", "name", "value", "category", "start", "end", "frequency"]
+    fields = ["eid", "name", "value", "category", "start", "end", "frequency"]
     table = Table(
         show_edge=False, box=box.SIMPLE_HEAVY, expand=False, row_styles=["i", ""]
     )
     for field in fields:
+        field = "id" if field == "eid" else field
         table.add_column(
             field.upper(), justify="right" if field in ["id", "value"] else "left"
         )

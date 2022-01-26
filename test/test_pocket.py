@@ -341,8 +341,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         eid = self.pocket.add_entry(table_name=RECURRENT_TABLE, **interest_fields)
         eid2 = self.pocket.add_entry(table_name=RECURRENT_TABLE, **rent_fields)
         recurrent_elements = self.pocket.get_entries(recurrent_only=True)
-        interest_fields.update({"category": None, "id": eid})
-        rent_fields.update({"end": None, "id": eid2})
+        interest_fields.update({"category": None, "eid": eid})
+        rent_fields.update({"end": None, "eid": eid2})
         self.assertEqual(recurrent_elements, [interest_fields, rent_fields])
 
     def test_update_recurrent_entry(self):
@@ -438,7 +438,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
                     "start": dt.date.today().isoformat(),
                     "end": None,
                     "frequency": "monthly",
-                    "id": eid,
+                    "eid": eid,
                 }
             ],
         )
