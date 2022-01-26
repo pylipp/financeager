@@ -1,5 +1,5 @@
 """Tabular, frontend-representation of financeager pocket."""
-from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE, RECURRENT_TABLE
+from . import DEFAULT_TABLE, RECURRENT_TABLE
 from .entries import BaseEntry, CategoryEntry
 from .rich import richify_listings, richify_recurrent_elements
 
@@ -21,51 +21,6 @@ class Listing:
             category = element.pop("category", None) or default_category
             listing.add_entry(BaseEntry(**element), category_name=category)
         return listing
-
-    def prettify(
-        self, *, category_sort=None, category_percentage=False, **entry_options
-    ):
-        """Format listing (incl. name and header).
-        Category entries are sorted acc. to the given 'category_sort'.
-        'entry_options' are passed to CategoryEntry.string().
-        The header lists the relevant item types of BaseEntry, or, if
-        'category_percentage' is set, an indicator for a column that displays
-        the share in the listing total of each category.
-
-        :return: str
-        """
-        result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
-
-        if category_percentage:
-            entry_options["total_listing_value"] = self.total_value()
-
-            header_line = "{3:{0}} {4:{1}} {5:>{2}} {6}".format(
-                CategoryEntry.NAME_LENGTH,
-                BaseEntry.VALUE_LENGTH,
-                BaseEntry.DATE_LENGTH,
-                *[k.capitalize() for k in BaseEntry.ITEM_TYPES[:2]],
-                "%",
-                BaseEntry.EID_LENGTH * " ",
-            )
-
-        else:
-            header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
-                CategoryEntry.NAME_LENGTH,
-                BaseEntry.VALUE_LENGTH,
-                BaseEntry.DATE_LENGTH,
-                *[k.capitalize() for k in BaseEntry.ITEM_TYPES],
-            )
-            if BaseEntry.SHOW_EID:
-                header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
-
-        result.append(header_line)
-
-        category_sort = category_sort or DEFAULT_CATEGORY_ENTRY_SORT_KEY
-        sort_key = lambda e: getattr(e, category_sort)
-        for category in sorted(self.categories, key=sort_key):
-            result.append(category.string(**entry_options))
-
-        return "\n".join(result)
 
     def add_entry(self, entry, category_name=None):
         """Add a Category- or BaseEntry to the listing.

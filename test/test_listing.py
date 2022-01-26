@@ -35,106 +35,19 @@ class AddBaseEntryTestCase(unittest.TestCase):
         self.item_name = "Aldi"
         self.item_value = 66.6
         self.item_date = "2000-11-08"
-        self.item_category = "Groceries"
+        self.item_category = "groceries"
         self.listing.add_entry(
             BaseEntry(self.item_name, self.item_value, self.item_date),
             self.item_category,
         )
 
     def test_str(self):
-        self.assertEqual(
-            self.listing.prettify(),
-            "\n".join(
-                [
-                    "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                    "Name               Value    Date     ID  ",
-                    "Groceries             66.60" + 14 * " ",
-                    "  Aldi                66.60 00-11-08    0",
-                ]
-            ),
-        )
-
-    def test_str_no_eid(self):
-        BaseEntry.SHOW_EID = False
-        self.assertEqual(
-            self.listing.prettify(),
-            "\n".join(
-                [
-                    "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                    "Name               Value    Date    ",
-                    # TODO: fix this; category entry line has to be shorter
-                    "Groceries             66.60              ",
-                    "  Aldi                66.60 00-11-08",
-                ]
-            ),
-        )
-        BaseEntry.SHOW_EID = True
+        category_entry = self.listing.categories[0]
+        self.assertEqual(category_entry.name, self.item_category)
+        self.assertEqual(len(category_entry.entries), 1)
 
     def test_add_invalid_entry(self):
         self.assertRaises(TypeError, self.listing.add_entry, None)
-
-
-class SortCategoryEntriesTestCase(unittest.TestCase):
-    def setUp(self):
-        self.listing = Listing()
-        for c, v in zip("ab", [20, 10]):
-            self.listing.add_entry(BaseEntry("foo", v, "2000-01-01"), c)
-
-    def test_sort_by_name(self):
-        self.assertEqual(
-            self.listing.prettify(category_sort="name"),
-            "\n".join(
-                [
-                    "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                    "Name               Value    Date     ID  ",
-                    "A                     20.00" + 14 * " ",
-                    "  Foo                 20.00 00-01-01    0",
-                    "B                     10.00" + 14 * " ",
-                    "  Foo                 10.00 00-01-01    0",
-                ]
-            ),
-        )
-
-    def test_sort_by_value(self):
-        self.assertEqual(
-            self.listing.prettify(),
-            "\n".join(
-                [
-                    "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                    "Name               Value    Date     ID  ",
-                    "B                     10.00" + 14 * " ",
-                    "  Foo                 10.00 00-01-01    0",
-                    "A                     20.00" + 14 * " ",
-                    "  Foo                 20.00 00-01-01    0",
-                ]
-            ),
-        )
-
-
-class AddNegativeBaseEntryTestCase(unittest.TestCase):
-    def setUp(self):
-        self.listing = Listing()
-        self.item_name = "Aldi"
-        self.item_value = -66.6
-        self.item_date = "2000-11-08"
-        self.item_category = "Groceries"
-        self.listing.add_entry(
-            BaseEntry(self.item_name, self.item_value, self.item_date),
-            self.item_category,
-        )
-
-    def test_str(self):
-        self.assertEqual(
-            self.listing.prettify(),
-            "\n".join(
-                [
-                    "{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, "Listing"),
-                    "Name               Value    Date     ID  ",
-                    "Groceries             66.60" + 14 * " ",
-                    "  Aldi                66.60 00-11-08    0",
-                ]
-            ),
-        )
 
 
 class AddBaseEntryWithoutCategoryTestCase(unittest.TestCase):
@@ -184,7 +97,7 @@ class ListingFromElementsTestCase(unittest.TestCase):
         )
 
     def test_contains_an_entry(self):
-        self.assertIn(self.date[2:], self.listing.prettify())
+        self.assertEqual(self.date[2:], self.listing.categories[0].entries[0].date)
 
     def test_category_item_names(self):
         parsed_listing_entry_names = list(self.listing.category_entry_names)
