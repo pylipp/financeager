@@ -33,10 +33,6 @@ The project is actively developed. Expect things to break - e.g. the command lin
 
     pip install --user --upgrade financeager
 
-For more colorful output install the `rich` package, or do
-
-    pip install --user --upgrade financeager[fancy]
-
 ### Using pipx
 
 If you have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `financeager` into an isolated environment via

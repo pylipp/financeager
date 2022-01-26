@@ -1,6 +1,7 @@
 """Tabular, frontend-representation of financeager pocket."""
-from . import DEFAULT_CATEGORY_ENTRY_SORT_KEY, DEFAULT_TABLE, RECURRENT_TABLE
+from . import DEFAULT_TABLE, RECURRENT_TABLE
 from .entries import BaseEntry, CategoryEntry
+from .rich import richify_listings, richify_recurrent_elements
 
 
 class Listing:
@@ -20,51 +21,6 @@ class Listing:
             category = element.pop("category", None) or default_category
             listing.add_entry(BaseEntry(**element), category_name=category)
         return listing
-
-    def prettify(
-        self, *, category_sort=None, category_percentage=False, **entry_options
-    ):
-        """Format listing (incl. name and header).
-        Category entries are sorted acc. to the given 'category_sort'.
-        'entry_options' are passed to CategoryEntry.string().
-        The header lists the relevant item types of BaseEntry, or, if
-        'category_percentage' is set, an indicator for a column that displays
-        the share in the listing total of each category.
-
-        :return: str
-        """
-        result = ["{1:^{0}}".format(CategoryEntry.TOTAL_LENGTH, self.name)]
-
-        if category_percentage:
-            entry_options["total_listing_value"] = self.total_value()
-
-            header_line = "{3:{0}} {4:{1}} {5:>{2}} {6}".format(
-                CategoryEntry.NAME_LENGTH,
-                BaseEntry.VALUE_LENGTH,
-                BaseEntry.DATE_LENGTH,
-                *[k.capitalize() for k in BaseEntry.ITEM_TYPES[:2]],
-                "%",
-                BaseEntry.EID_LENGTH * " ",
-            )
-
-        else:
-            header_line = "{3:{0}} {4:{1}} {5:{2}}".format(
-                CategoryEntry.NAME_LENGTH,
-                BaseEntry.VALUE_LENGTH,
-                BaseEntry.DATE_LENGTH,
-                *[k.capitalize() for k in BaseEntry.ITEM_TYPES],
-            )
-            if BaseEntry.SHOW_EID:
-                header_line += " " + "ID".ljust(BaseEntry.EID_LENGTH)
-
-        result.append(header_line)
-
-        category_sort = category_sort or DEFAULT_CATEGORY_ENTRY_SORT_KEY
-        sort_key = lambda e: getattr(e, category_sort)
-        for category in sorted(self.categories, key=sort_key):
-            result.append(category.string(**entry_options))
-
-        return "\n".join(result)
 
     def add_entry(self, entry, category_name=None):
         """Add a Category- or BaseEntry to the listing.
@@ -126,46 +82,32 @@ class Listing:
         return sum(v for v in self.category_fields("value"))
 
 
-def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_options):
+def prettify(
+    elements,
+    recurrent_only=False,
+    default_category=None,
+    **listing_options,
+):
     """Sort the given elements (type acc. to Pocket._search_all_tables) by
-    positive and negative value and return pretty string build from the
-    corresponding Listings.
+    positive and negative value and print tabular representation.
 
-    :param stacked_layout: If True, listings are displayed one by one
     :param recurrent_only: If True, assume that given elements are purely
-        recurrent ones, and return them formatted as table
-    :param listing_options: Options passed to Listing.prettify(), and
-        Listing.from_elements()
+        recurrent ones
+    :param listing_options: Options passed to rich.richify_listings()
     """
 
     if recurrent_only:
-        fields = ["id", "name", "value", "category", "start", "end", "frequency"]
-        field_lengths = {f: len(f) for f in fields}
-        # Determine max. field length and convert some field types
-        for element in elements:
-            element["category"] = element["category"] or "Unspecified"
-            element["end"] = element["end"] or "-"
-            for field, length in field_lengths.items():
-                field_lengths[field] = max(length, len(str(element[field])))
+        entry_sort = listing_options.get("entry_sort")
+        richify_recurrent_elements(elements, entry_sort=entry_sort)
+    else:
+        listings = _derive_listings(elements, default_category=default_category)
+        richify_listings(listings, **listing_options)
 
-        sep = " | "
-        # Add all-uppercase header row
-        lines = [sep.join(f.upper().ljust(l) for f, l in field_lengths.items())]
+    # for compatibility with cli._format_response() whose result is passed to print()
+    return ""
 
-        def _format(element, field):
-            # Numeric values shall be right-aligned, others left-aligned
-            if field in ["id", "value"]:
-                return str(element[field]).rjust(field_lengths[field])
-            return element[field].capitalize().ljust(field_lengths[field])
 
-        # Sort elements acc. to 'entry_sort' option, and format them
-        entry_sort = listing_options.get("entry_sort") or "id"
-        entry_sort = "id" if entry_sort == "eid" else entry_sort
-        for element in sorted(elements, key=lambda e: e[entry_sort]):
-            lines.append(sep.join(_format(element, f) for f in fields))
-
-        return "\n".join(lines)
-
+def _derive_listings(elements, *, default_category):
     earnings = []
     expenses = []
 
@@ -190,69 +132,12 @@ def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_opt
             _sort(eid, element)
 
     if not earnings and not expenses:
-        return ""
+        return
 
-    default_category = listing_options.pop("default_category", None)
     listing_earnings = Listing.from_elements(
         earnings, default_category=default_category, name="Earnings"
     )
     listing_expenses = Listing.from_elements(
         expenses, default_category=default_category, name="Expenses"
     )
-    listings = [listing_earnings, listing_expenses]
-
-    try:  # pragma: no cover
-        from .rich import richify_listings
-
-        return richify_listings(
-            listings, stacked_layout=stacked_layout, **listing_options
-        )
-    except ImportError:
-        pass
-
-    total_values = []
-    total_entries = []
-    for listing in listings:
-        total_entry = CategoryEntry(name="TOTAL")
-        total_entry.value = listing.total_value()
-        total_values.append(total_entry.value)
-        total_entries.append(total_entry.string())
-
-    # Compute difference of total earnings and expenses
-    diff_entry = CategoryEntry(name="Difference")
-    diff_entry.value = total_values[0] - total_values[1]
-    diff_entry = diff_entry.string()
-
-    if stacked_layout:
-        line = CategoryEntry.TOTAL_LENGTH * "="
-        return "{}\n{}\n{}\n\n{}\n{}\n{}\n{}".format(
-            listing_earnings.prettify(**listing_options),
-            line,
-            total_entries[0],
-            listing_expenses.prettify(**listing_options),
-            line,
-            total_entries[1],
-            diff_entry,
-        )
-    else:
-        result = []
-        listings_str = [ls.prettify(**listing_options).splitlines() for ls in listings]
-        for row in zip(*listings_str):
-            result.append(" | ".join(row))
-        earnings_size = len(listings_str[0])
-        expenses_size = len(listings_str[1])
-        diff = earnings_size - expenses_size
-        if diff > 0:
-            for row in listings_str[0][expenses_size:]:
-                result.append(row + " | ")
-        else:
-            for row in listings_str[1][earnings_size:]:
-                result.append(CategoryEntry.TOTAL_LENGTH * " " + " | " + row)
-        # add 3 to take central separator " | " into account
-        result.append((2 * CategoryEntry.TOTAL_LENGTH + 3) * "=")
-
-        # add total value of earnings and expenses, and difference thereof
-        result.append(" | ".join(total_entries))
-        result.append(diff_entry)
-
-        return "\n".join(result)
+    return [listing_earnings, listing_expenses]

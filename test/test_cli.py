@@ -1,10 +1,20 @@
 import shlex
 import tempfile
 import unittest
+from collections import defaultdict
 from datetime import datetime as dt
 from unittest import mock
 
-from financeager import cli, clients, config, exceptions, plugin, setup_log_file_handler
+from financeager import (
+    DEFAULT_TABLE,
+    RECURRENT_TABLE,
+    cli,
+    clients,
+    config,
+    exceptions,
+    plugin,
+    setup_log_file_handler,
+)
 
 TEST_CONFIG_FILEPATH = "/tmp/financeager-test-config"
 TEST_DATA_DIR = tempfile.mkdtemp(prefix="financeager-")
@@ -85,7 +95,7 @@ class CliTestCase(unittest.TestCase):
         if command in ["add", "update", "remove", "copy"]:
             return response["id"]
 
-        if command in ["get", "list", "pockets"] and log_method == "info":
+        if command in ["get", "pockets"] and log_method == "info":
             return cli._format_response(
                 response,
                 command,
@@ -95,6 +105,9 @@ class CliTestCase(unittest.TestCase):
                 recurrent_only=params.get("recurrent_only", False),
                 entry_sort=params.get("entry_sort"),
             )
+
+        if command == "list" and log_method == "info":
+            return response
 
         return response
 
@@ -231,31 +244,34 @@ default_category = no-category"""
         )
 
         for m in month_variants:
-            response = self.cli_run("list --month {}", format_args=m).lower()
-            self.assertIn("beans", response)
-            self.assertNotIn("chili", response)
-            self.assertNotIn("tomatos", response)
+            response = self.cli_run("list --month {}", format_args=m)
+            names = [v["name"] for v in response["elements"][DEFAULT_TABLE].values()]
+            self.assertIn("beans", names)
+            self.assertNotIn("chili", names)
+            self.assertNotIn("tomatos", names)
 
         # Verify overwriting of 'filters' option
         response = self.cli_run(
             "list --month {} --filter date=0{}-", format_args=(month_nr, month_nr + 1)
-        ).lower()
-        self.assertIn("beans", response)
-        self.assertNotIn("chili", response)
-        self.assertNotIn("tomatos", response)
+        )
+        names = [v["name"] for v in response["elements"][DEFAULT_TABLE].values()]
+        self.assertIn("beans", names)
+        self.assertNotIn("chili", names)
+        self.assertNotIn("tomatos", names)
 
         # Verify default behavior
-        response = self.cli_run("list --month").lower()
+        response = self.cli_run("list --month")
+        names = [v["name"] for v in response["elements"][DEFAULT_TABLE].values()]
 
         # If it's January: beans -> Feb, chili -> Mar ==> no match
         # Otherwise:       beans -> Jan, chili -> Feb ==> match only in Feb
         if current_month == month_nr + 1:
-            self.assertNotIn("beans", response)
-            self.assertIn("chili", response)
+            self.assertNotIn("beans", names)
+            self.assertIn("chili", names)
         else:
-            self.assertNotIn("beans", response)
-            self.assertNotIn("chili", response)
-        self.assertNotIn("tomatos", response)
+            self.assertNotIn("beans", names)
+            self.assertNotIn("chili", names)
+        self.assertNotIn("tomatos", names)
 
     def test_list_invalid_month(self):
         month_nr = 13
@@ -263,44 +279,80 @@ default_category = no-category"""
         self.assertEqual(response, f"Invalid month: {month_nr}")
 
     def test_list_filter_value(self):
-        self.cli_run("add money 10")
-        response = self.cli_run("list -f value=10").lower()
-        self.assertIn("money", response)
-        self.assertIn("10.00", response)
-        response = self.cli_run("list -f value=10 -f name=cash")
-        self.assertEqual(response, "")
+        entry_id = self.cli_run("add money 10")
+        response = self.cli_run("list -f value=10")
+        element = response["elements"][DEFAULT_TABLE][entry_id]
+        self.assertEqual(element["name"], "money")
+        self.assertEqual(element["value"], 10.0)
+        response = self.cli_run("list -f value=10 -f name=cash")["elements"]
+        self.assertEqual(
+            response, {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
+        )
 
     def test_list_recurrent_only(self):
-        self.cli_run("add interest 20 -s 2020-01-01 -f yearly -c banking")
-        self.cli_run("add rent -300 -s 2020-06-15 -e 2021-12-31 -f monthly")
+        id1 = self.cli_run("add interest 20 -s 2020-01-01 -f yearly -c banking")
+        id2 = self.cli_run("add rent -300 -s 2020-06-15 -e 2021-12-31 -f monthly")
         response = self.cli_run("list --recurrent-only")
         self.assertEqual(
             response,
-            "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n"  # noqa
-            + " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   \n"  # noqa
-            + " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ",  # noqa
+            {
+                "elements": [
+                    {
+                        "eid": id1,
+                        "name": "interest",
+                        "value": 20.0,
+                        "start": "2020-01-01",
+                        "end": None,
+                        "frequency": "yearly",
+                        "category": "banking",
+                    },
+                    {
+                        "eid": id2,
+                        "name": "rent",
+                        "value": -300.0,
+                        "start": "2020-06-15",
+                        "end": "2021-12-31",
+                        "frequency": "monthly",
+                        "category": None,
+                    },
+                ]
+            },
         )
 
         response = self.cli_run("list --recurrent-only -f name=int")
         self.assertEqual(
             response,
-            "ID | NAME     | VALUE | CATEGORY | START      | END | FREQUENCY\n"
-            + " 1 | Interest |  20.0 | Banking  | 2020-01-01 | -   | Yearly   ",  # noqa
+            {
+                "elements": [
+                    {
+                        "eid": id1,
+                        "name": "interest",
+                        "value": 20.0,
+                        "start": "2020-01-01",
+                        "end": None,
+                        "frequency": "yearly",
+                        "category": "banking",
+                    },
+                ]
+            },
         )
 
         response = self.cli_run("list --recurrent-only -f frequency=month")
         self.assertEqual(
             response,
-            "ID | NAME | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n"
-            + " 2 | Rent | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ",  # noqa
-        )
-
-        response = self.cli_run("list --recurrent-only --entry-sort frequency")
-        self.assertEqual(
-            response,
-            "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n"  # noqa
-            + " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  \n"  # noqa
-            + " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   ",  # noqa
+            {
+                "elements": [
+                    {
+                        "eid": id2,
+                        "name": "rent",
+                        "value": -300.0,
+                        "start": "2020-06-15",
+                        "end": "2021-12-31",
+                        "frequency": "monthly",
+                        "category": None,
+                    },
+                ]
+            },
         )
 
     @mock.patch("financeager.server.Server.run")
@@ -419,6 +471,61 @@ class FormatResponseTestCase(unittest.TestCase):
 
     def test_copy(self):
         self.assertEqual("Copied element 1.", cli._format_response({"id": 1}, "copy"))
+
+    def test_list(self):
+        self.assertEqual(
+            "",
+            cli._format_response(
+                {"elements": {DEFAULT_TABLE: {}, RECURRENT_TABLE: {}}}, "list"
+            ),
+        )
+
+        for options in [{}, {"stacked_layout": True}, {"category_percentage": True}]:
+            self.assertEqual(
+                "",
+                cli._format_response(
+                    {
+                        "elements": {
+                            DEFAULT_TABLE: {
+                                1: {
+                                    "name": "icecream",
+                                    "value": -5,
+                                    "date": "2020-06-25",
+                                    "category": "food",
+                                },
+                            },
+                            RECURRENT_TABLE: {},
+                        }
+                    },
+                    "list",
+                    **options,
+                ),
+            )
+
+    def test_list_recurrent_only(self):
+        self.assertEqual(
+            "", cli._format_response({"elements": []}, "list", recurrent_only=True)
+        )
+        self.assertEqual(
+            "",
+            cli._format_response(
+                {
+                    "elements": [
+                        {
+                            "eid": 1,
+                            "name": "rent",
+                            "value": -500,
+                            "start": "2020-01-01",
+                            "end": None,
+                            "frequency": "monthly",
+                            "category": "living",
+                        }
+                    ]
+                },
+                "list",
+                recurrent_only=True,
+            ),
+        )
 
 
 class TestPluginCliOptions(plugin.PluginCliOptions):

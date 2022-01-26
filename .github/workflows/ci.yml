@@ -59,10 +59,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           coveralls --service=github
-      - name: Run fancy test
-        run: |
-          python -m pip install -U -e .[fancy]
-          fina add expense -100
-          fina add earning 200
-          fina list
-          fina list -s
