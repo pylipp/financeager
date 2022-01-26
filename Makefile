@@ -24,7 +24,7 @@ lint:
 	pre-commit run --all-files flake8
 
 format:
-	pre-commit run --all-files yapf
+	pre-commit run --all-files black
 	pre-commit run --all-files isort
 	pre-commit run --all-files end-of-file-fixer
 	pre-commit run --all-files trailing-whitespace

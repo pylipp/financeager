@@ -274,32 +274,34 @@ default_category = no-category"""
         self.cli_run("add interest 20 -s 2020-01-01 -f yearly -c banking")
         self.cli_run("add rent -300 -s 2020-06-15 -e 2021-12-31 -f monthly")
         response = self.cli_run("list --recurrent-only")
-        # yapf: disable
         self.assertEqual(
             response,
-        "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" +  # noqa
-        " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   \n" +  # noqa
-        " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ") # noqa
+            "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n"  # noqa
+            + " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   \n"  # noqa
+            + " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ",  # noqa
+        )
 
         response = self.cli_run("list --recurrent-only -f name=int")
         self.assertEqual(
             response,
-        "ID | NAME     | VALUE | CATEGORY | START      | END | FREQUENCY\n" +  # noqa
-        " 1 | Interest |  20.0 | Banking  | 2020-01-01 | -   | Yearly   ") # noqa
+            "ID | NAME     | VALUE | CATEGORY | START      | END | FREQUENCY\n"
+            + " 1 | Interest |  20.0 | Banking  | 2020-01-01 | -   | Yearly   ",  # noqa
+        )
 
         response = self.cli_run("list --recurrent-only -f frequency=month")
         self.assertEqual(
             response,
-        "ID | NAME | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" +  # noqa
-        " 2 | Rent | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ") # noqa
+            "ID | NAME | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n"
+            + " 2 | Rent | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  ",  # noqa
+        )
 
         response = self.cli_run("list --recurrent-only --entry-sort frequency")
         self.assertEqual(
             response,
-        "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n" + # noqa
-        " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  \n" + # noqa
-        " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   ") # noqa
-        # yapf: enable
+            "ID | NAME     | VALUE  | CATEGORY    | START      | END        | FREQUENCY\n"  # noqa
+            + " 2 | Rent     | -300.0 | Unspecified | 2020-06-15 | 2021-12-31 | Monthly  \n"  # noqa
+            + " 1 | Interest |   20.0 | Banking     | 2020-01-01 | -          | Yearly   ",  # noqa
+        )
 
     @mock.patch("financeager.server.Server.run")
     def test_communication_error(self, mocked_run):
