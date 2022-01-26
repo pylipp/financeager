@@ -139,6 +139,12 @@ def prettify(elements, stacked_layout=False, recurrent_only=False, **listing_opt
     """
 
     if recurrent_only:
+        try:  # pragma: no cover
+            from .rich import richify_recurrent_elements
+
+            return richify_recurrent_elements(elements, **listing_options)
+        except ImportError:
+            pass
         fields = ["id", "name", "value", "category", "start", "end", "frequency"]
         field_lengths = {f: len(f) for f in fields}
         # Determine max. field length and convert some field types

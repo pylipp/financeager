@@ -64,5 +64,7 @@ jobs:
           python -m pip install -U -e .[fancy]
           fina add expense -100
           fina add earning 200
+          fina add rent -300 -f monthly
           fina list
           fina list -s
+          fina list -r

@@ -88,3 +88,25 @@ def richify_listings(
 
     Console().print(grid)
     return ""
+
+
+def richify_recurrent_elements(elements, entry_sort=None, **_):
+    fields = ["id", "name", "value", "category", "start", "end", "frequency"]
+    table = Table(
+        show_edge=False, box=box.SIMPLE_HEAVY, expand=False, row_styles=["i", ""]
+    )
+    for field in fields:
+        table.add_column(
+            field.upper(), justify="right" if field in ["id", "value"] else "left"
+        )
+    for element in elements:
+        element["category"] = element["category"] or "Unspecified"
+        element["end"] = element["end"] or "-"
+        table.add_row(
+            *[
+                str(element[f]).capitalize() if f != "value" else f"{element[f]:.2f}"
+                for f in fields
+            ]
+        )
+    Console().print(table)
+    return ""
