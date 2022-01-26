@@ -39,17 +39,6 @@ class NegativeBaseEntryTestCase(unittest.TestCase):
     def test_value(self):
         self.assertEqual(self.entry.value, 6000)
 
-    def test_str(self):
-        expected = "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 00-01-01"
-        expected += "    0"
-        self.assertEqual(str(self.entry), expected)
-
-    def test_str_no_eid(self):
-        expected = "Vw Bully".ljust(BaseEntry.NAME_LENGTH) + " " + " 6000.00 00-01-01"
-        BaseEntry.SHOW_EID = False
-        self.assertEqual(str(self.entry), expected)
-        BaseEntry.SHOW_EID = True
-
 
 class CategoryEntryTestCase(unittest.TestCase):
     def setUp(self):
@@ -60,19 +49,6 @@ class CategoryEntryTestCase(unittest.TestCase):
 
     def test_value(self):
         self.assertEqual(self.entry.value, 0.0)
-
-    def test_str(self):
-        self.assertEqual(
-            self.entry.string(),
-            "Gifts".ljust(CategoryEntry.NAME_LENGTH)
-            + " "
-            + "0.00".rjust(BaseEntry.VALUE_LENGTH)
-            + " "
-            + BaseEntry.DATE_LENGTH * " "
-            + (BaseEntry.EID_LENGTH + 1) * " "
-            if BaseEntry.SHOW_EID
-            else "",
-        )
 
 
 class LongNegativeCategoryEntryTestCase(unittest.TestCase):
@@ -88,80 +64,6 @@ class LongNegativeCategoryEntryTestCase(unittest.TestCase):
 
     def test_value(self):
         self.assertEqual(self.entry.value, 100)
-
-    def test_str(self):
-        self.assertEqual(
-            self.entry.string(),
-            "This Is Quite A Lo "
-            + "  100.00"
-            + 9 * " "
-            + 5 * " "
-            + "\n"
-            + "  Entry            "
-            + "  100.00"
-            + " 00-08-13 "
-            + "   0",
-        )
-        self.assertEqual(
-            self.entry.string(total_listing_value=200),
-            "This Is Quite A Lo " + "  100.00" + "     50.0" + 5 * " ",
-        )
-
-
-class SortBaseEntriesTestCase(unittest.TestCase):
-    def setUp(self):
-        self.entry = CategoryEntry(
-            name="letters",
-            entries=[
-                BaseEntry(lt, v, f"2000-0{9 - v}-11", i)
-                for lt, v, i in zip("abc", (1, 5, 3), (7, 1, 3))
-            ],
-        )
-
-    def test_sort_by_name(self):
-        # don't let trailing whitespaces of category name row being cleaned up
-        self.assertEqual(
-            self.entry.string(entry_sort="name"),
-            "\
-Letters                9.00              "
-            + """
-  A                    1.00 00-08-11    7
-  B                    5.00 00-04-11    1
-  C                    3.00 00-06-11    3""",
-        )
-
-    def test_sort_by_value(self):
-        self.assertEqual(
-            self.entry.string(entry_sort="value"),
-            "\
-Letters                9.00              "
-            + """
-  A                    1.00 00-08-11    7
-  C                    3.00 00-06-11    3
-  B                    5.00 00-04-11    1""",
-        )
-
-    def test_sort_by_date(self):
-        self.assertEqual(
-            self.entry.string(entry_sort="date"),
-            "\
-Letters                9.00              "
-            + """
-  B                    5.00 00-04-11    1
-  C                    3.00 00-06-11    3
-  A                    1.00 00-08-11    7""",
-        )
-
-    def test_sort_by_eid(self):
-        self.assertEqual(
-            self.entry.string(entry_sort="eid"),
-            "\
-Letters                9.00              "
-            + """
-  B                    5.00 00-04-11    1
-  C                    3.00 00-06-11    3
-  A                    1.00 00-08-11    7""",
-        )
 
 
 class PrettifyBaseEntryTestCase(unittest.TestCase):
