@@ -20,6 +20,9 @@ def richify_listings(
         category
     :param entry_sort: Field governing base entry sorting (name, value, date, ID)
     """
+    if not listings:
+        return
+
     tables = []
     category_sort = category_sort or DEFAULT_CATEGORY_ENTRY_SORT_KEY
     entry_sort = entry_sort or DEFAULT_BASE_ENTRY_SORT_KEY
@@ -94,7 +97,6 @@ def richify_listings(
     grid.add_row(Panel(f"Difference: {diff:.2f}"), style="red" if diff < 0 else "green")
 
     Console().print(grid)
-    return ""
 
 
 def richify_recurrent_elements(elements, entry_sort=None):
@@ -123,4 +125,3 @@ def richify_recurrent_elements(elements, entry_sort=None):
             ]
         )
     Console().print(table)
-    return ""
