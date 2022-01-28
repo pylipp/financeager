@@ -59,3 +59,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           coveralls --service=github
+      - name: Run CLI test
+        run: |
+          fina add expense -100
+          fina add earning 200
+          fina add rent -300 -f monthly
+          fina list
+          fina list -r
