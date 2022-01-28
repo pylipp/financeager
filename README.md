@@ -11,7 +11,7 @@ FINANCEAGER
 
 An application that helps you administering your daily expenses and earnings using single-entry book-keeping. Interact via the command line interface `fina`.
 
-The `financeager` backend holds databases (internally referred to as 'pockets'). A pocket contains entries for a certain project.
+The `financeager` backend holds databases (internally referred to as 'pockets', stored in `~/.local/share/financeager`). A pocket contains entries for a certain project.
 
 ## Quickstart
 
@@ -39,9 +39,12 @@ If you have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `fi
 
 You can use `financeager` as a client-server or a serverless application (default). The user interacts via the command line interface (CLI).
 
+<details>
+  <summary>Click here for background information about the modes.</summary>
+
 ### Serverless mode
 
-The user request invoked from the CLI is passed to the backend which opens the appropriate database, processes the request, closes the database and returns a response. All communication happens within a single process, hence the label 'serverless'. The databases are stored in `~/.local/share/financeager`.
+The user request invoked from the CLI is passed to the backend which opens the appropriate database, processes the request, closes the database and returns a response. All communication happens within a single process, hence the label 'serverless'.
 
 In vanilla financeager, this is the default mode.
 
@@ -55,6 +58,8 @@ You can explicitly specify it in the configuration file `~/.config/financeager/c
 Install the [financeager-flask](https://github.com/pylipp/financeager-flask) plugin.
 
 In any case, you're all set up! See the next section about the available client CLI commands and options.
+
+</details>
 
 ### Command line interface
 
@@ -168,7 +173,7 @@ The CLI `fina` tries to read the configuration from `~/.config/financeager/confi
 
 ### Expansion
 
-Want to use a different database? Should be straightforward by deriving from `Pocket` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new pocket type. See also #18.
+Want to use a different database? Should be straightforward by deriving from `Pocket` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new pocket type. See also [this issue](https://github.com/pylipp/financeager/issues/18).
 
 ### Plugin support
 
@@ -182,7 +187,7 @@ Available plugins are:
 - [financeager-flask](https://github.com/pylipp/financeager-flask)
 
 <details>
-  <summary>Click here for instructions.</summary>
+  <summary>Click here for instructions about creating plugins.</summary>
 
 #### All plugin types
 
