@@ -21,10 +21,6 @@ Who is this for?
 ----------------
 You might be someone who wants to organize finances with a simple software because you're tired of Excel and the like. And you like the command line. And Python.
 
-NOTE
-----
-The project is actively developed. Expect things to break - e.g. the command line interface, the REST API definitions, ... - before version 1.0.0 is released.
-
 ## Installation
 
 `financeager` requires Python 3.6 or higher.
@@ -47,12 +43,12 @@ You can use `financeager` as a client-server or a serverless application (defaul
 
 The user request invoked from the CLI is passed to the backend which opens the appropriate database, processes the request, closes the database and returns a response. All communication happens within a single process, hence the label 'serverless'. The databases are stored in `~/.local/share/financeager`.
 
-This option can be stored in the configuration file via
+In vanilla financeager, this is the default mode.
+
+You can explicitly specify it in the configuration file `~/.config/financeager/config`  via
 
     [SERVICE]
     name = local
-
-In vanilla financeager, this is little relevant since it is the default anyways.
 
 ### Client-server mode
 
@@ -67,28 +63,24 @@ The main CLI entry point is called `fina`.
     usage: fina [-h] [-V] {add,get,remove,update,copy,list,pockets} ...
 
     optional arguments:
-      -h, --help            show this help message and exit
-      -V, --version         display version info and exit
+      -h, --help          show this help message and exit
+      -V, --version       display version info and exit
 
-    subcommands:
-      {add,get,remove,update,copy,list,pockets}
-                            list of available subcommands
-        add                 add an entry to the database
-        get                 show information about single entry
-        remove              remove an entry from the database
-        update              update one or more fields of an database entry
-        copy                copy an entry from one pocket to another
-        list                list all entries in the pocket database
-        pockets             list all pocket databases
-
-On the client side, `financeager` provides the following commands to interact with the backend: `add`, `update`, `remove`, `get`, `list`, `pockets`, `copy`.
+    command
+      add                 add an entry to the database
+      get                 show information about single entry
+      remove              remove an entry from the database
+      update              update one or more fields of an database entry
+      copy                copy an entry from one pocket to another
+      list                list all entries in the pocket database
+      pockets             list all pocket databases
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
     > fina add burgers -19.99 --category Restaurants
     > fina add lottery 123.45 --date 03-14
 
-Category and date can be optionally specified. They default to None and the current day's date, resp. `financeager` will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
+Category and date can be optionally specified. They default to None and the current day's date, resp. The program will try to derive the entry category from the database if not specified. If several matches are found, the default category is used.
 
 > The date format can be anything that the [parser module](https://dateutil.readthedocs.io/en/stable/parser.html) of the `python-dateutil` library understands (e.g. YYYY-MM-DD, YY-MM-DD or MM-DD).
 
@@ -112,7 +104,7 @@ This would remove the recurrent rent entries (ID is also 1 because standard and 
 
     > fina remove 1 --recurrent
 
-Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filters` option, e.g. `--filters category=food` to show entries in the categories `food`)
+Show a side-by-side *overview* of earnings and expenses (filter by date/category/name/value by passing the `--filter` option, e.g. `--filter category=food` to show entries in the categories `food`)
 
     > fina list
 
@@ -126,7 +118,7 @@ Show a side-by-side *overview* of earnings and expenses (filter by date/category
     Total                123.45           | Total               1500.00
     Difference         -1376.55
 
-It might be convenient to list entries of the current, or a specific month only (example output is omitted):
+It might be convenient to list entries of the current month, or a specific month only (example output is omitted):
 
     > fina list --month
     > fina list --month January
@@ -142,7 +134,7 @@ In order to only list recurrent entries run (you can apply additional filtering 
 
     > fina list --recurrent-only
 
-The aforementioned `financeager` commands operate on the default database (`main`) unless another pocket is specified by the `--pocket` flag.
+The aforementioned `fina` commands operate on the default database (`main`) unless another pocket is specified by the `--pocket` flag.
 
     > fina add xmas-gifts -42 --date 12-23 --pocket personal
 
@@ -176,7 +168,7 @@ The CLI `fina` tries to read the configuration from `~/.config/financeager/confi
 
 ### Expansion
 
-Want to use a different database? Should be straightforward by deriving from `Pocket` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new pocket type.
+Want to use a different database? Should be straightforward by deriving from `Pocket` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new pocket type. See also #18.
 
 ### Plugin support
 
@@ -188,6 +180,9 @@ The supported groups are:
 Available plugins are:
 
 - [financeager-flask](https://github.com/pylipp/financeager-flask)
+
+<details>
+  <summary>Click here for instructions.</summary>
 
 #### All plugin types
 
@@ -237,6 +232,8 @@ Provide a suitable client implementation.
 
 Done! When the plugin is correctly installed, and configured to be used (`name = fancy-service`), `financeager` picks it up automatically. The plugin configuration is applied, and the plugin client created.
 
+</details>
+
 ## Architecture
 
 The following diagram sketches the relationship between financeager's modules. See the module docstrings for more information.
@@ -280,11 +277,6 @@ The following diagram sketches the relationship between financeager's modules. S
     |                pocket               |
     +-------------------------------------+
 
-## Known bugs
-
-- see [issues](https://github.com/pylipp/financeager/labels/bug)
-- Please. Report. Them.
-
 ## Contributing
 
 Always welcome! Clone the repo
@@ -313,12 +305,6 @@ If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug f
 1. Tag the latest commit on master by incrementing the current version accordingly (scheme `vmajor.minor.patch`).
 1. Run `make release`.
 1. The package is automatically published to PyPI using a Github action.
-
-PERSONAL NOTE
--------------
-This is a 'sandbox' project of mine. I'm exploring and experimenting with databases, data models, server applications (`Pyro4` and `flask`), frontends (command line, Qt-based GUI), software architecture, programming best practices (cough) and general Python development.
-
-Feel free to browse the project and give feedback (comments, issues, pull requests).
 
 ## Related projects
 
