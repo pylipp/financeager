@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.0.0] - 2022-
+## [v1.0.0] - 2022-01-28
 ### Added
 - Filtering for recurrent entries with indefinite end is now supported (omit the filter value, as in `list -f end=`). (#80)
 - Colorful and formatted output from the `list` command via the `rich` package is available.
