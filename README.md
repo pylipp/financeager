@@ -326,5 +326,12 @@ Feel free to browse the project and give feedback (comments, issues, pull reques
 
 For more holistic management of your financial affairs you might consider double-entry book-keeping. The following projects provide mature support:
 
+CLI-focused (GUI/browser extensions available):
 - [beancount](https://github.com/beancount/beancount)
 - [ledger](https://www.ledger-cli.org/index.html)
+
+Client-server applications
+- [firefly-iii](https://www.firefly-iii.org/)
+
+Local GUI applications
+- [kmymoney](https://kmymoney.org/)
