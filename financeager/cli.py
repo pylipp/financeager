@@ -332,7 +332,7 @@ is assumed""",
     )
 
     update_parser = subparsers.add_parser(
-        "update", help="update one or more fields of an database entry"
+        "update", help="update one or more fields of an entry"
     )
     update_parser.add_argument("eid", type=int, help="entry ID")
     update_parser.add_argument(
@@ -355,7 +355,7 @@ is assumed""",
     )
 
     copy_parser = subparsers.add_parser(
-        "copy", help="copy an entry from one pocket to another"
+        "copy", help="copy an entry from one pocket to another, or within one pocket"
     )
     copy_parser.add_argument("eid", help="entry ID")
     copy_parser.add_argument(
@@ -363,14 +363,14 @@ is assumed""",
         "--source",
         default=None,
         dest="source_pocket",
-        help="pocket to copy the entry from",
+        help="pocket to copy the entry from (default: main pocket)",
     )
     copy_parser.add_argument(
         "-d",
         "--destination",
         default=None,
         dest="destination_pocket",
-        help="pocket to copy the entry to",
+        help="pocket to copy the entry to (default: source pocket)",
     )
     copy_parser.add_argument(
         "-t",
@@ -389,7 +389,8 @@ is assumed""",
         action="append",
         dest="filters",
         help="filter for name, "
-        "date and/or category substring, e.g. name=beer category=groceries",
+        "date and/or category substring, e.g. name=beer category=groceries. "
+        "Can be specified multiple times (then filters add up)",
     )
     list_parser.add_argument(
         "-s",

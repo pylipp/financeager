@@ -75,8 +75,8 @@ The main CLI entry point is called `fina`.
       add                 add an entry to the database
       get                 show information about single entry
       remove              remove an entry from the database
-      update              update one or more fields of an database entry
-      copy                copy an entry from one pocket to another
+      update              update one or more fields of an entry
+      copy                copy an entry from one pocket to another, or within one pocket
       list                list all entries in the pocket database
       pockets             list all pocket databases
 
