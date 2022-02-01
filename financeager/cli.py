@@ -388,6 +388,7 @@ is assumed""",
         default=None,
         action="append",
         dest="filters",
+        metavar="FILTER",
         help="filter for name, "
         "date and/or category substring, e.g. name=beer category=groceries. "
         "Can be specified multiple times (then filters add up)",
