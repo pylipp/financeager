@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Update dependency `rich`. (#91)
 ### Fixed
+- Avoid excessive empty space in table with `list --category-percentage`.
 ### Removed
 ### Deprecated
 

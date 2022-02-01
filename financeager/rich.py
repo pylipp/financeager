@@ -65,6 +65,8 @@ def richify_listings(
                 )
 
     def nr_rows(listing):
+        if category_percentage:
+            return len(listing.categories)
         return len(listing.categories) + sum(len(c.entries) for c in listing.categories)
 
     # Fill shorter table with empty rows
