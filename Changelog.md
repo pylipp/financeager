@@ -5,13 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
+### Changed
+### Fixed
+### Removed
+### Deprecated
+
+## [v1.0.1] - 2022-02-01
+### Added
 - Output short message when running `list` command but no data found.
 ### Changed
 - Update dependency `rich`. (#91)
 ### Fixed
 - Avoid excessive empty space in table with `list --category-percentage`.
-### Removed
-### Deprecated
 
 ## [v1.0.0] - 2022-01-28
 ### Added
