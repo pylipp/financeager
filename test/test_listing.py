@@ -108,7 +108,7 @@ class ListingFromElementsTestCase(unittest.TestCase):
 class PrettifyListingsTestCase(unittest.TestCase):
     def test_prettify_no_elements(self):
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: {}}
-        self.assertEqual(prettify(elements), "")
+        self.assertEqual(prettify(elements), "No entries found.")
 
     def test_derive_listings(self):
         expense = {

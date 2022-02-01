@@ -1,5 +1,4 @@
 from rich import box
-from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
@@ -13,7 +12,7 @@ def richify_listings(
     category_percentage=False,
     entry_sort=None,
 ):
-    """Print listings acc. to given options in rich.Table.
+    """Create and return rich.Table from listings acc. to given options.
     :param stacked_layout: If True, listings are displayed one by one
     :param category_sort: Field governing category sorting (name, value)
     :param category_percentage: If True, display the share in the listing total of each
@@ -21,7 +20,7 @@ def richify_listings(
     :param entry_sort: Field governing base entry sorting (name, value, date, ID)
     """
     if not listings:
-        return
+        return "No entries found."
 
     tables = []
     category_sort = category_sort or DEFAULT_CATEGORY_ENTRY_SORT_KEY
@@ -97,12 +96,11 @@ def richify_listings(
 
     diff = totals[0] - totals[1]
     grid.add_row(Panel(f"Difference: {diff:.2f}"), style="red" if diff < 0 else "green")
-
-    Console().print(grid)
+    return grid
 
 
 def richify_recurrent_elements(elements, entry_sort=None):
-    """Print recurrent elements acc. to given options in rich.Table.
+    """Create and return rich.Table from recurrent elements acc. to given options.
     :param entry_sort: Field governing base entry sorting (name, value, ID, category,
         start, end, frequency)
     """
@@ -126,4 +124,4 @@ def richify_recurrent_elements(elements, entry_sort=None):
                 for f in fields
             ]
         )
-    Console().print(table)
+    return table

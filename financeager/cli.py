@@ -9,6 +9,7 @@ from datetime import datetime
 import argcomplete
 import pkg_resources
 from dateutil import parser as du_parser
+from rich.console import Console
 
 import financeager
 
@@ -95,7 +96,11 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
         """
         response = _format_response(message, command, **formatting_options)
         logger.info(message)
-        print(response)
+
+        if isinstance(response, str):
+            print(response)
+        else:  # pragma: no cover
+            Console().print(response)
 
     sinks = sinks or clients.Client.Sinks(_info, logger.error)
 

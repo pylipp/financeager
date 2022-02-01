@@ -5,6 +5,8 @@ from collections import defaultdict
 from datetime import datetime as dt
 from unittest import mock
 
+from rich.table import Table as RichTable
+
 from financeager import (
     DEFAULT_TABLE,
     RECURRENT_TABLE,
@@ -474,15 +476,14 @@ class FormatResponseTestCase(unittest.TestCase):
 
     def test_list(self):
         self.assertEqual(
-            "",
+            "No entries found.",
             cli._format_response(
                 {"elements": {DEFAULT_TABLE: {}, RECURRENT_TABLE: {}}}, "list"
             ),
         )
 
         for options in [{}, {"stacked_layout": True}, {"category_percentage": True}]:
-            self.assertEqual(
-                "",
+            self.assertIsInstance(
                 cli._format_response(
                     {
                         "elements": {
@@ -500,14 +501,15 @@ class FormatResponseTestCase(unittest.TestCase):
                     "list",
                     **options,
                 ),
+                RichTable,
             )
 
     def test_list_recurrent_only(self):
-        self.assertEqual(
-            "", cli._format_response({"elements": []}, "list", recurrent_only=True)
+        self.assertIsInstance(
+            cli._format_response({"elements": []}, "list", recurrent_only=True),
+            RichTable,
         )
-        self.assertEqual(
-            "",
+        self.assertIsInstance(
             cli._format_response(
                 {
                     "elements": [
@@ -525,6 +527,7 @@ class FormatResponseTestCase(unittest.TestCase):
                 "list",
                 recurrent_only=True,
             ),
+            RichTable,
         )
 
 

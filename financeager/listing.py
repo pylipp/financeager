@@ -98,13 +98,10 @@ def prettify(
 
     if recurrent_only:
         entry_sort = listing_options.get("entry_sort")
-        richify_recurrent_elements(elements, entry_sort=entry_sort)
-    else:
-        listings = _derive_listings(elements, default_category=default_category)
-        richify_listings(listings, **listing_options)
+        return richify_recurrent_elements(elements, entry_sort=entry_sort)
 
-    # for compatibility with cli._format_response() whose result is passed to print()
-    return ""
+    listings = _derive_listings(elements, default_category=default_category)
+    return richify_listings(listings, **listing_options)
 
 
 def _derive_listings(elements, *, default_category):
