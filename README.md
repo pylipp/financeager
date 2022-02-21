@@ -6,8 +6,10 @@
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_3)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-FINANCEAGER
-===========
+<p align="center">
+  <h1 align="center">financeager</h1>
+  <p align="center">Organize your finances from the command line</p>
+</p>
 
 An application that helps you administering your daily expenses and earnings using single-entry book-keeping. Interact via the command line interface `fina`.
 
