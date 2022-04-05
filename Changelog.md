@@ -10,9 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [unreleased] -
+## [v1.0.3] - 2022-04-05
 ### Changed
 - Update dependencies `rich` and `marshmallow`. (#98,#99,#101,#102)
+### Deprecated
+- Python 3.6 support will be removed in `financeager` v1.1.0.
 
 ## [v1.0.2] - 2022-02-24
 ### Changed
