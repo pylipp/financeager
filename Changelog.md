@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [v1.0.x] -
 ### Changed
-- Update dependency `rich`. (#104)
+- Update dependency `rich`. (#104,#105)
 
 ## [v1.0.3] - 2022-04-05
 ### Changed
