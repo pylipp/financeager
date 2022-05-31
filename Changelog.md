@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 
 ## [v1.0.x] -
+### Removed
+- Support for Python 3.6 is removed.
 ### Changed
 - Update dependency `rich`. (#104,#105)
 
