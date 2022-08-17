@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.1.1] - 2022-
+## [v1.1.1] - 2022-08-17
 ### Changed
 - Update dependencies `rich` and `marshmallow`. (#114,#117)
 - Update wording of debug logging message for clarity.
