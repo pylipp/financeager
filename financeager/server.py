@@ -72,7 +72,7 @@ class Server:
         try:
             pd = self._pockets[name]
         except KeyError:
-            logger.debug(f"Creating new Pocket '{name}'")
+            logger.debug(f"Loading pocket '{name}'")
             pd = pocket.TinyDbPocket(name, **self._pocket_kwargs)
             self._pockets[pd.name] = pd
 
