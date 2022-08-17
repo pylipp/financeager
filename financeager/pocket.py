@@ -1,7 +1,6 @@
 """Defines Pocket database object holding per-year financial data."""
 
 import os.path
-import re
 from collections import Counter, defaultdict
 from datetime import datetime as dt
 
@@ -497,33 +496,14 @@ class TinyDbPocket(Pocket):
             return condition
 
         entry = Query()
-        for field in ["category", "end"]:
-            try:
+        for field, pattern in filters.items():
+            if pattern is None and field in ["category", "end"]:
                 # The 'category' and 'end' fields are of type string or None. The
                 # condition is constructed depending on the filter pattern
-                pattern = filters[field]
-
-                if pattern is None:
-                    condition = entry[field] == None  # noqa
-                else:
-                    # Use regex searching of the filter pattern in the field if it
-                    # is not None
-                    def test(e):
-                        if e is None:
-                            return False
-                        return re.compile(pattern).search(e)
-
-                    condition = entry[field].test(test)
-
-            except KeyError:
-                # No field filter present
-                pass
-
-        for field, pattern in filters.items():
-            if pattern is None:
+                new_condition = entry[field] == None  # noqa
+            elif pattern is None:
                 continue
-
-            if field == "value":
+            elif field == "value":
                 new_condition = entry[field] == float(pattern)
             else:
                 new_condition = entry[field].search(pattern.lower())

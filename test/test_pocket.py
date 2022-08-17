@@ -95,12 +95,27 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
         ]
         self.assertEqual(len(standard_elements), 1)
 
+        standard_elements = self.pocket.get_entries(filters={"value": 500})[
+            DEFAULT_TABLE
+        ]
+        self.assertEqual(len(standard_elements), 1)
+
+        standard_elements = self.pocket.get_entries(
+            filters={"category": "gi", "date": "12"}
+        )[DEFAULT_TABLE]
+        self.assertEqual(len(standard_elements), 1)
+
         self.pocket.add_entry(name="hammer", value=-33, date="2015-12-20")
         standard_elements = self.pocket.get_entries(
             filters={"name": "xmas", "date": "12"}
         )[DEFAULT_TABLE]
         self.assertEqual(len(standard_elements), 1)
         self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
+
+        standard_elements = self.pocket.get_entries(
+            filters={"value": 500, "date": "12"}
+        )[DEFAULT_TABLE]
+        self.assertEqual(len(standard_elements), 1)
 
     def test_category_cache(self):
         self.pocket.add_entry(

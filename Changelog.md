@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Update dependencies `rich` and `marshmallow`. (#114,#117)
 - Update wording of debug logging message for clarity.
+### Fixed
+- Filtering for multiple patterns with `fina list`, when one of the filters is `category`, now returns the correct selection instead of an empty result.
 
 ## [v1.1.0] - 2022-06-04
 ### Removed
