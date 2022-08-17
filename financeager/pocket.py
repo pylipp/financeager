@@ -501,8 +501,6 @@ class TinyDbPocket(Pocket):
                 # The 'category' and 'end' fields are of type string or None. The
                 # condition is constructed depending on the filter pattern
                 new_condition = entry[field] == None  # noqa
-            elif pattern is None:
-                continue
             elif field == "value":
                 new_condition = entry[field] == float(pattern)
             else:
