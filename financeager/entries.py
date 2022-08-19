@@ -59,9 +59,8 @@ class CategoryEntry(Entry):
 
 
 def prettify(element, *, default_category):
-    """Return element properties formatted as list. The type of the element
-    (recurrent or standard) is inferred by the presence of the 'frequency'
-    property.
+    """Return element properties formatted as list. The type of the element (recurrent
+    or standard) is inferred by the presence of the 'frequency' property.
     If the element's 'category' property is None, use 'default_category'.
 
     :type element: dict
@@ -72,12 +71,10 @@ def prettify(element, *, default_category):
     # Define order of listed properties
     if recurrent:
         properties = ("name", "value", "frequency", "start", "end", "category")
+        longest_property_length = 9  # frequency
     else:
         properties = ("name", "value", "date", "category")
-    longest_property_length = 0
-    for p in properties:
-        if len(p) > longest_property_length:
-            longest_property_length = len(p)
+        longest_property_length = 8  # category
 
     if element["category"] is None:
         element["category"] = default_category
