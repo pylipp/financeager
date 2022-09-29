@@ -1,5 +1,47 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+requires = ["setuptools>=61.2", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "financeager"
+description = "command line tool for organizing finances"
+keywords = [ "commandline finances",]
+classifiers = [ "Development Status :: 3 - Alpha", "Environment :: Console", "Intended Audience :: End Users/Desktop", "Intended Audience :: Other Audience", "License :: OSI Approved :: GNU General Public License v3 (GPLv3)", "Operating System :: Unix", "Programming Language :: Python :: 3.7", "Programming Language :: Python :: 3.8", "Programming Language :: Python :: 3.9", "Programming Language :: Python :: 3.10", "Topic :: Office/Business :: Financial", "Topic :: Database", "Topic :: Utilities",]
+dependencies = [ "tinydb==4.7.0", "python-dateutil==2.8.2", "marshmallow==3.18.0", "argcomplete==2.0.0", "appdirs==1.4.4", "rich==12.5.1",]
+dynamic = [ "version",]
+[[project.authors]]
+name = "Philipp Metzner"
+email = "beth.aleph@yahoo.de"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+text = "GPLv3"
+
+[project.urls]
+Homepage = "https://github.com/pylipp/financeager"
+
+[project.optional-dependencies]
+packaging = [ "build", "twine>=1.11.0",]
+develop = [ "coverage==6.4.4", "pre-commit==2.20.0", "gitlint-core==0.17.0", "flake8==5.0.4", "black==22.8.0", "isort==5.10.1",]
+
+[project.scripts]
+fina = "financeager.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.coverage.run]
+branch = true
+source = [ "financeager",]
+
+[tool.coverage.report]
+exclude_lines = [ "pragma: no cover", "if __name__ == .__main__.:", "except Exception:", "def .*main()",]
+
+[tool.setuptools.packages.find]
+exclude = [ "test",]
+namespaces = false
 
 [tool.setuptools_scm]
