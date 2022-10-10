@@ -14,7 +14,7 @@ repos:
         require_serial: true
       - id: flake8
         name: flake8
-        entry: flake8
+        entry: pflake8
         types: [python]
         language: system
         require_serial: true

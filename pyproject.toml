@@ -48,7 +48,8 @@ Documentation = "https://github.com/pylipp/financeager"
 develop = [
   "black==22.8",
   "coverage==6.4.4",
-  "flake8==5.0.4",
+  'pyproject-flake8==5.0.4; python_version >= "3.8"',
+  'pyproject-flake8==5.0.4.post1; python_version < "3.8"',
   "gitlint-core==0.17",
   "isort==5.10.1",
   "pre-commit==2.20",
@@ -89,3 +90,11 @@ multi_line_output = 3
 include_trailing_comma = true
 ensure_newline_before_comments = true
 known_third_party = ["appdirs","argcomplete","dateutil","marshmallow","pkg_resources","setuptools","tinydb"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+  "E731",  # do not assign a lambda expression, use a def
+  "W503",  # line break before binary operator
+  "W504",  # line break after binary operator
+]
