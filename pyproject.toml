@@ -1,5 +1,100 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=61.2",
+  "setuptools_scm[toml]>=6.2",
+  "wheel",
+]
+
+[project]
+name = "financeager"
+description = "command line tool for organizing finances"
+authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
+keywords = ["commandline", "finances"]
+readme = "README.md"
+dynamic = ["version"]
+license = {file = "LICENSE.md"}
+dependencies = [
+  "appdirs==1.4.4",
+  "argcomplete==2",
+  "marshmallow==3.18",
+  "python-dateutil==2.8.2",
+  "rich==12.5.1",
+  "tinydb==4.7",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Intended Audience :: Other Audience",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Office/Business :: Financial",
+  "Topic :: Database",
+  "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/pylipp/financeager"
+Documentation = "https://github.com/pylipp/financeager"
+"Source Code" = "https://github.com/pylipp/financeager"
+"Bug Tracker" = "https://github.com/pylipp/financeager/issues"
+
+[project.optional-dependencies]
+develop = [
+  "black==22.8",
+  "coverage==6.5.0",
+  'pyproject-flake8==5.0.4; python_version >= "3.8"',
+  'pyproject-flake8==5.0.4.post1; python_version < "3.8"',
+  "gitlint-core==0.17",
+  "isort==5.10.1",
+  "pre-commit==2.20",
+]
+packaging = [
+  "build",
+  "twine>=1.11",
+]
+
+[project.scripts]
+fina = "financeager.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+exclude = ["test"]
+namespaces = false
+
+[tool.coverage.run]
+branch = true
+source = ["financeager"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+  "except Exception:",
+  "def .*main()",
+]
 
 [tool.setuptools_scm]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+ensure_newline_before_comments = true
+known_third_party = ["appdirs","argcomplete","dateutil","marshmallow","pkg_resources","setuptools","tinydb"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+  "E731",  # do not assign a lambda expression, use a def
+  "W503",  # line break before binary operator
+  "W504",  # line break after binary operator
+]

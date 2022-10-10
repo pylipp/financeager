@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Update dependencies `rich` and `marshmallow`. (#124,#126)
 - Checks for dependency updates are run monthly instead of weekly.
+- Use `pyproject.toml` instead of `setup.cfg` for project configuration.
 
 ## [v1.1.1] - 2022-08-17
 ### Changed
