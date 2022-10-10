@@ -47,7 +47,7 @@ Documentation = "https://github.com/pylipp/financeager"
 [project.optional-dependencies]
 develop = [
   "black==22.8",
-  "coverage==6.4.4",
+  "coverage==6.5.0",
   'pyproject-flake8==5.0.4; python_version >= "3.8"',
   'pyproject-flake8==5.0.4.post1; python_version < "3.8"',
   "gitlint-core==0.17",
