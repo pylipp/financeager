@@ -13,7 +13,7 @@ authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 keywords = ["commandline", "finances"]
 readme = "README.md"
 dynamic = ["version"]
-license = {file = "LICENSE.md"}
+license = {text = "GPLv3"}
 dependencies = [
   "appdirs==1.4.4",
   "argcomplete==2",
