@@ -10,11 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.1.3] - 2022-10-11
+### Changed
+- Make project entirely free from `setup.py` (update local `setuptools` and `pip`). (#127)
+
 ## [v1.1.2] - 2022-10-10
 ### Changed
 - Update dependency `marshmallow`. (#124,#126)
 - Checks for dependency updates are run monthly instead of weekly.
-- Use `pyproject.toml` instead of `setup.cfg` for project configuration.
+- Use `pyproject.toml` instead of `setup.cfg` for project configuration. (#127)
 
 ## [v1.1.1] - 2022-08-17
 ### Changed
