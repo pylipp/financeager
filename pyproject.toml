@@ -9,11 +9,13 @@ requires = [
 [project]
 name = "financeager"
 description = "command line tool for organizing finances"
-authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
-keywords = ["commandline", "finances"]
 readme = "README.md"
-dynamic = ["version"]
+keywords = [
+  "commandline",
+  "finances",
+]
 license = {text = "GPLv3"}
+authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
   "appdirs==1.4.4",
   "argcomplete==2",
@@ -21,6 +23,9 @@ dependencies = [
   "python-dateutil==2.8.2",
   "rich==12.5.1",
   "tinydb==4.7",
+]
+dynamic = [
+  "version",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -37,30 +42,30 @@ classifiers = [
   "Topic :: Database",
   "Topic :: Utilities",
 ]
-
-[project.urls]
-Homepage = "https://github.com/pylipp/financeager"
-Documentation = "https://github.com/pylipp/financeager"
-"Source Code" = "https://github.com/pylipp/financeager"
-"Bug Tracker" = "https://github.com/pylipp/financeager/issues"
-
 [project.optional-dependencies]
 develop = [
   "black==22.8",
-  "coverage==6.5.0",
-  'pyproject-flake8==5.0.4; python_version >= "3.8"',
-  'pyproject-flake8==5.0.4.post1; python_version < "3.8"',
+  "coverage==6.5",
   "gitlint-core==0.17",
   "isort==5.10.1",
   "pre-commit==2.20",
+  'pyproject-flake8==5.0.4; python_version >= "3.8"',
+  'pyproject-flake8==5.0.4.post1; python_version < "3.8"',
 ]
 packaging = [
   "build",
   "twine>=1.11",
 ]
 
+[project.urls]
+"Bug Tracker" = "https://github.com/pylipp/financeager/issues"
+Documentation = "https://github.com/pylipp/financeager"
+Homepage = "https://github.com/pylipp/financeager"
+"Source Code" = "https://github.com/pylipp/financeager"
+
 [project.scripts]
 fina = "financeager.cli:main"
+
 
 [tool.setuptools]
 include-package-data = false
