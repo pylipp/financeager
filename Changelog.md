@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.1.4] - 2022-
+### Changed
+- Update dependency `rich`. (#131)
+
 ## [v1.1.3] - 2022-10-11
 ### Changed
 - Make project entirely free from `setup.py` (update local `setuptools` and `pip`). (#127)
