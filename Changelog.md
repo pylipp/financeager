@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.1.5] - 2022-11-07
+### Changed
+- Update GitHub actions to avoid deprecation warnings during CI runs. (#134)
+
 ## [v1.1.4] - 2022-11-06
 ### Added
 - Officially support Python 3.11. (#133)
