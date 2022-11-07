@@ -5,6 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/pylipp/financeager/badge.svg?branch=master)](https://coveralls.io/github/pylipp/financeager?branch=master)
 [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_3)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/pylipp/financeager/master.svg)](https://results.pre-commit.ci/latest/github/pylipp/financeager/master)
 
 <p align="center">
   <h1 align="center">financeager</h1>
