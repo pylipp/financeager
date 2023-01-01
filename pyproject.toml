@@ -51,7 +51,7 @@ develop = [
   'flake8==5.0.4; python_version < "3.8"',
   "flake8-pyproject==1.2.2",
   "gitlint-core==0.18.0",
-  "isort==5.10.1",
+  "isort==5.11.4",
   "pre-commit==2.20",
 ]
 packaging = [
