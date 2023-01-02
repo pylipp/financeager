@@ -10,9 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.1.6] - 2022-12
+## [v1.1.6] - 2023-01-02
 ### Changed
-- Update dependency `marshmallow`. (#140)
+- Update dependencies `rich` and `marshmallow`. (#140,#142)
 
 ## [v1.1.5] - 2022-11-07
 ### Changed
