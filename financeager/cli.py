@@ -114,7 +114,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
         "FRONTEND", "default_category"
     )
     if command == "list":
-        # Extract formatting options; irrelevant, event confusing for Server
+        # Extract formatting options; irrelevant, even confusing for Server
         for option in [
             "stacked_layout",
             "entry_sort",
