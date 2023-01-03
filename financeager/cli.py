@@ -120,6 +120,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
             "entry_sort",
             "category_sort",
             "category_percentage",
+            "json",
         ]:
             formatting_options[option] = params.pop(option)
         if params["recurrent_only"]:
@@ -445,6 +446,13 @@ is assumed""",
         "--recurrent-only",
         action="store_true",
         help="show only recurrent entries",
+    )
+    list_parser.add_argument(
+        "-j",
+        "--json",
+        action="store_true",
+        help="return result in JSON format instead formatting into table. "
+        "Helpful for processing data with jq or similar tools.",
     )
 
     subparsers.add_parser("pockets", help="list all pocket databases")

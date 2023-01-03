@@ -1,4 +1,6 @@
 """Tabular, frontend-representation of financeager pocket."""
+from json import dumps as jdumps
+
 from . import DEFAULT_TABLE, RECURRENT_TABLE
 from .entries import BaseEntry, CategoryEntry
 from .rich import richify_listings, richify_recurrent_elements
@@ -85,16 +87,20 @@ class Listing:
 def prettify(
     elements,
     recurrent_only=False,
+    json=False,
     default_category=None,
     **listing_options,
 ):
     """Sort the given elements (type acc. to Pocket._search_all_tables) by
     positive and negative value and print tabular representation.
 
+    :param json: If True, return elements as JSON-formatted string
     :param recurrent_only: If True, assume that given elements are purely
         recurrent ones
     :param listing_options: Options passed to rich.richify_listings()
     """
+    if json:
+        return jdumps(elements)
 
     if recurrent_only:
         entry_sort = listing_options.get("entry_sort")

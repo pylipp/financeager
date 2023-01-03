@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from collections import defaultdict
 from datetime import datetime as dt
+from json import loads as jloads
 from unittest import mock
 
 from rich.table import Table as RichTable
@@ -97,7 +98,9 @@ class CliTestCase(unittest.TestCase):
         if command in ["add", "update", "remove", "copy"]:
             return response["id"]
 
-        if command in ["get", "pockets"] and log_method == "info":
+        if (command in ["get", "pockets"] and log_method == "info") or (
+            command == "list" and log_method == "info" and params.get("json")
+        ):
             return cli._format_response(
                 response,
                 command,
@@ -106,6 +109,7 @@ class CliTestCase(unittest.TestCase):
                 ),
                 recurrent_only=params.get("recurrent_only", False),
                 entry_sort=params.get("entry_sort"),
+                json=params.get("json"),
             )
 
         if command == "list" and log_method == "info":
@@ -354,6 +358,25 @@ default_category = no-category"""
                         "category": None,
                     },
                 ]
+            },
+        )
+
+    def test_list_json(self):
+        entry_id = self.cli_run("add money 10")
+        response = self.cli_run("list --json")
+        today = dt.today().strftime("%Y-%m-%d")
+        self.assertEqual(
+            jloads(response),
+            {
+                DEFAULT_TABLE: {
+                    str(entry_id): {
+                        "category": None,
+                        "date": today,
+                        "name": "money",
+                        "value": 10.0,
+                    }
+                },
+                RECURRENT_TABLE: {},
             },
         )
 
