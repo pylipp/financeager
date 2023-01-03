@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.2.0] - 2023-01-
+## [v1.2.0] - 2023-01-03
 ### Added
 - New `--json` option for `list` command to return result in JSON format instead of formatted as table (#120). Helpful for processing data with jq or similar tools (refine selection with `--filter` option):
     - all IDs of standard entries: `fina list --json | jq -r '.standard | keys[]'`
