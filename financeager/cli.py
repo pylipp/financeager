@@ -404,7 +404,7 @@ is assumed""",
         "--stacked-layout",
         action="store_true",
         help="if true, display earnings and expenses in stacked layout, "
-        "otherwise side-by-side. Not effective with --recurrent-only option",
+        "otherwise side-by-side. Not effective with --recurrent-only or --json option",
     )
     list_parser.add_argument(
         "--entry-sort",
@@ -425,14 +425,14 @@ is assumed""",
         "--category-sort",
         choices=["name", "value"],
         help="key to sort categories by. Not effective in combination with "
-        "--recurrent-only option",
+        "--recurrent-only or --json option",
     )
     list_parser.add_argument(
         "-P",
         "--category-percentage",
         action="store_true",
         help="show only category entries incl. percentage. Not effective in "
-        "combination with --recurrent-only option",
+        "combination with --recurrent-only or --json option",
     )
     list_parser.add_argument(
         "-m",
