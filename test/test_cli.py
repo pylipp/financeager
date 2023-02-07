@@ -120,7 +120,6 @@ class CliTestCase(unittest.TestCase):
 
 @mock.patch("financeager.DATA_DIR", None)
 class CliLocalServerNoneConfigTestCase(CliTestCase):
-
     CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
 
     @mock.patch("tinydb.storages.MemoryStorage.write")
@@ -158,7 +157,6 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 class CliLocalServerTestCase(CliTestCase):
-
     CONFIG_FILE_CONTENT = """\
 [SERVICE]
 name = local
