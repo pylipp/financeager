@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [unreleased]
 ### Added
 ### Changed
+- Update dependencies `rich` and `argcomplete`. (#161,#163)
 ### Fixed
 ### Removed
 - Support for Python 3.7 is removed.
