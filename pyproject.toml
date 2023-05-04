@@ -34,7 +34,6 @@ classifiers = [
   "Intended Audience :: Other Audience",
   "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
   "Operating System :: Unix",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -46,15 +45,12 @@ classifiers = [
 [project.optional-dependencies]
 develop = [
   "black==23.3.0",
-  "coverage==7.2.1",
-  'flake8==6.0.0; python_version >= "3.8"',
-  'flake8==5.0.4; python_version < "3.8"',
+  "coverage==7.2.5",
+  'flake8==6.0.0',
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
-  'isort==5.12.0; python_version >= "3.8"',
-  'isort==5.11.4; python_version < "3.8"',
-  'pre-commit==3.1.1; python_version >= "3.8"',
-  'pre-commit==2.21.0; python_version < "3.8"',
+  'isort==5.12.0',
+  'pre-commit==3.3.0',
 ]
 packaging = [
   "build",

@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 ### Fixed
 ### Removed
+- Support for Python 3.7 is removed.
 ### Deprecated
 
 ## [v1.2.1] - 2023-04-03
