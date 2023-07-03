@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.3.1] - 2023-07-16
+### Changed
+- Update dependencies `rich` and `tinydb`. (#169,#170)
+
 ## [v1.3.0] - 2023-05-05
 ### Changed
 - Update dependencies `rich` and `argcomplete`. (#161,#163)
