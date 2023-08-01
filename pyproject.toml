@@ -44,7 +44,7 @@ classifiers = [
 ]
 [project.optional-dependencies]
 develop = [
-  "black==23.3.0",
+  "black==23.7.0",
   "coverage==7.2.7",
   'flake8==6.0.0',
   "flake8-pyproject==1.2.3",
