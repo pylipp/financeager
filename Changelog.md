@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 
 ## [v1.3.2] - 2023-0
+### Added
+- Support Python 3.12.
 ### Changed
 - Update dependencies `rich`, `marshmallow`, and `argcomplete`. (#171,#174,#175)
 
