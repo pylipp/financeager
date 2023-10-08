@@ -18,7 +18,7 @@ license = {text = "GPLv3"}
 authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
   "appdirs==1.4.4",
-  "argcomplete==3.1.1",
+  "argcomplete==3.1.2",
   "marshmallow==3.20.1",
   "python-dateutil==2.8.2",
   "rich==13.6.0",
