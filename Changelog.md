@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.3.x] - 2023-
+### Changed
+- Update dependencies `argcomplete`. (#185)
+
 ## [v1.3.2] - 2023-10-08
 ### Added
 - Support Python 3.12.
