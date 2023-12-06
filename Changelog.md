@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [v1.3.x] - 2023-
 ### Changed
-- Update dependencies `argcomplete`. (#185)
+- Update dependencies `argcomplete` and `rich`. (#185, #187, #188)
 
 ## [v1.3.2] - 2023-10-08
 ### Added
