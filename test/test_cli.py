@@ -244,7 +244,7 @@ default_category = no-category"""
             "add chili -4 -d {}-0{}-15", format_args=(self.pocket, month_nr + 1)
         )
         self.cli_run(
-            "add tomatos -6 -d {}-0{}-15", format_args=(previous_year, month_nr)
+            "add tomatoes -6 -d {}-0{}-15", format_args=(previous_year, month_nr)
         )
 
         for m in month_variants:
@@ -252,7 +252,7 @@ default_category = no-category"""
             names = [v["name"] for v in response["elements"][DEFAULT_TABLE].values()]
             self.assertIn("beans", names)
             self.assertNotIn("chili", names)
-            self.assertNotIn("tomatos", names)
+            self.assertNotIn("tomatoes", names)
 
         # Verify overwriting of 'filters' option
         response = self.cli_run(
@@ -261,7 +261,7 @@ default_category = no-category"""
         names = [v["name"] for v in response["elements"][DEFAULT_TABLE].values()]
         self.assertIn("beans", names)
         self.assertNotIn("chili", names)
-        self.assertNotIn("tomatos", names)
+        self.assertNotIn("tomatoes", names)
 
         # Verify default behavior
         response = self.cli_run("list --month")
@@ -275,7 +275,7 @@ default_category = no-category"""
         else:
             self.assertNotIn("beans", names)
             self.assertNotIn("chili", names)
-        self.assertNotIn("tomatos", names)
+        self.assertNotIn("tomatoes", names)
 
     def test_list_invalid_month(self):
         month_nr = 13

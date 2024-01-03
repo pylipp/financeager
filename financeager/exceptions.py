@@ -1,4 +1,4 @@
-"""Module defining expections of the financeager application."""
+"""Module defining exceptions of the financeager application."""
 
 
 class FinanceagerException(Exception):
