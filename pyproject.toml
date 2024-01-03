@@ -55,7 +55,6 @@ develop = [
 ]
 packaging = [
   "build",
-  "twine>=1.11",
 ]
 
 [project.urls]

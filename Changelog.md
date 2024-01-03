@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.3.4] - 2024-01-03
+### Changed
+- Use PyPI trusted publishing when uploading package.
+
 ## [v1.3.3] - 2024-01-03
 ### Changed
 - Update dependencies `argcomplete` and `rich`. (#185, #187, #188, #191)
