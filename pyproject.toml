@@ -47,7 +47,7 @@ classifiers = [
 develop = [
   "black==23.12.1",
   "coverage==7.4.0",
-  'flake8==6.1.0',
+  'flake8==7.0.0',
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
   'isort==5.13.2',
