@@ -1,4 +1,5 @@
 """Configuration of the financeager application."""
+
 from configparser import ConfigParser, NoOptionError, NoSectionError
 
 from financeager import plugin

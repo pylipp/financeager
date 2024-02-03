@@ -1,4 +1,5 @@
 """Command line interface of financeager application."""
+
 # PYTHON_ARGCOMPLETE_OK
 import argparse
 import os
@@ -467,9 +468,11 @@ is assumed""",
         subparser.add_argument(
             "-C",
             "--config-filepath",
-            default=financeager.CONFIG_FILEPATH
-            if os.path.exists(financeager.CONFIG_FILEPATH)
-            else None,
+            default=(
+                financeager.CONFIG_FILEPATH
+                if os.path.exists(financeager.CONFIG_FILEPATH)
+                else None
+            ),
             help=f"path to config file. Default: {financeager.CONFIG_FILEPATH}",
         )
         subparser.add_argument(

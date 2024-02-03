@@ -1,4 +1,5 @@
 """Infrastructure for backend communication."""
+
 import traceback
 from collections import namedtuple
 
