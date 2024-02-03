@@ -1,4 +1,5 @@
 """Tabular, frontend-representation of financeager pocket."""
+
 from json import dumps as jdumps
 
 from . import DEFAULT_TABLE, RECURRENT_TABLE
