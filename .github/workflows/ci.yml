@@ -48,7 +48,7 @@ jobs:
           pip install -U -e .[develop]
           pip install -U coveralls
       - name: Run style-checks
-        uses: pre-commit/action@v3.0.0
+        uses: pre-commit/action@v3.0.1
       - name: Run test suite
         run: |
           coverage erase
