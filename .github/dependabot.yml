@@ -6,3 +6,9 @@ updates:
       interval: "monthly"
     assignees:
       - "pylipp"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    assignees:
+      - "pylipp"
