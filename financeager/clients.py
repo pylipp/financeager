@@ -7,8 +7,6 @@ import financeager
 
 from . import exceptions, localserver, plugin
 
-logger = financeager.init_logger(__name__)
-
 
 def create(*, configuration, sinks, plugins):
     """Factory to create the Client subclass suitable to the given
