@@ -10,9 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.3.] - 2024-0
+## [v1.3.6] - 2024-02-16
 ### Changed
-- Update dependencies `argcomplete`. (#197)
+- Update dependencies `argcomplete` and `marshmallow`. (#197, #203)
+- Update GitHub actions.
 
 ## [v1.3.5] - 2024-01-04
 ### Changed
