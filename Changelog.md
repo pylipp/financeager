@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.3.7] - 2024-04-02
+### Changed
+- Update dependencies `rich`, `python-dateutil`, `argcomplete` and `marshmallow`. (#206, #209, #211, #212, #215)
+
 ## [v1.3.6] - 2024-02-16
 ### Changed
 - Update dependencies `argcomplete` and `marshmallow`. (#197, #203)
