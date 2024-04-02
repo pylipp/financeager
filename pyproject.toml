@@ -20,7 +20,7 @@ dependencies = [
   "appdirs==1.4.4",
   "argcomplete==3.2.3",
   "marshmallow==3.21.1",
-  "python-dateutil==2.8.2",
+  "python-dateutil==2.9.0.post0",
   "rich==13.7.1",
   "tinydb==4.8.0",
 ]
