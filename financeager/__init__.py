@@ -1,12 +1,11 @@
 import os.path
+from importlib.metadata import version
 from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
 
 import appdirs
 
 # versioning information
-from pkg_resources import get_distribution
-
-__version__ = get_distribution(__name__).version
+__version__ = version(__name__)
 
 #
 # Global constants
