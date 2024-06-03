@@ -6,9 +6,9 @@ import os
 import sys
 import time
 from datetime import datetime
+from importlib.metadata import entry_points
 
 import argcomplete
-import pkg_resources
 from dateutil import parser as du_parser
 from rich.console import Console
 
@@ -50,9 +50,7 @@ def main():
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
 
-    plugins = [
-        ep.load()() for ep in pkg_resources.iter_entry_points("financeager.services")
-    ]
+    plugins = [ep.load()() for ep in entry_points(group="financeager.services")]
 
     args = _parse_command(plugins=plugins)
     try:
