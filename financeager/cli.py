@@ -50,7 +50,9 @@ def main():
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
 
-    plugins = [ep.load()() for ep in entry_points(group="financeager.services")]
+    plugins = [
+        ep.load()() for ep in entry_points().select(group="financeager.services")
+    ]
 
     args = _parse_command(plugins=plugins)
     try:
