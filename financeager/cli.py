@@ -50,9 +50,12 @@ def main():
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
 
-    plugins = [
-        ep.load()() for ep in entry_points().select(group="financeager.services")
-    ]
+    group = "financeager.services"
+    try:
+        plugins = [ep.load()() for ep in entry_points().select(group=group)]
+    except AttributeError:
+        # Python 3.8
+        plugins = [ep.load()() for ep in entry_points().get(group, [])]
 
     args = _parse_command(plugins=plugins)
     try:
