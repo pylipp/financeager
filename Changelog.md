@@ -10,9 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.3.8] - 2024-06-
+## [v1.3.8] - 2024-06-03
 ### Fixed
 - Replace usage of deprecated `pkg_resources` module.
+### Changed
+- Update dependencies `argcomplete` and `marshmallow`. (#218, #219)
 
 ## [v1.3.7] - 2024-04-02
 ### Changed
