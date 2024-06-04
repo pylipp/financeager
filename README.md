@@ -323,6 +323,9 @@ CLI-focused (GUI/browser extensions available):
 - [beancount](https://github.com/beancount/beancount)
 - [ledger](https://www.ledger-cli.org/index.html)
 
+TUI applications
+- [moneyterm](https://github.com/ChrisBuilds/moneyterm)
+
 Client-server applications
 - [firefly-iii](https://www.firefly-iii.org/)
 
