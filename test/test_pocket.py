@@ -519,7 +519,7 @@ class ValidationTestCase(unittest.TestCase):
                 {
                     "name": "rent",
                     "value": -400,
-                    "frequency": "yaerly",
+                    "frequency": "yearly",
                     "start": "2020-01-02",
                 }
             )
