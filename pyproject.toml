@@ -19,9 +19,9 @@ authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
   "appdirs==1.4.4",
   "argcomplete==3.5.0",
-  "marshmallow==3.21.3",
+  "marshmallow==3.22.0",
   "python-dateutil==2.9.0.post0",
-  "rich==13.7.1",
+  "rich==13.8.0",
   "tinydb==4.8.0",
 ]
 dynamic = [
