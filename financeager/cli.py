@@ -51,11 +51,7 @@ def main():
     setup_log_file_handler()
 
     group = "financeager.services"
-    try:
-        plugins = [ep.load()() for ep in entry_points().select(group=group)]
-    except AttributeError:
-        # Python 3.8
-        plugins = [ep.load()() for ep in entry_points().get(group, [])]
+    plugins = [ep.load()() for ep in entry_points().select(group=group)]
 
     args = _parse_command(plugins=plugins)
     try:

@@ -1,5 +1,5 @@
 [![pypi](https://badge.fury.io/py/financeager.svg)](https://pypi.org/project/flake8-pytest-style)
-[![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://pypi.org/project/financeager)
+[![Python: 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://pypi.org/project/financeager)
 [![Downloads](https://img.shields.io/pypi/dm/financeager.svg)](https://pypistats.org/packages/flake8-pytest-style)
 ![Build Status](https://github.com/pylipp/financeager/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pylipp/financeager/badge.svg?branch=master)](https://coveralls.io/github/pylipp/financeager?branch=master)
@@ -25,7 +25,7 @@ You might be someone who wants to organize finances with a simple software becau
 
 ## Installation
 
-`financeager` requires Python 3.8 or higher (last version supporting Python 3.6/3.7 is 1.0.3/1.2.1).
+`financeager` requires Python 3.9 or higher (last version supporting Python 3.6/3.7/3.8 is 1.0.3/1.2.1/1.3.10).
 
 ### From PyPI package
 

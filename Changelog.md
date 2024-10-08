@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.4.0] - 2024-10-08
+### Removed
+- Support for Python 3.8 is removed.
+
 ## [v1.3.10] - 2024-10-02
 ### Changed
 - Update dependencies `rich` and `marshmallow`. (#230, #232)
