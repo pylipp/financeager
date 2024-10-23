@@ -35,6 +35,10 @@ class AddEntryToServerTestCase(unittest.TestCase):
         response = self.server.run("peace")
         self.assertIn("peace", response["error"])
 
+    def test_get_categories(self):
+        response = self.server.run("categories", pocket=self.pocket)
+        self.assertListEqual(response["categories"], ["outdoors"])
+
 
 class RecurrentEntryServerTestCase(unittest.TestCase):
     def setUp(self):

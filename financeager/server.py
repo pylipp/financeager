@@ -54,6 +54,8 @@ class Server:
                     response = {"element": pd.get_entry(**kwargs)}
                 elif command == "update":
                     response = {"id": pd.update_entry(**kwargs)}
+                elif command == "categories":
+                    response = {"categories": pd.get_categories()}
                 else:
                     response = {"error": f"Server: unknown command '{command}'"}
                 return response
