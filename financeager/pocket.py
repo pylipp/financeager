@@ -534,6 +534,12 @@ class TinyDbPocket(Pocket):
 
         return self._search_all_tables(condition)
 
+    def get_categories(self):
+        """Return unique category names of the default table in alphabetical order."""
+        category_names = set(e["category"] for e in self._db.table(DEFAULT_TABLE).all())
+        category_names.discard(_DEFAULT_CATEGORY)
+        return sorted(category_names)
+
     def close(self):
         """Close underlying database."""
         self._db.close()
