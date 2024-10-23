@@ -13,19 +13,23 @@ from financeager import (
 
 
 class AddEntryToServerTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.server = server.Server()
-        cls.server.run(
-            "add", name="Hiking boots", value=-111.11, category="outdoors", pocket="0"
+    def setUp(self):
+        self.server = server.Server()
+        self.pocket = "0"
+        self.server.run(
+            "add",
+            name="Hiking boots",
+            value=-111.11,
+            category="outdoors",
+            pocket=self.pocket,
         )
 
     def test_pocket_name(self):
-        self.assertEqual("0", self.server._pockets["0"].name)
+        self.assertEqual(self.pocket, self.server._pockets[self.pocket].name)
 
     def test_pockets(self):
         response = self.server.run("pockets")
-        self.assertListEqual(response["pockets"], ["0"])
+        self.assertListEqual(response["pockets"], [self.pocket])
 
     def test_unknown_command(self):
         response = self.server.run("peace")
