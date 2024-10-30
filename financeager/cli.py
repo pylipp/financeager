@@ -455,7 +455,7 @@ is assumed""",
         "--month",
         nargs="?",
         const="current",
-        help="show only entries of given month (default: current) in current year)",
+        help="show only entries of given month (default: current) in current year",
     )
     list_parser.add_argument(
         "-r",
