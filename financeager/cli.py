@@ -15,6 +15,7 @@ from rich.console import Console
 import financeager
 
 from . import (
+    DEFAULT_TABLE,
     POCKET_DATE_FORMAT,
     RECURRENT_TABLE,
     UNSET_INDICATOR,
@@ -302,6 +303,7 @@ def _parse_command(args=None, plugins=None):
         "-t",
         "--table-name",
         default=None,
+        choices=[DEFAULT_TABLE, RECURRENT_TABLE],
         help="""table to add the entry to. With 'recurrent', specify at
 least a frequency, start date and end date are optional. Default:
 'standard'""",
@@ -328,6 +330,7 @@ is assumed""",
         "-t",
         "--table-name",
         default=None,
+        choices=[DEFAULT_TABLE, RECURRENT_TABLE],
         help="Table to get the entry from. Default: 'standard'.",
     )
 
@@ -339,6 +342,7 @@ is assumed""",
         "-t",
         "--table-name",
         default=None,
+        choices=[DEFAULT_TABLE, RECURRENT_TABLE],
         help="Table to remove the entry from. Default: 'standard'.",
     )
 
@@ -347,7 +351,10 @@ is assumed""",
     )
     update_parser.add_argument("eid", type=int, help="entry ID")
     update_parser.add_argument(
-        "-t", "--table-name", help="Table containing the entry. Default: 'standard'"
+        "-t",
+        "--table-name",
+        help="Table containing the entry. Default: 'standard'",
+        choices=[DEFAULT_TABLE, RECURRENT_TABLE],
     )
     update_parser.add_argument("-n", "--name", help="new name")
     update_parser.add_argument("-v", "--value", type=float, help="new value")
@@ -390,6 +397,7 @@ is assumed""",
         "-t",
         "--table-name",
         default=None,
+        choices=[DEFAULT_TABLE, RECURRENT_TABLE],
         help="Table to copy the entry from/to. Default: 'standard'.",
     )
 
