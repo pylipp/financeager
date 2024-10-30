@@ -2,7 +2,7 @@ import os.path
 from importlib.metadata import version
 from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
 
-import appdirs
+import platformdirs
 
 # versioning information
 __version__ = version(__name__)
@@ -29,9 +29,11 @@ DEFAULT_CATEGORY_ENTRY_SORT_KEY = "value"
 DEFAULT_BASE_ENTRY_SORT_KEY = "name"
 
 # directories for application data and log file
-CONFIG_DIR = appdirs.user_config_dir("financeager")
-DATA_DIR = appdirs.user_data_dir("financeager")
-LOG_DIR = appdirs.user_log_dir("financeager")
+CONFIG_DIR = platformdirs.user_config_dir("financeager")
+DATA_DIR = platformdirs.user_data_dir("financeager")
+CACHE_DIR = platformdirs.user_cache_dir("financeager")
+# platformdirs.user_log_dir is ~/.local/state/log which is backwards-incompatible
+LOG_DIR = os.path.join(CACHE_DIR, "log")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
 
