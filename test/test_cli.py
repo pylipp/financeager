@@ -8,6 +8,7 @@ from unittest import mock
 
 from rich.table import Table as RichTable
 
+import financeager
 from financeager import (
     DEFAULT_TABLE,
     RECURRENT_TABLE,
@@ -586,6 +587,13 @@ class PluginCliOptionsTestCase(unittest.TestCase):
         configuration._parser["SERVICE"] = {"name": "test-plugin"}
         exit_code = cli.run(**args, configuration=configuration, plugins=[test_plugin])
         self.assertEqual(exit_code, cli.SUCCESS)
+
+
+class AppDirectoryTestCase(unittest.TestCase):
+    def test_dirs(self):
+        self.assertTrue(financeager.CONFIG_DIR.endswith(".config/financeager"))
+        self.assertTrue(financeager.DATA_DIR.endswith(".local/share/financeager"))
+        self.assertTrue(financeager.LOG_DIR.endswith(".cache/financeager/log"))
 
 
 if __name__ == "__main__":
