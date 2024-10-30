@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 
 ## [v1.4.1] - 2024-10-
+### Added
+- CLI tab-completions for `--table-name` and `--frequency` options.
 ### Changed
 - Replace deprecated `appdirs` dependency by `platformdirs`. (#234)
 
