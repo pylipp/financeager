@@ -19,6 +19,15 @@ from . import (
 )
 
 _DEFAULT_CATEGORY = None
+FREQUENCY_CHOICES = [
+    "yearly",
+    "half-yearly",
+    "quarter-yearly",
+    "bimonthly",
+    "monthly",
+    "weekly",
+    "daily",
+]
 
 
 class EntryBaseSchema(Schema):
@@ -35,17 +44,7 @@ class StandardEntrySchema(EntryBaseSchema):
 
 class RecurrentEntrySchema(EntryBaseSchema):
     frequency = fields.String(
-        validate=validate.OneOf(
-            choices=[
-                "yearly",
-                "half-yearly",
-                "quarter-yearly",
-                "bimonthly",
-                "monthly",
-                "weekly",
-                "daily",
-            ]
-        ),
+        validate=validate.OneOf(choices=FREQUENCY_CHOICES),
         required=True,
         allow_none=True,
     )

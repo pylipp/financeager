@@ -28,6 +28,7 @@ from . import (
     make_log_stream_handler_verbose,
     setup_log_file_handler,
 )
+from .pocket import FREQUENCY_CHOICES
 
 logger = init_logger(__name__)
 
@@ -308,8 +309,8 @@ least a frequency, start date and end date are optional. Default:
     add_parser.add_argument(
         "-f",
         "--frequency",
-        help="""frequency of recurrent entry; one of yearly, half-yearly,
-quarterly, monthly, weekly, daily. If specified, '--table-name=recurrent'
+        choices=FREQUENCY_CHOICES,
+        help="""frequency of recurrent entry. If specified, '--table-name=recurrent'
 is assumed""",
     )
     add_parser.add_argument(
@@ -355,7 +356,10 @@ is assumed""",
         "-d", "--date", help="new date (for standard entries only)"
     )
     update_parser.add_argument(
-        "-f", "--frequency", help="new frequency (for recurrent entries only)"
+        "-f",
+        "--frequency",
+        choices=FREQUENCY_CHOICES,
+        help="new frequency (for recurrent entries only)",
     )
     update_parser.add_argument(
         "-s", "--start", help="new start date (for recurrent entries only)"
