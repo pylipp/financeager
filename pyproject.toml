@@ -17,7 +17,7 @@ keywords = [
 license = {text = "GPLv3"}
 authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
-  "platformdirs==3.2.0",
+  "platformdirs==4.3.6",
   "argcomplete==3.5.1",
   "marshmallow==3.23.1",
   "python-dateutil==2.9.0.post0",
