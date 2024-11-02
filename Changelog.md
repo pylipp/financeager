@@ -10,11 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.4.1] - 2024-10-
+## [v1.4.1] - 2024-11-02
 ### Added
 - CLI tab-completions for `--table-name` and `--frequency` options.
 ### Changed
 - Replace deprecated `appdirs` dependency by `platformdirs`. (#234)
+- Update dependencies `argcomplete`, `tinydb`, `rich`, `marshmallow` and `platformdirs`. (#235, #237)
 
 ## [v1.4.0] - 2024-10-08
 ### Removed
