@@ -91,14 +91,7 @@ class Server:
         names = {p._name for p in self._pockets.values()}
 
         data_dir = self._pocket_kwargs.get("data_dir")
-        if data_dir is not None:
-            names.update(
-                {
-                    os.path.splitext(os.path.basename(f))[0]
-                    for f in glob.glob(os.path.join(data_dir, "*.json"))
-                }
-            )
-
+        names.update(pocket_names(data_dir))
         return sorted(names)
 
     def _copy_entry(self, source_pocket=None, destination_pocket=None, **kwargs):
@@ -116,3 +109,16 @@ class Server:
         return destination_pocket.add_entry(
             table_name=kwargs.get("table_name"), **entry_to_copy
         )
+
+
+def pocket_names(data_dir):
+    """Return names of all pockets (i.e. names of JSON files in the given data
+    directory), or an empty set if the specified data directory is None.
+    """
+    if data_dir is None:
+        return set()
+    result = {
+        os.path.splitext(os.path.basename(f))[0]
+        for f in glob.glob(os.path.join(data_dir, "*.json"))
+    }
+    return result
