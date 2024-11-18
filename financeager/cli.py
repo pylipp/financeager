@@ -30,6 +30,7 @@ from . import (
     setup_log_file_handler,
 )
 from .pocket import FREQUENCY_CHOICES
+from .server import pocket_names
 
 logger = init_logger(__name__)
 
@@ -503,6 +504,8 @@ is assumed""",
         ]:
             subparser.add_argument(
                 "-p", "--pocket", help="name of pocket to modify or query"
+            ).completer = argcomplete.ChoicesCompleter(
+                pocket_names(financeager.DATA_DIR)
             )
 
     for subparser in [
