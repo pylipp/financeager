@@ -2,7 +2,6 @@
 
 # PYTHON_ARGCOMPLETE_OK
 import argparse
-import json
 import os
 import sys
 import time
@@ -547,4 +546,4 @@ def _read_categories_for_cli_completion():
     if not os.path.exists(fp):
         return []
     with open(fp) as f:
-        return json.load(f)
+        return f.read().splitlines()

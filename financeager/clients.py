@@ -1,6 +1,5 @@
 """Infrastructure for backend communication."""
 
-import json
 import os.path
 import traceback
 from collections import namedtuple
@@ -96,12 +95,11 @@ class LocalServerClient(Client):
         if command not in ["add", "remove", "update"]:
             return success
 
-        result = self.proxy.run("categories", pocket=params["pocket"])
-        with open(
-            os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME),
-            "w",
-        ) as f:
-            json.dump(result["categories"], f)
+        categories = self.proxy.run("categories", pocket=params["pocket"])["categories"]
+        fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
+        with open(fp, "w") as f:
+            # The category cache is a line-separated list of names
+            f.write("\n".join(categories))
         return success
 
     def shutdown(self):
