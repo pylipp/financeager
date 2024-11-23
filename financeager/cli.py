@@ -2,6 +2,7 @@
 
 # PYTHON_ARGCOMPLETE_OK
 import argparse
+import json
 import os
 import sys
 import time
@@ -49,6 +50,7 @@ def main():
     'run()'.
     """
     os.makedirs(financeager.DATA_DIR, exist_ok=True)
+    os.makedirs(financeager.CACHE_DIR, exist_ok=True)
 
     # Adding the FileHandler here avoids cluttering the log during tests
     setup_log_file_handler()
@@ -293,11 +295,15 @@ def _parse_command(args=None, plugins=None):
     )
     subparsers.required = True
 
+    categories = _read_categories_for_cli_completion()
+
     add_parser = subparsers.add_parser("add", help="add an entry to the database")
 
     add_parser.add_argument("name", help="entry name")
     add_parser.add_argument("value", type=float, help="entry value")
-    add_parser.add_argument("-c", "--category", default=None, help="entry category")
+    add_parser.add_argument(
+        "-c", "--category", default=None, help="entry category"
+    ).completer = argcomplete.ChoicesCompleter(categories)
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
 
     add_parser.add_argument(
@@ -359,7 +365,9 @@ is assumed""",
     )
     update_parser.add_argument("-n", "--name", help="new name")
     update_parser.add_argument("-v", "--value", type=float, help="new value")
-    update_parser.add_argument("-c", "--category", help="new category")
+    update_parser.add_argument("-c", "--category", help="new category").completer = (
+        argcomplete.ChoicesCompleter(categories)
+    )
     update_parser.add_argument(
         "-d", "--date", help="new date (for standard entries only)"
     )
@@ -532,3 +540,11 @@ specified, the -r option is ignored""",
         parsed_args["table_name"] = RECURRENT_TABLE
 
     return parsed_args
+
+
+def _read_categories_for_cli_completion():
+    fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
+    if not os.path.exists(fp):
+        return []
+    with open(fp) as f:
+        return json.load(f)

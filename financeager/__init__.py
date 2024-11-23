@@ -36,6 +36,7 @@ CACHE_DIR = platformdirs.user_cache_dir("financeager")
 LOG_DIR = os.path.join(CACHE_DIR, "log")
 
 CONFIG_FILEPATH = os.path.join(CONFIG_DIR, "config")
+CATEGORIES_CACHE_FILENAME = "categories.json"
 
 # Set up the package logger
 LOGGER = getLogger(__package__)

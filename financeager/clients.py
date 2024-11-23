@@ -1,5 +1,7 @@
 """Infrastructure for backend communication."""
 
+import json
+import os.path
 import traceback
 from collections import namedtuple
 
@@ -85,6 +87,22 @@ class LocalServerClient(Client):
         super().__init__(configuration=configuration, sinks=sinks)
 
         self.proxy = localserver.Proxy(data_dir=financeager.DATA_DIR)
+
+    def safely_run(self, command, **params):
+        """Run the parent method, and for certain modifying commands, fetch category
+        names from the server and store them in the cache.
+        """
+        success = super().safely_run(command, **params)
+        if command not in ["add", "remove", "update"]:
+            return success
+
+        result = self.proxy.run("categories", pocket=params["pocket"])
+        with open(
+            os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME),
+            "w",
+        ) as f:
+            json.dump(result["categories"], f)
+        return success
 
     def shutdown(self):
         """Instruct stopping of Server."""
