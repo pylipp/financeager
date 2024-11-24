@@ -542,8 +542,13 @@ specified, the -r option is ignored""",
 
 
 def _read_categories_for_cli_completion():
-    fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
-    if not os.path.exists(fp):
+    try:
+        fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
+        if not os.path.exists(fp):
+            return []
+        with open(fp) as f:
+            return f.read().splitlines()
+    except Exception as e:
+        logger.debug(str(e))
+        logger.warning("Error when trying to read category cache.")
         return []
-    with open(fp) as f:
-        return f.read().splitlines()

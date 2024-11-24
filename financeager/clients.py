@@ -6,7 +6,9 @@ from collections import namedtuple
 
 import financeager
 
-from . import exceptions, localserver, plugin
+from . import exceptions, init_logger, localserver, plugin
+
+logger = init_logger(__name__)
 
 
 def create(*, configuration, sinks, plugins):
@@ -95,12 +97,18 @@ class LocalServerClient(Client):
         if command not in ["add", "remove", "update"]:
             return success
 
-        categories = self.proxy.run("categories", pocket=params["pocket"])["categories"]
+        try:
+            self._write_categories_for_cli_completion(params["pocket"])
+        except Exception as e:
+            logger.debug(str(e))
+        return success
+
+    def _write_categories_for_cli_completion(self, pocket):
+        categories = self.proxy.run("categories", pocket=pocket)["categories"]
         fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
         with open(fp, "w") as f:
             # The category cache is a line-separated list of names
             f.write("\n".join(categories))
-        return success
 
     def shutdown(self):
         """Instruct stopping of Server."""
