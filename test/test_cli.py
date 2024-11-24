@@ -10,6 +10,7 @@ from rich.table import Table as RichTable
 
 import financeager
 from financeager import (
+    DEFAULT_POCKET_NAME,
     DEFAULT_TABLE,
     RECURRENT_TABLE,
     cli,
@@ -119,7 +120,10 @@ class CliTestCase(unittest.TestCase):
         return response
 
 
+# Having these app directories patched to None helps testing the error handling for
+# category cache reading and writing
 @mock.patch("financeager.DATA_DIR", None)
+@mock.patch("financeager.CACHE_DIR", None)
 class CliLocalServerNoneConfigTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
 
@@ -157,6 +161,7 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
 
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
 class CliLocalServerTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = """\
 [SERVICE]
@@ -417,6 +422,42 @@ Category : No-Category""",
         self.assertIn(f"End      : {year}-12-31", response)
 
 
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
+class CategoryCacheTestCase(CliTestCase):
+    CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
+
+    def setUp(self):
+        super().setUp()
+        self.pocket = DEFAULT_POCKET_NAME
+
+    def test_cli_categories_cache(self):
+        # Initially, the cache is empty
+        categories = sorted(cli._read_categories_for_cli_completion())
+        self.assertListEqual(categories, [])
+
+        # Adding entries adds their categories to the cache without duplication
+        entry_ids = []
+        for category in "abcdecd":
+            entry_id = self.cli_run(f"add something -10 -c {category}")
+            entry_ids.append(entry_id)
+        categories = sorted(cli._read_categories_for_cli_completion())
+        self.assertListEqual(categories, list("abcde"))
+
+        # Remove entries with category "d"
+        self.cli_run(f"remove {entry_ids[-1]}")
+        categories = sorted(cli._read_categories_for_cli_completion())
+        self.assertListEqual(categories, list("abcde"))
+        self.cli_run(f"remove {entry_ids[-4]}")
+        categories = sorted(cli._read_categories_for_cli_completion())
+        self.assertListEqual(categories, list("abce"))
+
+        # Update entry with category "a" to category "f"
+        self.cli_run(f"update {entry_ids[0]} -c f")
+        categories = sorted(cli._read_categories_for_cli_completion())
+        self.assertListEqual(categories, list("bcef"))
+
+
 class PreprocessTestCase(unittest.TestCase):
     @unittest.skip("DD.MM. not recognized as date format by dateutil")
     def test_date_format(self):
@@ -594,6 +635,7 @@ class AppDirectoryTestCase(unittest.TestCase):
         self.assertTrue(financeager.CONFIG_DIR.endswith(".config/financeager"))
         self.assertTrue(financeager.DATA_DIR.endswith(".local/share/financeager"))
         self.assertTrue(financeager.LOG_DIR.endswith(".cache/financeager/log"))
+        self.assertTrue(financeager.CACHE_DIR.endswith(".cache/financeager"))
 
 
 if __name__ == "__main__":

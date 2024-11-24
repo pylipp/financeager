@@ -171,7 +171,9 @@ The CLI `fina` tries to read the configuration from `~/.config/financeager/confi
 
 ### More Goodies
 
-- Command line tab completion is provided by the `argcomplete` package (for bash; limited support for zsh, fish, tcsh). Completion has to be enabled by running `activate-global-python-argcomplete`. Read the [instructions](https://github.com/kislyuk/argcomplete#activating-global-completion) if you want to know more.
+**Command line tab completion** is provided by the `argcomplete` package (for bash; limited support for zsh, fish, tcsh). Completion should work for all commands and CLI options incl. selections for values of `--category`, `--table-name`, `--pocket`, and `--frequency`.
+
+Completion has to be enabled by running `activate-global-python-argcomplete`. Read the [instructions](https://github.com/kislyuk/argcomplete#activating-global-completion) if you want to know more.
 
 ### Expansion
 

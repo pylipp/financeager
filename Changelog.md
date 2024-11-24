@@ -10,9 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.4.2] - 2024-11-02
+## [v1.4.2] - 2024-1
 ### Added
 - CLI tab-completions for the `--pocket` option.
+- CLI tab-completions for the `--category` option. Completions are sourced from the categories of standard entries in the default ("main") pocket. Sourcing takes place at the first invocation of one of the commands `add`, `update`, or `remove`. Completion options are stored in the application's cache directory. (#233, #238)
 ### Changed
 
 ## [v1.4.1] - 2024-11-02

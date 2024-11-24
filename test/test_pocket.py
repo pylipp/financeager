@@ -216,6 +216,25 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
             value="hundred",
         )
 
+    def test_get_categories(self):
+        # Table has one element with default category
+        self.assertEqual(len(self.pocket.get_entries()[DEFAULT_TABLE]), 1)
+        self.assertEqual(self.pocket.get_categories(), [])
+        self.pocket.remove_entry(eid=self.eid)
+        self.assertEqual(self.pocket.get_categories(), [])
+
+        category = "Groceries"
+        self.pocket.add_entry(name="Apple", value=-5, category=category)
+        self.assertEqual(self.pocket.get_categories(), [category.lower()])
+        self.pocket.add_entry(name="Pear", value=-3, category=category)
+        self.assertEqual(self.pocket.get_categories(), [category.lower()])
+
+        another_category = "Car"
+        self.pocket.add_entry(name="Petrol", value=-30, category=another_category)
+        self.assertEqual(
+            self.pocket.get_categories(), [another_category.lower(), category.lower()]
+        )
+
     def tearDown(self):
         self.pocket.close()
 
