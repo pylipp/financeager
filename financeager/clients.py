@@ -98,13 +98,17 @@ class LocalServerClient(Client):
             return success
 
         try:
-            self._write_categories_for_cli_completion(params["pocket"])
+            self._write_categories_for_cli_completion()
         except Exception as e:
             logger.debug(str(e))
         return success
 
-    def _write_categories_for_cli_completion(self, pocket):
-        categories = self.proxy.run("categories", pocket=pocket)["categories"]
+    def _write_categories_for_cli_completion(self):
+        # There might be different categories for each pocket. However when reading the
+        # cache at the time of building the CLI completion, the target pocket cannot be
+        # determined. It's assumed the default pocket is most relevant, hence its
+        # contained categories are stored
+        categories = self.proxy.run("categories", pocket=None)["categories"]
         fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
         with open(fp, "w") as f:
             # The category cache is a line-separated list of names

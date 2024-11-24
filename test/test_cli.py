@@ -10,6 +10,7 @@ from rich.table import Table as RichTable
 
 import financeager
 from financeager import (
+    DEFAULT_POCKET_NAME,
     DEFAULT_TABLE,
     RECURRENT_TABLE,
     cli,
@@ -119,6 +120,8 @@ class CliTestCase(unittest.TestCase):
         return response
 
 
+# Having these app directories patched to None helps testing the error handling for
+# category cache reading and writing
 @mock.patch("financeager.DATA_DIR", None)
 @mock.patch("financeager.CACHE_DIR", None)
 class CliLocalServerNoneConfigTestCase(CliTestCase):
@@ -417,6 +420,16 @@ Category : No-Category""",
         response = self.cli_run("get {} -t recurrent", format_args=entry_id)
 
         self.assertIn(f"End      : {year}-12-31", response)
+
+
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
+class CategoryCacheTestCase(CliTestCase):
+    CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
+
+    def setUp(self):
+        super().setUp()
+        self.pocket = DEFAULT_POCKET_NAME
 
     def test_cli_categories_cache(self):
         # Initially, the cache is empty
