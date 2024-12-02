@@ -25,7 +25,7 @@ You might be someone who wants to organize finances with a simple software becau
 
 ## Installation
 
-`financeager` requires Python 3.9 or higher (last version supporting Python 3.6/3.7/3.8 is 1.0.3/1.2.1/1.3.10).
+`financeager` requires Python 3.9 or higher.
 
 ### From PyPI package
 
@@ -36,6 +36,12 @@ You might be someone who wants to organize finances with a simple software becau
 If you have [`pipx`](https://pipxproject.github.io/pipx/) installed, install `financeager` into an isolated environment via
 
     pipx install financeager
+
+### Backwards compatibility
+
+- `v1.3.10` is the last version to support Python 3.8
+- `v1.2.1` is the last version to support Python 3.7
+- `v1.0.3` is the last version to support Python 3.6
 
 ## Usage
 
