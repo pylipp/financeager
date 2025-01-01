@@ -18,8 +18,8 @@ license = {text = "GPLv3"}
 authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
   "platformdirs==4.3.6",
-  "argcomplete==3.5.1",
-  "marshmallow==3.23.1",
+  "argcomplete==3.5.3",
+  "marshmallow==3.23.2",
   "python-dateutil==2.9.0.post0",
   "rich==13.9.4",
   "tinydb==4.8.2",
@@ -46,7 +46,7 @@ classifiers = [
 [project.optional-dependencies]
 develop = [
   "black==24.10.0",
-  "coverage==7.6.8",
+  "coverage==7.6.10",
   'flake8==7.1.1',
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
