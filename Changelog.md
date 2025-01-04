@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.4.3] - 2025-02-02
+### Changed
+- Update dependencies `argcomplete` and `marshmallow`. (#240, #241)
+
 ## [v1.4.2] - 2024-12-02
 ### Added
 - CLI tab-completions for the `--pocket` option.
