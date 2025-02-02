@@ -19,7 +19,7 @@ authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
   "platformdirs==4.3.6",
   "argcomplete==3.5.3",
-  "marshmallow==3.23.2",
+  "marshmallow==3.26.0",
   "python-dateutil==2.9.0.post0",
   "rich==13.9.4",
   "tinydb==4.8.2",
@@ -51,7 +51,7 @@ develop = [
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
   'isort==6.0.0',
-  'pre-commit==4.0.1',
+  'pre-commit==4.1.0',
 ]
 packaging = [
   "build",
