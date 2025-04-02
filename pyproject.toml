@@ -21,7 +21,7 @@ dependencies = [
   "argcomplete==3.6.1",
   "marshmallow==3.26.1",
   "python-dateutil==2.9.0.post0",
-  "rich==13.9.4",
+  "rich==14.0.0",
   "tinydb==4.8.2",
 ]
 dynamic = [
