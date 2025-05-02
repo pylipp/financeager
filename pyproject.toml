@@ -19,7 +19,7 @@ authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
   "platformdirs==4.3.7",
   "argcomplete==3.6.2",
-  "marshmallow==3.26.1",
+  "marshmallow==4.0.0",
   "python-dateutil==2.9.0.post0",
   "rich==14.0.0",
   "tinydb==4.8.2",
