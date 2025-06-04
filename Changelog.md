@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.4.5] - 2025-06-04
+### Changed
+- Update dependencies `platformdirs`, `argcomplete` and `marshmallow`. (#247, #248, #249)
+
 ## [v1.4.4] - 2025-04-02
 ### Changed
 - Update dependencies `platformdirs`, `rich`, `argcomplete` and `marshmallow`. (#244, #245, #246)
