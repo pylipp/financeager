@@ -35,11 +35,11 @@ class EntryBaseSchema(Schema):
         required=True, validate=validate.Length(min=1), allow_none=True
     )
     value = fields.Float(required=True, allow_none=True)
-    category = fields.String(validate=validate.Length(min=1), missing=None)
+    category = fields.String(validate=validate.Length(min=1), load_default=None)
 
 
 class StandardEntrySchema(EntryBaseSchema):
-    date = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
+    date = fields.Date(format=POCKET_DATE_FORMAT, load_default=None)
 
 
 class RecurrentEntrySchema(EntryBaseSchema):
@@ -48,8 +48,8 @@ class RecurrentEntrySchema(EntryBaseSchema):
         required=True,
         allow_none=True,
     )
-    start = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
-    end = fields.Date(format=POCKET_DATE_FORMAT, missing=None)
+    start = fields.Date(format=POCKET_DATE_FORMAT, load_default=None)
+    end = fields.Date(format=POCKET_DATE_FORMAT, load_default=None)
 
 
 class Pocket:
