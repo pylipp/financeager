@@ -21,7 +21,7 @@ dependencies = [
   "argcomplete==3.6.2",
   "marshmallow==4.0.0",
   "python-dateutil==2.9.0.post0",
-  "rich==14.0.0",
+  "rich==14.1.0",
   "tinydb==4.8.2",
 ]
 dynamic = [
@@ -46,7 +46,7 @@ classifiers = [
 [project.optional-dependencies]
 develop = [
   "black==25.1.0",
-  "coverage==7.9.1",
+  "coverage==7.10.1",
   'flake8==7.3.0',
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
