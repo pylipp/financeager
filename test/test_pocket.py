@@ -18,7 +18,6 @@ from financeager import (
 from financeager.pocket import (
     _DEFAULT_CATEGORY,
     EntryBaseSchema,
-    Pocket,
     RecurrentEntrySchema,
     StandardEntrySchema,
     TinyDbPocket,
@@ -32,8 +31,9 @@ class Entry:
 
 class CreateEmptyPocketTestCase(unittest.TestCase):
     def test_default_name(self):
-        pocket = Pocket()
+        pocket = TinyDbPocket()
         self.assertEqual(pocket.name, DEFAULT_POCKET_NAME)
+        pocket.close()
 
     def test_load_category_cache(self):
         # Create data file with one entry and load it into TinyDbPocket
