@@ -27,15 +27,31 @@ def richify_listings(
     entry_sort = entry_sort or DEFAULT_BASE_ENTRY_SORT_KEY
 
     totals = [ls.total_value() for ls in listings]
+
+    # Calculate maximum column widths for stacked layout alignment
+    max_widths = [None, None, None, None]
+    if stacked_layout:
+        max_widths = _calculate_max_column_widths(
+            listings, totals, category_percentage, category_sort, entry_sort
+        )
+
     # Build tables for listings
     for listing, total in zip(listings, totals):
         table = Table(
             title=listing.name, show_edge=False, box=box.SIMPLE_HEAVY, expand=True
         )
-        table.add_column("Name")
-        table.add_column("Value", justify="right")
-        table.add_column("%" if category_percentage else "Date", justify="right")
-        table.add_column("" if category_percentage else "ID", justify="right")
+        table.add_column("Name", min_width=max_widths[0])
+        table.add_column("Value", justify="right", min_width=max_widths[1])
+        table.add_column(
+            "%" if category_percentage else "Date",
+            justify="right",
+            min_width=max_widths[2],
+        )
+        table.add_column(
+            "" if category_percentage else "ID",
+            justify="right",
+            min_width=max_widths[3],
+        )
         tables.append(table)
 
         for category in sorted(
@@ -125,3 +141,65 @@ def richify_recurrent_elements(elements, entry_sort=None):
             ]
         )
     return table
+
+
+def _calculate_max_column_widths(
+    listings, totals, category_percentage, category_sort, entry_sort
+):
+    """Calculate maximum column widths needed across all listings for
+    consistent alignment."""
+    max_name_width = 0
+    max_value_width = 0
+    max_date_percent_width = 0
+    max_id_width = 0
+
+    for listing, total in zip(listings, totals):
+        # Check category names and values
+        for category in sorted(
+            listing.categories, key=lambda e: getattr(e, category_sort)
+        ):
+            # Category name width
+            max_name_width = max(max_name_width, len(category.name.title()))
+
+            # Category value width
+            value_str = f"{category.value:0.2f}"
+            max_value_width = max(max_value_width, len(value_str))
+
+            # Date/percentage column width for categories
+            if category_percentage:
+                percent_str = f"{100 * category.value / total:.1f}"
+                max_date_percent_width = max(max_date_percent_width, len(percent_str))
+
+            if not category_percentage:
+                # Check entry names, values, dates, and IDs
+                for entry in sorted(
+                    category.entries, key=lambda e: getattr(e, entry_sort)
+                ):
+                    # Entry name width (with 2-space indent)
+                    entry_name = f"  {entry.name.title()}"
+                    max_name_width = max(max_name_width, len(entry_name))
+
+                    # Entry value width
+                    entry_value_str = f"{entry.value:.2f}"
+                    max_value_width = max(max_value_width, len(entry_value_str))
+
+                    # Entry date width
+                    max_date_percent_width = max(
+                        max_date_percent_width, len(entry.date)
+                    )
+
+                    # Entry ID width
+                    max_id_width = max(max_id_width, len(str(entry.eid)))
+
+        # Check total value width
+        total_value_str = f"{total:.2f}"
+        max_value_width = max(max_value_width, len(total_value_str))
+
+    # Add some padding to ensure readability
+    padding = 2
+    return [
+        max_name_width + padding,
+        max_value_width + padding,
+        max_date_percent_width + padding,
+        max_id_width + padding,
+    ]

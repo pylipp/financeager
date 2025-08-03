@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+
+## [v1.4.6] - 2025-08-
+### Changed
+- Fix column alignment when using `list` command with `--stacked-layout` option. (#253)
+
 ## [v1.4.5] - 2025-06-04
 ### Changed
 - Update dependencies `platformdirs`, `argcomplete` and `marshmallow`. (#247, #248, #249)
