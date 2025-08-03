@@ -1,6 +1,7 @@
 """Defines Pocket database object holding per-year financial data."""
 
 import os.path
+from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from datetime import datetime as dt
 
@@ -52,7 +53,7 @@ class RecurrentEntrySchema(EntryBaseSchema):
     end = fields.Date(format=POCKET_DATE_FORMAT, load_default=None)
 
 
-class Pocket:
+class Pocket(ABC):
     def __init__(self, name=None):
         """Create Pocket object. Its name defaults to the current year if not
         specified.
@@ -62,6 +63,105 @@ class Pocket:
     @property
     def name(self):
         return self._name
+
+    @abstractmethod
+    def add_entry(self, table_name=None, **kwargs):
+        """Add an entry (standard or recurrent) to the database.
+
+        If 'table_name' is not specified, the kwargs name, value[, category,
+        date] are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency
+        [, start, end, category] are used to insert a template entry in the
+        recurrent table.
+
+        Two kwargs are mandatory:
+            :param name: entry name
+            :type name: str
+            :param value: entry value
+            :type value: float, int or str
+
+        The following kwarg is optional:
+            :param category: entry category. If not specified, the program
+                attempts to derive it from previous, eponymous entries. If this
+                fails, the default category is assigned
+            :type category: str or None
+
+        The following kwarg is optional for standard entries:
+            :param date: entry date. Defaults to current date
+            :type date: str of date format
+
+        The following kwarg is mandatory for recurrent entries:
+            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
+                'bimonthly', 'monthly', 'weekly' or 'daily'
+
+        The following kwargs are optional for recurrent entries:
+            :param start: start date (defaults to current date)
+            :param end: end date (defaults to None which evaluates to the
+                current day when the entry is queried)
+
+        :raise: PocketValidationFailure if validation failed
+        :return: ID of new entry
+        """
+
+    @abstractmethod
+    def get_entry(self, eid, table_name=None):
+        """Get entry specified by eid in the table table_name.
+
+        :param eid: entry ID
+        :type eid: int or str
+        :param table_name: table that the entry is stored in (defaults to 'standard')
+        :type table_name: str
+
+        :raise: PocketEntryNotFound if element not found
+        :return: found element
+        """
+
+    @abstractmethod
+    def update_entry(self, eid, table_name=None, **kwargs):
+        """Update one or more fields of a single entry.
+
+        :param eid: entry ID of the entry to be updated
+        :param table_name: table that the entry is stored in (default: 'standard')
+        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
+            'end' for recurrent entries; any of 'name', 'value', 'category' for
+            either entry type
+        :raise: PocketEntryNotFound if element not found
+        :return: ID of the updated entry
+        """
+
+    @abstractmethod
+    def remove_entry(self, eid, table_name=None):
+        """Remove an entry from the database given its ID.
+
+        :param eid: ID of the element to be deleted.
+        :type eid: int or str
+        :param table_name: name of the table that contains the element.
+            Default: 'standard'
+        :type table_name: str
+
+        :raise: PocketEntryNotFound if element/ID not found.
+        :return: element ID if removal was successful
+        """
+
+    @abstractmethod
+    def get_entries(self, filters=None, recurrent_only=False):
+        """Get entries that match the items of the filters dict, if specified.
+
+        If `recurrent_only` is true, return a list of all entries of the
+        recurrent table. Filters are applied.
+
+        :param filters: dict of filters to apply
+        :param recurrent_only: whether to return only recurrent entries
+        :return: entries matching the filters
+        """
+
+    @abstractmethod
+    def get_categories(self):
+        """Return unique category names in alphabetical order."""
+
+    @abstractmethod
+    def close(self):
+        """Close underlying database."""
 
 
 class TinyDbPocket(Pocket):
@@ -261,40 +361,8 @@ class TinyDbPocket(Pocket):
                 ] += 1
 
     def add_entry(self, table_name=None, **kwargs):
-        """
-        Add an entry (standard or recurrent) to the database.
-        If 'table_name' is not specified, the kwargs name, value[, category,
-        date] are used to insert a unique entry in the standard table.
-        With 'table_name' as 'recurrent', the kwargs name, value, frequency
-        [, start, end, category] are used to insert a template entry in the
-        recurrent table.
+        """Add an entry using TinyDB backend.
 
-        Two kwargs are mandatory:
-            :param name: entry name
-            :type name: str
-            :param value: entry value
-            :type value: float, int or str
-
-        The following kwarg is optional:
-            :param category: entry category. If not specified, the program
-                attempts to derive it from previous, eponymous entries. If this
-                fails, ``_DEFAULT_CATEGORY`` is assigned
-            :type category: str or None
-
-        The following kwarg is optional for standard entries:
-            :param date: entry date. Defaults to current date
-            :type date: str of ``POCKET_DATE_FORMAT``
-
-        The following kwarg is mandatory for recurrent entries:
-            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
-                'bimonthly', 'monthly', 'weekly' or 'daily'
-
-        The following kwargs are optional for recurrent entries:
-            :param start: start date (defaults to current date)
-            :param end: end date (defaults to None which evaluates to the
-                current day when the entry is queried)
-
-        :raise: PocketValidationFailure if validation failed
         :return: TinyDB ID of new entry (int)
         """
 
@@ -308,13 +376,8 @@ class TinyDbPocket(Pocket):
         return element_id
 
     def get_entry(self, eid, table_name=None):
-        """
-        Get entry specified by ``eid`` in the table ``table_name`` (defaults to
-        table 'standard').
+        """Get entry using TinyDB backend.
 
-        :type eid: int or str
-
-        :raise: PocketEntryNotFound if element not found
         :return: found element (tinydb.Document)
         """
 
@@ -350,17 +413,7 @@ class TinyDbPocket(Pocket):
         return fields
 
     def update_entry(self, eid, table_name=None, **kwargs):
-        """Update one or more fields of a single entry of the Pocket.
-
-        :param eid: entry ID of the entry to be updated
-        :param table_name: table that the entry is stored in (default:
-            'standard')
-        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
-            'end' for recurrent entries; any of 'name', 'value', 'category' for
-            either entry type
-        :raise: PocketEntryNotFound if element not found
-        :return: ID of the updated entry
-        """
+        """Update entry using TinyDB backend."""
 
         table_name = table_name or DEFAULT_TABLE
         fields = self._preprocess_entry_for_update(
@@ -458,18 +511,7 @@ class TinyDbPocket(Pocket):
             )
 
     def remove_entry(self, eid, table_name=None):
-        """Remove an entry from the Pocket database given its ID. The category
-        cache is updated.
-
-        :param eid: ID of the element to be deleted.
-        :type eid: int or str
-        :param table_name: name of the table that contains the element.
-            Default: 'standard'
-        :type table_name: str
-
-        :raise: PocketEntryNotFound if element/ID not found.
-        :return: element ID if removal was successful
-        """
+        """Remove entry using TinyDB backend. The category cache is updated."""
 
         table_name = table_name or DEFAULT_TABLE
         # might raise PocketEntryNotFound if ID not existing
@@ -510,11 +552,9 @@ class TinyDbPocket(Pocket):
         return condition
 
     def get_entries(self, filters=None, recurrent_only=False):
-        """Get dict of standard and recurrent entries that match the items of
-        the filters dict, if specified. Constructs a condition from the given
-        filters and uses it to query all tables.
-        If `recurrent_only` is true, return a list of all entries of the
-        recurrent table. Filters are applied.
+        """Get entries using TinyDB backend.
+
+        Constructs a condition from the given filters and uses it to query all tables.
 
         :return: dict{
                     DEFAULT_TABLE:  dict{ int: tinydb.Document },
@@ -535,13 +575,13 @@ class TinyDbPocket(Pocket):
         return self._search_all_tables(condition)
 
     def get_categories(self):
-        """Return unique category names of the default table in alphabetical order."""
+        """Return unique category names using TinyDB backend."""
         category_names = set(e["category"] for e in self._db.table(DEFAULT_TABLE).all())
         category_names.discard(_DEFAULT_CATEGORY)
         return sorted(category_names)
 
     def close(self):
-        """Close underlying database."""
+        """Close TinyDB database."""
         self._db.close()
 
 

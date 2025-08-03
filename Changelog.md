@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [v1.4.6] - 2025-08-
 ### Changed
 - Fix column alignment when using `list` command with `--stacked-layout` option. (#253)
+- Add abstract `pocket.Pocket` class to facilitate using different database backends. (#252)
 
 ## [v1.4.5] - 2025-06-04
 ### Changed
