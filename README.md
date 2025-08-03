@@ -181,9 +181,9 @@ The CLI `fina` tries to read the configuration from `~/.config/financeager/confi
 
 Completion has to be enabled by running `activate-global-python-argcomplete`. Read the [instructions](https://github.com/kislyuk/argcomplete#activating-global-completion) if you want to know more.
 
-### Expansion
+### Database back-ends
 
-Want to use a different database? Should be straightforward by deriving from `Pocket` and implementing the `_entry()` methods. Modify the `Server` class accordingly to use the new pocket type. See also [this issue](https://github.com/pylipp/financeager/issues/18).
+Want to use a different database? Derive a custom class from `pocket.Pocket` and implement the CRUD methods. Modify the `Server` class accordingly to use the new pocket type.
 
 ### Plugin support
 
