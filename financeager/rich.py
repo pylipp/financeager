@@ -29,7 +29,7 @@ def richify_listings(
     totals = [ls.total_value() for ls in listings]
 
     # Calculate maximum column widths for stacked layout alignment
-    max_widths = None
+    max_widths = [None, None, None, None]
     if stacked_layout:
         max_widths = _calculate_max_column_widths(
             listings, totals, category_percentage, category_sort, entry_sort
@@ -40,25 +40,18 @@ def richify_listings(
         table = Table(
             title=listing.name, show_edge=False, box=box.SIMPLE_HEAVY, expand=True
         )
-        if max_widths:
-            # Use consistent column widths for stacked layout
-            table.add_column("Name", min_width=max_widths[0])
-            table.add_column("Value", justify="right", min_width=max_widths[1])
-            table.add_column(
-                "%" if category_percentage else "Date",
-                justify="right",
-                min_width=max_widths[2],
-            )
-            table.add_column(
-                "" if category_percentage else "ID",
-                justify="right",
-                min_width=max_widths[3],
-            )
-        else:
-            table.add_column("Name")
-            table.add_column("Value", justify="right")
-            table.add_column("%" if category_percentage else "Date", justify="right")
-            table.add_column("" if category_percentage else "ID", justify="right")
+        table.add_column("Name", min_width=max_widths[0])
+        table.add_column("Value", justify="right", min_width=max_widths[1])
+        table.add_column(
+            "%" if category_percentage else "Date",
+            justify="right",
+            min_width=max_widths[2],
+        )
+        table.add_column(
+            "" if category_percentage else "ID",
+            justify="right",
+            min_width=max_widths[3],
+        )
         tables.append(table)
 
         for category in sorted(
