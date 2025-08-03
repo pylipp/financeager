@@ -336,6 +336,7 @@ TUI applications
 
 Client-server applications
 - [firefly-iii](https://www.firefly-iii.org/)
+- [maybe](https://github.com/maybe-finance/maybe)
 
 Local GUI applications
 - [kmymoney](https://kmymoney.org/)
