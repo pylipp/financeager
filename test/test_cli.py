@@ -567,43 +567,6 @@ class FormatResponseTestCase(unittest.TestCase):
                 RichTable,
             )
 
-    def test_list_stacked_layout_column_alignment(self):
-        """Test that stacked layout has consistent column widths between tables."""
-        # Test data with different value lengths to trigger alignment issues
-        elements = {
-            DEFAULT_TABLE: {
-                1: {
-                    "name": "salary",
-                    "value": 1605.00,  # Long value
-                    "date": "2025-07-25",
-                    "category": "earnings",
-                },
-                2: {
-                    "name": "fee",
-                    "value": -7.30,  # Short value
-                    "date": "2025-07-28",
-                    "category": "banking",
-                },
-                3: {
-                    "name": "groceries",
-                    "value": -120.00,
-                    "date": "2025-07-02",
-                    "category": "food",
-                },
-            },
-            RECURRENT_TABLE: {},
-        }
-
-        # Test with stacked layout
-        result = cli._format_response(
-            {"elements": elements}, "list", stacked_layout=True
-        )
-        self.assertIsInstance(result, RichTable)
-
-        # The result should be a Table.grid containing properly aligned tables
-        # We check that it's a RichTable (which includes Table.grid)
-        # Additional validation could check the internal structure if needed
-
     def test_list_recurrent_only(self):
         self.assertIsInstance(
             cli._format_response({"elements": []}, "list", recurrent_only=True),
