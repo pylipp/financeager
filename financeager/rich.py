@@ -196,9 +196,10 @@ def _calculate_max_column_widths(
         max_value_width = max(max_value_width, len(total_value_str))
 
     # Add some padding to ensure readability
+    padding = 2
     return [
-        max_name_width + 2,
-        max_value_width + 2,
-        max_date_percent_width + 2,
-        max_id_width + 2,
+        max_name_width + padding,
+        max_value_width + padding,
+        max_date_percent_width + padding,
+        max_id_width + padding,
     ]
