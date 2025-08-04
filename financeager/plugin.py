@@ -1,6 +1,9 @@
 """Support for plugin development."""
 
 import abc
+from typing import Any
+from configparser import ConfigParser
+from argparse import ArgumentParser
 
 
 class PluginConfiguration(abc.ABC):
@@ -9,19 +12,19 @@ class PluginConfiguration(abc.ABC):
     class."""
 
     @abc.abstractmethod
-    def init_defaults(self, config_parser):
+    def init_defaults(self, config_parser: ConfigParser) -> None:
         """Initialize configuration defaults by extending the given ConfigParser
         by relevant sections.
         """
 
-    def init_option_types(self, option_types):
+    def init_option_types(self, option_types: dict[str, dict[str, type]]) -> None:
         """Specify types of plugin options (int, float, boolean) if conversion
         at the time of retrieving the option is desired. The given dictionary
         should be modified in-place by adding the type to the corresponding
         section and option.
         """
 
-    def validate(self, config):
+    def validate(self, config: Any) -> None:
         """Validate content of the Configuration object specific to the plugin.
         Typed options are implicitly validated for conversion by the
         Configuration object already.
@@ -34,7 +37,7 @@ class PluginCliOptions(abc.ABC):
     this class."""
 
     @abc.abstractmethod
-    def extend(self, command_parser):
+    def extend(self, command_parser: ArgumentParser) -> None:
         """Extend the 'command' subparser of the financeager CLI by additional commands
         and/or arguments.
         Remember that the corresponding Client class must provide an
@@ -43,12 +46,12 @@ class PluginCliOptions(abc.ABC):
 
 
 class DefaultPluginCliOptions(PluginCliOptions):
-    def extend(self, _):
+    def extend(self, _: ArgumentParser) -> None:
         pass
 
 
 class PluginBase:
-    def __init__(self, *, name, config, cli_options=None):
+    def __init__(self, *, name: str, config: PluginConfiguration, cli_options: PluginCliOptions | None = None) -> None:
         """Set plugin name, config (a PluginConfiguration instance), and optional CLI
         options (a PluginCliOptions instance)."""
         self.name = name
@@ -62,6 +65,6 @@ class ServicePlugin(PluginBase):
     communication with the service.
     """
 
-    def __init__(self, *, name, config, client, cli_options=None):
+    def __init__(self, *, name: str, config: PluginConfiguration, client: Any, cli_options: PluginCliOptions | None = None) -> None:
         super().__init__(name=name, config=config, cli_options=cli_options)
         self.client = client
