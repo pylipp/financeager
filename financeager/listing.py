@@ -1,7 +1,7 @@
 """Tabular, frontend-representation of financeager pocket."""
 
 from json import dumps as jdumps
-from typing import Any, Generator, Iterator
+from typing import Any, Generator
 
 from . import DEFAULT_TABLE, RECURRENT_TABLE
 from .entries import BaseEntry, CategoryEntry
@@ -13,12 +13,19 @@ class Listing:
     CategoryEntries, second-level children are BaseEntries. Generator methods
     are provided to iterate over these."""
 
-    def __init__(self, name: str | None = None, categories: list[CategoryEntry] | None = None) -> None:
+    def __init__(
+        self, name: str | None = None, categories: list[CategoryEntry] | None = None
+    ) -> None:
         self.name = name or "Listing"
         self.categories = categories or []
 
     @classmethod
-    def from_elements(cls, elements: list[dict[str, Any]], default_category: str | None = None, name: str | None = None) -> "Listing":
+    def from_elements(
+        cls,
+        elements: list[dict[str, Any]],
+        default_category: str | None = None,
+        name: str | None = None,
+    ) -> "Listing":
         """Create listing from list of element dictionaries"""
         listing = cls(name=name)
         for element in elements:
@@ -26,7 +33,9 @@ class Listing:
             listing.add_entry(BaseEntry(**element), category_name=category)
         return listing
 
-    def add_entry(self, entry: CategoryEntry | BaseEntry, category_name: str | None = None) -> None:
+    def add_entry(
+        self, entry: CategoryEntry | BaseEntry, category_name: str | None = None
+    ) -> None:
         """Add a Category- or BaseEntry to the listing.
         Category names are unique, i.e. a CategoryEntry is discarded if one
         with identical name (case INsensitive) already exists.
@@ -83,7 +92,7 @@ class Listing:
 
     def total_value(self) -> float:
         """Return total value of the listing."""
-        return sum(v for v in self.category_fields("value"))
+        return sum(v for v in self.category_fields("value"))  # type: ignore[no-any-return]
 
 
 def prettify(
@@ -106,13 +115,15 @@ def prettify(
 
     if recurrent_only:
         entry_sort = listing_options.get("entry_sort")
-        return richify_recurrent_elements(elements, entry_sort=entry_sort)
+        return richify_recurrent_elements(elements, entry_sort=entry_sort)  # type: ignore[arg-type,return-value]
 
     listings = _derive_listings(elements, default_category=default_category)
-    return richify_listings(listings, **listing_options)
+    return richify_listings(listings, **listing_options)  # type: ignore[return-value]
 
 
-def _derive_listings(elements: dict[str, Any], *, default_category: str | None) -> list[Listing] | None:
+def _derive_listings(
+    elements: dict[str, Any], *, default_category: str | None
+) -> list[Listing] | None:
     earnings: list[dict[str, Any]] = []
     expenses: list[dict[str, Any]] = []
 

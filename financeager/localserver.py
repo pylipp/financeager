@@ -2,6 +2,7 @@
 common process)."""
 
 from typing import Any
+
 from . import exceptions, init_logger, server
 
 logger = init_logger(__name__)
@@ -27,4 +28,4 @@ class Proxy(server.Server):
         if "error" in response:
             raise exceptions.InvalidRequest(f"Invalid request: {response['error']}")
 
-        return response  # type: ignore[no-any-return]
+        return response

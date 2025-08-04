@@ -27,7 +27,9 @@ class BaseEntry(Entry):
 
     DATE_FORMAT = "%y-%m-%d"
 
-    def __init__(self, name: str, value: float | int, date: str, eid: int | str = 0) -> None:
+    def __init__(
+        self, name: str, value: float | int, date: str, eid: int | str = 0
+    ) -> None:
         """:type eid: int or string, will be converted to int
         :type date: str of valid format
         """
@@ -44,7 +46,9 @@ class CategoryEntry(Entry):
 
     DEFAULT_NAME = "unspecified"
 
-    def __init__(self, name: str | None, entries: list[BaseEntry] | None = None) -> None:
+    def __init__(
+        self, name: str | None, entries: list[BaseEntry] | None = None
+    ) -> None:
         """:type entries: list[BaseEntry]"""
         super().__init__(name=name or self.DEFAULT_NAME, value=0.0)
 
@@ -71,7 +75,14 @@ def prettify(element: dict[str, Any], *, default_category: str) -> str:
 
     # Define order of listed properties
     if recurrent:
-        properties: tuple[str, str, str, str, str, str] = ("name", "value", "frequency", "start", "end", "category")
+        properties: tuple[str, str, str, str, str, str] = (
+            "name",
+            "value",
+            "frequency",
+            "start",
+            "end",
+            "category",
+        )
         longest_property_length = 9  # frequency
     else:
         properties = ("name", "value", "date", "category")  # type: ignore

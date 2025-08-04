@@ -3,7 +3,7 @@
 import os.path
 import traceback
 from collections import namedtuple
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 import financeager
 
@@ -13,7 +13,9 @@ from .config import Configuration
 logger = init_logger(__name__)
 
 
-def create(*, configuration: Configuration, sinks: Any, plugins: list[plugin.PluginBase] | None) -> "Client":
+def create(
+    *, configuration: Configuration, sinks: Any, plugins: list[plugin.PluginBase] | None
+) -> "Client":
     """Factory to create the Client subclass suitable to the given
     configuration.
     Clients of service plugins are taken into account if specified.
@@ -61,7 +63,7 @@ class Client:
         success = False
 
         try:
-            self.sinks.info(self.proxy.run(command, **params))  # type: ignore[union-attr]
+            self.sinks.info(self.proxy.run(command, **params))
             self.latest_exception = None
             success = True
         except exceptions.InvalidRequest as e:
@@ -110,7 +112,7 @@ class LocalServerClient(Client):
         # cache at the time of building the CLI completion, the target pocket cannot be
         # determined. It's assumed the default pocket is most relevant, hence its
         # contained categories are stored
-        categories = self.proxy.run("categories", pocket=None)["categories"]  # type: ignore[union-attr]
+        categories = self.proxy.run("categories", pocket=None)["categories"]
         fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
         with open(fp, "w") as f:
             # The category cache is a line-separated list of names
@@ -118,4 +120,4 @@ class LocalServerClient(Client):
 
     def shutdown(self) -> None:
         """Instruct stopping of Server."""
-        self.proxy.run("stop")  # type: ignore[union-attr]
+        self.proxy.run("stop")

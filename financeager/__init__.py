@@ -1,6 +1,6 @@
 import os.path
 from importlib.metadata import version
-from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers, Logger
+from logging import DEBUG, WARN, Formatter, Logger, StreamHandler, getLogger, handlers
 
 import platformdirs
 

@@ -7,6 +7,7 @@ import sys
 import time
 from datetime import datetime
 from importlib.metadata import entry_points
+from typing import Any
 
 import argcomplete
 from dateutil import parser as du_parser
@@ -96,7 +97,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
     if verbose:
         make_log_stream_handler_verbose()
 
-    formatting_options = {}
+    formatting_options: dict[str, Any] = {}
 
     def _info(message):
         """Wrapper to format message and propagate it to stdout. The original
@@ -300,9 +301,10 @@ def _parse_command(args=None, plugins=None):
 
     add_parser.add_argument("name", help="entry name")
     add_parser.add_argument("value", type=float, help="entry value")
-    add_parser.add_argument(
+    category_add_arg = add_parser.add_argument(
         "-c", "--category", default=None, help="entry category"
-    ).completer = argcomplete.ChoicesCompleter(categories)
+    )
+    category_add_arg.completer = argcomplete.ChoicesCompleter(categories)  # type: ignore[attr-defined]
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
 
     add_parser.add_argument(
@@ -364,9 +366,8 @@ is assumed""",
     )
     update_parser.add_argument("-n", "--name", help="new name")
     update_parser.add_argument("-v", "--value", type=float, help="new value")
-    update_parser.add_argument("-c", "--category", help="new category").completer = (
-        argcomplete.ChoicesCompleter(categories)
-    )
+    category_arg = update_parser.add_argument("-c", "--category", help="new category")
+    category_arg.completer = argcomplete.ChoicesCompleter(categories)  # type: ignore[attr-defined]
     update_parser.add_argument(
         "-d", "--date", help="new date (for standard entries only)"
     )
@@ -511,7 +512,7 @@ is assumed""",
         ]:
             subparser.add_argument(
                 "-p", "--pocket", help="name of pocket to modify or query"
-            ).completer = argcomplete.ChoicesCompleter(
+            ).completer = argcomplete.ChoicesCompleter(  # type: ignore[attr-defined]
                 pocket_names(financeager.DATA_DIR)
             )
 

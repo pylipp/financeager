@@ -97,7 +97,12 @@ class Server:
         names.update(pocket_names(data_dir))
         return sorted(names)
 
-    def _copy_entry(self, source_pocket: str | None = None, destination_pocket: str | None = None, **kwargs: Any) -> int:
+    def _copy_entry(
+        self,
+        source_pocket: str | None = None,
+        destination_pocket: str | None = None,
+        **kwargs: Any,
+    ) -> int:
         """Copy an entry (specified by ID and table_name) from the source pocket
         to the destination pocket.
 

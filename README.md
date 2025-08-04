@@ -315,6 +315,42 @@ Please adhere to test-driven development, if possible: When adding a feature, or
 
 If you added a non-cosmetic change (i.e. a change in functionality, e.g. a bug fix or a new feature), please update `Changelog.md` accordingly as well. Check this README whether the content is still up to date.
 
+### Type Checking
+
+This project uses type annotations throughout the codebase to improve code safety and developer experience. We use [mypy](https://mypy-lang.org/) for static type checking.
+
+#### Running Type Checks
+
+Type checking is integrated into the development workflow:
+
+```bash
+# Run mypy manually
+mypy financeager
+
+# Type checks are also run automatically via:
+# - pre-commit hooks (before each commit)
+# - CI pipeline (on pull requests and pushes)
+```
+
+#### Type Annotation Guidelines
+
+When contributing to the codebase, please follow these typing practices:
+
+- **All new functions and methods should have type annotations** for parameters and return values
+- Use **modern Python 3.10+ type syntax** (e.g., `list[str]` instead of `List[str]`, `str | None` instead of `Optional[str]`)
+- Import types from `typing` when needed: `from typing import Any, Dict, List, Optional`
+- For complex cases, `# type: ignore` comments are acceptable with specific error codes
+- Abstract methods and complex external library integrations may use gradual typing with `# type: ignore`
+
+#### Type Configuration
+
+The mypy configuration in `pyproject.toml` uses a gradual typing approach:
+- Basic type safety is enforced
+- Some strict checks are disabled during the migration period
+- External dependencies without type stubs are ignored
+
+For more information about Python typing, see the [official documentation](https://docs.python.org/3/library/typing.html).
+
 ## Releasing
 
 1. Tag the latest commit on master by incrementing the current version accordingly (scheme `vmajor.minor.patch`).

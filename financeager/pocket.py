@@ -4,6 +4,7 @@ import os.path
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from datetime import datetime as dt
+from typing import Any
 
 from dateutil import rrule
 from marshmallow import Schema, ValidationError, fields, validate
@@ -19,7 +20,7 @@ from . import (
     exceptions,
 )
 
-_DEFAULT_CATEGORY = None
+_DEFAULT_CATEGORY: None = None
 FREQUENCY_CHOICES = [
     "yearly",
     "half-yearly",
@@ -54,18 +55,18 @@ class RecurrentEntrySchema(EntryBaseSchema):
 
 
 class Pocket(ABC):
-    def __init__(self, name=None):
+    def __init__(self, name: str | None = None) -> None:
         """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
         self._name = f"{name or DEFAULT_POCKET_NAME}"
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @abstractmethod
-    def add_entry(self, table_name=None, **kwargs):
+    def add_entry(self, table_name: str | None = None, **kwargs: Any) -> int:
         """Add an entry (standard or recurrent) to the database.
 
         If 'table_name' is not specified, the kwargs name, value[, category,
@@ -104,7 +105,9 @@ class Pocket(ABC):
         """
 
     @abstractmethod
-    def get_entry(self, eid, table_name=None):
+    def get_entry(
+        self, eid: int | str, table_name: str | None = None
+    ) -> dict[str, Any]:
         """Get entry specified by eid in the table table_name.
 
         :param eid: entry ID
@@ -117,7 +120,9 @@ class Pocket(ABC):
         """
 
     @abstractmethod
-    def update_entry(self, eid, table_name=None, **kwargs):
+    def update_entry(
+        self, eid: int | str, table_name: str | None = None, **kwargs: Any
+    ) -> int:
         """Update one or more fields of a single entry.
 
         :param eid: entry ID of the entry to be updated
@@ -130,7 +135,7 @@ class Pocket(ABC):
         """
 
     @abstractmethod
-    def remove_entry(self, eid, table_name=None):
+    def remove_entry(self, eid: int | str, table_name: str | None = None) -> int:
         """Remove an entry from the database given its ID.
 
         :param eid: ID of the element to be deleted.
@@ -144,7 +149,9 @@ class Pocket(ABC):
         """
 
     @abstractmethod
-    def get_entries(self, filters=None, recurrent_only=False):
+    def get_entries(
+        self, filters: dict[str, Any] | None = None, recurrent_only: bool = False
+    ) -> dict[str, Any]:
         """Get entries that match the items of the filters dict, if specified.
 
         If `recurrent_only` is true, return a list of all entries of the
@@ -156,16 +163,18 @@ class Pocket(ABC):
         """
 
     @abstractmethod
-    def get_categories(self):
+    def get_categories(self) -> list[str]:
         """Return unique category names in alphabetical order."""
 
     @abstractmethod
-    def close(self):
+    def close(self) -> None:
         """Close underlying database."""
 
 
 class TinyDbPocket(Pocket):
-    def __init__(self, name=None, data_dir=None, **kwargs):
+    def __init__(
+        self, name: str | None = None, data_dir: str | None = None, **kwargs: Any
+    ) -> None:
         """Create a pocket with a TinyDB database backend, identified by 'name'.
         If 'data_dir' is given, the database storage type is JSON (the storage
         filepath is derived from the Pocket's name). Otherwise the data is
@@ -179,7 +188,7 @@ class TinyDbPocket(Pocket):
         # evaluate args/kwargs for TinyDB constructor. This overwrites the
         # 'storage' kwarg if explicitly passed
         if data_dir is None:
-            args = []
+            args: list[Any] = []
             kwargs["storage"] = storages.MemoryStorage
         else:
             args = [os.path.join(data_dir, f"{self.name}.json")]
@@ -188,16 +197,21 @@ class TinyDbPocket(Pocket):
         self._db = TinyDB(*args, **kwargs)
         self._create_category_cache()
 
-    def _create_category_cache(self):
+    def _create_category_cache(self) -> None:
         """The category cache assigns a counter for each element name in the
         database (excluding recurrent elements), keeping track of the
         categories the element was labeled with. This allows deriving the
         category of an element if not explicitly given."""
-        self._category_cache = defaultdict(Counter)
+        self._category_cache: defaultdict[str, Counter[str]] = defaultdict(Counter)
         for element in self._db.all():
             self._category_cache[element["name"]].update([element["category"]])
 
-    def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
+    def _preprocess_entry(
+        self,
+        raw_data: dict[str, Any] | None = None,
+        table_name: str | None = None,
+        partial: bool = False,
+    ) -> dict[str, Any]:
         """Perform preprocessing steps (validation, conversion, substitution) of
         raw entry fields prior to adding it to the database.
 
@@ -216,6 +230,9 @@ class TinyDbPocket(Pocket):
                 f"Unknown table name: {table_name}"
             )
 
+        if raw_data is None:
+            raw_data = {}
+
         self._remove_redundant_fields(table_name, raw_data)
 
         validated_fields = self._validate_entry(
@@ -231,7 +248,7 @@ class TinyDbPocket(Pocket):
         return converted_fields
 
     @staticmethod
-    def _remove_redundant_fields(table_name, raw_data):
+    def _remove_redundant_fields(table_name: str, raw_data: dict[str, Any]) -> None:
         """The raw data (e.g. parsed from the command line) might contain fields
         that are not required by the given table type and hence, they crash the
         schematics validation ('Rogue field' error). This method removes
@@ -247,7 +264,9 @@ class TinyDbPocket(Pocket):
             raw_data.pop(field, None)
 
     @staticmethod
-    def _validate_entry(raw_data, table_name, **schema_kwargs):
+    def _validate_entry(
+        raw_data: dict[str, Any], table_name: str, **schema_kwargs: Any
+    ) -> dict[str, Any]:
         """Validate raw entry data acc. to ValidationSchema.
 
         :return: primitive (type-correct) representation of fields
@@ -263,18 +282,18 @@ class TinyDbPocket(Pocket):
         try:
             schema = ValidationSchema(**schema_kwargs)
             validated_data = schema.load(raw_data)
-            return schema.dump(validated_data)
+            return schema.dump(validated_data)  # type: ignore[no-any-return]
         except ValidationError as e:
             infos = [
                 f"{field}: {'; '.join(messages)}"
-                for field, messages in e.messages.items()
+                for field, messages in e.messages.items()  # type: ignore[union-attr]
             ]
             raise exceptions.PocketValidationFailure(
                 "Invalid input data:\n{}".format("\n".join(infos))
             )
 
     @staticmethod
-    def _convert_fields(**fields):
+    def _convert_fields(**fields: Any) -> dict[str, Any]:
         """Convert string field values to lowercase for storage. Fields with
         value None are discarded.
         """
@@ -291,7 +310,7 @@ class TinyDbPocket(Pocket):
 
         return converted_fields
 
-    def _substitute_none_fields(self, table_name, **fields):
+    def _substitute_none_fields(self, table_name: str, **fields: Any) -> dict[str, Any]:
         """Substitute optional fields by defaults."""
 
         substituted_fields = fields.copy()
@@ -442,7 +461,10 @@ class TinyDbPocket(Pocket):
         :return: dict
         """
 
-        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
+        elements: dict[str, dict[int, Any] | defaultdict[int, list[Any]]] = {
+            DEFAULT_TABLE: {},
+            RECURRENT_TABLE: defaultdict(list),
+        }
 
         for element in self._db.search(condition):
             elements[DEFAULT_TABLE][element.doc_id] = element
@@ -501,7 +523,7 @@ class TinyDbPocket(Pocket):
                 name = f"{name}, day {date.strftime('%-j').lower()}"
 
             yield Document(
-                doc_id=None,
+                doc_id=None,  # type: ignore[arg-type]
                 value=dict(
                     name=name,
                     value=element["value"],

@@ -1,4 +1,5 @@
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
 from rich import box
 from rich.panel import Panel
 from rich.table import Table
@@ -36,9 +37,10 @@ def richify_listings(
     # Calculate maximum column widths for stacked layout alignment
     max_widths: list[int | None] = [None, None, None, None]
     if stacked_layout:
-        max_widths = _calculate_max_column_widths(
+        max_widths_calculated = _calculate_max_column_widths(
             listings, totals, category_percentage, category_sort, entry_sort
         )
+        max_widths = [x for x in max_widths_calculated]
 
     # Build tables for listings
     for listing, total in zip(listings, totals):
@@ -120,7 +122,9 @@ def richify_listings(
     return grid
 
 
-def richify_recurrent_elements(elements: list[dict[str, Any]], entry_sort: str | None = None) -> RichTable:
+def richify_recurrent_elements(
+    elements: list[dict[str, Any]], entry_sort: str | None = None
+) -> RichTable:
     """Create and return rich.Table from recurrent elements acc. to given options.
     :param entry_sort: Field governing base entry sorting (name, value, ID, category,
         start, end, frequency)
@@ -149,7 +153,11 @@ def richify_recurrent_elements(elements: list[dict[str, Any]], entry_sort: str |
 
 
 def _calculate_max_column_widths(
-    listings: list["Listing"], totals: list[float], category_percentage: bool, category_sort: str, entry_sort: str
+    listings: list["Listing"],
+    totals: list[float],
+    category_percentage: bool,
+    category_sort: str,
+    entry_sort: str,
 ) -> list[int]:
     """Calculate maximum column widths needed across all listings for
     consistent alignment."""

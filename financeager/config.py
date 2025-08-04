@@ -17,7 +17,11 @@ class Configuration:
     configuration can be customized by settings specified in a config file.
     """
 
-    def __init__(self, filepath: str | None = None, plugins: list[plugin.PluginBase] | None = None) -> None:
+    def __init__(
+        self,
+        filepath: str | None = None,
+        plugins: list[plugin.PluginBase] | None = None,
+    ) -> None:
         """Initialize the default configuration, overwrite with custom
         configuration from file if available, and eventually validate the loaded
         configuration.

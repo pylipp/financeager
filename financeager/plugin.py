@@ -1,9 +1,9 @@
 """Support for plugin development."""
 
 import abc
-from typing import Any
-from configparser import ConfigParser
 from argparse import ArgumentParser
+from configparser import ConfigParser
+from typing import Any
 
 
 class PluginConfiguration(abc.ABC):
@@ -51,7 +51,13 @@ class DefaultPluginCliOptions(PluginCliOptions):
 
 
 class PluginBase:
-    def __init__(self, *, name: str, config: PluginConfiguration, cli_options: PluginCliOptions | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        name: str,
+        config: PluginConfiguration,
+        cli_options: PluginCliOptions | None = None
+    ) -> None:
         """Set plugin name, config (a PluginConfiguration instance), and optional CLI
         options (a PluginCliOptions instance)."""
         self.name = name
@@ -65,6 +71,13 @@ class ServicePlugin(PluginBase):
     communication with the service.
     """
 
-    def __init__(self, *, name: str, config: PluginConfiguration, client: Any, cli_options: PluginCliOptions | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        name: str,
+        config: PluginConfiguration,
+        client: Any,
+        cli_options: PluginCliOptions | None = None
+    ) -> None:
         super().__init__(name=name, config=config, cli_options=cli_options)
         self.client = client
