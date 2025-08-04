@@ -3,21 +3,23 @@
 import os.path
 import traceback
 from collections import namedtuple
+from typing import Any, Callable
 
 import financeager
 
 from . import exceptions, init_logger, localserver, plugin
+from .config import Configuration
 
 logger = init_logger(__name__)
 
 
-def create(*, configuration, sinks, plugins):
+def create(*, configuration: Configuration, sinks: Any, plugins: list[plugin.PluginBase] | None) -> "Client":
     """Factory to create the Client subclass suitable to the given
     configuration.
     Clients of service plugins are taken into account if specified.
     The sinks are passed into the Client.
     """
-    clients = {
+    clients: dict[str, type[Client]] = {
         "local": LocalServerClient,
     }
 
@@ -40,16 +42,16 @@ class Client:
 
     Sinks = namedtuple("Sinks", ["info", "error"])
 
-    def __init__(self, *, configuration, sinks):
+    def __init__(self, *, configuration: Configuration, sinks: "Client.Sinks") -> None:
         """Store the specified configuration and sinks as attributes.
         The subclass implementation must set up the proxy.
         """
-        self.proxy = None
+        self.proxy: Any = None
         self.configuration = configuration
         self.sinks = sinks
-        self.latest_exception = None
+        self.latest_exception: Exception | None = None
 
-    def safely_run(self, command, **params):
+    def safely_run(self, command: str, **params: Any) -> bool:
         """Execute self.proxy.run() while handling any errors.
         A caught exception is stored in the 'latest_exception' attribute.
         Return whether execution was successful.
@@ -59,7 +61,7 @@ class Client:
         success = False
 
         try:
-            self.sinks.info(self.proxy.run(command, **params))
+            self.sinks.info(self.proxy.run(command, **params))  # type: ignore[union-attr]
             self.latest_exception = None
             success = True
         except exceptions.InvalidRequest as e:
@@ -76,20 +78,20 @@ class Client:
 
         return success
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Routine to run at the end of the Client lifecycle."""
 
 
 class LocalServerClient(Client):
     """Client for communicating with the financeager localserver."""
 
-    def __init__(self, *, configuration, sinks):
+    def __init__(self, *, configuration: Configuration, sinks: "Client.Sinks") -> None:
         """Set up proxy."""
         super().__init__(configuration=configuration, sinks=sinks)
 
         self.proxy = localserver.Proxy(data_dir=financeager.DATA_DIR)
 
-    def safely_run(self, command, **params):
+    def safely_run(self, command: str, **params: Any) -> bool:
         """Run the parent method, and for certain modifying commands, fetch category
         names from the server and store them in the cache.
         """
@@ -103,17 +105,17 @@ class LocalServerClient(Client):
             logger.debug(str(e))
         return success
 
-    def _write_categories_for_cli_completion(self):
+    def _write_categories_for_cli_completion(self) -> None:
         # There might be different categories for each pocket. However when reading the
         # cache at the time of building the CLI completion, the target pocket cannot be
         # determined. It's assumed the default pocket is most relevant, hence its
         # contained categories are stored
-        categories = self.proxy.run("categories", pocket=None)["categories"]
+        categories = self.proxy.run("categories", pocket=None)["categories"]  # type: ignore[union-attr]
         fp = os.path.join(financeager.CACHE_DIR, financeager.CATEGORIES_CACHE_FILENAME)
         with open(fp, "w") as f:
             # The category cache is a line-separated list of names
             f.write("\n".join(categories))
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Instruct stopping of Server."""
-        self.proxy.run("stop")
+        self.proxy.run("stop")  # type: ignore[union-attr]

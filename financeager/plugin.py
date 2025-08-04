@@ -17,7 +17,7 @@ class PluginConfiguration(abc.ABC):
         by relevant sections.
         """
 
-    def init_option_types(self, option_types: dict[str, dict[str, type]]) -> None:
+    def init_option_types(self, option_types: dict[str, dict[str, str]]) -> None:
         """Specify types of plugin options (int, float, boolean) if conversion
         at the time of retrieving the option is desired. The given dictionary
         should be modified in-place by adding the type to the corresponding

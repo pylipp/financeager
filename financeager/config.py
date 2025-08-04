@@ -1,6 +1,7 @@
 """Configuration of the financeager application."""
 
 from configparser import ConfigParser, NoOptionError, NoSectionError
+from typing import Any
 
 from financeager import plugin
 
@@ -16,7 +17,7 @@ class Configuration:
     configuration can be customized by settings specified in a config file.
     """
 
-    def __init__(self, filepath=None, plugins=None):
+    def __init__(self, filepath: str | None = None, plugins: list[plugin.PluginBase] | None = None) -> None:
         """Initialize the default configuration, overwrite with custom
         configuration from file if available, and eventually validate the loaded
         configuration.
@@ -30,7 +31,7 @@ class Configuration:
 
         self._plugins = plugins or []
         self._parser = ConfigParser()
-        self._option_types = {}
+        self._option_types: dict[str, dict[str, str]] = {}
 
         self._init_defaults()
         self._init_option_types()
@@ -38,7 +39,7 @@ class Configuration:
         self._load_custom_config()
         self._validate()
 
-    def _init_defaults(self):
+    def _init_defaults(self) -> None:
         self._parser["SERVICE"] = {
             "name": "local",
         }
@@ -49,11 +50,11 @@ class Configuration:
         for p in self._plugins:
             p.config.init_defaults(self._parser)
 
-    def _init_option_types(self):
+    def _init_option_types(self) -> None:
         for p in self._plugins:
             p.config.init_option_types(self._option_types)
 
-    def _load_custom_config(self):
+    def _load_custom_config(self) -> None:
         """Update config values according to customization in config file."""
         if self._filepath is None:
             return
@@ -78,13 +79,13 @@ class Configuration:
                     continue
                 self._parser[section][item] = custom_value
 
-    def get_section(self, section):
+    def get_section(self, section: str) -> dict[str, Any]:
         """Return a dictionary of options of the requested section.
         If an option is typed, a converted value is returned.
         """
         return {o: self.get_option(section, o) for o in self._parser.options(section)}
 
-    def get_option(self, section, option):
+    def get_option(self, section: str, option: str) -> Any:
         """Return the requested option of the configuration.
         If an option is typed, a converted value is returned.
         """
@@ -94,14 +95,14 @@ class Configuration:
             # Option type not specified, assuming str
             option_type = None
 
-        if option_type in ("int", "float", "boolean"):
+        if option_type is not None and option_type in ("int", "float", "boolean"):
             get = getattr(self._parser, f"get{option_type}")
         else:
             get = self._parser.get
 
         return get(section, option)
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validate certain options of the configuration. Typed options are
         validated for possible conversion.
 
