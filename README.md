@@ -345,9 +345,29 @@ When contributing to the codebase, please follow these typing practices:
 #### Type Configuration
 
 The mypy configuration in `pyproject.toml` uses a gradual typing approach:
-- Basic type safety is enforced
+- Basic type safety is enforced 
 - Some strict checks are disabled during the migration period
 - External dependencies without type stubs are ignored
+
+#### Migration to Strict Typing
+
+To progressively tighten the typing configuration:
+
+1. **Enable stricter checks gradually** by uncommenting options in `pyproject.toml`:
+   ```toml
+   disallow_untyped_defs = true      # Require all functions to have type annotations
+   disallow_incomplete_defs = true   # Disallow partially typed function definitions
+   disallow_untyped_decorators = true # Require decorators to be typed
+   ```
+
+2. **Re-enable unused ignore warnings** once type annotations are complete:
+   ```toml
+   warn_unused_ignores = true
+   ```
+
+3. **Remove type: ignore comments** as you fix the underlying type issues
+
+4. **Update to use more specific types** instead of `Any` where possible
 
 For more information about Python typing, see the [official documentation](https://docs.python.org/3/library/typing.html).
 

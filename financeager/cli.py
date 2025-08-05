@@ -304,7 +304,8 @@ def _parse_command(args=None, plugins=None):
     category_add_arg = add_parser.add_argument(
         "-c", "--category", default=None, help="entry category"
     )
-    category_add_arg.completer = argcomplete.ChoicesCompleter(categories)  # type: ignore[attr-defined]
+    cat_arg = category_add_arg
+    cat_arg.completer = argcomplete.ChoicesCompleter(categories)  # type: ignore
     add_parser.add_argument("-d", "--date", default=None, help="entry date")
 
     add_parser.add_argument(
@@ -367,7 +368,7 @@ is assumed""",
     update_parser.add_argument("-n", "--name", help="new name")
     update_parser.add_argument("-v", "--value", type=float, help="new value")
     category_arg = update_parser.add_argument("-c", "--category", help="new category")
-    category_arg.completer = argcomplete.ChoicesCompleter(categories)  # type: ignore[attr-defined]
+    category_arg.completer = argcomplete.ChoicesCompleter(categories)  # type: ignore
     update_parser.add_argument(
         "-d", "--date", help="new date (for standard entries only)"
     )

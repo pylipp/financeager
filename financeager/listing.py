@@ -92,7 +92,7 @@ class Listing:
 
     def total_value(self) -> float:
         """Return total value of the listing."""
-        return sum(v for v in self.category_fields("value"))  # type: ignore[no-any-return]
+        return sum(v for v in self.category_fields("value"))  # type: ignore
 
 
 def prettify(
@@ -114,8 +114,9 @@ def prettify(
         return jdumps(elements)
 
     if recurrent_only:
-        entry_sort = listing_options.get("entry_sort")
-        return richify_recurrent_elements(elements, entry_sort=entry_sort)  # type: ignore[arg-type,return-value]
+        sort = listing_options.get("entry_sort")
+        res = richify_recurrent_elements(elements, entry_sort=sort)  # type: ignore
+        return res  # type: ignore
 
     listings = _derive_listings(elements, default_category=default_category)
     return richify_listings(listings, **listing_options)  # type: ignore[return-value]

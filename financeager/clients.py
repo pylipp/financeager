@@ -3,7 +3,7 @@
 import os.path
 import traceback
 from collections import namedtuple
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import financeager
 

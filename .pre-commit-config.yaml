@@ -31,4 +31,5 @@ repos:
         types: [python]
         language: system
         require_serial: true
-        args: ['financeager', '--explicit-package-bases']
+        pass_filenames: false
+        args: ['financeager']

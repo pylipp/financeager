@@ -75,17 +75,17 @@ def prettify(element: dict[str, Any], *, default_category: str) -> str:
 
     # Define order of listed properties
     if recurrent:
-        properties: tuple[str, str, str, str, str, str] = (
+        properties: list[str] = [
             "name",
             "value",
             "frequency",
             "start",
             "end",
             "category",
-        )
+        ]
         longest_property_length = 9  # frequency
     else:
-        properties = ("name", "value", "date", "category")  # type: ignore
+        properties = ["name", "value", "date", "category"]
         longest_property_length = 8  # category
 
     if element["category"] is None:
