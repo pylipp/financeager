@@ -56,7 +56,7 @@ class PluginBase:
         *,
         name: str,
         config: PluginConfiguration,
-        cli_options: PluginCliOptions | None = None
+        cli_options: PluginCliOptions | None = None,
     ) -> None:
         """Set plugin name, config (a PluginConfiguration instance), and optional CLI
         options (a PluginCliOptions instance)."""
@@ -77,7 +77,7 @@ class ServicePlugin(PluginBase):
         name: str,
         config: PluginConfiguration,
         client: Any,
-        cli_options: PluginCliOptions | None = None
+        cli_options: PluginCliOptions | None = None,
     ) -> None:
         super().__init__(name=name, config=config, cli_options=cli_options)
         self.client = client
