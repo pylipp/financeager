@@ -2,6 +2,7 @@
 query results."""
 
 import time
+from typing import Any
 
 from . import POCKET_DATE_FORMAT
 
@@ -12,7 +13,7 @@ class Entry:
     The name field is stored in lowercase, simplifying searching from the parent
     listing. The value is rendered absolute to simplify sorting."""
 
-    def __init__(self, name, value):
+    def __init__(self, name: str, value: float | int) -> None:
         """:type name: str
         :type value: float or int
         """
@@ -26,7 +27,9 @@ class BaseEntry(Entry):
 
     DATE_FORMAT = "%y-%m-%d"
 
-    def __init__(self, name, value, date, eid=0):
+    def __init__(
+        self, name: str, value: float | int, date: str, eid: int | str = 0
+    ) -> None:
         """:type eid: int or string, will be converted to int
         :type date: str of valid format
         """
@@ -43,22 +46,24 @@ class CategoryEntry(Entry):
 
     DEFAULT_NAME = "unspecified"
 
-    def __init__(self, name, entries=None):
+    def __init__(
+        self, name: str | None, entries: list[BaseEntry] | None = None
+    ) -> None:
         """:type entries: list[BaseEntry]"""
         super().__init__(name=name or self.DEFAULT_NAME, value=0.0)
 
-        self.entries = []
+        self.entries: list[BaseEntry] = []
         if entries is not None:
             for base_entry in entries:
                 self.append(base_entry)
 
-    def append(self, base_entry):
+    def append(self, base_entry: BaseEntry) -> None:
         """Append a BaseEntry to the category and update the value."""
         self.entries.append(base_entry)
         self.value += base_entry.value
 
 
-def prettify(element, *, default_category):
+def prettify(element: dict[str, Any], *, default_category: str) -> str:
     """Return element properties formatted as list. The type of the element (recurrent
     or standard) is inferred by the presence of the 'frequency' property.
     If the element's 'category' property is None, use 'default_category'.
@@ -70,10 +75,17 @@ def prettify(element, *, default_category):
 
     # Define order of listed properties
     if recurrent:
-        properties = ("name", "value", "frequency", "start", "end", "category")
+        properties: list[str] = [
+            "name",
+            "value",
+            "frequency",
+            "start",
+            "end",
+            "category",
+        ]
         longest_property_length = 9  # frequency
     else:
-        properties = ("name", "value", "date", "category")
+        properties = ["name", "value", "date", "category"]
         longest_property_length = 8  # category
 
     if element["category"] is None:

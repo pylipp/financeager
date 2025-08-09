@@ -25,3 +25,11 @@ repos:
         language: system
         require_serial: true
         args: ['--filter-files']
+      - id: mypy
+        name: mypy
+        entry: mypy
+        types: [python]
+        language: system
+        require_serial: true
+        pass_filenames: false
+        args: ['financeager']
