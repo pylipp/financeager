@@ -1,5 +1,5 @@
 [![pypi](https://badge.fury.io/py/financeager.svg)](https://pypi.org/project/flake8-pytest-style)
-[![Python: 3.10+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://pypi.org/project/financeager)
+[![Python: 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://pypi.org/project/financeager)
 [![Downloads](https://img.shields.io/pypi/dm/financeager.svg)](https://pypistats.org/packages/flake8-pytest-style)
 ![Build Status](https://github.com/pylipp/financeager/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pylipp/financeager/badge.svg?branch=master)](https://coveralls.io/github/pylipp/financeager?branch=master)
