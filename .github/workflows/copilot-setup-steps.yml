@@ -27,11 +27,11 @@ jobs:
     # If you do not check out your code, Copilot will do this for you.
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
         # This is the version of the action for setting up Python, not the Python version.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.12'

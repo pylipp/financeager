@@ -101,7 +101,9 @@ class CliTestCase(unittest.TestCase):
             return response["id"]
 
         if (command in ["get", "pockets"] and log_method == "info") or (
-            command == "list" and log_method == "info" and params.get("json")
+            command == "list"
+            and log_method == "info"
+            and (params.get("json") or params.get("stacked_layout"))
         ):
             return cli._format_response(
                 response,
@@ -112,6 +114,8 @@ class CliTestCase(unittest.TestCase):
                 recurrent_only=params.get("recurrent_only", False),
                 entry_sort=params.get("entry_sort"),
                 json=params.get("json"),
+                stacked_layout=params.get("stacked_layout"),
+                category_percentage=params.get("category_percentage"),
             )
 
         if command == "list" and log_method == "info":
@@ -298,6 +302,8 @@ default_category = no-category"""
         self.assertEqual(
             response, {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
         )
+        # Run rare command line options for code coverage
+        self.cli_run("list --category-percentage --stacked-layout")
 
     def test_list_recurrent_only(self):
         id1 = self.cli_run("add interest 20 -s 2020-01-01 -f yearly -c banking")
