@@ -10,11 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.5.0] - 2025-10-
+## [v1.5.0] - 2025-10-09
 ### Added
 - Support Python 3.14.
 ### Removed
 - Support for Python 3.9 is removed.
+### Changed
+- Update dependencies `platformdirs` and `marshmallow`. (#256)
 
 ## [v1.4.6] - 2025-08-03
 ### Changed
