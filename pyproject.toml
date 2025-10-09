@@ -52,6 +52,7 @@ develop = [
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
   'isort==6.1.0',
+  'mypy==1.17.1',
   'pre-commit==4.3.0',
 ]
 packaging = [
@@ -104,3 +105,20 @@ extend-ignore = [
   "W503",  # line break before binary operator
   "W504",  # line break after binary operator
 ]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+# These are disabled during gradual typing migration
+# disallow_untyped_defs = true
+# disallow_incomplete_defs = true
+check_untyped_defs = true
+# disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+extra_checks = true
