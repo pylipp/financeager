@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 
 ## [v1.5.0] - 2025-10-
+### Added
+- Support Python 3.14.
 ### Removed
 - Support for Python 3.9 is removed.
 
