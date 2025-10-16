@@ -275,6 +275,7 @@ def _parse_command(args=None, plugins=None):
         description="An application "
         "that helps you administering your daily expenses and earnings."
     )
+    parser.suggest_on_error = True
 
     parser.add_argument(
         "-V",
@@ -497,6 +498,7 @@ is assumed""",
         subparser.add_argument(
             "--verbose", action="store_true", help="Be verbose about internal workings"
         )
+        subparser.suggest_on_error = True
 
         if subparser in [
             add_parser,

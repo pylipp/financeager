@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.5.1] - 2025-
+### Added
+- Enable suggestions for mistyped CLI commands and argument choices (only for Python 3.14 and newer).
+
 ## [v1.5.0] - 2025-10-09
 ### Added
 - Support Python 3.14.
