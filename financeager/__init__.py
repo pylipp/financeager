@@ -1,6 +1,6 @@
 import os.path
 from importlib.metadata import version
-from logging import DEBUG, WARN, Formatter, StreamHandler, getLogger, handlers
+from logging import DEBUG, WARN, Formatter, Logger, StreamHandler, getLogger, handlers
 
 import platformdirs
 
@@ -47,14 +47,14 @@ LOGGER.addHandler(_stream_handler)
 FORMATTER = Formatter(fmt="%(levelname)s %(asctime)s %(name)s:%(lineno)d %(message)s")
 
 
-def init_logger(name):
+def init_logger(name: str) -> Logger:
     """Set up module logger. Library loggers are assigned the package logger as
     parent. Any records are propagated to the parent package logger.
     """
     logger = getLogger(name)
     logger.setLevel(DEBUG)
 
-    if logger.parent.name == "root":
+    if logger.parent is not None and logger.parent.name == "root":
         # Library logger; probably has NullHandler
         logger.parent = LOGGER
 
@@ -64,19 +64,19 @@ def init_logger(name):
     return logger
 
 
-def setup_log_file_handler(log_dir=LOG_DIR):
+def setup_log_file_handler(log_dir: str = LOG_DIR) -> None:
     """Create RotatingFileHandler for package logger, storing logs in
     'log_dir' (default: LOG_DIR). The directory is created if not existing.
     """
     os.makedirs(log_dir, exist_ok=True)
     file_handler = handlers.RotatingFileHandler(
-        os.path.join(log_dir, "log"), maxBytes=5e6, backupCount=5
+        os.path.join(log_dir, "log"), maxBytes=int(5e6), backupCount=5
     )
     file_handler.setFormatter(FORMATTER)
     LOGGER.addHandler(file_handler)
 
 
-def make_log_stream_handler_verbose():
+def make_log_stream_handler_verbose() -> None:
     """Make handler show debug messages using more informative format."""
     _stream_handler.setLevel(DEBUG)
     _stream_handler.setFormatter(FORMATTER)

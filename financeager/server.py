@@ -2,6 +2,7 @@
 
 import glob
 import os.path
+from typing import Any
 
 from . import DEFAULT_POCKET_NAME, exceptions, init_logger, pocket
 
@@ -15,11 +16,11 @@ class Server:
     Kwargs (f.i. storage) are passed to the TinyDbPocket member.
     """
 
-    def __init__(self, **kwargs):
-        self._pockets = {}
+    def __init__(self, **kwargs: Any) -> None:
+        self._pockets: dict[str, pocket.TinyDbPocket] = {}
         self._pocket_kwargs = kwargs
 
-    def run(self, command, **kwargs):
+    def run(self, command: str, **kwargs: Any) -> dict[str, Any]:
         """The requested pocket is created if not yet present. The method of
         `Pocket` corresponding to the given `command` is called. All `kwargs`
         are passed on. A json-like response is returned.
@@ -63,7 +64,7 @@ class Server:
         except exceptions.PocketException as e:
             return {"error": e}
 
-    def _get_pocket(self, name=None):
+    def _get_pocket(self, name: str | None = None) -> pocket.TinyDbPocket:
         """Get the Pocket identified by 'name' from the Pockets dictionary. If
         the Pocket does not exist, it is created and returned. If 'name' is
         None, the default pocket name is used as defined in __init__.py
@@ -81,7 +82,7 @@ class Server:
 
         return pd
 
-    def _pocket_names(self):
+    def _pocket_names(self) -> list[str]:
         """Return names of pockets currently organized by the server.
         If persistent data storage was specified, all JSON files present in the
         'data_dir' are also taken into account.
@@ -96,7 +97,12 @@ class Server:
         names.update(pocket_names(data_dir))
         return sorted(names)
 
-    def _copy_entry(self, source_pocket=None, destination_pocket=None, **kwargs):
+    def _copy_entry(
+        self,
+        source_pocket: str | None = None,
+        destination_pocket: str | None = None,
+        **kwargs: Any,
+    ) -> int:
         """Copy an entry (specified by ID and table_name) from the source pocket
         to the destination pocket.
 
@@ -104,16 +110,16 @@ class Server:
         :return: ID of copied entry
         :raises: PocketException if the source entry does not exist
         """
-        source_pocket = self._get_pocket(source_pocket)
-        entry_to_copy = source_pocket.get_entry(**kwargs)
+        source_pocket_obj = self._get_pocket(source_pocket)
+        entry_to_copy = source_pocket_obj.get_entry(**kwargs)
 
-        destination_pocket = self._get_pocket(destination_pocket)
-        return destination_pocket.add_entry(
+        destination_pocket_obj = self._get_pocket(destination_pocket)
+        return destination_pocket_obj.add_entry(  # type: ignore[no-any-return]
             table_name=kwargs.get("table_name"), **entry_to_copy
         )
 
 
-def pocket_names(data_dir):
+def pocket_names(data_dir: str | None) -> set[str]:
     """Return names of all pockets (i.e. names of JSON files in the given data
     directory), or an empty set if the specified data directory is None.
     """
