@@ -47,11 +47,11 @@ classifiers = [
 [project.optional-dependencies]
 develop = [
   "black==25.9.0",
-  "coverage==7.10.7",
+  "coverage==7.11.0",
   'flake8==7.3.0',
   "flake8-pyproject==1.2.3",
   "gitlint-core==0.19.1",
-  'isort==6.1.0',
+  'isort==7.0.0',
   'pre-commit==4.3.0',
 ]
 packaging = [
