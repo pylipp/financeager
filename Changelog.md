@@ -10,9 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.5.1] - 2025-
+## [v1.5.1] - 2026-01-10
 ### Added
 - Enable suggestions for mistyped CLI commands and argument choices (only for Python 3.14 and newer).
+### Changed
+- Update dependencies `platformdirs`, `argcomplete`, `rich` and `marshmallow`. (#261, #264, #266)
 
 ## [v1.5.0] - 2025-10-09
 ### Added
