@@ -328,7 +328,8 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         recurrent_table_size = len(self.pocket.db_client._db.table(RECURRENT_TABLE))
         self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(
-            len(self.pocket.db_client._db.table(RECURRENT_TABLE)), recurrent_table_size - 1
+            len(self.pocket.db_client._db.table(RECURRENT_TABLE)),
+            recurrent_table_size - 1,
         )
 
     def test_recurrent_bimonthly_entries(self):

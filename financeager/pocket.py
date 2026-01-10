@@ -118,7 +118,7 @@ class Pocket(ABC):
     @abstractmethod
     def _get_all_entries_for_cache(self):
         """Get all entries for building the category cache.
-        
+
         :return: list of dicts with 'name' and 'category' fields
         """
 
@@ -423,7 +423,7 @@ class TinyDbClient(DatabaseClient):
 
     def __init__(self, *args, **kwargs):
         """Initialize TinyDB instance.
-        
+
         :param args: positional arguments for TinyDB constructor
         :param kwargs: keyword arguments for TinyDB constructor
         """
@@ -535,13 +535,13 @@ class TinyDbPocket(Pocket):
             kwargs["storage"] = storages.JSONStorage
 
         self.db_client = TinyDbClient(*args, **kwargs)
-        
+
         # Call parent init which will create the category cache
         super().__init__(name=name)
 
     def _get_all_entries_for_cache(self):
         """Get all entries for building the category cache.
-        
+
         :return: list of dicts with 'name' and 'category' fields
         """
         return self.db_client.retrieve(DEFAULT_TABLE)
