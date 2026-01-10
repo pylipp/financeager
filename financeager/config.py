@@ -7,6 +7,7 @@ from financeager import plugin
 from . import init_logger
 from .entries import CategoryEntry
 from .exceptions import InvalidConfigError
+from .pocket import POCKET_CLASSES
 
 logger = init_logger(__name__)
 
@@ -117,7 +118,7 @@ class Configuration:
         if service_name not in valid_services:
             raise InvalidConfigError(f"Unknown service name: {service_name}")
 
-        valid_database_types = ["tinydb"]
+        valid_database_types = list(POCKET_CLASSES.keys())
         database_type = self.get_option("SERVICE", "database_type")
         if database_type not in valid_database_types:
             raise InvalidConfigError(f"Unknown database type: {database_type}")
