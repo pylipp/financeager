@@ -53,140 +53,74 @@ class RecurrentEntrySchema(EntryBaseSchema):
     end = fields.Date(format=POCKET_DATE_FORMAT, load_default=None)
 
 
+class DatabaseClient(ABC):
+    """Abstract base class for database client implementations."""
+
+    @abstractmethod
+    def retrieve(self, table_name, condition=None):
+        """Retrieve rows from a table.
+
+        :param table_name: name of the table to query
+        :param condition: optional condition to filter rows
+        :return: list of dicts
+        """
+
+    @abstractmethod
+    def retrieve_by_id(self, table_name, element_id):
+        """Retrieve a single row by its ID.
+
+        :param table_name: name of the table to query
+        :param element_id: ID of the element to retrieve
+        :return: dict or None if ID does not exist
+        """
+
+    @abstractmethod
+    def create(self, table_name, data):
+        """Create a new row in a table.
+
+        :param table_name: name of the table
+        :param data: dict of data to insert
+        :return: ID of the created element
+        """
+
+    @abstractmethod
+    def update_by_id(self, table_name, element_id, data):
+        """Update a row by its ID.
+
+        :param table_name: name of the table
+        :param element_id: ID of the element to update
+        :param data: dict of data to update
+        :return: ID of the updated element
+        """
+
+    @abstractmethod
+    def delete_by_id(self, table_name, element_id):
+        """Delete a row by its ID.
+
+        :param table_name: name of the table
+        :param element_id: ID of the element to delete
+        :return: ID of the deleted element
+        """
+
+
 class Pocket(ABC):
     def __init__(self, name=None):
         """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
         self._name = f"{name or DEFAULT_POCKET_NAME}"
+        self._create_category_cache()
 
     @property
     def name(self):
         return self._name
 
     @abstractmethod
-    def add_entry(self, table_name=None, **kwargs):
-        """Add an entry (standard or recurrent) to the database.
-
-        If 'table_name' is not specified, the kwargs name, value[, category,
-        date] are used to insert a unique entry in the standard table.
-        With 'table_name' as 'recurrent', the kwargs name, value, frequency
-        [, start, end, category] are used to insert a template entry in the
-        recurrent table.
-
-        Two kwargs are mandatory:
-            :param name: entry name
-            :type name: str
-            :param value: entry value
-            :type value: float, int or str
-
-        The following kwarg is optional:
-            :param category: entry category. If not specified, the program
-                attempts to derive it from previous, eponymous entries. If this
-                fails, the default category is assigned
-            :type category: str or None
-
-        The following kwarg is optional for standard entries:
-            :param date: entry date. Defaults to current date
-            :type date: str of date format
-
-        The following kwarg is mandatory for recurrent entries:
-            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
-                'bimonthly', 'monthly', 'weekly' or 'daily'
-
-        The following kwargs are optional for recurrent entries:
-            :param start: start date (defaults to current date)
-            :param end: end date (defaults to None which evaluates to the
-                current day when the entry is queried)
-
-        :raise: PocketValidationFailure if validation failed
-        :return: ID of new entry
+    def _get_all_entries_for_cache(self):
+        """Get all entries for building the category cache.
+        
+        :return: list of dicts with 'name' and 'category' fields
         """
-
-    @abstractmethod
-    def get_entry(self, eid, table_name=None):
-        """Get entry specified by eid in the table table_name.
-
-        :param eid: entry ID
-        :type eid: int or str
-        :param table_name: table that the entry is stored in (defaults to 'standard')
-        :type table_name: str
-
-        :raise: PocketEntryNotFound if element not found
-        :return: found element
-        """
-
-    @abstractmethod
-    def update_entry(self, eid, table_name=None, **kwargs):
-        """Update one or more fields of a single entry.
-
-        :param eid: entry ID of the entry to be updated
-        :param table_name: table that the entry is stored in (default: 'standard')
-        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
-            'end' for recurrent entries; any of 'name', 'value', 'category' for
-            either entry type
-        :raise: PocketEntryNotFound if element not found
-        :return: ID of the updated entry
-        """
-
-    @abstractmethod
-    def remove_entry(self, eid, table_name=None):
-        """Remove an entry from the database given its ID.
-
-        :param eid: ID of the element to be deleted.
-        :type eid: int or str
-        :param table_name: name of the table that contains the element.
-            Default: 'standard'
-        :type table_name: str
-
-        :raise: PocketEntryNotFound if element/ID not found.
-        :return: element ID if removal was successful
-        """
-
-    @abstractmethod
-    def get_entries(self, filters=None, recurrent_only=False):
-        """Get entries that match the items of the filters dict, if specified.
-
-        If `recurrent_only` is true, return a list of all entries of the
-        recurrent table. Filters are applied.
-
-        :param filters: dict of filters to apply
-        :param recurrent_only: whether to return only recurrent entries
-        :return: entries matching the filters
-        """
-
-    @abstractmethod
-    def get_categories(self):
-        """Return unique category names in alphabetical order."""
-
-    @abstractmethod
-    def close(self):
-        """Close underlying database."""
-
-
-class TinyDbPocket(Pocket):
-    def __init__(self, name=None, data_dir=None, **kwargs):
-        """Create a pocket with a TinyDB database backend, identified by 'name'.
-        If 'data_dir' is given, the database storage type is JSON (the storage
-        filepath is derived from the Pocket's name). Otherwise the data is
-        stored in memory.
-        Keyword args are passed to the TinyDB constructor. See the respective
-        docs for detailed information.
-        """
-
-        super().__init__(name=name)
-
-        # evaluate args/kwargs for TinyDB constructor. This overwrites the
-        # 'storage' kwarg if explicitly passed
-        if data_dir is None:
-            args = []
-            kwargs["storage"] = storages.MemoryStorage
-        else:
-            args = [os.path.join(data_dir, f"{self.name}.json")]
-            kwargs["storage"] = storages.JSONStorage
-
-        self._db = TinyDB(*args, **kwargs)
-        self._create_category_cache()
 
     def _create_category_cache(self):
         """The category cache assigns a counter for each element name in the
@@ -194,7 +128,7 @@ class TinyDbPocket(Pocket):
         categories the element was labeled with. This allows deriving the
         category of an element if not explicitly given."""
         self._category_cache = defaultdict(Counter)
-        for element in self._db.all():
+        for element in self._get_all_entries_for_cache():
             self._category_cache[element["name"]].update([element["category"]])
 
     def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
@@ -360,34 +294,6 @@ class TinyDbPocket(Pocket):
                     fields.get("category") or old_category
                 ] += 1
 
-    def add_entry(self, table_name=None, **kwargs):
-        """Add an entry using TinyDB backend.
-
-        :return: TinyDB ID of new entry (int)
-        """
-
-        table_name = table_name or DEFAULT_TABLE
-        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
-
-        self._update_category_cache(**fields)
-
-        element_id = self._db.table(table_name).insert(fields)
-
-        return element_id
-
-    def get_entry(self, eid, table_name=None):
-        """Get entry using TinyDB backend.
-
-        :return: found element (tinydb.Document)
-        """
-
-        table_name = table_name or DEFAULT_TABLE
-        element = self._db.table(table_name).get(doc_id=int(eid))
-        if element is None:
-            raise exceptions.PocketEntryNotFound("Entry not found.")
-
-        return element
-
     def _preprocess_entry_for_update(self, *, table_name, raw_data):
         """Handle special case for unsetting 'category' and/or 'end' fields while
         preprocessing the entry.
@@ -412,6 +318,262 @@ class TinyDbPocket(Pocket):
 
         return fields
 
+    @abstractmethod
+    def add_entry(self, table_name=None, **kwargs):
+        """Add an entry (standard or recurrent) to the database.
+
+        If 'table_name' is not specified, the kwargs name, value[, category,
+        date] are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency
+        [, start, end, category] are used to insert a template entry in the
+        recurrent table.
+
+        Two kwargs are mandatory:
+            :param name: entry name
+            :type name: str
+            :param value: entry value
+            :type value: float, int or str
+
+        The following kwarg is optional:
+            :param category: entry category. If not specified, the program
+                attempts to derive it from previous, eponymous entries. If this
+                fails, the default category is assigned
+            :type category: str or None
+
+        The following kwarg is optional for standard entries:
+            :param date: entry date. Defaults to current date
+            :type date: str of date format
+
+        The following kwarg is mandatory for recurrent entries:
+            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
+                'bimonthly', 'monthly', 'weekly' or 'daily'
+
+        The following kwargs are optional for recurrent entries:
+            :param start: start date (defaults to current date)
+            :param end: end date (defaults to None which evaluates to the
+                current day when the entry is queried)
+
+        :raise: PocketValidationFailure if validation failed
+        :return: ID of new entry
+        """
+
+    @abstractmethod
+    def get_entry(self, eid, table_name=None):
+        """Get entry specified by eid in the table table_name.
+
+        :param eid: entry ID
+        :type eid: int or str
+        :param table_name: table that the entry is stored in (defaults to 'standard')
+        :type table_name: str
+
+        :raise: PocketEntryNotFound if element not found
+        :return: found element
+        """
+
+    @abstractmethod
+    def update_entry(self, eid, table_name=None, **kwargs):
+        """Update one or more fields of a single entry.
+
+        :param eid: entry ID of the entry to be updated
+        :param table_name: table that the entry is stored in (default: 'standard')
+        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
+            'end' for recurrent entries; any of 'name', 'value', 'category' for
+            either entry type
+        :raise: PocketEntryNotFound if element not found
+        :return: ID of the updated entry
+        """
+
+    @abstractmethod
+    def remove_entry(self, eid, table_name=None):
+        """Remove an entry from the database given its ID.
+
+        :param eid: ID of the element to be deleted.
+        :type eid: int or str
+        :param table_name: name of the table that contains the element.
+            Default: 'standard'
+        :type table_name: str
+
+        :raise: PocketEntryNotFound if element/ID not found.
+        :return: element ID if removal was successful
+        """
+
+    @abstractmethod
+    def get_entries(self, filters=None, recurrent_only=False):
+        """Get entries that match the items of the filters dict, if specified.
+
+        If `recurrent_only` is true, return a list of all entries of the
+        recurrent table. Filters are applied.
+
+        :param filters: dict of filters to apply
+        :param recurrent_only: whether to return only recurrent entries
+        :return: entries matching the filters
+        """
+
+    @abstractmethod
+    def get_categories(self):
+        """Return unique category names in alphabetical order."""
+
+    @abstractmethod
+    def close(self):
+        """Close underlying database."""
+
+
+class TinyDbClient(DatabaseClient):
+    """Database client implementation using TinyDB."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize TinyDB instance.
+        
+        :param args: positional arguments for TinyDB constructor
+        :param kwargs: keyword arguments for TinyDB constructor
+        """
+        self._db = TinyDB(*args, **kwargs)
+
+    def retrieve(self, table_name, condition=None):
+        """Retrieve rows from a table.
+
+        :param table_name: name of the table to query
+        :param condition: optional TinyDB query condition
+        :return: list of dicts (TinyDB Documents)
+        """
+        if condition is None:
+            return self._db.table(table_name).all()
+        return self._db.table(table_name).search(condition)
+
+    def retrieve_by_id(self, table_name, element_id):
+        """Retrieve a single row by its ID.
+
+        :param table_name: name of the table to query
+        :param element_id: ID of the element to retrieve
+        :return: dict (TinyDB Document) or None if ID does not exist
+        """
+        return self._db.table(table_name).get(doc_id=int(element_id))
+
+    def create(self, table_name, data):
+        """Create a new row in a table.
+
+        :param table_name: name of the table
+        :param data: dict of data to insert
+        :return: ID of the created element
+        """
+        return self._db.table(table_name).insert(data)
+
+    def update_by_id(self, table_name, element_id, data):
+        """Update a row by its ID.
+
+        :param table_name: name of the table
+        :param element_id: ID of the element to update
+        :param data: dict of data to update
+        :return: ID of the updated element
+        """
+        return self._db.table(table_name).update(data, doc_ids=[int(element_id)])[0]
+
+    def delete_by_id(self, table_name, element_id):
+        """Delete a row by its ID.
+
+        :param table_name: name of the table
+        :param element_id: ID of the element to delete
+        :return: ID of the deleted element
+        """
+        self._db.table(table_name).remove(doc_ids=[int(element_id)])
+        return int(element_id)
+
+    @staticmethod
+    def create_query_condition(**filters):
+        """Construct query condition according to given filters. A filter is
+        given by a key-value pair. The key indicates the field, the value the
+        pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
+        'category'. Patterns must be of type string, or None (only for the fields
+        'category' and 'end; indicates filtering for all entries of the default
+        category, and recurrent entries with indefinite end, resp.).
+        :return: tinydb.queries.QueryInstance (default: noop)
+        """
+        condition = Query().noop()
+        if not filters:
+            return condition
+
+        entry = Query()
+        for field, pattern in filters.items():
+            if pattern is None and field in ["category", "end"]:
+                # The 'category' and 'end' fields are of type string or None. The
+                # condition is constructed depending on the filter pattern
+                new_condition = entry[field] == None  # noqa
+            elif field == "value":
+                new_condition = entry[field] == float(pattern)
+            else:
+                new_condition = entry[field].search(pattern.lower())
+
+            condition &= new_condition
+
+        return condition
+
+    def close(self):
+        """Close the TinyDB database."""
+        self._db.close()
+
+
+class TinyDbPocket(Pocket):
+    def __init__(self, name=None, data_dir=None, **kwargs):
+        """Create a pocket with a TinyDB database backend, identified by 'name'.
+        If 'data_dir' is given, the database storage type is JSON (the storage
+        filepath is derived from the Pocket's name). Otherwise the data is
+        stored in memory.
+        Keyword args are passed to the TinyDB constructor. See the respective
+        docs for detailed information.
+        """
+
+        # Initialize name before calling super().__init__
+        self._name = f"{name or DEFAULT_POCKET_NAME}"
+
+        # evaluate args/kwargs for TinyDB constructor. This overwrites the
+        # 'storage' kwarg if explicitly passed
+        if data_dir is None:
+            args = []
+            kwargs["storage"] = storages.MemoryStorage
+        else:
+            args = [os.path.join(data_dir, self.name + ".json")]
+            kwargs["storage"] = storages.JSONStorage
+
+        self.db_client = TinyDbClient(*args, **kwargs)
+        
+        # Call parent init which will create the category cache
+        super().__init__(name=name)
+
+    def _get_all_entries_for_cache(self):
+        """Get all entries for building the category cache.
+        
+        :return: list of dicts with 'name' and 'category' fields
+        """
+        return self.db_client.retrieve(DEFAULT_TABLE)
+
+    def add_entry(self, table_name=None, **kwargs):
+        """Add an entry using TinyDB backend.
+
+        :return: TinyDB ID of new entry (int)
+        """
+
+        table_name = table_name or DEFAULT_TABLE
+        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
+
+        self._update_category_cache(**fields)
+
+        element_id = self.db_client.create(table_name, fields)
+
+        return element_id
+
+    def get_entry(self, eid, table_name=None):
+        """Get entry using TinyDB backend.
+
+        :return: found element (tinydb.Document)
+        """
+
+        table_name = table_name or DEFAULT_TABLE
+        element = self.db_client.retrieve_by_id(table_name, int(eid))
+        if element is None:
+            raise exceptions.PocketEntryNotFound("Entry not found.")
+
+        return element
+
     def update_entry(self, eid, table_name=None, **kwargs):
         """Update entry using TinyDB backend."""
 
@@ -422,7 +584,7 @@ class TinyDbPocket(Pocket):
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
 
-        element_id = self._db.table(table_name).update(fields, doc_ids=[int(eid)])[0]
+        element_id = self.db_client.update_by_id(table_name, int(eid), fields)
 
         return element_id
 
@@ -444,13 +606,13 @@ class TinyDbPocket(Pocket):
 
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
-        for element in self._db.search(condition):
+        for element in self.db_client.retrieve(DEFAULT_TABLE, condition):
             elements[DEFAULT_TABLE][element.doc_id] = element
 
         # all recurrent elements are generated, and the ones matching the
         # condition are appended to a list that is stored under their generating
         # element's doc_id in the 'recurrent' subdictionary
-        for element in self._db.table(RECURRENT_TABLE).all():
+        for element in self.db_client.retrieve(RECURRENT_TABLE):
             for e in self._create_recurrent_elements(element):
                 if condition(e):
                     elements[RECURRENT_TABLE][element.doc_id].append(e)
@@ -517,39 +679,10 @@ class TinyDbPocket(Pocket):
         # might raise PocketEntryNotFound if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-        self._db.table(table_name).remove(doc_ids=[entry.doc_id])
+        self.db_client.delete_by_id(table_name, entry.doc_id)
         self._update_category_cache(removing=True, **entry)
 
         return entry.doc_id
-
-    @staticmethod
-    def _create_query_condition(**filters):
-        """Construct query condition according to given filters. A filter is
-        given by a key-value pair. The key indicates the field, the value the
-        pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
-        'category'. Patterns must be of type string, or None (only for the fields
-        'category' and 'end; indicates filtering for all entries of the default
-        category, and recurrent entries with indefinite end, resp.).
-        :return: tinydb.queries.QueryInstance (default: noop)
-        """
-        condition = Query().noop()
-        if not filters:
-            return condition
-
-        entry = Query()
-        for field, pattern in filters.items():
-            if pattern is None and field in ["category", "end"]:
-                # The 'category' and 'end' fields are of type string or None. The
-                # condition is constructed depending on the filter pattern
-                new_condition = entry[field] == None  # noqa
-            elif field == "value":
-                new_condition = entry[field] == float(pattern)
-            else:
-                new_condition = entry[field].search(pattern.lower())
-
-            condition &= new_condition
-
-        return condition
 
     def get_entries(self, filters=None, recurrent_only=False):
         """Get entries using TinyDB backend.
@@ -563,26 +696,28 @@ class TinyDbPocket(Pocket):
                  list[tinydb.Document]
         """
         filters = filters or {}
-        condition = self._create_query_condition(**filters)
+        condition = TinyDbClient.create_query_condition(**filters)
 
         if recurrent_only:
             # Flatten tinydb Document into dict
             return [
                 {**e, **{"eid": e.doc_id}}
-                for e in self._db.table(RECURRENT_TABLE).search(condition)
+                for e in self.db_client.retrieve(RECURRENT_TABLE, condition)
             ]
 
         return self._search_all_tables(condition)
 
     def get_categories(self):
         """Return unique category names using TinyDB backend."""
-        category_names = set(e["category"] for e in self._db.table(DEFAULT_TABLE).all())
+        category_names = set(
+            e["category"] for e in self.db_client.retrieve(DEFAULT_TABLE)
+        )
         category_names.discard(_DEFAULT_CATEGORY)
         return sorted(category_names)
 
     def close(self):
         """Close TinyDB database."""
-        self._db.close()
+        self.db_client.close()
 
 
 TinyDB.default_table_name = DEFAULT_TABLE
