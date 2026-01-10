@@ -109,7 +109,6 @@ class Pocket(ABC):
         specified.
         """
         self._name = f"{name or DEFAULT_POCKET_NAME}"
-        self._create_category_cache()
 
     @property
     def name(self):
@@ -522,8 +521,8 @@ class TinyDbPocket(Pocket):
         docs for detailed information.
         """
 
-        # Initialize name before calling super().__init__
-        self._name = f"{name or DEFAULT_POCKET_NAME}"
+        # Call parent init to set name
+        super().__init__(name=name)
 
         # evaluate args/kwargs for TinyDB constructor. This overwrites the
         # 'storage' kwarg if explicitly passed
@@ -536,8 +535,8 @@ class TinyDbPocket(Pocket):
 
         self.db_client = TinyDbClient(*args, **kwargs)
 
-        # Call parent init which will create the category cache
-        super().__init__(name=name)
+        # Create category cache after db_client is initialized
+        self._create_category_cache()
 
     def _get_all_entries_for_cache(self):
         """Get all entries for building the category cache.
