@@ -14,13 +14,17 @@ class ConfigTestCase(unittest.TestCase):
     def test_get_option(self):
         config = Configuration()
         self.assertEqual(config.get_option("SERVICE", "name"), "local")
-        self.assertDictEqual(config.get_section("SERVICE"), {"name": "local"})
+        self.assertDictEqual(
+            config.get_section("SERVICE"),
+            {"name": "local", "database_type": "tinydb"},
+        )
 
     def test_invalid_config(self):
         filepath = f"/tmp/{int(time.time())}"
 
         for content in (
             "[SERVICE]\nname = sillyservice\n",
+            "[SERVICE]\ndatabase_type = footype\n",
             "[FRONTEND]\ndefault_category = ",
         ):
             with open(filepath, "w") as file:

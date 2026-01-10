@@ -41,6 +41,7 @@ class Configuration:
     def _init_defaults(self):
         self._parser["SERVICE"] = {
             "name": "local",
+            "database_type": "tinydb",
         }
         self._parser["FRONTEND"] = {
             "default_category": CategoryEntry.DEFAULT_NAME,
@@ -115,6 +116,11 @@ class Configuration:
         service_name = self.get_option("SERVICE", "name")
         if service_name not in valid_services:
             raise InvalidConfigError(f"Unknown service name: {service_name}")
+
+        valid_database_types = ["tinydb"]
+        database_type = self.get_option("SERVICE", "database_type")
+        if database_type not in valid_database_types:
+            raise InvalidConfigError(f"Unknown database type: {database_type}")
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
