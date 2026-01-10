@@ -77,8 +77,12 @@ class Server:
             pd = self._pockets[name]
         except KeyError:
             logger.debug(f"Loading pocket '{name}'")
-            pockets = {"tinydb": pocket.TinyDbPocket}
-            pd = pockets[self._database_type](name, **self._pocket_kwargs)
+            pocket_class = pocket.POCKET_CLASSES.get(self._database_type)
+            if pocket_class is None:
+                raise exceptions.PocketException(
+                    f"No pocket class available for '{self._database_type}'"
+                )
+            pd = pocket_class(name, **self._pocket_kwargs)
             self._pockets[pd.name] = pd
 
         return pd

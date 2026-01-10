@@ -202,5 +202,21 @@ class JsonPocketsServerTestCase(unittest.TestCase):
         self.assertDictEqual(self.server.run("pockets"), {"pockets": pockets})
 
 
+class InvalidDatabaseTypeTestCase(unittest.TestCase):
+    def test_exception(self):
+        server_ = server.Server(database_type="invalid")
+        pocket = "0"
+        response = server_.run(
+            "add",
+            name="Hiking boots",
+            value=-111.11,
+            category="outdoors",
+            pocket=pocket,
+        )
+        self.assertEqual(
+            str(response["error"]), "No pocket class available for 'invalid'"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

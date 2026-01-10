@@ -586,3 +586,4 @@ class TinyDbPocket(Pocket):
 
 
 TinyDB.default_table_name = DEFAULT_TABLE
+POCKET_CLASSES = {"tinydb": TinyDbPocket}
