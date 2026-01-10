@@ -483,7 +483,7 @@ class TinyDbClient(DatabaseClient):
         given by a key-value pair. The key indicates the field, the value the
         pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
         'category'. Patterns must be of type string, or None (only for the fields
-        'category' and 'end; indicates filtering for all entries of the default
+        'category' and 'end'); indicates filtering for all entries of the default
         category, and recurrent entries with indefinite end, resp.).
         :return: tinydb.queries.QueryInstance (default: noop)
         """
@@ -530,7 +530,7 @@ class TinyDbPocket(Pocket):
             args = []
             kwargs["storage"] = storages.MemoryStorage
         else:
-            args = [os.path.join(data_dir, self.name + ".json")]
+            args = [os.path.join(data_dir, f"{self.name}.json")]
             kwargs["storage"] = storages.JSONStorage
 
         self.db_client = TinyDbClient(*args, **kwargs)
