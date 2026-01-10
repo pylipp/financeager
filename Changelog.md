@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.5.2] - 2026-
+### Added
+- Enable support for different database types. If you initialize `Server` or a subclass in your code, you should pass the `database_type` parameter of the configuration. (#267)
+
 ## [v1.5.1] - 2026-01-10
 ### Added
 - Enable suggestions for mistyped CLI commands and argument choices (only for Python 3.14 and newer).

@@ -87,7 +87,10 @@ class LocalServerClient(Client):
         """Set up proxy."""
         super().__init__(configuration=configuration, sinks=sinks)
 
-        self.proxy = localserver.Proxy(data_dir=financeager.DATA_DIR)
+        database_type = configuration.get_option("SERVICE", "database_type")
+        self.proxy = localserver.Proxy(
+            database_type=database_type, data_dir=financeager.DATA_DIR
+        )
 
     def safely_run(self, command, **params):
         """Run the parent method, and for certain modifying commands, fetch category

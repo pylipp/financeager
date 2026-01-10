@@ -15,9 +15,10 @@ class Server:
     Kwargs (f.i. storage) are passed to the TinyDbPocket member.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *, database_type="tinydb", **kwargs):
         self._pockets = {}
         self._pocket_kwargs = kwargs
+        self._database_type = database_type
 
     def run(self, command, **kwargs):
         """The requested pocket is created if not yet present. The method of
@@ -76,7 +77,12 @@ class Server:
             pd = self._pockets[name]
         except KeyError:
             logger.debug(f"Loading pocket '{name}'")
-            pd = pocket.TinyDbPocket(name, **self._pocket_kwargs)
+            pocket_class = pocket.POCKET_CLASSES.get(self._database_type)
+            if pocket_class is None:
+                raise exceptions.PocketException(
+                    f"No pocket class available for '{self._database_type}'"
+                )
+            pd = pocket_class(name, **self._pocket_kwargs)
             self._pockets[pd.name] = pd
 
         return pd

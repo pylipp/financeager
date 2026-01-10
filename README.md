@@ -184,7 +184,7 @@ Completion has to be enabled by running `activate-global-python-argcomplete`. Re
 
 ### Database back-ends
 
-Want to use a different database? Derive a custom class from `pocket.Pocket` and implement the CRUD methods. Modify the `Server` class accordingly to use the new pocket type.
+Want to use a different database? Derive a custom class from `pocket.Pocket` and implement the CRUD methods. Modify `pocket.POCKET_CLASSES` accordingly to register the new pocket type.
 
 ### Plugin support
 
