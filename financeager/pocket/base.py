@@ -65,6 +65,137 @@ class Pocket(ABC):
     def name(self):
         return self._name
 
+    def add_entry(self, table_name=None, **kwargs):
+        """Add an entry (standard or recurrent) to the database.
+
+        If 'table_name' is not specified, the kwargs name, value[, category,
+        date] are used to insert a unique entry in the standard table.
+        With 'table_name' as 'recurrent', the kwargs name, value, frequency
+        [, start, end, category] are used to insert a template entry in the
+        recurrent table.
+
+        Two kwargs are mandatory:
+            :param name: entry name
+            :type name: str
+            :param value: entry value
+            :type value: float, int or str
+
+        The following kwarg is optional:
+            :param category: entry category. If not specified, the program
+                attempts to derive it from previous, eponymous entries. If this
+                fails, the default category is assigned
+            :type category: str or None
+
+        The following kwarg is optional for standard entries:
+            :param date: entry date. Defaults to current date
+            :type date: str of date format
+
+        The following kwarg is mandatory for recurrent entries:
+            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
+                'bimonthly', 'monthly', 'weekly' or 'daily'
+
+        The following kwargs are optional for recurrent entries:
+            :param start: start date (defaults to current date)
+            :param end: end date (defaults to None which evaluates to the
+                current day when the entry is queried)
+
+        :raise: PocketValidationFailure if validation failed
+        :return: ID of new entry
+        """
+        table_name = table_name or DEFAULT_TABLE
+        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
+
+        self._update_category_cache(**fields)
+
+        element_id = self.db_client.create(table_name, fields)
+
+        return element_id
+
+    def get_entry(self, eid, table_name=None):
+        """Get entry specified by eid in the table table_name.
+
+        :param eid: entry ID
+        :type eid: int or str
+        :param table_name: table that the entry is stored in (defaults to 'standard')
+        :type table_name: str
+
+        :raise: PocketEntryNotFound if element not found
+        :return: found element
+        """
+        table_name = table_name or DEFAULT_TABLE
+        element = self.db_client.retrieve_by_id(table_name, int(eid))
+        if element is None:
+            raise exceptions.PocketEntryNotFound("Entry not found.")
+
+        return dict(element)
+
+    def update_entry(self, eid, table_name=None, **kwargs):
+        """Update one or more fields of a single entry.
+
+        :param eid: entry ID of the entry to be updated
+        :param table_name: table that the entry is stored in (default: 'standard')
+        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
+            'end' for recurrent entries; any of 'name', 'value', 'category' for
+            either entry type
+        :raise: PocketEntryNotFound if element not found
+        :return: ID of the updated entry
+        """
+        table_name = table_name or DEFAULT_TABLE
+        fields = self._preprocess_entry_for_update(
+            raw_data=kwargs, table_name=table_name
+        )
+
+        self._update_category_cache(eid=eid, table_name=table_name, **fields)
+
+        element_id = self.db_client.update_by_id(table_name, int(eid), fields)
+
+        return element_id
+
+    def remove_entry(self, eid, table_name=None):
+        """Remove an entry from the database given its ID.
+
+        :param eid: ID of the element to be deleted.
+        :type eid: int or str
+        :param table_name: name of the table that contains the element.
+            Default: 'standard'
+        :type table_name: str
+
+        :raise: PocketEntryNotFound if element/ID not found.
+        :return: element ID if removal was successful
+        """
+        table_name = table_name or DEFAULT_TABLE
+        # might raise PocketEntryNotFound if ID not existing
+        entry = self.get_entry(eid=int(eid), table_name=table_name)
+
+        self.db_client.delete_by_id(table_name, int(eid))
+        self._update_category_cache(removing=True, **entry)
+
+        return int(eid)
+
+    @abstractmethod
+    def get_entries(self, filters=None, recurrent_only=False):
+        """Get entries that match the items of the filters dict, if specified.
+
+        If `recurrent_only` is true, return a list of all entries of the
+        recurrent table. Filters are applied.
+
+        :param filters: dict of filters to apply
+        :param recurrent_only: whether to return only recurrent entries
+        :return: entries matching the filters
+        """
+
+    def get_categories(self):
+        """Return unique category names in alphabetical order."""
+        category_names = set(
+            e["category"] for e in self.db_client.retrieve(DEFAULT_TABLE)
+        )
+        category_names.discard(_DEFAULT_CATEGORY)
+        return sorted(category_names)
+
+    @abstractmethod
+    def close(self):
+        """Close underlying database."""
+
     def _create_category_cache(self):
         """The category cache assigns a counter for each element name in the
         database (excluding recurrent elements), keeping track of the
@@ -261,92 +392,6 @@ class Pocket(ABC):
 
         return fields
 
-    def add_entry(self, table_name=None, **kwargs):
-        """Add an entry (standard or recurrent) to the database.
-
-        If 'table_name' is not specified, the kwargs name, value[, category,
-        date] are used to insert a unique entry in the standard table.
-        With 'table_name' as 'recurrent', the kwargs name, value, frequency
-        [, start, end, category] are used to insert a template entry in the
-        recurrent table.
-
-        Two kwargs are mandatory:
-            :param name: entry name
-            :type name: str
-            :param value: entry value
-            :type value: float, int or str
-
-        The following kwarg is optional:
-            :param category: entry category. If not specified, the program
-                attempts to derive it from previous, eponymous entries. If this
-                fails, the default category is assigned
-            :type category: str or None
-
-        The following kwarg is optional for standard entries:
-            :param date: entry date. Defaults to current date
-            :type date: str of date format
-
-        The following kwarg is mandatory for recurrent entries:
-            :param frequency: 'yearly', 'half-yearly', 'quarter-yearly',
-                'bimonthly', 'monthly', 'weekly' or 'daily'
-
-        The following kwargs are optional for recurrent entries:
-            :param start: start date (defaults to current date)
-            :param end: end date (defaults to None which evaluates to the
-                current day when the entry is queried)
-
-        :raise: PocketValidationFailure if validation failed
-        :return: ID of new entry
-        """
-        table_name = table_name or DEFAULT_TABLE
-        fields = self._preprocess_entry(raw_data=kwargs, table_name=table_name)
-
-        self._update_category_cache(**fields)
-
-        element_id = self.db_client.create(table_name, fields)
-
-        return element_id
-
-    def get_entry(self, eid, table_name=None):
-        """Get entry specified by eid in the table table_name.
-
-        :param eid: entry ID
-        :type eid: int or str
-        :param table_name: table that the entry is stored in (defaults to 'standard')
-        :type table_name: str
-
-        :raise: PocketEntryNotFound if element not found
-        :return: found element
-        """
-        table_name = table_name or DEFAULT_TABLE
-        element = self.db_client.retrieve_by_id(table_name, int(eid))
-        if element is None:
-            raise exceptions.PocketEntryNotFound("Entry not found.")
-
-        return dict(element)
-
-    def update_entry(self, eid, table_name=None, **kwargs):
-        """Update one or more fields of a single entry.
-
-        :param eid: entry ID of the entry to be updated
-        :param table_name: table that the entry is stored in (default: 'standard')
-        :param kwargs: 'date' for standard entries; any of 'frequency', 'start',
-            'end' for recurrent entries; any of 'name', 'value', 'category' for
-            either entry type
-        :raise: PocketEntryNotFound if element not found
-        :return: ID of the updated entry
-        """
-        table_name = table_name or DEFAULT_TABLE
-        fields = self._preprocess_entry_for_update(
-            raw_data=kwargs, table_name=table_name
-        )
-
-        self._update_category_cache(eid=eid, table_name=table_name, **fields)
-
-        element_id = self.db_client.update_by_id(table_name, int(eid), fields)
-
-        return element_id
-
     def _create_recurrent_elements(self, element):
         """Generate elements (holding name, value, category, date) from the
         information of the recurrent element being passed.
@@ -396,48 +441,3 @@ class Pocket(ABC):
                 category=element["category"],
                 date=date.strftime(POCKET_DATE_FORMAT),
             )
-
-    def remove_entry(self, eid, table_name=None):
-        """Remove an entry from the database given its ID.
-
-        :param eid: ID of the element to be deleted.
-        :type eid: int or str
-        :param table_name: name of the table that contains the element.
-            Default: 'standard'
-        :type table_name: str
-
-        :raise: PocketEntryNotFound if element/ID not found.
-        :return: element ID if removal was successful
-        """
-        table_name = table_name or DEFAULT_TABLE
-        # might raise PocketEntryNotFound if ID not existing
-        entry = self.get_entry(eid=int(eid), table_name=table_name)
-
-        self.db_client.delete_by_id(table_name, int(eid))
-        self._update_category_cache(removing=True, **entry)
-
-        return int(eid)
-
-    @abstractmethod
-    def get_entries(self, filters=None, recurrent_only=False):
-        """Get entries that match the items of the filters dict, if specified.
-
-        If `recurrent_only` is true, return a list of all entries of the
-        recurrent table. Filters are applied.
-
-        :param filters: dict of filters to apply
-        :param recurrent_only: whether to return only recurrent entries
-        :return: entries matching the filters
-        """
-
-    def get_categories(self):
-        """Return unique category names in alphabetical order."""
-        category_names = set(
-            e["category"] for e in self.db_client.retrieve(DEFAULT_TABLE)
-        )
-        category_names.discard(_DEFAULT_CATEGORY)
-        return sorted(category_names)
-
-    @abstractmethod
-    def close(self):
-        """Close underlying database."""
