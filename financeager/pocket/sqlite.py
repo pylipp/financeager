@@ -8,6 +8,14 @@ from .utils import DatabaseInterface
 class SqliteInterface(DatabaseInterface):
     """Database interface implementation using SQLite."""
 
+    # Valid table names for security
+    _VALID_TABLES = {"standard", "recurrent"}
+    # Valid column names for each table
+    _VALID_COLUMNS = {
+        "standard": {"name", "date", "category", "value"},
+        "recurrent": {"name", "start", "end", "frequency", "category", "value"},
+    }
+
     def __init__(self, *args, **kwargs):
         """Initialize SQLite database connection.
 
@@ -17,6 +25,27 @@ class SqliteInterface(DatabaseInterface):
         self._conn = sqlite3.connect(*args, **kwargs)
         self._conn.row_factory = sqlite3.Row
         self._create_tables()
+
+    def _validate_table_name(self, table_name):
+        """Validate table name to prevent SQL injection.
+
+        :param table_name: name of the table
+        :raise ValueError: if table name is invalid
+        """
+        if table_name not in self._VALID_TABLES:
+            raise ValueError(f"Invalid table name: {table_name}")
+
+    def _validate_columns(self, table_name, columns):
+        """Validate column names to prevent SQL injection.
+
+        :param table_name: name of the table
+        :param columns: iterable of column names
+        :raise ValueError: if any column name is invalid
+        """
+        valid_columns = self._VALID_COLUMNS.get(table_name, set())
+        for col in columns:
+            if col not in valid_columns:
+                raise ValueError(f"Invalid column name for {table_name}: {col}")
 
     def _create_tables(self):
         """Create tables if they don't exist."""
@@ -59,6 +88,7 @@ class SqliteInterface(DatabaseInterface):
         :param condition: optional condition function to filter rows
         :return: list of dicts
         """
+        self._validate_table_name(table_name)
         cursor = self._conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
         rows = cursor.fetchall()
@@ -82,6 +112,7 @@ class SqliteInterface(DatabaseInterface):
         :param element_id: ID of the element to retrieve
         :return: dict or None if ID does not exist
         """
+        self._validate_table_name(table_name)
         cursor = self._conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name} WHERE eid = ?", (element_id,))
         row = cursor.fetchone()
@@ -101,6 +132,8 @@ class SqliteInterface(DatabaseInterface):
         :param data: dict of data to insert
         :return: ID of the created element
         """
+        self._validate_table_name(table_name)
+        self._validate_columns(table_name, data.keys())
         cursor = self._conn.cursor()
 
         # Build INSERT statement
@@ -123,6 +156,8 @@ class SqliteInterface(DatabaseInterface):
         :param data: dict of data to update
         :return: ID of the updated element
         """
+        self._validate_table_name(table_name)
+        self._validate_columns(table_name, data.keys())
         cursor = self._conn.cursor()
 
         # Build UPDATE statement
@@ -141,6 +176,7 @@ class SqliteInterface(DatabaseInterface):
         :param element_id: ID of the element to delete
         :return: ID of the deleted element
         """
+        self._validate_table_name(table_name)
         cursor = self._conn.cursor()
         cursor.execute(f"DELETE FROM {table_name} WHERE eid = ?", (element_id,))
         self._conn.commit()
