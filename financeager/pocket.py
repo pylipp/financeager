@@ -416,10 +416,10 @@ class Pocket(ABC):
         # might raise PocketEntryNotFound if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-        self.db_client.delete_by_id(table_name, entry.doc_id)
+        self.db_client.delete_by_id(table_name, int(eid))
         self._update_category_cache(removing=True, **entry)
 
-        return entry.doc_id
+        return int(eid)
 
     @abstractmethod
     def get_entries(self, filters=None, recurrent_only=False):
