@@ -29,7 +29,7 @@ from . import (
     make_log_stream_handler_verbose,
     setup_log_file_handler,
 )
-from .pocket import FREQUENCY_CHOICES
+from .pocket.base import FREQUENCY_CHOICES
 from .server import pocket_names
 
 logger = init_logger(__name__)
