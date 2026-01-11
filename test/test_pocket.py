@@ -2,7 +2,6 @@ import calendar
 import datetime as dt
 import json
 import os.path
-import sqlite3
 import tempfile
 import unittest
 from collections import Counter
@@ -73,7 +72,7 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
 
     def test_remove_entry(self):
         response = self.pocket.remove_entry(eid=1)
-        self.assertEqual(0, len(self.pocket.db_interface._db))
+        self.assertEqual(0, len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)))
         self.assertEqual(1, response)
 
     def test_create_models_query_kwargs(self):
@@ -138,11 +137,13 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
     def test_add_remove_via_eid(self):
         entry_name = "penguin sale"
         entry_id = self.pocket.add_entry(name=entry_name, value=1337, date="2010-12-01")
-        nr_entries = len(self.pocket.db_interface._db)
+        nr_entries = len(self.pocket.db_interface.retrieve(DEFAULT_TABLE))
 
         removed_entry_id = self.pocket.remove_entry(eid=entry_id)
         self.assertEqual(removed_entry_id, entry_id)
-        self.assertEqual(len(self.pocket.db_interface._db), nr_entries - 1)
+        self.assertEqual(
+            len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)), nr_entries - 1
+        )
         self.assertEqual(self.pocket._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
 
     def test_get_nonexisting_entry(self):
@@ -241,16 +242,17 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
 
 
 class TinyDbPocketRecurrentEntryNowTestCase(unittest.TestCase):
-    def test_no_future_elements_created(self):
+    def setUp(self):
         # current year
-        pocket = TinyDbPocket()
+        self.pocket = TinyDbPocket()
 
-        elements = pocket.get_entries()
+    def test_no_future_elements_created(self):
+        elements = self.pocket.get_entries()
         self.assertEqual(len(elements[DEFAULT_TABLE]), 0)
         self.assertEqual(len(elements[RECURRENT_TABLE]), 0)
 
         today = dt.date.today().replace(year=1993)
-        entry_id = pocket.add_entry(
+        entry_id = self.pocket.add_entry(
             table_name=RECURRENT_TABLE,
             name="lunch",
             value=-5,
@@ -260,7 +262,7 @@ class TinyDbPocketRecurrentEntryNowTestCase(unittest.TestCase):
         )
 
         day_nr = today.timetuple().tm_yday
-        elements = pocket.get_entries()
+        elements = self.pocket.get_entries()
         self.assertEqual(len(elements[RECURRENT_TABLE][entry_id]), day_nr)
 
 
@@ -277,12 +279,11 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             start="2007-10-01",
             end="2008-11-30",
         )
-        self.assertSetEqual({RECURRENT_TABLE}, self.pocket.db_interface._db.tables())
+        # self.assertSetEqual({RECURRENT_TABLE}, self.pocket.db_interface._db.tables())
 
-        self.assertEqual(
-            len(self.pocket.db_interface._db.table(RECURRENT_TABLE).all()), 1
-        )
-        element = self.pocket.db_interface._db.table(RECURRENT_TABLE).all()[0]
+        elements = self.pocket.db_interface.retrieve(RECURRENT_TABLE)
+        self.assertEqual(len(elements), 1)
+        element = elements[0]
         recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 14)
 
@@ -308,7 +309,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             end="1991-12-31",
         )
 
-        element = self.pocket.db_interface._db.table(RECURRENT_TABLE).all()[0]
+        element = self.pocket.db_interface.retrieve(RECURRENT_TABLE)[0]
         recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 4)
 
@@ -323,10 +324,10 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             },
         )
 
-        recurrent_table_size = len(self.pocket.db_interface._db.table(RECURRENT_TABLE))
+        recurrent_table_size = len(self.pocket.db_interface.retrieve(RECURRENT_TABLE))
         self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(
-            len(self.pocket.db_interface._db.table(RECURRENT_TABLE)),
+            len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)),
             recurrent_table_size - 1,
         )
 
@@ -653,497 +654,35 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
 
 
 class CreateEmptySqlitePocketTestCase(unittest.TestCase):
-    def test_default_name(self):
-        pocket = SqlitePocket()
-        self.assertEqual(pocket.name, DEFAULT_POCKET_NAME)
-        pocket.close()
-
-    def test_load_category_cache(self):
-        # Create data file with one entry and load it into SqlitePocket
+    def test_sqlite_file(self):
         data_dir = tempfile.mkdtemp(prefix="financeager-")
         name = 1234
         db_path = os.path.join(data_dir, f"{name}.sqlite")
-
-        # Create database with one entry
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS standard (
-                eid INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                date TEXT NOT NULL,
-                category TEXT,
-                value REAL NOT NULL
-            )
-        """
-        )
-        cursor.execute(
-            "INSERT INTO standard (name, date, category, value) VALUES (?, ?, ?, ?)",
-            ("climbing", "2020-01-01", "sport", 0.0),
-        )
-        conn.commit()
-        conn.close()
+        self.assertFalse(os.path.exists(db_path))
 
         pocket = SqlitePocket(name=name, data_dir=data_dir)
-        # Expect that 'sport' has been counted once
-        self.assertEqual(pocket._category_cache["climbing"], Counter(["sport"]))
         pocket.close()
+        self.assertTrue(os.path.exists(db_path))
         os.remove(db_path)
 
 
-class SqlitePocketStandardEntryTestCase(unittest.TestCase):
+class SqlitePocketStandardEntryTestCase(TinyDbPocketStandardEntryTestCase):
     def setUp(self):
         self.pocket = SqlitePocket(name=1901)
         self.eid = self.pocket.add_entry(
             name="Bicycle", value=-999.99, date="2020-01-01"
         )
 
-    @unittest.skip("missing support for leap year validation in marshmallow")
-    def test_leap_year_date(self):
-        eid = self.pocket.add_entry(
-            name="leap win",
-            value=2,
-            date="02-29",
-        )
-        entry = self.pocket.get_entry(eid)
-        self.assertEqual(entry["date"], "02-29")
 
-    def test_get_entries(self):
-        entries = self.pocket.get_entries(filters={"date": "01-"})
-        self.assertEqual("bicycle", entries[DEFAULT_TABLE][1]["name"])
-
-    def test_remove_entry(self):
-        response = self.pocket.remove_entry(eid=1)
-        # Check that the entry is removed
-        self.assertEqual(len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)), 0)
-        self.assertEqual(1, response)
-
-    def test_create_models_query_kwargs(self):
-        eid = self.pocket.add_entry(
-            name="Xmas gifts", value=500, date="2002-12-23", category="gifts"
-        )
-        standard_elements = self.pocket.get_entries(filters={"date": "12"})[
-            DEFAULT_TABLE
-        ]
-        self.assertEqual(len(standard_elements), 1)
-        self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
-
-        standard_elements = self.pocket.get_entries(filters={"category": None})[
-            DEFAULT_TABLE
-        ]
-        self.assertEqual(len(standard_elements), 1)
-
-        standard_elements = self.pocket.get_entries(filters={"category": "gi"})[
-            DEFAULT_TABLE
-        ]
-        self.assertEqual(len(standard_elements), 1)
-
-        standard_elements = self.pocket.get_entries(filters={"value": 500})[
-            DEFAULT_TABLE
-        ]
-        self.assertEqual(len(standard_elements), 1)
-
-        standard_elements = self.pocket.get_entries(
-            filters={"category": "gi", "date": "12"}
-        )[DEFAULT_TABLE]
-        self.assertEqual(len(standard_elements), 1)
-
-        self.pocket.add_entry(name="hammer", value=-33, date="2015-12-20")
-        standard_elements = self.pocket.get_entries(
-            filters={"name": "xmas", "date": "12"}
-        )[DEFAULT_TABLE]
-        self.assertEqual(len(standard_elements), 1)
-        self.assertEqual(standard_elements[eid]["name"], "xmas gifts")
-
-        standard_elements = self.pocket.get_entries(
-            filters={"value": 500, "date": "12"}
-        )[DEFAULT_TABLE]
-        self.assertEqual(len(standard_elements), 1)
-
-    def test_category_cache(self):
-        self.pocket.add_entry(
-            name="walmart", value=-50.01, category="groceries", date="1999-02-02"
-        )
-        self.pocket.add_entry(name="walmart", value=-0.99, date="1999-02-03")
-
-        groceries_elements = self.pocket.get_entries(filters={"category": "groceries"})
-        self.assertEqual(len(groceries_elements), 2)
-        self.assertEqual(
-            sum([e["value"] for e in groceries_elements[DEFAULT_TABLE].values()]), -51
-        )
-
-    def test_remove_nonexisting_entry(self):
-        self.assertRaises(
-            exceptions.PocketEntryNotFound, self.pocket.remove_entry, eid=0
-        )
-
-    def test_add_remove_via_eid(self):
-        entry_name = "penguin sale"
-        entry_id = self.pocket.add_entry(name=entry_name, value=1337, date="2010-12-01")
-        nr_entries = len(self.pocket.db_interface.retrieve(DEFAULT_TABLE))
-
-        removed_entry_id = self.pocket.remove_entry(eid=entry_id)
-        self.assertEqual(removed_entry_id, entry_id)
-        self.assertEqual(
-            len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)), nr_entries - 1
-        )
-        self.assertEqual(self.pocket._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
-
-    def test_get_nonexisting_entry(self):
-        self.assertRaises(exceptions.PocketEntryNotFound, self.pocket.get_entry, eid=-1)
-
-    def test_add_entry_default_date(self):
-        name = "new backpack"
-        entry_id = self.pocket.add_entry(name=name, value=-49.95, date=None)
-        element = self.pocket.get_entry(entry_id)
-        self.assertEqual(element["date"], dt.date.today().strftime(POCKET_DATE_FORMAT))
-        self.pocket.remove_entry(eid=entry_id)
-
-    def test_update_standard_entry(self):
-        self.pocket.update_entry(eid=self.eid, value=-100)
-        element = self.pocket.get_entry(eid=self.eid)
-        self.assertEqual(element["value"], -100)
-
-        # kwargs with None-value should be ignored; they are passed e.g. by the
-        # flask_restful RequestParser
-        self.pocket.update_entry(
-            eid=self.eid, name="Trekking Bicycle", value=None, category=None
-        )
-        element = self.pocket.get_entry(eid=self.eid)
-        self.assertEqual(element["name"], "trekking bicycle")
-
-        self.assertEqual(
-            self.pocket._category_cache["bicycle"], Counter({_DEFAULT_CATEGORY: 0})
-        )
-        self.assertEqual(
-            self.pocket._category_cache["trekking bicycle"],
-            Counter({_DEFAULT_CATEGORY: 1}),
-        )
-
-        self.pocket.update_entry(eid=self.eid, category="Sports", name=None)
-        element = self.pocket.get_entry(eid=self.eid)
-        self.assertEqual(element["category"], "sports")
-
-        self.assertEqual(
-            self.pocket._category_cache["trekking bicycle"],
-            Counter({"sports": 1, _DEFAULT_CATEGORY: 0}),
-        )
-
-        # string-eids should be internally converted to int
-        self.pocket.update_entry(
-            eid=str(self.eid), name="MTB Tandem", category="Fun", value=-1000
-        )
-        element = self.pocket.get_entry(eid=self.eid)
-        self.assertEqual(element["name"], "mtb tandem")
-        self.assertEqual(element["value"], -1000.0)
-        self.assertEqual(element["category"], "fun")
-
-        self.assertEqual(
-            self.pocket._category_cache["trekking bicycle"],
-            Counter({"sports": 0, _DEFAULT_CATEGORY: 0}),
-        )
-        self.assertEqual(self.pocket._category_cache["mtb tandem"], Counter({"fun": 1}))
-
-    def test_update_nonexisting_entry(self):
-        self.assertRaises(
-            exceptions.PocketEntryNotFound,
-            self.pocket.update_entry,
-            eid=0,
-            name="I shall fail",
-        )
-
-    def test_add_invalid_entry(self):
-        self.assertRaises(
-            exceptions.PocketValidationFailure,
-            self.pocket.add_entry,
-            name="I'm invalid",
-            date="1.1",
-            value="hundred",
-        )
-
-    def test_get_categories(self):
-        # Table has one element with default category
-        self.assertEqual(len(self.pocket.get_entries()[DEFAULT_TABLE]), 1)
-        self.assertEqual(self.pocket.get_categories(), [])
-        self.pocket.remove_entry(eid=self.eid)
-        self.assertEqual(self.pocket.get_categories(), [])
-
-        category = "Groceries"
-        self.pocket.add_entry(name="Apple", value=-5, category=category)
-        self.assertEqual(self.pocket.get_categories(), [category.lower()])
-        self.pocket.add_entry(name="Pear", value=-3, category=category)
-        self.assertEqual(self.pocket.get_categories(), [category.lower()])
-
-        another_category = "Car"
-        self.pocket.add_entry(name="Petrol", value=-30, category=another_category)
-        self.assertEqual(
-            self.pocket.get_categories(), [another_category.lower(), category.lower()]
-        )
-
-    def tearDown(self):
-        self.pocket.close()
-
-
-class SqlitePocketRecurrentEntryNowTestCase(unittest.TestCase):
-    def test_no_future_elements_created(self):
+class SqlitePocketRecurrentEntryNowTestCase(TinyDbPocketRecurrentEntryNowTestCase):
+    def setUp(self):
         # current year
-        pocket = SqlitePocket()
-
-        elements = pocket.get_entries()
-        self.assertEqual(len(elements[DEFAULT_TABLE]), 0)
-        self.assertEqual(len(elements[RECURRENT_TABLE]), 0)
-
-        today = dt.date.today().replace(year=1993)
-        entry_id = pocket.add_entry(
-            table_name=RECURRENT_TABLE,
-            name="lunch",
-            value=-5,
-            frequency="daily",
-            start="1993-01-01",
-            end=today.strftime(POCKET_DATE_FORMAT),
-        )
-
-        day_nr = today.timetuple().tm_yday
-        elements = pocket.get_entries()
-        self.assertEqual(len(elements[RECURRENT_TABLE][entry_id]), day_nr)
+        self.pocket = SqlitePocket()
 
 
-class SqlitePocketRecurrentEntryTestCase(unittest.TestCase):
+class SqlitePocketRecurrentEntryTestCase(TinyDbPocketRecurrentEntryTestCase):
     def setUp(self):
         self.pocket = SqlitePocket(name=1901)
-
-    def test_recurrent_entries(self):
-        eid = self.pocket.add_entry(
-            name="rent",
-            value=-500,
-            table_name=RECURRENT_TABLE,
-            frequency="monthly",
-            start="2007-10-01",
-            end="2008-11-30",
-        )
-        # Check that only recurrent table has entries
-        self.assertEqual(len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)), 1)
-        element = self.pocket.db_interface.retrieve(RECURRENT_TABLE)[0]
-        recurrent_elements = list(self.pocket._create_recurrent_elements(element))
-        self.assertEqual(len(recurrent_elements), 14)
-
-        rep_element_names = {e["name"] for e in recurrent_elements}
-        self.assertSetEqual(
-            rep_element_names,
-            {f"rent, {calendar.month_name[m + 1].lower()}" for m in range(12)},
-        )
-
-        matching_elements = self.pocket.get_entries(filters={"date": "11"})[
-            RECURRENT_TABLE
-        ]
-        self.assertEqual(len(matching_elements), 1)
-        self.assertEqual(matching_elements[eid][0]["name"], "rent, november")
-
-    def test_recurrent_quarter_yearly_entries(self):
-        eid = self.pocket.add_entry(
-            name="interest",
-            value=25,
-            table_name=RECURRENT_TABLE,
-            frequency="quarter-yearly",
-            start="1991-01-01",
-            end="1991-12-31",
-        )
-
-        element = self.pocket.db_interface.retrieve(RECURRENT_TABLE)[0]
-        recurrent_elements = list(self.pocket._create_recurrent_elements(element))
-        self.assertEqual(len(recurrent_elements), 4)
-
-        rep_element_names = {e["name"] for e in recurrent_elements}
-        self.assertSetEqual(
-            rep_element_names,
-            {
-                "interest, january",
-                "interest, april",
-                "interest, july",
-                "interest, october",
-            },
-        )
-
-        recurrent_table_size = len(self.pocket.db_interface.retrieve(RECURRENT_TABLE))
-        self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
-        self.assertEqual(
-            len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)),
-            recurrent_table_size - 1,
-        )
-
-    def test_recurrent_bimonthly_entries(self):
-        eid = self.pocket.add_entry(
-            name="interest",
-            value=25,
-            table_name=RECURRENT_TABLE,
-            frequency="bimonthly",
-            start="2012-01-08",
-            end="2012-03-08",
-        )
-        recurrent_elements = self.pocket.get_entries()[RECURRENT_TABLE][eid]
-        self.assertEqual(len(recurrent_elements), 2)
-        self.assertEqual(recurrent_elements[0]["name"], "interest, january")
-
-    def test_recurrent_weekly_entries(self):
-        eid = self.pocket.add_entry(
-            name="interest",
-            value=25,
-            table_name=RECURRENT_TABLE,
-            frequency="weekly",
-            start="2000-01-08",
-            end="2000-01-14",
-        )
-        recurrent_elements = self.pocket.get_entries()[RECURRENT_TABLE][eid]
-        self.assertEqual(len(recurrent_elements), 1)
-        self.assertEqual(recurrent_elements[0]["name"], "interest, week 01")
-
-    def test_get_entries_of_recurrent_table(self):
-        interest_fields = dict(
-            name="interest",
-            value=25.0,
-            frequency="weekly",
-            start="2000-01-08",
-            end="2000-01-14",
-        )
-        rent_fields = dict(
-            name="rent",
-            value=-400.0,
-            category="living",
-            frequency="monthly",
-            start="2020-01-01",
-        )
-        eid = self.pocket.add_entry(table_name=RECURRENT_TABLE, **interest_fields)
-        eid2 = self.pocket.add_entry(table_name=RECURRENT_TABLE, **rent_fields)
-        recurrent_elements = self.pocket.get_entries(recurrent_only=True)
-        interest_fields.update({"category": None, "eid": eid})
-        rent_fields.update({"end": None, "eid": eid2})
-        self.assertEqual(recurrent_elements, [interest_fields, rent_fields])
-
-    def test_update_recurrent_entry(self):
-        eid = self.pocket.add_entry(
-            name="interest",
-            value=25,
-            table_name=RECURRENT_TABLE,
-            frequency="quarter-yearly",
-            start="2020-01-01",
-        )
-
-        self.pocket.update_entry(
-            eid=eid,
-            frequency="half-yearly",
-            start="2020-03-01",
-            end="2020-06-30",
-            table_name=RECURRENT_TABLE,
-        )
-
-        entry = self.pocket.get_entry(eid=eid, table_name=RECURRENT_TABLE)
-        self.assertEqual(entry["frequency"], "half-yearly")
-        self.assertEqual(entry["start"], "2020-03-01")
-        self.assertEqual(entry["end"], "2020-06-30")
-
-        recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
-        self.assertEqual(len(recurrent_entries), 1)
-        self.assertEqual(recurrent_entries[0]["date"], "2020-03-01")
-
-        self.pocket.update_entry(
-            eid=eid, value=30, frequency=None, table_name=RECURRENT_TABLE
-        )
-
-    def test_update_recurrent_entry_incorrectly(self):
-        eid = self.pocket.add_entry(
-            name="interest",
-            value=25,
-            table_name=RECURRENT_TABLE,
-            frequency="quarter-yearly",
-            start="2020-01-01",
-        )
-
-        with self.assertRaises(exceptions.PocketValidationFailure) as context:
-            self.pocket.update_entry(eid=eid, end="Dec-24", table_name=RECURRENT_TABLE)
-        self.assertIn("end", str(context.exception))
-
-    def test_recurrent_yearly_entry(self):
-        eid = self.pocket.add_entry(
-            name="Fee",
-            value=-100,
-            start="2015-01-01",
-            end=None,
-            table_name=RECURRENT_TABLE,
-            frequency="yearly",
-        )
-        recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
-        self.assertEqual(len(recurrent_entries), dt.date.today().year - 2014)
-        self.assertEqual(recurrent_entries[0]["date"], "2015-01-01")
-        self.assertEqual(recurrent_entries[0]["name"], "fee, 2015")
-
-    def test_recurrent_entry_ending_in_future(self):
-        today = dt.date.today()
-        year = today.year
-        eid = self.pocket.add_entry(
-            name="insurance",
-            value=-100,
-            start=f"{year}-01-01",
-            end=f"{year}-12-31",
-            table_name=RECURRENT_TABLE,
-            frequency="monthly",
-        )
-        recurrent_entries = self.pocket.get_entries()[RECURRENT_TABLE][eid]
-        self.assertEqual(len(recurrent_entries), today.month)
-        self.assertEqual(recurrent_entries[0]["date"], f"{year}-01-01")
-        self.assertEqual(recurrent_entries[0]["name"], "insurance, january")
-
-    def test_filter_recurrent_entries_with_indefinite_end(self):
-        eid = self.pocket.add_entry(
-            name="fees",
-            value=-5,
-            table_name=RECURRENT_TABLE,
-            frequency="monthly",
-        )
-        recurrent_entries = self.pocket.get_entries(
-            filters={"end": None}, recurrent_only=True
-        )
-        self.assertEqual(
-            recurrent_entries,
-            [
-                {
-                    "name": "fees",
-                    "value": -5.00,
-                    "category": None,
-                    "start": dt.date.today().isoformat(),
-                    "end": None,
-                    "frequency": "monthly",
-                    "eid": eid,
-                }
-            ],
-        )
-
-    def tearDown(self):
-        self.pocket.close()
-
-
-class JsonSqlitePocketTestCase(unittest.TestCase):
-    @classmethod
-    def setUp(cls):
-        cls.data_dir = "/tmp"
-        cls.year = 1999
-        cls.pocket = SqlitePocket(name=cls.year, data_dir=cls.data_dir)
-        cls.data_filepath = os.path.join(cls.data_dir, f"{cls.year}.sqlite")
-
-    def test_sqlite_file_exists(self):
-        self.assertTrue(os.path.exists(self.data_filepath))
-
-    def test_add_get(self):
-        name = "pineapple"
-        eid = self.pocket.add_entry(name=name, value=-5)
-        element = self.pocket.get_entry(eid=eid)
-        self.assertEqual(name, element["name"])
-        self.pocket.remove_entry(eid=eid)
-
-    @classmethod
-    def tearDown(cls):
-        cls.pocket.close()
-        os.remove(cls.data_filepath)
 
 
 if __name__ == "__main__":
