@@ -422,6 +422,9 @@ class Pocket:
         # element's ID in the 'recurrent' subdictionary
         for element in self.db_interface.retrieve(RECURRENT_TABLE):
             for e in self._create_recurrent_elements(element):
+                # TODO: this is only required for filtering generated recurrent elements
+                # by date (name, category, and/or value could already be filtered when
+                # retrieving the parent recurrent elements)
                 if condition(e):
                     elements[RECURRENT_TABLE][element["eid"]].append(e)
 
