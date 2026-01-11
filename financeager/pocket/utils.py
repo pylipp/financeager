@@ -1,13 +1,14 @@
 """Utility classes for abstracting database operations."""
 
 from abc import ABC, abstractmethod
+from typing import Any, Iterable
 
 
 class DatabaseClient(ABC):
     """Abstract base class for database client implementations."""
 
     @abstractmethod
-    def retrieve(self, table_name, condition=None):
+    def retrieve(self, table_name, condition=None) -> Iterable[dict]:
         """Retrieve rows from a table.
 
         :param table_name: name of the table to query
@@ -16,7 +17,7 @@ class DatabaseClient(ABC):
         """
 
     @abstractmethod
-    def retrieve_by_id(self, table_name, element_id):
+    def retrieve_by_id(self, table_name, element_id) -> dict[bytes, Any] | None:
         """Retrieve a single row by its ID.
 
         :param table_name: name of the table to query
@@ -25,7 +26,7 @@ class DatabaseClient(ABC):
         """
 
     @abstractmethod
-    def create(self, table_name, data):
+    def create(self, table_name, data) -> int:
         """Create a new row in a table.
 
         :param table_name: name of the table
@@ -34,7 +35,7 @@ class DatabaseClient(ABC):
         """
 
     @abstractmethod
-    def update_by_id(self, table_name, element_id, data):
+    def update_by_id(self, table_name, element_id, data) -> int:
         """Update a row by its ID.
 
         :param table_name: name of the table
@@ -44,7 +45,7 @@ class DatabaseClient(ABC):
         """
 
     @abstractmethod
-    def delete_by_id(self, table_name, element_id):
+    def delete_by_id(self, table_name, element_id) -> int:
         """Delete a row by its ID.
 
         :param table_name: name of the table
