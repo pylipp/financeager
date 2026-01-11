@@ -60,17 +60,11 @@ class Pocket(ABC):
         specified.
         """
         self._name = f"{name or DEFAULT_POCKET_NAME}"
+        self.db_client = None
 
     @property
     def name(self):
         return self._name
-
-    @abstractmethod
-    def _get_all_entries_for_cache(self):
-        """Get all entries for building the category cache.
-
-        :return: list of dicts with 'name' and 'category' fields
-        """
 
     def _create_category_cache(self):
         """The category cache assigns a counter for each element name in the
@@ -78,7 +72,7 @@ class Pocket(ABC):
         categories the element was labeled with. This allows deriving the
         category of an element if not explicitly given."""
         self._category_cache = defaultdict(Counter)
-        for element in self._get_all_entries_for_cache():
+        for element in self.db_client.retrieve(DEFAULT_TABLE):
             self._category_cache[element["name"]].update([element["category"]])
 
     def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
@@ -417,13 +411,6 @@ class TinyDbPocket(Pocket):
 
         # Create category cache after db_client is initialized
         self._create_category_cache()
-
-    def _get_all_entries_for_cache(self):
-        """Get all entries for building the category cache.
-
-        :return: list of dicts with 'name' and 'category' fields
-        """
-        return self.db_client.retrieve(DEFAULT_TABLE)
 
     def get_entry(self, eid, table_name=None):
         """Get entry using TinyDB backend.
