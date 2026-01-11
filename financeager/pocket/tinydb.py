@@ -25,7 +25,10 @@ class TinyDbClient(DatabaseClient):
         return self._db.table(table_name).search(condition)
 
     def retrieve_by_id(self, table_name, element_id):
-        return self._db.table(table_name).get(doc_id=int(element_id))
+        result = self._db.table(table_name).get(doc_id=int(element_id))
+        if result is None:
+            return
+        return dict(result)  # convert tinydb.Document
 
     def create(self, table_name, data):
         return self._db.table(table_name).insert(data)

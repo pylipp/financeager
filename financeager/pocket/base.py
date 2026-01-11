@@ -127,7 +127,7 @@ class Pocket(ABC):
         if element is None:
             raise exceptions.PocketEntryNotFound("Entry not found.")
 
-        return dict(element)
+        return element
 
     def update_entry(self, eid, table_name=None, **kwargs):
         """Update one or more fields of a single entry.
@@ -146,7 +146,6 @@ class Pocket(ABC):
         )
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
-
         element_id = self.db_client.update_by_id(table_name, int(eid), fields)
 
         return element_id
@@ -167,10 +166,10 @@ class Pocket(ABC):
         # might raise PocketEntryNotFound if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-        self.db_client.delete_by_id(table_name, int(eid))
+        element_id = self.db_client.delete_by_id(table_name, int(eid))
         self._update_category_cache(removing=True, **entry)
 
-        return int(eid)
+        return element_id
 
     @abstractmethod
     def get_entries(self, filters=None, recurrent_only=False):
