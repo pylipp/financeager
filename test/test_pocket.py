@@ -663,11 +663,12 @@ class CreateEmptySqlitePocketTestCase(unittest.TestCase):
         data_dir = tempfile.mkdtemp(prefix="financeager-")
         name = 1234
         db_path = os.path.join(data_dir, f"{name}.sqlite")
-        
+
         # Create database with one entry
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS standard (
                 eid INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -675,14 +676,15 @@ class CreateEmptySqlitePocketTestCase(unittest.TestCase):
                 category TEXT NOT NULL,
                 value REAL NOT NULL
             )
-        """)
+        """
+        )
         cursor.execute(
             "INSERT INTO standard (name, date, category, value) VALUES (?, ?, ?, ?)",
-            ("climbing", "2020-01-01", "sport", 0.0)
+            ("climbing", "2020-01-01", "sport", 0.0),
         )
         conn.commit()
         conn.close()
-        
+
         pocket = SqlitePocket(name=name, data_dir=data_dir)
         # Expect that 'sport' has been counted once
         self.assertEqual(pocket._category_cache["climbing"], Counter(["sport"]))
@@ -714,9 +716,7 @@ class SqlitePocketStandardEntryTestCase(unittest.TestCase):
     def test_remove_entry(self):
         response = self.pocket.remove_entry(eid=1)
         # Check that the entry is removed
-        self.assertEqual(
-            len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)), 0
-        )
+        self.assertEqual(len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)), 0)
         self.assertEqual(1, response)
 
     def test_create_models_query_kwargs(self):
@@ -923,9 +923,7 @@ class SqlitePocketRecurrentEntryTestCase(unittest.TestCase):
             end="2008-11-30",
         )
         # Check that only recurrent table has entries
-        self.assertEqual(
-            len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)), 1
-        )
+        self.assertEqual(len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)), 1)
         element = self.pocket.db_interface.retrieve(RECURRENT_TABLE)[0]
         recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 14)
@@ -967,9 +965,7 @@ class SqlitePocketRecurrentEntryTestCase(unittest.TestCase):
             },
         )
 
-        recurrent_table_size = len(
-            self.pocket.db_interface.retrieve(RECURRENT_TABLE)
-        )
+        recurrent_table_size = len(self.pocket.db_interface.retrieve(RECURRENT_TABLE))
         self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(
             len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)),

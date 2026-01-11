@@ -1,8 +1,6 @@
 import os.path
-import re
 import sqlite3
 
-from .. import DEFAULT_TABLE
 from .base import Pocket
 from .utils import DatabaseInterface
 
@@ -23,9 +21,10 @@ class SqliteInterface(DatabaseInterface):
     def _create_tables(self):
         """Create tables if they don't exist."""
         cursor = self._conn.cursor()
-        
+
         # Create standard table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS standard (
                 eid INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -33,10 +32,12 @@ class SqliteInterface(DatabaseInterface):
                 category TEXT,
                 value REAL NOT NULL
             )
-        """)
-        
+        """
+        )
+
         # Create recurrent table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS recurrent (
                 eid INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -46,8 +47,9 @@ class SqliteInterface(DatabaseInterface):
                 category TEXT,
                 value REAL NOT NULL
             )
-        """)
-        
+        """
+        )
+
         self._conn.commit()
 
     def retrieve(self, table_name, condition=None):
@@ -60,17 +62,17 @@ class SqliteInterface(DatabaseInterface):
         cursor = self._conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
         rows = cursor.fetchall()
-        
+
         # Convert rows to dicts
         elements = []
         for row in rows:
             element = dict(row)
             elements.append(element)
-        
+
         # Apply condition filter if provided
         if condition is not None:
             elements = [e for e in elements if condition(e)]
-        
+
         return elements
 
     def retrieve_by_id(self, table_name, element_id):
@@ -83,13 +85,13 @@ class SqliteInterface(DatabaseInterface):
         cursor = self._conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name} WHERE eid = ?", (element_id,))
         row = cursor.fetchone()
-        
+
         if row is None:
             return None
-        
+
         # Convert to dict and exclude eid field to match TinyDB behavior
         result = dict(row)
-        result.pop('eid', None)
+        result.pop("eid", None)
         return result
 
     def create(self, table_name, data):
@@ -100,18 +102,17 @@ class SqliteInterface(DatabaseInterface):
         :return: ID of the created element
         """
         cursor = self._conn.cursor()
-        
+
         # Build INSERT statement
         columns = ", ".join(data.keys())
         placeholders = ", ".join(["?" for _ in data])
         values = tuple(data.values())
-        
+
         cursor.execute(
-            f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})",
-            values
+            f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})", values
         )
         self._conn.commit()
-        
+
         return cursor.lastrowid
 
     def update_by_id(self, table_name, element_id, data):
@@ -123,17 +124,14 @@ class SqliteInterface(DatabaseInterface):
         :return: ID of the updated element
         """
         cursor = self._conn.cursor()
-        
+
         # Build UPDATE statement
         set_clause = ", ".join([f"{k} = ?" for k in data.keys()])
         values = tuple(data.values()) + (element_id,)
-        
-        cursor.execute(
-            f"UPDATE {table_name} SET {set_clause} WHERE eid = ?",
-            values
-        )
+
+        cursor.execute(f"UPDATE {table_name} SET {set_clause} WHERE eid = ?", values)
         self._conn.commit()
-        
+
         return element_id
 
     def delete_by_id(self, table_name, element_id):
@@ -146,18 +144,18 @@ class SqliteInterface(DatabaseInterface):
         cursor = self._conn.cursor()
         cursor.execute(f"DELETE FROM {table_name} WHERE eid = ?", (element_id,))
         self._conn.commit()
-        
+
         return element_id
 
     @staticmethod
     def create_query_condition(**filters):
         """Construct query condition function according to given filters.
-        
+
         :return: function that takes a row dict and returns bool
         """
         if not filters:
             return lambda row: True
-        
+
         def condition(row):
             for field, pattern in filters.items():
                 if pattern is None and field in ["category", "end"]:
@@ -176,7 +174,7 @@ class SqliteInterface(DatabaseInterface):
                     if pattern.lower() not in str(value).lower():
                         return False
             return True
-        
+
         return condition
 
     def close(self):
@@ -187,10 +185,10 @@ class SqliteInterface(DatabaseInterface):
 class SqlitePocket(Pocket):
     def __init__(self, name=None, data_dir=None, **kwargs):
         """Create a pocket with an SQLite database backend, identified by 'name'.
-        
+
         If 'data_dir' is given, the database is stored in a file with the
         .sqlite extension. Otherwise the data is stored in memory.
-        
+
         Keyword args are passed to the sqlite3.connect constructor. See the
         respective docs for detailed information.
         """
@@ -201,6 +199,6 @@ class SqlitePocket(Pocket):
         else:
             # File-based database
             db_path = os.path.join(data_dir, f"{name}.sqlite")
-        
+
         db_interface = SqliteInterface(db_path, **kwargs)
         super().__init__(db_interface, name=name)
