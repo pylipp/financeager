@@ -409,17 +409,16 @@ class Pocket:
         The entry IDs are used as key in the returned subdicts.
 
         :param condition: condition for the search
-        :type condition: tinydb.queries.QueryInstance
-
         :return: dict
         """
 
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
         for element in self.db_interface.retrieve(DEFAULT_TABLE, condition):
-            elements[DEFAULT_TABLE][element["eid"]] = dict(element)
+            elements[DEFAULT_TABLE][element["eid"]] = element
 
         # all recurrent elements are generated, and the ones matching the
+        # condition are appended to a list that is stored under their generating
         # element's ID in the 'recurrent' subdictionary
         for element in self.db_interface.retrieve(RECURRENT_TABLE):
             for e in self._create_recurrent_elements(element):
