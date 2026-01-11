@@ -673,7 +673,7 @@ class CreateEmptySqlitePocketTestCase(unittest.TestCase):
                 eid INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 date TEXT NOT NULL,
-                category TEXT NOT NULL,
+                category TEXT,
                 value REAL NOT NULL
             )
         """
