@@ -8,7 +8,7 @@ class DatabaseInterface(ABC):
     """Abstract base class for database client implementations."""
 
     @abstractmethod
-    def retrieve(self, table_name, condition=None) -> Iterable[dict]:
+    def retrieve(self, table_name, condition=None) -> Iterable[dict[str, Any]]:
         """Retrieve rows from a table.
 
         :param table_name: name of the table to query
@@ -17,7 +17,7 @@ class DatabaseInterface(ABC):
         """
 
     @abstractmethod
-    def retrieve_by_id(self, table_name, element_id) -> dict[bytes, Any] | None:
+    def retrieve_by_id(self, table_name, element_id) -> dict[str, Any] | None:
         """Retrieve a single row by its ID.
 
         :param table_name: name of the table to query
@@ -60,7 +60,7 @@ class DatabaseInterface(ABC):
         given by a key-value pair. The key indicates the field, the value the
         pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
         'category'. Patterns must be of type string, or None (only for the fields
-        'category' and 'end'); indicates filtering for all entries of the default
+        'category' and 'end'; indicates filtering for all entries of the default
         category, and recurrent entries with indefinite end, resp.).
         Return a condition object that is comprehended by the database interface (i.e.
         DatabaseInterface.retrieve).
