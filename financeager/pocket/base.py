@@ -402,6 +402,32 @@ class Pocket:
 
         return fields
 
+    def _search_all_tables(self, condition):
+        """Search both the standard table and the recurrent table for elements
+        that satisfy the given condition.
+
+        The entry IDs are used as key in the returned subdicts.
+
+        :param condition: condition for the search
+        :type condition: tinydb.queries.QueryInstance
+
+        :return: dict
+        """
+
+        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
+
+        for element in self.db_interface.retrieve(DEFAULT_TABLE, condition):
+            elements[DEFAULT_TABLE][element["eid"]] = dict(element)
+
+        # all recurrent elements are generated, and the ones matching the
+        # element's ID in the 'recurrent' subdictionary
+        for element in self.db_interface.retrieve(RECURRENT_TABLE):
+            for e in self._create_recurrent_elements(element):
+                if condition(e):
+                    elements[RECURRENT_TABLE][element["eid"]].append(e)
+
+        return elements
+
     def _create_recurrent_elements(self, element):
         """Generate elements (holding name, value, category, date) from the
         information of the recurrent element being passed.
@@ -451,29 +477,3 @@ class Pocket:
                 category=element["category"],
                 date=date.strftime(POCKET_DATE_FORMAT),
             )
-
-    def _search_all_tables(self, condition):
-        """Search both the standard table and the recurrent table for elements
-        that satisfy the given condition.
-
-        The entry IDs are used as key in the returned subdicts.
-
-        :param condition: condition for the search
-        :type condition: tinydb.queries.QueryInstance
-
-        :return: dict
-        """
-
-        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
-
-        for element in self.db_interface.retrieve(DEFAULT_TABLE, condition):
-            elements[DEFAULT_TABLE][element["eid"]] = dict(element)
-
-        # all recurrent elements are generated, and the ones matching the
-        # element's ID in the 'recurrent' subdictionary
-        for element in self.db_interface.retrieve(RECURRENT_TABLE):
-            for e in self._create_recurrent_elements(element):
-                if condition(e):
-                    elements[RECURRENT_TABLE][element["eid"]].append(e)
-
-        return elements
