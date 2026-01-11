@@ -82,12 +82,6 @@ class SqliteInterface(DatabaseInterface):
         self._conn.commit()
 
     def retrieve(self, table_name, condition=None):
-        """Retrieve rows from a table.
-
-        :param table_name: name of the table to query
-        :param condition: optional condition function to filter rows
-        :return: list of dicts
-        """
         self._validate_table_name(table_name)
         cursor = self._conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
@@ -106,12 +100,6 @@ class SqliteInterface(DatabaseInterface):
         return elements
 
     def retrieve_by_id(self, table_name, element_id):
-        """Retrieve a single row by its ID.
-
-        :param table_name: name of the table to query
-        :param element_id: ID of the element to retrieve
-        :return: dict or None if ID does not exist
-        """
         self._validate_table_name(table_name)
         cursor = self._conn.cursor()
         cursor.execute(f"SELECT * FROM {table_name} WHERE eid = ?", (element_id,))
@@ -126,12 +114,6 @@ class SqliteInterface(DatabaseInterface):
         return result
 
     def create(self, table_name, data):
-        """Create a new row in a table.
-
-        :param table_name: name of the table
-        :param data: dict of data to insert
-        :return: ID of the created element
-        """
         self._validate_table_name(table_name)
         self._validate_columns(table_name, data.keys())
         cursor = self._conn.cursor()
@@ -149,13 +131,6 @@ class SqliteInterface(DatabaseInterface):
         return cursor.lastrowid
 
     def update_by_id(self, table_name, element_id, data):
-        """Update a row by its ID.
-
-        :param table_name: name of the table
-        :param element_id: ID of the element to update
-        :param data: dict of data to update
-        :return: ID of the updated element
-        """
         self._validate_table_name(table_name)
         self._validate_columns(table_name, data.keys())
         cursor = self._conn.cursor()
@@ -170,12 +145,6 @@ class SqliteInterface(DatabaseInterface):
         return element_id
 
     def delete_by_id(self, table_name, element_id):
-        """Delete a row by its ID.
-
-        :param table_name: name of the table
-        :param element_id: ID of the element to delete
-        :return: ID of the deleted element
-        """
         self._validate_table_name(table_name)
         cursor = self._conn.cursor()
         cursor.execute(f"DELETE FROM {table_name} WHERE eid = ?", (element_id,))
