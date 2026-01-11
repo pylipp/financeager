@@ -44,14 +44,7 @@ class TinyDbClient(DatabaseClient):
 
     @staticmethod
     def create_query_condition(**filters):
-        """Construct query condition according to given filters. A filter is
-        given by a key-value pair. The key indicates the field, the value the
-        pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
-        'category'. Patterns must be of type string, or None (only for the fields
-        'category' and 'end'); indicates filtering for all entries of the default
-        category, and recurrent entries with indefinite end, resp.).
-        :return: tinydb.queries.QueryInstance (default: noop)
-        """
+        """:return: tinydb.queries.QueryInstance (default: noop)"""
         condition = Query().noop()
         if not filters:
             return condition

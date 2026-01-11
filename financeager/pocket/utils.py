@@ -52,3 +52,20 @@ class DatabaseClient(ABC):
         :param element_id: ID of the element to delete
         :return: ID of the deleted element
         """
+
+    @staticmethod
+    @abstractmethod
+    def create_query_condition(**filters) -> Any:
+        """Construct query condition according to given filters. A filter is
+        given by a key-value pair. The key indicates the field, the value the
+        pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
+        'category'. Patterns must be of type string, or None (only for the fields
+        'category' and 'end'); indicates filtering for all entries of the default
+        category, and recurrent entries with indefinite end, resp.).
+        Return a condition object that is comprehended by the database interface (i.e.
+        DatabaseClient.retrieve).
+        """
+
+    @abstractmethod
+    def close(self) -> None:
+        """Close underlying database."""
