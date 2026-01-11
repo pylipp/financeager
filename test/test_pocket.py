@@ -294,11 +294,6 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
         ]
         self.assertEqual(len(matching_elements), 1)
         self.assertEqual(matching_elements[eid][0]["name"], "rent, november")
-        # the doc_id attribute is None because a new Document instance has been
-        # created in Pocket._create_recurrent_elements. The 'eid' entry
-        # however is 1 because the parent element is the first in the
-        # recurrent table
-        self.assertIsNone(matching_elements[eid][0].doc_id)
 
     def test_recurrent_quarter_yearly_entries(self):
         eid = self.pocket.add_entry(

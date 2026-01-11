@@ -8,7 +8,6 @@ from datetime import datetime as dt
 from dateutil import rrule
 from marshmallow import Schema, ValidationError, fields, validate
 from tinydb import TinyDB, storages
-from tinydb.database import Document
 
 from . import (
     DEFAULT_POCKET_NAME,
@@ -351,6 +350,56 @@ class Pocket(ABC):
 
         return element_id
 
+    def _create_recurrent_elements(self, element):
+        """Generate elements (holding name, value, category, date) from the
+        information of the recurrent element being passed.
+        """
+
+        # parse dates to datetime objects
+        start = dt.strptime(element["start"], POCKET_DATE_FORMAT)
+        now = dt.now()
+        end = element["end"]
+        end = now if end is None else dt.strptime(end, POCKET_DATE_FORMAT)
+
+        if end > now:
+            # don't show entries that are in the future
+            end = now
+
+        interval = 1
+        frequency = element["frequency"].upper()
+        if frequency == "BIMONTHLY":
+            frequency = "MONTHLY"
+            interval = 2
+        elif frequency == "QUARTER-YEARLY":
+            frequency = "MONTHLY"
+            interval = 3
+        elif frequency == "HALF-YEARLY":
+            frequency = "MONTHLY"
+            interval = 6
+
+        rule = rrule.rrule(
+            getattr(rrule, frequency), dtstart=start, until=end, interval=interval
+        )
+
+        for date in rule:
+            # add date description to name
+            name = element["name"]
+            if frequency == "YEARLY":
+                name = f"{name}, {date.strftime('%Y')}"
+            elif frequency == "MONTHLY":
+                name = f"{name}, {date.strftime('%B').lower()}"
+            elif frequency == "WEEKLY":
+                name = f"{name}, week {date.strftime('%W').lower()}"
+            else:  # DAILY
+                name = f"{name}, day {date.strftime('%-j').lower()}"
+
+            yield dict(
+                name=name,
+                value=element["value"],
+                category=element["category"],
+                date=date.strftime(POCKET_DATE_FORMAT),
+            )
+
     def remove_entry(self, eid, table_name=None):
         """Remove an entry from the database given its ID.
 
@@ -438,7 +487,7 @@ class TinyDbPocket(Pocket):
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
         for element in self.db_client.retrieve(DEFAULT_TABLE, condition):
-            elements[DEFAULT_TABLE][element.doc_id] = element
+            elements[DEFAULT_TABLE][element.doc_id] = dict(element)
 
         # all recurrent elements are generated, and the ones matching the
         # condition are appended to a list that is stored under their generating
@@ -449,59 +498,6 @@ class TinyDbPocket(Pocket):
                     elements[RECURRENT_TABLE][element.doc_id].append(e)
 
         return elements
-
-    def _create_recurrent_elements(self, element):
-        """Generate elements (holding name, value, category, date) from the
-        information of the recurrent element being passed.
-        """
-
-        # parse dates to datetime objects
-        start = dt.strptime(element["start"], POCKET_DATE_FORMAT)
-        now = dt.now()
-        end = element["end"]
-        end = now if end is None else dt.strptime(end, POCKET_DATE_FORMAT)
-
-        if end > now:
-            # don't show entries that are in the future
-            end = now
-
-        interval = 1
-        frequency = element["frequency"].upper()
-        if frequency == "BIMONTHLY":
-            frequency = "MONTHLY"
-            interval = 2
-        elif frequency == "QUARTER-YEARLY":
-            frequency = "MONTHLY"
-            interval = 3
-        elif frequency == "HALF-YEARLY":
-            frequency = "MONTHLY"
-            interval = 6
-
-        rule = rrule.rrule(
-            getattr(rrule, frequency), dtstart=start, until=end, interval=interval
-        )
-
-        for date in rule:
-            # add date description to name
-            name = element["name"]
-            if frequency == "YEARLY":
-                name = f"{name}, {date.strftime('%Y')}"
-            elif frequency == "MONTHLY":
-                name = f"{name}, {date.strftime('%B').lower()}"
-            elif frequency == "WEEKLY":
-                name = f"{name}, week {date.strftime('%W').lower()}"
-            else:  # DAILY
-                name = f"{name}, day {date.strftime('%-j').lower()}"
-
-            yield Document(
-                doc_id=None,
-                value=dict(
-                    name=name,
-                    value=element["value"],
-                    category=element["category"],
-                    date=date.strftime(POCKET_DATE_FORMAT),
-                ),
-            )
 
     def get_entries(self, filters=None, recurrent_only=False):
         """Get entries using TinyDB backend.
