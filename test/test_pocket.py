@@ -668,14 +668,14 @@ class CreateEmptySqlitePocketTestCase(unittest.TestCase):
     def test_validate_table_name_raises_value_error(self):
         pocket = SqlitePocket(name=1901)
         with self.assertRaises(ValueError) as context:
-            pocket.db_interface._validate_table_name("invalid_table")
+            pocket.db_interface.retrieve("invalid_table")
         self.assertIn("Invalid table name", str(context.exception))
         pocket.close()
 
     def test_validate_columns_raises_value_error(self):
         pocket = SqlitePocket(name=1901)
         with self.assertRaises(ValueError) as context:
-            pocket.db_interface._validate_columns("standard", ["invalid_column"])
+            pocket.db_interface.create("standard", {"invalid_column": 1})
         self.assertIn("Invalid column name", str(context.exception))
         pocket.close()
 
