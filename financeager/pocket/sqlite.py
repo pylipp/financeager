@@ -51,7 +51,6 @@ class SqliteInterface(DatabaseInterface):
         """Create tables if they don't exist."""
         cursor = self._conn.cursor()
 
-        # Create standard table
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS standard (
@@ -64,7 +63,6 @@ class SqliteInterface(DatabaseInterface):
         """
         )
 
-        # Create recurrent table
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS recurrent (
@@ -154,12 +152,9 @@ class SqliteInterface(DatabaseInterface):
 
     @staticmethod
     def create_query_condition(**filters):
-        """Construct query condition function according to given filters.
-
-        :return: function that takes a row dict and returns bool
-        """
+        """:return: function that takes a row dict and returns bool"""
         if not filters:
-            return lambda row: True
+            return lambda _: True
 
         def condition(row):
             for field, pattern in filters.items():
@@ -197,12 +192,9 @@ class SqlitePocket(Pocket):
         Keyword args are passed to the sqlite3.connect constructor. See the
         respective docs for detailed information.
         """
-        # Determine database path
         if data_dir is None:
-            # In-memory database
             db_path = ":memory:"
         else:
-            # File-based database
             db_path = os.path.join(data_dir, f"{name}.sqlite")
 
         db_interface = SqliteInterface(db_path, **kwargs)
