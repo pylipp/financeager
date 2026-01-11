@@ -376,9 +376,13 @@ class Pocket(ABC):
         :return: entries matching the filters
         """
 
-    @abstractmethod
     def get_categories(self):
         """Return unique category names in alphabetical order."""
+        category_names = set(
+            e["category"] for e in self.db_client.retrieve(DEFAULT_TABLE)
+        )
+        category_names.discard(_DEFAULT_CATEGORY)
+        return sorted(category_names)
 
     @abstractmethod
     def close(self):
@@ -531,14 +535,6 @@ class TinyDbPocket(Pocket):
             ]
 
         return self._search_all_tables(condition)
-
-    def get_categories(self):
-        """Return unique category names using TinyDB backend."""
-        category_names = set(
-            e["category"] for e in self.db_client.retrieve(DEFAULT_TABLE)
-        )
-        category_names.discard(_DEFAULT_CATEGORY)
-        return sorted(category_names)
 
     def close(self):
         """Close TinyDB database."""
