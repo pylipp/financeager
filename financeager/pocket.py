@@ -55,12 +55,15 @@ class RecurrentEntrySchema(EntryBaseSchema):
 
 
 class Pocket(ABC):
-    def __init__(self, name=None):
+    def __init__(self, db_client, name=None):
         """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
         self._name = f"{name or DEFAULT_POCKET_NAME}"
-        self.db_client = None
+        self.db_client = db_client
+
+        # Create category cache after db_client is initialized
+        self._create_category_cache()
 
     @property
     def name(self):
@@ -399,22 +402,17 @@ class TinyDbPocket(Pocket):
         docs for detailed information.
         """
 
-        # Call parent init to set name
-        super().__init__(name=name)
-
         # evaluate args/kwargs for TinyDB constructor. This overwrites the
         # 'storage' kwarg if explicitly passed
         if data_dir is None:
             args = []
             kwargs["storage"] = storages.MemoryStorage
         else:
-            args = [os.path.join(data_dir, f"{self.name}.json")]
+            args = [os.path.join(data_dir, f"{name}.json")]
             kwargs["storage"] = storages.JSONStorage
 
-        self.db_client = TinyDbClient(*args, **kwargs)
-
-        # Create category cache after db_client is initialized
-        self._create_category_cache()
+        db_client = TinyDbClient(*args, **kwargs)
+        super().__init__(db_client, name=name)
 
     def get_entry(self, eid, table_name=None):
         """Get entry using TinyDB backend.
