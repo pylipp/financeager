@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Iterable
 
 
-class DatabaseClient(ABC):
+class DatabaseInterface(ABC):
     """Abstract base class for database client implementations."""
 
     @abstractmethod
@@ -63,7 +63,7 @@ class DatabaseClient(ABC):
         'category' and 'end'); indicates filtering for all entries of the default
         category, and recurrent entries with indefinite end, resp.).
         Return a condition object that is comprehended by the database interface (i.e.
-        DatabaseClient.retrieve).
+        DatabaseInterface.retrieve).
         """
 
     @abstractmethod

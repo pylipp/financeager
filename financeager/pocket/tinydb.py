@@ -4,11 +4,11 @@ from tinydb import Query, TinyDB, storages
 
 from .. import DEFAULT_TABLE
 from .base import Pocket
-from .utils import DatabaseClient
+from .utils import DatabaseInterface
 
 
-class TinyDbClient(DatabaseClient):
-    """Database client implementation using TinyDB."""
+class TinyDbInterface(DatabaseInterface):
+    """Database interface implementation using TinyDB."""
 
     def __init__(self, *args, **kwargs):
         """Initialize TinyDB instance.
@@ -88,8 +88,8 @@ class TinyDbPocket(Pocket):
             args = [os.path.join(data_dir, f"{name}.json")]
             kwargs["storage"] = storages.JSONStorage
 
-        db_client = TinyDbClient(*args, **kwargs)
-        super().__init__(db_client, name=name)
+        db_interface = TinyDbInterface(*args, **kwargs)
+        super().__init__(db_interface, name=name)
 
 
 TinyDB.default_table_name = DEFAULT_TABLE

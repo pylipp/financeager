@@ -50,14 +50,14 @@ class RecurrentEntrySchema(EntryBaseSchema):
 
 
 class Pocket:
-    def __init__(self, db_client, name=None):
+    def __init__(self, db_interface, name=None):
         """Create Pocket object. Its name defaults to the current year if not
         specified.
         """
         self._name = f"{name or DEFAULT_POCKET_NAME}"
-        self.db_client = db_client
+        self.db_interface = db_interface
 
-        # Create category cache after db_client is initialized
+        # Create category cache after db_interface is initialized
         self._create_category_cache()
 
     @property
@@ -106,7 +106,7 @@ class Pocket:
 
         self._update_category_cache(**fields)
 
-        element_id = self.db_client.create(table_name, fields)
+        element_id = self.db_interface.create(table_name, fields)
 
         return element_id
 
@@ -122,7 +122,7 @@ class Pocket:
         :return: found element
         """
         table_name = table_name or DEFAULT_TABLE
-        element = self.db_client.retrieve_by_id(table_name, int(eid))
+        element = self.db_interface.retrieve_by_id(table_name, int(eid))
         if element is None:
             raise exceptions.PocketEntryNotFound("Entry not found.")
 
@@ -145,7 +145,7 @@ class Pocket:
         )
 
         self._update_category_cache(eid=eid, table_name=table_name, **fields)
-        element_id = self.db_client.update_by_id(table_name, int(eid), fields)
+        element_id = self.db_interface.update_by_id(table_name, int(eid), fields)
 
         return element_id
 
@@ -165,7 +165,7 @@ class Pocket:
         # might raise PocketEntryNotFound if ID not existing
         entry = self.get_entry(eid=int(eid), table_name=table_name)
 
-        element_id = self.db_client.delete_by_id(table_name, int(eid))
+        element_id = self.db_interface.delete_by_id(table_name, int(eid))
         self._update_category_cache(removing=True, **entry)
 
         return element_id
@@ -187,24 +187,24 @@ class Pocket:
                  list[dict]
         """
         filters = filters or {}
-        condition = self.db_client.create_query_condition(**filters)
+        condition = self.db_interface.create_query_condition(**filters)
 
         if recurrent_only:
-            return self.db_client.retrieve(RECURRENT_TABLE, condition)
+            return self.db_interface.retrieve(RECURRENT_TABLE, condition)
 
         return self._search_all_tables(condition)
 
     def get_categories(self):
         """Return unique category names in alphabetical order."""
         category_names = set(
-            e["category"] for e in self.db_client.retrieve(DEFAULT_TABLE)
+            e["category"] for e in self.db_interface.retrieve(DEFAULT_TABLE)
         )
         category_names.discard(_DEFAULT_CATEGORY)
         return sorted(category_names)
 
     def close(self):
         """Close underlying database."""
-        self.db_client.close()
+        self.db_interface.close()
 
     def _create_category_cache(self):
         """The category cache assigns a counter for each element name in the
@@ -212,7 +212,7 @@ class Pocket:
         categories the element was labeled with. This allows deriving the
         category of an element if not explicitly given."""
         self._category_cache = defaultdict(Counter)
-        for element in self.db_client.retrieve(DEFAULT_TABLE):
+        for element in self.db_interface.retrieve(DEFAULT_TABLE):
             self._category_cache[element["name"]].update([element["category"]])
 
     def _preprocess_entry(self, raw_data=None, table_name=None, partial=False):
@@ -466,12 +466,12 @@ class Pocket:
 
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
-        for element in self.db_client.retrieve(DEFAULT_TABLE, condition):
+        for element in self.db_interface.retrieve(DEFAULT_TABLE, condition):
             elements[DEFAULT_TABLE][element["eid"]] = dict(element)
 
         # all recurrent elements are generated, and the ones matching the
         # element's ID in the 'recurrent' subdictionary
-        for element in self.db_client.retrieve(RECURRENT_TABLE):
+        for element in self.db_interface.retrieve(RECURRENT_TABLE):
             for e in self._create_recurrent_elements(element):
                 if condition(e):
                     elements[RECURRENT_TABLE][element["eid"]].append(e)
