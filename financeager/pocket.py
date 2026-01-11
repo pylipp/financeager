@@ -311,7 +311,6 @@ class Pocket(ABC):
 
         return element_id
 
-    @abstractmethod
     def get_entry(self, eid, table_name=None):
         """Get entry specified by eid in the table table_name.
 
@@ -323,6 +322,12 @@ class Pocket(ABC):
         :raise: PocketEntryNotFound if element not found
         :return: found element
         """
+        table_name = table_name or DEFAULT_TABLE
+        element = self.db_client.retrieve_by_id(table_name, int(eid))
+        if element is None:
+            raise exceptions.PocketEntryNotFound("Entry not found.")
+
+        return dict(element)
 
     def update_entry(self, eid, table_name=None, **kwargs):
         """Update one or more fields of a single entry.
@@ -413,19 +418,6 @@ class TinyDbPocket(Pocket):
 
         db_client = TinyDbClient(*args, **kwargs)
         super().__init__(db_client, name=name)
-
-    def get_entry(self, eid, table_name=None):
-        """Get entry using TinyDB backend.
-
-        :return: found element (tinydb.Document)
-        """
-
-        table_name = table_name or DEFAULT_TABLE
-        element = self.db_client.retrieve_by_id(table_name, int(eid))
-        if element is None:
-            raise exceptions.PocketEntryNotFound("Entry not found.")
-
-        return element
 
     def _search_all_tables(self, condition):
         """Search both the standard table and the recurrent table for elements

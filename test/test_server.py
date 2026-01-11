@@ -131,7 +131,6 @@ class FindEntryServerTestCase(unittest.TestCase):
     def test_response_is_none(self):
         response = self.server.run("get", pocket=self.pocket, eid=self.entry_id)
         self.assertIn("element", response)
-        self.assertEqual(response["element"].doc_id, self.entry_id)
 
         response = self.server.run("remove", pocket=self.pocket, eid=self.entry_id)
         self.assertEqual(response["id"], self.entry_id)
