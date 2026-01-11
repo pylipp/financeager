@@ -1,9 +1,8 @@
 import os.path
-from collections import defaultdict
 
 from tinydb import Query, TinyDB, storages
 
-from .. import DEFAULT_TABLE, RECURRENT_TABLE
+from .. import DEFAULT_TABLE
 from .base import Pocket
 from .utils import DatabaseClient
 
@@ -21,8 +20,11 @@ class TinyDbClient(DatabaseClient):
 
     def retrieve(self, table_name, condition=None):
         if condition is None:
-            return self._db.table(table_name).all()
-        return self._db.table(table_name).search(condition)
+            elements = self._db.table(table_name).all()
+        else:
+            elements = self._db.table(table_name).search(condition)
+        # Flatten tinydb Documents into dict
+        return [{**e, **{"eid": e.doc_id}} for e in elements]
 
     def retrieve_by_id(self, table_name, element_id):
         result = self._db.table(table_name).get(doc_id=int(element_id))
@@ -95,64 +97,6 @@ class TinyDbPocket(Pocket):
 
         db_client = TinyDbClient(*args, **kwargs)
         super().__init__(db_client, name=name)
-
-    def _search_all_tables(self, condition):
-        """Search both the standard table and the recurrent table for elements
-        that satisfy the given condition.
-
-        The entries' `doc_id` attribute is used as key in the returned subdicts
-        because it is lost in the client-server communication protocol (on
-        `financeager print`, the server calls Pocket.get_entries, yet the
-        JSON response returned drops the Document.doc_id attribute s.t. it's not
-        available when calling prettify on the client side).
-
-        :param condition: condition for the search
-        :type condition: tinydb.queries.QueryInstance
-
-        :return: dict
-        """
-
-        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
-
-        for element in self.db_client.retrieve(DEFAULT_TABLE, condition):
-            elements[DEFAULT_TABLE][element.doc_id] = dict(element)
-
-        # all recurrent elements are generated, and the ones matching the
-        # condition are appended to a list that is stored under their generating
-        # element's doc_id in the 'recurrent' subdictionary
-        for element in self.db_client.retrieve(RECURRENT_TABLE):
-            for e in self._create_recurrent_elements(element):
-                if condition(e):
-                    elements[RECURRENT_TABLE][element.doc_id].append(e)
-
-        return elements
-
-    def get_entries(self, filters=None, recurrent_only=False):
-        """Get entries using TinyDB backend.
-
-        Constructs a condition from the given filters and uses it to query all tables.
-
-        :return: dict{
-                    DEFAULT_TABLE:  dict{ int: tinydb.Document },
-                    RECURRENT_TABLE: dict{ int: list[tinydb.Document] }
-                    } or
-                 list[tinydb.Document]
-        """
-        filters = filters or {}
-        condition = TinyDbClient.create_query_condition(**filters)
-
-        if recurrent_only:
-            # Flatten tinydb Document into dict
-            return [
-                {**e, **{"eid": e.doc_id}}
-                for e in self.db_client.retrieve(RECURRENT_TABLE, condition)
-            ]
-
-        return self._search_all_tables(condition)
-
-    def close(self):
-        """Close TinyDB database."""
-        self.db_client.close()
 
 
 TinyDB.default_table_name = DEFAULT_TABLE

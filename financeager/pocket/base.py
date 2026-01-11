@@ -1,6 +1,5 @@
-"""Defines Pocket database object holding per-year financial data."""
+"""Defines Pocket database object holding financial data."""
 
-from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from datetime import datetime as dt
 
@@ -50,7 +49,7 @@ class RecurrentEntrySchema(EntryBaseSchema):
     end = fields.Date(format=POCKET_DATE_FORMAT, load_default=None)
 
 
-class Pocket(ABC):
+class Pocket:
     def __init__(self, db_client, name=None):
         """Create Pocket object. Its name defaults to the current year if not
         specified.
@@ -171,17 +170,29 @@ class Pocket(ABC):
 
         return element_id
 
-    @abstractmethod
     def get_entries(self, filters=None, recurrent_only=False):
         """Get entries that match the items of the filters dict, if specified.
+
+        Constructs a condition from the given filters and uses it to query all tables.
 
         If `recurrent_only` is true, return a list of all entries of the
         recurrent table. Filters are applied.
 
         :param filters: dict of filters to apply
         :param recurrent_only: whether to return only recurrent entries
-        :return: entries matching the filters
+        :return: dict{
+                    DEFAULT_TABLE:   dict{ int: dict },
+                    RECURRENT_TABLE: dict{ int: list[dict] }
+                    } or
+                 list[dict]
         """
+        filters = filters or {}
+        condition = self.db_client.create_query_condition(**filters)
+
+        if recurrent_only:
+            return self.db_client.retrieve(RECURRENT_TABLE, condition)
+
+        return self._search_all_tables(condition)
 
     def get_categories(self):
         """Return unique category names in alphabetical order."""
@@ -191,9 +202,9 @@ class Pocket(ABC):
         category_names.discard(_DEFAULT_CATEGORY)
         return sorted(category_names)
 
-    @abstractmethod
     def close(self):
         """Close underlying database."""
+        self.db_client.close()
 
     def _create_category_cache(self):
         """The category cache assigns a counter for each element name in the
@@ -440,3 +451,29 @@ class Pocket(ABC):
                 category=element["category"],
                 date=date.strftime(POCKET_DATE_FORMAT),
             )
+
+    def _search_all_tables(self, condition):
+        """Search both the standard table and the recurrent table for elements
+        that satisfy the given condition.
+
+        The entry IDs are used as key in the returned subdicts.
+
+        :param condition: condition for the search
+        :type condition: tinydb.queries.QueryInstance
+
+        :return: dict
+        """
+
+        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
+
+        for element in self.db_client.retrieve(DEFAULT_TABLE, condition):
+            elements[DEFAULT_TABLE][element["eid"]] = dict(element)
+
+        # all recurrent elements are generated, and the ones matching the
+        # element's ID in the 'recurrent' subdictionary
+        for element in self.db_client.retrieve(RECURRENT_TABLE):
+            for e in self._create_recurrent_elements(element):
+                if condition(e):
+                    elements[RECURRENT_TABLE][element["eid"]].append(e)
+
+        return elements

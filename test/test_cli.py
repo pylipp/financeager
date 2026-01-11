@@ -380,6 +380,7 @@ default_category = no-category"""
             {
                 DEFAULT_TABLE: {
                     str(entry_id): {
+                        "eid": entry_id,
                         "category": None,
                         "date": today,
                         "name": "money",
