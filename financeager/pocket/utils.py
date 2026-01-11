@@ -1,0 +1,53 @@
+"""Utility classes for abstracting database operations."""
+
+from abc import ABC, abstractmethod
+
+
+class DatabaseClient(ABC):
+    """Abstract base class for database client implementations."""
+
+    @abstractmethod
+    def retrieve(self, table_name, condition=None):
+        """Retrieve rows from a table.
+
+        :param table_name: name of the table to query
+        :param condition: optional condition to filter rows
+        :return: list of dicts
+        """
+
+    @abstractmethod
+    def retrieve_by_id(self, table_name, element_id):
+        """Retrieve a single row by its ID.
+
+        :param table_name: name of the table to query
+        :param element_id: ID of the element to retrieve
+        :return: dict or None if ID does not exist
+        """
+
+    @abstractmethod
+    def create(self, table_name, data):
+        """Create a new row in a table.
+
+        :param table_name: name of the table
+        :param data: dict of data to insert
+        :return: ID of the created element
+        """
+
+    @abstractmethod
+    def update_by_id(self, table_name, element_id, data):
+        """Update a row by its ID.
+
+        :param table_name: name of the table
+        :param element_id: ID of the element to update
+        :param data: dict of data to update
+        :return: ID of the updated element
+        """
+
+    @abstractmethod
+    def delete_by_id(self, table_name, element_id):
+        """Delete a row by its ID.
+
+        :param table_name: name of the table
+        :param element_id: ID of the element to delete
+        :return: ID of the deleted element
+        """

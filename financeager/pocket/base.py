@@ -1,15 +1,13 @@
 """Defines Pocket database object holding per-year financial data."""
 
-import os.path
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from datetime import datetime as dt
 
 from dateutil import rrule
 from marshmallow import Schema, ValidationError, fields, validate
-from tinydb import TinyDB, storages
 
-from . import (
+from .. import (
     DEFAULT_POCKET_NAME,
     DEFAULT_TABLE,
     POCKET_DATE_FORMAT,
@@ -17,7 +15,6 @@ from . import (
     UNSET_INDICATOR,
     exceptions,
 )
-from .db_utils import TinyDbClient
 
 _DEFAULT_CATEGORY = None
 FREQUENCY_CHOICES = [
@@ -444,88 +441,3 @@ class Pocket(ABC):
     @abstractmethod
     def close(self):
         """Close underlying database."""
-
-
-class TinyDbPocket(Pocket):
-    def __init__(self, name=None, data_dir=None, **kwargs):
-        """Create a pocket with a TinyDB database backend, identified by 'name'.
-        If 'data_dir' is given, the database storage type is JSON (the storage
-        filepath is derived from the Pocket's name). Otherwise the data is
-        stored in memory.
-        Keyword args are passed to the TinyDB constructor. See the respective
-        docs for detailed information.
-        """
-
-        # evaluate args/kwargs for TinyDB constructor. This overwrites the
-        # 'storage' kwarg if explicitly passed
-        if data_dir is None:
-            args = []
-            kwargs["storage"] = storages.MemoryStorage
-        else:
-            args = [os.path.join(data_dir, f"{name}.json")]
-            kwargs["storage"] = storages.JSONStorage
-
-        db_client = TinyDbClient(*args, **kwargs)
-        super().__init__(db_client, name=name)
-
-    def _search_all_tables(self, condition):
-        """Search both the standard table and the recurrent table for elements
-        that satisfy the given condition.
-
-        The entries' `doc_id` attribute is used as key in the returned subdicts
-        because it is lost in the client-server communication protocol (on
-        `financeager print`, the server calls Pocket.get_entries, yet the
-        JSON response returned drops the Document.doc_id attribute s.t. it's not
-        available when calling prettify on the client side).
-
-        :param condition: condition for the search
-        :type condition: tinydb.queries.QueryInstance
-
-        :return: dict
-        """
-
-        elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
-
-        for element in self.db_client.retrieve(DEFAULT_TABLE, condition):
-            elements[DEFAULT_TABLE][element.doc_id] = dict(element)
-
-        # all recurrent elements are generated, and the ones matching the
-        # condition are appended to a list that is stored under their generating
-        # element's doc_id in the 'recurrent' subdictionary
-        for element in self.db_client.retrieve(RECURRENT_TABLE):
-            for e in self._create_recurrent_elements(element):
-                if condition(e):
-                    elements[RECURRENT_TABLE][element.doc_id].append(e)
-
-        return elements
-
-    def get_entries(self, filters=None, recurrent_only=False):
-        """Get entries using TinyDB backend.
-
-        Constructs a condition from the given filters and uses it to query all tables.
-
-        :return: dict{
-                    DEFAULT_TABLE:  dict{ int: tinydb.Document },
-                    RECURRENT_TABLE: dict{ int: list[tinydb.Document] }
-                    } or
-                 list[tinydb.Document]
-        """
-        filters = filters or {}
-        condition = TinyDbClient.create_query_condition(**filters)
-
-        if recurrent_only:
-            # Flatten tinydb Document into dict
-            return [
-                {**e, **{"eid": e.doc_id}}
-                for e in self.db_client.retrieve(RECURRENT_TABLE, condition)
-            ]
-
-        return self._search_all_tables(condition)
-
-    def close(self):
-        """Close TinyDB database."""
-        self.db_client.close()
-
-
-TinyDB.default_table_name = DEFAULT_TABLE
-POCKET_CLASSES = {"tinydb": TinyDbPocket}

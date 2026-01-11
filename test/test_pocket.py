@@ -15,12 +15,12 @@ from financeager import (
     RECURRENT_TABLE,
     exceptions,
 )
-from financeager.pocket import (
+from financeager.pocket import TinyDbPocket
+from financeager.pocket.base import (
     _DEFAULT_CATEGORY,
     EntryBaseSchema,
     RecurrentEntrySchema,
     StandardEntrySchema,
-    TinyDbPocket,
 )
 
 
