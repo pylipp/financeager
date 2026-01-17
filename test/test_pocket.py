@@ -15,7 +15,7 @@ from financeager import (
     RECURRENT_TABLE,
     exceptions,
 )
-from financeager.pocket import TinyDbPocket
+from financeager.pocket import SqlitePocket, TinyDbPocket
 from financeager.pocket.base import (
     _DEFAULT_CATEGORY,
     EntryBaseSchema,
@@ -72,7 +72,7 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
 
     def test_remove_entry(self):
         response = self.pocket.remove_entry(eid=1)
-        self.assertEqual(0, len(self.pocket.db_interface._db))
+        self.assertEqual(0, len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)))
         self.assertEqual(1, response)
 
     def test_create_models_query_kwargs(self):
@@ -137,11 +137,13 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
     def test_add_remove_via_eid(self):
         entry_name = "penguin sale"
         entry_id = self.pocket.add_entry(name=entry_name, value=1337, date="2010-12-01")
-        nr_entries = len(self.pocket.db_interface._db)
+        nr_entries = len(self.pocket.db_interface.retrieve(DEFAULT_TABLE))
 
         removed_entry_id = self.pocket.remove_entry(eid=entry_id)
         self.assertEqual(removed_entry_id, entry_id)
-        self.assertEqual(len(self.pocket.db_interface._db), nr_entries - 1)
+        self.assertEqual(
+            len(self.pocket.db_interface.retrieve(DEFAULT_TABLE)), nr_entries - 1
+        )
         self.assertEqual(self.pocket._category_cache[entry_name][_DEFAULT_CATEGORY], 0)
 
     def test_get_nonexisting_entry(self):
@@ -240,16 +242,17 @@ class TinyDbPocketStandardEntryTestCase(unittest.TestCase):
 
 
 class TinyDbPocketRecurrentEntryNowTestCase(unittest.TestCase):
-    def test_no_future_elements_created(self):
+    def setUp(self):
         # current year
-        pocket = TinyDbPocket()
+        self.pocket = TinyDbPocket()
 
-        elements = pocket.get_entries()
+    def test_no_future_elements_created(self):
+        elements = self.pocket.get_entries()
         self.assertEqual(len(elements[DEFAULT_TABLE]), 0)
         self.assertEqual(len(elements[RECURRENT_TABLE]), 0)
 
         today = dt.date.today().replace(year=1993)
-        entry_id = pocket.add_entry(
+        entry_id = self.pocket.add_entry(
             table_name=RECURRENT_TABLE,
             name="lunch",
             value=-5,
@@ -259,7 +262,7 @@ class TinyDbPocketRecurrentEntryNowTestCase(unittest.TestCase):
         )
 
         day_nr = today.timetuple().tm_yday
-        elements = pocket.get_entries()
+        elements = self.pocket.get_entries()
         self.assertEqual(len(elements[RECURRENT_TABLE][entry_id]), day_nr)
 
 
@@ -276,12 +279,10 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             start="2007-10-01",
             end="2008-11-30",
         )
-        self.assertSetEqual({RECURRENT_TABLE}, self.pocket.db_interface._db.tables())
 
-        self.assertEqual(
-            len(self.pocket.db_interface._db.table(RECURRENT_TABLE).all()), 1
-        )
-        element = self.pocket.db_interface._db.table(RECURRENT_TABLE).all()[0]
+        elements = self.pocket.db_interface.retrieve(RECURRENT_TABLE)
+        self.assertEqual(len(elements), 1)
+        element = elements[0]
         recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 14)
 
@@ -307,7 +308,7 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             end="1991-12-31",
         )
 
-        element = self.pocket.db_interface._db.table(RECURRENT_TABLE).all()[0]
+        element = self.pocket.db_interface.retrieve(RECURRENT_TABLE)[0]
         recurrent_elements = list(self.pocket._create_recurrent_elements(element))
         self.assertEqual(len(recurrent_elements), 4)
 
@@ -322,10 +323,10 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             },
         )
 
-        recurrent_table_size = len(self.pocket.db_interface._db.table(RECURRENT_TABLE))
+        recurrent_table_size = len(self.pocket.db_interface.retrieve(RECURRENT_TABLE))
         self.pocket.remove_entry(eid=eid, table_name=RECURRENT_TABLE)
         self.assertEqual(
-            len(self.pocket.db_interface._db.table(RECURRENT_TABLE)),
+            len(self.pocket.db_interface.retrieve(RECURRENT_TABLE)),
             recurrent_table_size - 1,
         )
 
@@ -649,6 +650,55 @@ class JsonTinyDbPocketTestCase(unittest.TestCase):
     def tearDown(cls):
         cls.pocket.close()
         os.remove(cls.data_filepath)
+
+
+class CreateEmptySqlitePocketTestCase(unittest.TestCase):
+    def test_sqlite_file(self):
+        data_dir = tempfile.mkdtemp(prefix="financeager-")
+        name = 1234
+        db_path = os.path.join(data_dir, f"{name}.sqlite")
+        self.assertFalse(os.path.exists(db_path))
+
+        pocket = SqlitePocket(name=name, data_dir=data_dir)
+        pocket.close()
+        self.assertTrue(os.path.exists(db_path))
+        os.remove(db_path)
+
+    def test_validate_table_name_raises_value_error(self):
+        pocket = SqlitePocket(name=1901)
+        with self.assertRaises(ValueError) as context:
+            pocket.db_interface.retrieve("invalid_table")
+        self.assertIn("Invalid table name", str(context.exception))
+        pocket.close()
+
+    def test_validate_columns_raises_value_error(self):
+        pocket = SqlitePocket(name=1901)
+        with self.assertRaises(ValueError) as context:
+            pocket.db_interface.create("standard", {"invalid_column": 1})
+        self.assertIn("Invalid column name", str(context.exception))
+        pocket.close()
+
+
+class SqlitePocketStandardEntryTestCase(TinyDbPocketStandardEntryTestCase):
+    def setUp(self):
+        self.pocket = SqlitePocket(name=1901)
+        self.eid = self.pocket.add_entry(
+            name="Bicycle", value=-999.99, date="2020-01-01"
+        )
+
+    def test_update_with_empty_data(self):
+        self.assertEqual(self.pocket.update_entry(self.eid), self.eid)
+
+
+class SqlitePocketRecurrentEntryNowTestCase(TinyDbPocketRecurrentEntryNowTestCase):
+    def setUp(self):
+        # current year
+        self.pocket = SqlitePocket()
+
+
+class SqlitePocketRecurrentEntryTestCase(TinyDbPocketRecurrentEntryTestCase):
+    def setUp(self):
+        self.pocket = SqlitePocket(name=1901)
 
 
 if __name__ == "__main__":
