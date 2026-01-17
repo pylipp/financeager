@@ -8,11 +8,11 @@ class DatabaseInterface(ABC):
     """Abstract base class for database client implementations."""
 
     @abstractmethod
-    def retrieve(self, table_name, condition=None) -> Iterable[dict[str, Any]]:
+    def retrieve(self, table_name, filters=None) -> Iterable[dict[str, Any]]:
         """Retrieve rows from a table.
 
         :param table_name: name of the table to query
-        :param condition: optional condition to filter rows
+        :param filters: optional filters dict to filter rows
         :return: list of dicts
         """
 

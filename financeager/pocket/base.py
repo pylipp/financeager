@@ -173,8 +173,6 @@ class Pocket:
     def get_entries(self, filters=None, recurrent_only=False):
         """Get entries that match the items of the filters dict, if specified.
 
-        Constructs a condition from the given filters and uses it to query all tables.
-
         If `recurrent_only` is true, return a list of all entries of the
         recurrent table. Filters are applied.
 
@@ -186,13 +184,10 @@ class Pocket:
                     } or
                  list[dict]
         """
-        filters = filters or {}
-        condition = self.db_interface.create_query_condition(**filters)
-
         if recurrent_only:
-            return self.db_interface.retrieve(RECURRENT_TABLE, condition)
+            return self.db_interface.retrieve(RECURRENT_TABLE, filters)
 
-        return self._search_all_tables(condition)
+        return self._search_all_tables(filters)
 
     def get_categories(self):
         """Return unique category names in alphabetical order."""
@@ -402,30 +397,41 @@ class Pocket:
 
         return fields
 
-    def _search_all_tables(self, condition):
+    def _search_all_tables(self, filters):
         """Search both the standard table and the recurrent table for elements
-        that satisfy the given condition.
+        that satisfy the given filters.
+
+        Constructs a condition from the given filters and uses it to query all tables.
 
         The entry IDs are used as key in the returned subdicts.
 
-        :param condition: condition for the search
+        :param filters: filters for the search
         :return: dict
         """
 
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: defaultdict(list)}
 
-        for element in self.db_interface.retrieve(DEFAULT_TABLE, condition):
+        for element in self.db_interface.retrieve(DEFAULT_TABLE, filters):
             elements[DEFAULT_TABLE][element["eid"]] = element
+
+        # Filter keys are name, value, category, and/or date. The first three exist in
+        # the recurrent table, too, and are hence passed to the retrieve() call.
+        # Filtering of the date field happens via a lambda function in Python after
+        # instantiations of recurrent entries have been created.
+        date_filter = lambda _: True
+        date_pattern = None
+        if filters:
+            date_pattern = filters.pop("date", None)
+        if date_pattern is not None:
+            date_pattern = date_pattern.lower()
+            date_filter = lambda row: date_pattern in row["date"].lower()
 
         # all recurrent elements are generated, and the ones matching the
         # condition are appended to a list that is stored under their generating
         # element's ID in the 'recurrent' subdictionary
-        for element in self.db_interface.retrieve(RECURRENT_TABLE):
+        for element in self.db_interface.retrieve(RECURRENT_TABLE, filters):
             for e in self._create_recurrent_elements(element):
-                # TODO: this is only required for filtering generated recurrent elements
-                # by date (name, category, and/or value could already be filtered when
-                # retrieving the parent recurrent elements)
-                if condition(e):
+                if date_filter(e):
                     elements[RECURRENT_TABLE][element["eid"]].append(e)
 
         return elements

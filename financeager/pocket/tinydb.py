@@ -18,10 +18,11 @@ class TinyDbInterface(DatabaseInterface):
         """
         self._db = TinyDB(*args, **kwargs)
 
-    def retrieve(self, table_name, condition=None):
-        if condition is None:
+    def retrieve(self, table_name, filters=None):
+        if not filters:
             elements = self._db.table(table_name).all()
         else:
+            condition = self.create_query_condition(**filters)
             elements = self._db.table(table_name).search(condition)
         # Flatten tinydb Documents into dict
         return [{**e, **{"eid": e.doc_id}} for e in elements]
@@ -46,9 +47,6 @@ class TinyDbInterface(DatabaseInterface):
     def create_query_condition(**filters):
         """:return: tinydb.queries.QueryInstance (default: noop)"""
         condition = Query().noop()
-        if not filters:
-            return condition
-
         entry = Query()
         for field, pattern in filters.items():
             if pattern is None and field in ["category", "end"]:

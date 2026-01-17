@@ -132,13 +132,11 @@ class SqliteInterface(DatabaseInterface):
 
         self._conn.commit()
 
-    def retrieve(self, table_name, condition=None):
+    def retrieve(self, table_name, filters=None):
         self._validate_table_name(table_name)
         cursor = self._conn.cursor()
 
-        # Optimize simple conditions by pushing them into SQL when possible.
-        # For complex conditions (e.g., callables), fall back to Python filtering.
-        if condition is None:
+        if not filters:
             cursor.execute(f"SELECT * FROM {table_name}")
             rows = cursor.fetchall()
 
@@ -147,36 +145,15 @@ class SqliteInterface(DatabaseInterface):
                 elements.append(dict(row))
             return elements
 
-        # Check if condition is SqliteCondition with SQL-optimizable filters
-        if hasattr(condition, "as_dict"):
-            sql_dict = condition.as_dict()
-            if sql_dict:
-                # Fast path: use SQL WHERE clause for simple equality checks
-                self._validate_columns(table_name, sql_dict.keys())
-                where_clauses = []
-                params = []
-                for col, val in sql_dict.items():
-                    where_clauses.append(f"{col} = ?")
-                    params.append(val)
-                where_sql = " AND ".join(where_clauses)
-                query = f"SELECT * FROM {table_name} WHERE {where_sql}"
-                cursor.execute(query, tuple(params))
-                rows = cursor.fetchall()
-
-                elements = []
-                for row in rows:
-                    elements.append(dict(row))
-                return elements
-
-        # Fallback: retrieve all rows and filter in Python using the provided condition.
-        cursor.execute(f"SELECT * FROM {table_name}")
+        self._validate_columns(table_name, filters.keys())
+        where_sql, params = self.create_query_condition(**filters)
+        query = f"SELECT * FROM {table_name} WHERE {where_sql}"
+        cursor.execute(query, tuple(params))
         rows = cursor.fetchall()
 
         elements = []
         for row in rows:
             elements.append(dict(row))
-
-        elements = [e for e in elements if condition(e)]
         return elements
 
     def retrieve_by_id(self, table_name, element_id):
@@ -241,9 +218,26 @@ class SqliteInterface(DatabaseInterface):
     def create_query_condition(**filters):
         """Construct query condition with SQL optimization support.
 
-        :return: SqliteCondition object that supports both SQL and Python filtering
+        :return: where-clause string and parameter tuple
         """
-        return SqliteCondition(filters)
+        where_parts = []
+        params = []
+
+        for field, pattern in filters.items():
+            if pattern is None and field in ["category", "end"]:
+                # Filter for None values
+                where_parts.append(f"{field} IS NULL")
+            elif field == "value":
+                # Exact match for value
+                where_parts.append(f"{field} = ?")
+                params.append(float(pattern))
+            else:
+                # Pattern matching for string fields using LIKE
+                where_parts.append(f"LOWER({field}) LIKE ?")
+                params.append(f"%{pattern.lower()}%")
+
+        where_clause = " AND ".join(where_parts)
+        return where_clause, tuple(params)
 
     def close(self):
         """Close the SQLite database connection."""
