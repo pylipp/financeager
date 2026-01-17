@@ -5,6 +5,59 @@ from .base import Pocket
 from .utils import DatabaseInterface
 
 
+class SqliteCondition:
+    """Hybrid condition object that supports both SQL and Python filtering.
+
+    Can be used as a dict for simple equality checks (SQL optimization)
+    or called as a function for complex filtering.
+    """
+
+    def __init__(self, filters=None):
+        self.filters = filters or {}
+        self._sql_filters = {}
+        self._python_only = False
+
+        # Analyze filters to determine if we can use SQL optimization
+        for field, pattern in self.filters.items():
+            if pattern is None and field in ["category", "end"]:
+                # NULL checks need special handling, can't use simple dict
+                self._python_only = True
+                break
+            elif field == "value":
+                # Exact match - can use SQL
+                self._sql_filters[field] = float(pattern)
+            elif isinstance(pattern, str):
+                # Pattern matching with LIKE - need Python filtering
+                self._python_only = True
+                break
+
+    def as_dict(self):
+        """Return dict representation for SQL optimization if possible."""
+        if self._python_only or not self._sql_filters:
+            return None
+        return self._sql_filters
+
+    def __call__(self, row):
+        """Python-side filtering for complex conditions."""
+        for field, pattern in self.filters.items():
+            if pattern is None and field in ["category", "end"]:
+                # Filter for None values
+                if row.get(field) is not None:
+                    return False
+            elif field == "value":
+                # Exact match for value
+                if row.get(field) != float(pattern):
+                    return False
+            else:
+                # Pattern matching for string fields
+                value = row.get(field)
+                if value is None:
+                    return False
+                if pattern.lower() not in str(value).lower():
+                    return False
+        return True
+
+
 class SqliteInterface(DatabaseInterface):
     """Database interface implementation using SQLite."""
 
@@ -94,23 +147,26 @@ class SqliteInterface(DatabaseInterface):
                 elements.append(dict(row))
             return elements
 
-        # Fast path: condition given as a dict of {column: value} for equality checks.
-        if isinstance(condition, dict) and condition:
-            self._validate_columns(table_name, condition.keys())
-            where_clauses = []
-            params = []
-            for col, val in condition.items():
-                where_clauses.append(f"{col} = ?")
-                params.append(val)
-            where_sql = " AND ".join(where_clauses)
-            query = f"SELECT * FROM {table_name} WHERE {where_sql}"
-            cursor.execute(query, tuple(params))
-            rows = cursor.fetchall()
+        # Check if condition is SqliteCondition with SQL-optimizable filters
+        if hasattr(condition, "as_dict"):
+            sql_dict = condition.as_dict()
+            if sql_dict:
+                # Fast path: use SQL WHERE clause for simple equality checks
+                self._validate_columns(table_name, sql_dict.keys())
+                where_clauses = []
+                params = []
+                for col, val in sql_dict.items():
+                    where_clauses.append(f"{col} = ?")
+                    params.append(val)
+                where_sql = " AND ".join(where_clauses)
+                query = f"SELECT * FROM {table_name} WHERE {where_sql}"
+                cursor.execute(query, tuple(params))
+                rows = cursor.fetchall()
 
-            elements = []
-            for row in rows:
-                elements.append(dict(row))
-            return elements
+                elements = []
+                for row in rows:
+                    elements.append(dict(row))
+                return elements
 
         # Fallback: retrieve all rows and filter in Python using the provided condition.
         cursor.execute(f"SELECT * FROM {table_name}")
@@ -183,30 +239,11 @@ class SqliteInterface(DatabaseInterface):
 
     @staticmethod
     def create_query_condition(**filters):
-        """:return: function that takes a row dict and returns bool"""
-        if not filters:
-            return lambda _: True
+        """Construct query condition with SQL optimization support.
 
-        def condition(row):
-            for field, pattern in filters.items():
-                if pattern is None and field in ["category", "end"]:
-                    # Filter for None values
-                    if row.get(field) is not None:
-                        return False
-                elif field == "value":
-                    # Exact match for value
-                    if row.get(field) != float(pattern):
-                        return False
-                else:
-                    # Pattern matching for string fields
-                    value = row.get(field)
-                    if value is None:
-                        return False
-                    if pattern.lower() not in str(value).lower():
-                        return False
-            return True
-
-        return condition
+        :return: SqliteCondition object that supports both SQL and Python filtering
+        """
+        return SqliteCondition(filters)
 
     def close(self):
         """Close the SQLite database connection."""
