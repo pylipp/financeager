@@ -279,7 +279,6 @@ class TinyDbPocketRecurrentEntryTestCase(unittest.TestCase):
             start="2007-10-01",
             end="2008-11-30",
         )
-        # self.assertSetEqual({RECURRENT_TABLE}, self.pocket.db_interface._db.tables())
 
         elements = self.pocket.db_interface.retrieve(RECURRENT_TABLE)
         self.assertEqual(len(elements), 1)

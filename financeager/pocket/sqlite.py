@@ -156,6 +156,11 @@ class SqliteInterface(DatabaseInterface):
 
     def update_by_id(self, table_name, element_id, data):
         self._validate_table_name(table_name)
+
+        # Handle empty data dictionary (all None values filtered out)
+        if not data:
+            return element_id
+
         self._validate_columns(table_name, data.keys())
         cursor = self._conn.cursor()
 
