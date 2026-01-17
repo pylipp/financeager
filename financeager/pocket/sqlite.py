@@ -82,19 +82,45 @@ class SqliteInterface(DatabaseInterface):
     def retrieve(self, table_name, condition=None):
         self._validate_table_name(table_name)
         cursor = self._conn.cursor()
+
+        # Optimize simple conditions by pushing them into SQL when possible.
+        # For complex conditions (e.g., callables), fall back to Python filtering.
+        if condition is None:
+            cursor.execute(f"SELECT * FROM {table_name}")
+            rows = cursor.fetchall()
+
+            elements = []
+            for row in rows:
+                elements.append(dict(row))
+            return elements
+
+        # Fast path: condition given as a dict of {column: value} for equality checks.
+        if isinstance(condition, dict) and condition:
+            self._validate_columns(table_name, condition.keys())
+            where_clauses = []
+            params = []
+            for col, val in condition.items():
+                where_clauses.append(f"{col} = ?")
+                params.append(val)
+            where_sql = " AND ".join(where_clauses)
+            query = f"SELECT * FROM {table_name} WHERE {where_sql}"
+            cursor.execute(query, tuple(params))
+            rows = cursor.fetchall()
+
+            elements = []
+            for row in rows:
+                elements.append(dict(row))
+            return elements
+
+        # Fallback: retrieve all rows and filter in Python using the provided condition.
         cursor.execute(f"SELECT * FROM {table_name}")
         rows = cursor.fetchall()
 
-        # Convert rows to dicts
         elements = []
         for row in rows:
-            element = dict(row)
-            elements.append(element)
+            elements.append(dict(row))
 
-        # Apply condition filter if provided
-        if condition is not None:
-            elements = [e for e in elements if condition(e)]
-
+        elements = [e for e in elements if condition(e)]
         return elements
 
     def retrieve_by_id(self, table_name, element_id):
