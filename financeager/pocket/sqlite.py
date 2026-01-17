@@ -5,59 +5,6 @@ from .base import Pocket
 from .utils import DatabaseInterface
 
 
-class SqliteCondition:
-    """Hybrid condition object that supports both SQL and Python filtering.
-
-    Can be used as a dict for simple equality checks (SQL optimization)
-    or called as a function for complex filtering.
-    """
-
-    def __init__(self, filters=None):
-        self.filters = filters or {}
-        self._sql_filters = {}
-        self._python_only = False
-
-        # Analyze filters to determine if we can use SQL optimization
-        for field, pattern in self.filters.items():
-            if pattern is None and field in ["category", "end"]:
-                # NULL checks need special handling, can't use simple dict
-                self._python_only = True
-                break
-            elif field == "value":
-                # Exact match - can use SQL
-                self._sql_filters[field] = float(pattern)
-            elif isinstance(pattern, str):
-                # Pattern matching with LIKE - need Python filtering
-                self._python_only = True
-                break
-
-    def as_dict(self):
-        """Return dict representation for SQL optimization if possible."""
-        if self._python_only or not self._sql_filters:
-            return None
-        return self._sql_filters
-
-    def __call__(self, row):
-        """Python-side filtering for complex conditions."""
-        for field, pattern in self.filters.items():
-            if pattern is None and field in ["category", "end"]:
-                # Filter for None values
-                if row.get(field) is not None:
-                    return False
-            elif field == "value":
-                # Exact match for value
-                if row.get(field) != float(pattern):
-                    return False
-            else:
-                # Pattern matching for string fields
-                value = row.get(field)
-                if value is None:
-                    return False
-                if pattern.lower() not in str(value).lower():
-                    return False
-        return True
-
-
 class SqliteInterface(DatabaseInterface):
     """Database interface implementation using SQLite."""
 
