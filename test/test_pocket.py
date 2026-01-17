@@ -2,6 +2,7 @@ import calendar
 import datetime as dt
 import json
 import os.path
+import shutil
 import tempfile
 import unittest
 from collections import Counter
@@ -663,6 +664,7 @@ class CreateEmptySqlitePocketTestCase(unittest.TestCase):
         pocket.close()
         self.assertTrue(os.path.exists(db_path))
         os.remove(db_path)
+        shutil.rmtree(data_dir)
 
     def test_validate_table_name_raises_value_error(self):
         pocket = SqlitePocket(name=1901)
