@@ -85,23 +85,15 @@ class SqliteInterface(DatabaseInterface):
 
         if not filters:
             cursor.execute(f"SELECT * FROM {table_name}")
-            rows = cursor.fetchall()
 
-            elements = []
-            for row in rows:
-                elements.append(dict(row))
-            return elements
+        else:
+            self._validate_columns(table_name, filters.keys())
+            where_sql, params = self.create_query_condition(**filters)
+            query = f"SELECT * FROM {table_name} WHERE {where_sql}"
+            cursor.execute(query, tuple(params))
 
-        self._validate_columns(table_name, filters.keys())
-        where_sql, params = self.create_query_condition(**filters)
-        query = f"SELECT * FROM {table_name} WHERE {where_sql}"
-        cursor.execute(query, tuple(params))
         rows = cursor.fetchall()
-
-        elements = []
-        for row in rows:
-            elements.append(dict(row))
-        return elements
+        return [dict(row) for row in rows]
 
     def retrieve_by_id(self, table_name, element_id):
         self._validate_table_name(table_name)
