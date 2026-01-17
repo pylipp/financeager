@@ -686,6 +686,9 @@ class SqlitePocketStandardEntryTestCase(TinyDbPocketStandardEntryTestCase):
             name="Bicycle", value=-999.99, date="2020-01-01"
         )
 
+    def test_update_with_empty_data(self):
+        self.assertEqual(self.pocket.update_entry(self.eid), self.eid)
+
 
 class SqlitePocketRecurrentEntryNowTestCase(TinyDbPocketRecurrentEntryNowTestCase):
     def setUp(self):
