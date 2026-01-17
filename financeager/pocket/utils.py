@@ -8,11 +8,11 @@ class DatabaseInterface(ABC):
     """Abstract base class for database client implementations."""
 
     @abstractmethod
-    def retrieve(self, table_name, condition=None) -> Iterable[dict[str, Any]]:
+    def retrieve(self, table_name, filters=None) -> Iterable[dict[str, Any]]:
         """Retrieve rows from a table.
 
         :param table_name: name of the table to query
-        :param condition: optional condition to filter rows
+        :param filters: optional filters dict to filter rows
         :return: list of dicts
         """
 
@@ -59,9 +59,11 @@ class DatabaseInterface(ABC):
         """Construct query condition according to given filters. A filter is
         given by a key-value pair. The key indicates the field, the value the
         pattern to filter for. Valid keys are 'name', 'date', 'value' and/or
-        'category'. Patterns must be of type string, or None (only for the fields
-        'category' and 'end'; indicates filtering for all entries of the default
-        category, and recurrent entries with indefinite end, resp.).
+        'category' for the standard table, and 'name', 'value', 'category', 'start',
+        'end', 'frequency' for the recurrent table.
+        Patterns must be of type string, or None (only for the fields 'category' and
+        'end'; indicates filtering for all entries of the default category, and
+        recurrent entries with indefinite end, resp.).
         Return a condition object that is comprehended by the database interface (i.e.
         DatabaseInterface.retrieve).
         """
