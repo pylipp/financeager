@@ -5,10 +5,8 @@ import os.path
 
 from tinydb import TinyDB
 
-from .. import DEFAULT_TABLE, RECURRENT_TABLE, init_logger
+from .. import DEFAULT_TABLE, RECURRENT_TABLE
 from .sqlite import SqlitePocket
-
-logger = init_logger(__name__)
 
 
 def migrate_pocket(pocket_name, data_dir):
@@ -39,6 +37,15 @@ def migrate_pocket(pocket_name, data_dir):
     # Load TinyDB
     tinydb = TinyDB(tinydb_path)
 
+    # Check if SQLite file already exists
+    sqlite_path = os.path.join(data_dir, f"{pocket_name}.sqlite")
+    if os.path.exists(sqlite_path):
+        tinydb.close()
+        raise FileExistsError(
+            f"SQLite file already exists: {sqlite_path}. "
+            "Please remove or rename it before migrating."
+        )
+
     # Open SqlitePocket
     sqlite_pocket = SqlitePocket(name=pocket_name, data_dir=data_dir)
 
@@ -48,48 +55,48 @@ def migrate_pocket(pocket_name, data_dir):
     # module constants, making f-string usage safe here
     conn = sqlite_pocket.db_interface._conn
 
-    # Migrate standard table
+    # Migrate standard table using bulk insert
     standard_entries = tinydb.table(DEFAULT_TABLE).all()
-    standard_count = 0
-    for entry in standard_entries:
-        doc_id = entry.doc_id
-        entry_data = dict(entry)
-        # Insert with specific eid - table name is a validated constant
-        conn.execute(
+    if standard_entries:
+        standard_data = [
+            (
+                entry.doc_id,
+                entry["name"],
+                entry["date"],
+                entry.get("category"),
+                entry["value"],
+            )
+            for entry in standard_entries
+        ]
+        conn.executemany(
             f"INSERT INTO {DEFAULT_TABLE} "
             "(eid, name, date, category, value) VALUES (?, ?, ?, ?, ?)",
-            (
-                doc_id,
-                entry_data["name"],
-                entry_data["date"],
-                entry_data.get("category"),
-                entry_data["value"],
-            ),
+            standard_data,
         )
-        standard_count += 1
+    standard_count = len(standard_entries)
 
-    # Migrate recurrent table
+    # Migrate recurrent table using bulk insert
     recurrent_entries = tinydb.table(RECURRENT_TABLE).all()
-    recurrent_count = 0
-    for entry in recurrent_entries:
-        doc_id = entry.doc_id
-        entry_data = dict(entry)
-        # Insert with specific eid - table name is a validated constant
-        conn.execute(
+    if recurrent_entries:
+        recurrent_data = [
+            (
+                entry.doc_id,
+                entry["name"],
+                entry["start"],
+                entry.get("end"),
+                entry["frequency"],
+                entry.get("category"),
+                entry["value"],
+            )
+            for entry in recurrent_entries
+        ]
+        conn.executemany(
             f"INSERT INTO {RECURRENT_TABLE} "
             "(eid, name, start, end, frequency, category, value) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (
-                doc_id,
-                entry_data["name"],
-                entry_data["start"],
-                entry_data.get("end"),
-                entry_data["frequency"],
-                entry_data.get("category"),
-                entry_data["value"],
-            ),
+            recurrent_data,
         )
-        recurrent_count += 1
+    recurrent_count = len(recurrent_entries)
 
     # Commit changes
     conn.commit()
@@ -98,10 +105,9 @@ def migrate_pocket(pocket_name, data_dir):
     tinydb.close()
     sqlite_pocket.close()
 
-    total_count = standard_count + recurrent_count
     return {
         "pocket_name": pocket_name,
         "standard_count": standard_count,
         "recurrent_count": recurrent_count,
-        "total_count": total_count,
+        "total_count": standard_count + recurrent_count,
     }

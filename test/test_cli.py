@@ -647,22 +647,15 @@ class AppDirectoryTestCase(unittest.TestCase):
         self.assertTrue(financeager.CACHE_DIR.endswith(".cache/financeager"))
 
 
-class MigratePocketsTestCase(unittest.TestCase):
+class MigratePocketsTestCase(CliTestCase):
     """Test the migrate-pockets CLI command."""
 
-    @classmethod
-    def setUpClass(cls):
-        # Create test config file
-        with open(TEST_CONFIG_FILEPATH, "w") as file:
-            file.write("[SERVICE]\nname = local\n")
+    CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
 
     def setUp(self):
+        super().setUp()
         # Create a fresh temporary directory for each test
         self.test_dir = tempfile.mkdtemp(prefix="financeager-migrate-test-")
-
-        # Mock info and error for capturing output
-        self.info = mock.MagicMock()
-        self.error = mock.MagicMock()
 
     def tearDown(self):
         # Clean up test directory
@@ -920,6 +913,33 @@ class MigratePocketsTestCase(unittest.TestCase):
         self.error.assert_called_once()
         error_msg = str(self.error.call_args[0][0])
         self.assertIn("No pocket names specified", error_msg)
+
+    def test_migrate_sqlite_file_exists(self):
+        """Test migrating when SQLite file already exists."""
+        # Create a test pocket
+        self._create_tinydb_pocket(
+            "existing",
+            [{"name": "item", "date": "2024-01-01", "category": None, "value": 10.0}],
+            [],
+        )
+
+        # Create a SQLite file with the same name
+        sqlite_path = os.path.join(self.test_dir, "existing.sqlite")
+        with open(sqlite_path, "w") as f:
+            f.write("dummy content")
+
+        # Run migration
+        with mock.patch("financeager.DATA_DIR", self.test_dir):
+            args = cli._parse_command(["migrate-pockets", "existing"])
+            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
+            sinks = clients.Client.Sinks(self.info, self.error)
+            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
+
+        # Verify failure
+        self.assertEqual(exit_code, cli.FAILURE)
+        self.error.assert_called_once()
+        error_msg = str(self.error.call_args[0][0])
+        self.assertIn("already exists", error_msg.lower())
 
 
 if __name__ == "__main__":

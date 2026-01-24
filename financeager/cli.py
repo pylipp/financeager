@@ -29,6 +29,7 @@ from . import (
     make_log_stream_handler_verbose,
     setup_log_file_handler,
 )
+from .pocket import migrate as pocket_migrate
 from .pocket.base import FREQUENCY_CHOICES
 from .server import pocket_names
 
@@ -71,6 +72,40 @@ def main():
     sys.exit(exit_code)
 
 
+def _migrate_pockets(pocket_names, sinks):
+    """Migrate one or more TinyDB pockets to SQLite format.
+
+    :param pocket_names: list of pocket names to migrate
+    :param sinks: Client.Sinks object for output
+    :return: SUCCESS if all migrations succeed, FAILURE otherwise
+    """
+    if not pocket_names:
+        sinks.error("No pocket names specified.")
+        return FAILURE
+
+    for pocket_name in pocket_names:
+        try:
+            result = pocket_migrate.migrate_pocket(pocket_name, financeager.DATA_DIR)
+            message = (
+                f"Migrated pocket '{result['pocket_name']}': "
+                f"{result['total_count']} entries "
+                f"({result['standard_count']} standard, "
+                f"{result['recurrent_count']} recurrent)"
+            )
+            sinks.info(message)
+        except FileNotFoundError as e:
+            sinks.error(str(e))
+            return FAILURE
+        except FileExistsError as e:
+            sinks.error(str(e))
+            return FAILURE
+        except Exception as e:
+            sinks.error(f"Error migrating pocket '{pocket_name}': {e}")
+            return FAILURE
+
+    return SUCCESS
+
+
 def run(command, configuration, plugins=None, verbose=False, sinks=None, **params):
     """Run 'command' request using additional 'params'.
 
@@ -110,33 +145,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
 
     # Handle migrate-pockets command directly without client
     if command == "migrate-pockets":
-        from .pocket import migrate as pocket_migrate
-
-        pocket_names = params.get("pocket_names", [])
-        if not pocket_names:
-            sinks.error("No pocket names specified.")
-            return FAILURE
-
-        for pocket_name in pocket_names:
-            try:
-                result = pocket_migrate.migrate_pocket(
-                    pocket_name, financeager.DATA_DIR
-                )
-                message = (
-                    f"Migrated pocket '{result['pocket_name']}': "
-                    f"{result['total_count']} entries "
-                    f"({result['standard_count']} standard, "
-                    f"{result['recurrent_count']} recurrent)"
-                )
-                sinks.info(message)
-            except FileNotFoundError as e:
-                sinks.error(str(e))
-                return FAILURE
-            except Exception as e:
-                sinks.error(f"Error migrating pocket '{pocket_name}': {e}")
-                return FAILURE
-
-        return SUCCESS
+        return _migrate_pockets(params.get("pocket_names", []), sinks)
 
     try:
         _preprocess(params)
