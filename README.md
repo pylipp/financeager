@@ -74,7 +74,7 @@ In any case, you're all set up! See the next section about the available client 
 
 The main CLI entry point is called `fina`.
 
-    usage: fina [-h] [-V] {add,get,remove,update,copy,list,pockets} ...
+    usage: fina [-h] [-V] {add,get,remove,update,copy,list,pockets,migrate-pockets} ...
 
     optional arguments:
       -h, --help          show this help message and exit
@@ -88,6 +88,7 @@ The main CLI entry point is called `fina`.
       copy                copy an entry from one pocket to another, or within one pocket
       list                list all entries in the pocket database
       pockets             list all pocket databases
+      migrate-pockets     migrate TinyDB pocket(s) to SQLite format
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -182,6 +183,24 @@ You can also configure frontend options: the name of the default category (assig
     default_category = unspecified
 
 The CLI `fina` tries to read the configuration from `~/.config/financeager/config`. You can specify a custom path by passing it along with the `-C`/`--config` command line option.
+
+### Migrating from TinyDB to SQLite
+
+If you have existing TinyDB databases (`.json` files) and want to migrate to SQLite format (`.sqlite` files), use the `migrate-pockets` command:
+
+    > fina migrate-pockets 2023 2024
+
+This will:
+- Read the TinyDB files (`2023.json`, `2024.json`) from your data directory
+- Create new SQLite files (`2023.sqlite`, `2024.sqlite`) in the same directory
+- Migrate all entries from both the standard and recurrent tables
+- Preserve the original entry IDs
+
+You can migrate multiple pockets at once by providing multiple names:
+
+    > fina migrate-pockets main personal work
+
+**Note**: The migration does **not** delete the original `.json` files. After verifying that the migration was successful (by running `fina list --pocket <name>` with the `database_type = sqlite` configuration), you can manually delete the old `.json` files if desired.
 
 ### More Goodies
 
