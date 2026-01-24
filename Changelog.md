@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.5.2] - 2026-
+## [v1.6.0] - 2026-
 ### Added
 - Enable support for different database types. If you initialize `Server` or a subclass in your code, you should pass the `database_type` parameter of the configuration. (#267)
 - Introduce Sqlite-based database back-end. Set `database_type = sqlite` in the `SERVICE` section of your configuration file to use it. The Sqlite back-end will become the default in v2.0. (#271)
