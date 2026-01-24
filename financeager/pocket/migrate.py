@@ -18,7 +18,7 @@ def migrate_pocket(pocket_name, data_dir):
     :param data_dir: directory containing the pocket files
     :return: dict with migration statistics
     :raises: FileNotFoundError if TinyDB file doesn't exist
-    :raises: json.JSONDecodeError if TinyDB file contains invalid JSON
+    :raises: ValueError if TinyDB file contains invalid JSON
     :raises: Exception for other errors during migration
     """
     # Validate that TinyDB file exists
@@ -34,9 +34,7 @@ def migrate_pocket(pocket_name, data_dir):
             if content.strip():
                 json.loads(content)
     except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(
-            f"Invalid JSON in {tinydb_path}: {e.msg}", e.doc, e.pos
-        )
+        raise ValueError(f"Invalid JSON in {tinydb_path}: {e.msg}")
 
     # Load TinyDB
     tinydb = TinyDB(tinydb_path)
@@ -44,19 +42,22 @@ def migrate_pocket(pocket_name, data_dir):
     # Open SqlitePocket
     sqlite_pocket = SqlitePocket(name=pocket_name, data_dir=data_dir)
 
+    # Get the database connection for direct migration
+    # We need direct access to insert with specific eid values
+    # Note: Table names (DEFAULT_TABLE, RECURRENT_TABLE) are validated
+    # module constants, making f-string usage safe here
+    conn = sqlite_pocket.db_interface._conn
+
     # Migrate standard table
     standard_entries = tinydb.table(DEFAULT_TABLE).all()
     standard_count = 0
     for entry in standard_entries:
         doc_id = entry.doc_id
         entry_data = dict(entry)
-        # Insert with specific eid
-        query = (
+        # Insert with specific eid - table name is a validated constant
+        conn.execute(
             f"INSERT INTO {DEFAULT_TABLE} "
-            "(eid, name, date, category, value) VALUES (?, ?, ?, ?, ?)"
-        )
-        sqlite_pocket.db_interface._conn.execute(
-            query,
+            "(eid, name, date, category, value) VALUES (?, ?, ?, ?, ?)",
             (
                 doc_id,
                 entry_data["name"],
@@ -73,14 +74,11 @@ def migrate_pocket(pocket_name, data_dir):
     for entry in recurrent_entries:
         doc_id = entry.doc_id
         entry_data = dict(entry)
-        # Insert with specific eid
-        query = (
+        # Insert with specific eid - table name is a validated constant
+        conn.execute(
             f"INSERT INTO {RECURRENT_TABLE} "
             "(eid, name, start, end, frequency, category, value) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)"
-        )
-        sqlite_pocket.db_interface._conn.execute(
-            query,
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 doc_id,
                 entry_data["name"],
@@ -94,7 +92,7 @@ def migrate_pocket(pocket_name, data_dir):
         recurrent_count += 1
 
     # Commit changes
-    sqlite_pocket.db_interface._conn.commit()
+    conn.commit()
 
     # Close databases
     tinydb.close()

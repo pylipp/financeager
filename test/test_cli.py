@@ -1,5 +1,6 @@
 import os
 import shlex
+import shutil
 import tempfile
 import unittest
 from collections import defaultdict
@@ -665,8 +666,6 @@ class MigratePocketsTestCase(unittest.TestCase):
 
     def tearDown(self):
         # Clean up test directory
-        import shutil
-
         if os.path.exists(self.test_dir):
             shutil.rmtree(self.test_dir)
 
