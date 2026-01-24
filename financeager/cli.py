@@ -111,19 +111,22 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
     # Handle migrate-pockets command directly without client
     if command == "migrate-pockets":
         from .pocket import migrate as pocket_migrate
-        
+
         pocket_names = params.get("pocket_names", [])
         if not pocket_names:
             sinks.error("No pocket names specified.")
             return FAILURE
-        
+
         for pocket_name in pocket_names:
             try:
-                result = pocket_migrate.migrate_pocket(pocket_name, financeager.DATA_DIR)
+                result = pocket_migrate.migrate_pocket(
+                    pocket_name, financeager.DATA_DIR
+                )
                 message = (
                     f"Migrated pocket '{result['pocket_name']}': "
                     f"{result['total_count']} entries "
-                    f"({result['standard_count']} standard, {result['recurrent_count']} recurrent)"
+                    f"({result['standard_count']} standard, "
+                    f"{result['recurrent_count']} recurrent)"
                 )
                 sinks.info(message)
             except FileNotFoundError as e:
@@ -132,7 +135,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
             except Exception as e:
                 sinks.error(f"Error migrating pocket '{pocket_name}': {e}")
                 return FAILURE
-        
+
         return SUCCESS
 
     try:
@@ -506,14 +509,13 @@ is assumed""",
     subparsers.add_parser("pockets", help="list all pocket databases")
 
     migrate_parser = subparsers.add_parser(
-        "migrate-pockets",
-        help="migrate TinyDB pocket(s) to SQLite format"
+        "migrate-pockets", help="migrate TinyDB pocket(s) to SQLite format"
     )
     migrate_parser.add_argument(
         "pocket_names",
         nargs="+",
         metavar="POCKET",
-        help="name(s) of pocket(s) to migrate (without .json extension)"
+        help="name(s) of pocket(s) to migrate (without .json extension)",
     )
 
     # Extend with plugin parsers
