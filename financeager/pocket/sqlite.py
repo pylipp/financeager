@@ -91,7 +91,7 @@ class SqliteInterface(DatabaseInterface):
             self._validate_columns(table_name, filters.keys())
             where_sql, params = self.create_query_condition(**filters)
             query = f"SELECT * FROM {table_name} WHERE {where_sql}"
-            cursor.execute(query, tuple(params))
+            cursor.execute(query, params)
 
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
