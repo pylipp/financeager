@@ -1,4 +1,5 @@
 import os.path
+import shutil
 import tempfile
 import unittest
 
@@ -187,18 +188,47 @@ class FindEntryServerTestCase(unittest.TestCase):
 
 
 class JsonPocketsServerTestCase(unittest.TestCase):
-    def test_pockets(self):
-        tmp_dir = tempfile.mkdtemp()
-        self.server = server.Server(data_dir=tmp_dir)
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp_dir = tempfile.mkdtemp()
 
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp_dir)
+
+    def setUp(self):
+        self.database_type = "tinydb"
+
+    def test_pockets(self):
+        self.server = server.Server(
+            data_dir=self.tmp_dir, database_type=self.database_type
+        )
+        extension = "json" if self.database_type == "tinydb" else "sqlite"
         self.assertDictEqual(self.server.run("pockets"), {"pockets": []})
 
-        # Create dummy JSON files
+        # Create dummy database files
         pockets = ["1000", "1500"]
         for p in pockets:
-            open(os.path.join(tmp_dir, f"{p}.json"), "w").close()
+            open(os.path.join(self.tmp_dir, f"{p}.{extension}"), "w").close()
 
         self.assertDictEqual(self.server.run("pockets"), {"pockets": pockets})
+
+
+class SqlitePocketsServerTestCase(JsonPocketsServerTestCase):
+    def setUp(self):
+        self.database_type = "sqlite"
+
+
+class InvalidDatabaseTypePocketsServerTestCase(JsonPocketsServerTestCase):
+    def setUp(self):
+        self.database_type = "invalid"
+
+    def test_pockets(self):
+        self.server = server.Server(
+            data_dir=self.tmp_dir, database_type=self.database_type
+        )
+        response = self.server.run("pockets")
+        self.assertEqual(str(response["error"]), "Unknown database type 'invalid'")
 
 
 class InvalidDatabaseTypeTestCase(unittest.TestCase):

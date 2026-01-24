@@ -169,7 +169,14 @@ You can find a log of interactions at `~/.local/share/financeager/log` (on both 
 
 ### More on configuration
 
-Besides specifying the backend to communicate with, you can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry). The defaults are:
+By default, financeager uses a `tinydb` database. If you want to use an `sqlite` database, specify it in the configuration file:
+
+    [SERVICE]
+    database_type = sqlite
+
+**NOTE**: the `sqlite` back-end will become the default in v2.0.
+
+You can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry). The defaults are:
 
     [FRONTEND]
     default_category = unspecified

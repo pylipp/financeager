@@ -99,7 +99,7 @@ class Server:
         names = {p._name for p in self._pockets.values()}
 
         data_dir = self._pocket_kwargs.get("data_dir")
-        names.update(pocket_names(data_dir))
+        names.update(pocket_names(data_dir, database_type=self._database_type))
         return sorted(names)
 
     def _copy_entry(self, source_pocket=None, destination_pocket=None, **kwargs):
@@ -119,14 +119,30 @@ class Server:
         )
 
 
-def pocket_names(data_dir):
-    """Return names of all pockets (i.e. names of JSON files in the given data
-    directory), or an empty set if the specified data directory is None.
+def pocket_names(data_dir, database_type=None):
+    """Return names of all pockets matching the specified database type (i.e. names of
+    JSON/sqlite files in the given data directory for tinydb/sqlite type), or an empty
+    set if the specified data directory is None.
+    If no database type specified, return all possible database files in the given data
+    directory. This is used for CLI completion, and while it is unprecise (any command
+    accepting a --pocket argument can only run on either database type), we keep it
+    because it's better than no completion options at all.
     """
     if data_dir is None:
         return set()
-    result = {
+
+    tinydb_result = {
         os.path.splitext(os.path.basename(f))[0]
         for f in glob.glob(os.path.join(data_dir, "*.json"))
     }
-    return result
+    sqlite_result = {
+        os.path.splitext(os.path.basename(f))[0]
+        for f in glob.glob(os.path.join(data_dir, "*.sqlite"))
+    }
+    if database_type is None:
+        return tinydb_result.union(sqlite_result)
+    elif database_type == "tinydb":
+        return tinydb_result
+    elif database_type == "sqlite":
+        return sqlite_result
+    raise exceptions.PocketException(f"Unknown database type '{database_type}'")
