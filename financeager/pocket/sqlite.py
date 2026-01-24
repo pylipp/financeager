@@ -1,7 +1,8 @@
 import os.path
 import sqlite3
 
-from .base import Pocket
+from .. import DEFAULT_TABLE, RECURRENT_TABLE
+from .base import Pocket, RecurrentEntrySchema, StandardEntrySchema
 from .utils import DatabaseInterface
 
 
@@ -9,11 +10,11 @@ class SqliteInterface(DatabaseInterface):
     """Database interface implementation using SQLite."""
 
     # Valid table names for security
-    _VALID_TABLES = {"standard", "recurrent"}
+    _VALID_TABLES = {DEFAULT_TABLE, RECURRENT_TABLE}
     # Valid column names for each table
     _VALID_COLUMNS = {
-        "standard": {"name", "date", "category", "value"},
-        "recurrent": {"name", "start", "end", "frequency", "category", "value"},
+        DEFAULT_TABLE: set(StandardEntrySchema().fields.keys()),
+        RECURRENT_TABLE: set(RecurrentEntrySchema().fields.keys()),
     }
 
     def __init__(self, *args, **kwargs):
