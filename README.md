@@ -340,6 +340,7 @@ CLI-focused (GUI/browser extensions available):
 - [ledger](https://www.ledger-cli.org/index.html)
 
 TUI applications
+- [budget_tracker_tui](https://github.com/Feromond/budget_tracker_tui)
 - [moneyterm](https://github.com/ChrisBuilds/moneyterm)
 
 Client-server applications
