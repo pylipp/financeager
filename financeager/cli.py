@@ -30,6 +30,7 @@ from . import (
     setup_log_file_handler,
 )
 from .pocket.base import FREQUENCY_CHOICES
+from .pocket.migrate import migrate_pocket
 from .server import pocket_names
 
 logger = init_logger(__name__)
@@ -71,6 +72,33 @@ def main():
     sys.exit(exit_code)
 
 
+def _migrate_pockets(pocket_names, sinks):
+    """Migrate one or more TinyDB pockets to SQLite format.
+
+    :param pocket_names: list of pocket names to migrate
+    :param sinks: Client.Sinks object for output
+    :return: SUCCESS if all migrations succeed, FAILURE otherwise
+    """
+    for pocket_name in set(pocket_names):
+        try:
+            result = migrate_pocket(pocket_name, financeager.DATA_DIR)
+            message = (
+                f"Migrated pocket '{result['pocket_name']}': "
+                f"{result['total_count']} entries "
+                f"({result['standard_count']} standard, "
+                f"{result['recurrent_count']} recurrent)"
+            )
+            sinks.info(message)
+        except (FileNotFoundError, FileExistsError, ValueError) as e:
+            sinks.error(str(e))
+            return FAILURE
+        except Exception as e:
+            sinks.error(f"Error migrating pocket '{pocket_name}': {e}")
+            return FAILURE
+
+    return SUCCESS
+
+
 def run(command, configuration, plugins=None, verbose=False, sinks=None, **params):
     """Run 'command' request using additional 'params'.
 
@@ -107,6 +135,10 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
             Console().print(response)
 
     sinks = sinks or clients.Client.Sinks(_info, logger.error)
+
+    # Handle migrate-pockets command directly without client
+    if command == "migrate-pockets":
+        return _migrate_pockets(params.get("pocket_names", []), sinks)
 
     try:
         _preprocess(params)
@@ -477,6 +509,16 @@ is assumed""",
     )
 
     subparsers.add_parser("pockets", help="list all pocket databases")
+
+    migrate_parser = subparsers.add_parser(
+        "migrate-pockets", help="migrate TinyDB pocket(s) to SQLite format"
+    )
+    migrate_parser.add_argument(
+        "pocket_names",
+        nargs="+",
+        metavar="POCKET",
+        help="name(s) of pocket(s) to migrate (without .json extension)",
+    )
 
     # Extend with plugin parsers
     plugins = plugins or []

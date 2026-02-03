@@ -74,7 +74,7 @@ In any case, you're all set up! See the next section about the available client 
 
 The main CLI entry point is called `fina`.
 
-    usage: fina [-h] [-V] {add,get,remove,update,copy,list,pockets} ...
+    usage: fina [-h] [-V] {add,get,remove,update,copy,list,pockets,migrate-pockets} ...
 
     optional arguments:
       -h, --help          show this help message and exit
@@ -88,6 +88,7 @@ The main CLI entry point is called `fina`.
       copy                copy an entry from one pocket to another, or within one pocket
       list                list all entries in the pocket database
       pockets             list all pocket databases
+      migrate-pockets     migrate TinyDB pocket(s) to SQLite format
 
 *Add* earnings (no/positive sign) and expenses (negative sign) to the database:
 
@@ -174,7 +175,7 @@ By default, financeager uses a `tinydb` database. If you want to use an `sqlite`
     [SERVICE]
     database_type = sqlite
 
-**NOTE**: the `sqlite` back-end will become the default in v2.0.
+**NOTE**: the `sqlite` back-end will become the default in v2.0. See below on how to migrate existing `tinydb` databases.
 
 You can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry). The defaults are:
 
@@ -182,6 +183,20 @@ You can also configure frontend options: the name of the default category (assig
     default_category = unspecified
 
 The CLI `fina` tries to read the configuration from `~/.config/financeager/config`. You can specify a custom path by passing it along with the `-C`/`--config` command line option.
+
+### Migrating from TinyDB to SQLite
+
+If you have existing TinyDB databases (`.json` files) and want to migrate to SQLite format (`.sqlite` files), use the `migrate-pockets` command:
+
+    > fina migrate-pockets main work
+
+This will:
+- Read the TinyDB files (`main.json`, `work.json`) from your data directory
+- Create new SQLite files (`main.sqlite`, `work.sqlite`) in the same directory
+- Migrate all entries from both the standard and recurrent tables
+- Preserve the original entry IDs
+
+**Note**: The migration does **not** delete the original `.json` files. After verifying that the migration was successful (by running `fina list --pocket <name>` with the `database_type = sqlite` configuration), you can manually delete the old `.json` files if desired.
 
 ### More Goodies
 

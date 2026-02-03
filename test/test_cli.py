@@ -1,4 +1,6 @@
+import os
 import shlex
+import sqlite3
 import tempfile
 import unittest
 from collections import defaultdict
@@ -69,7 +71,7 @@ class CliTestCase(unittest.TestCase):
         command = args[0]
 
         # Exclude option from subcommand parsers that would be confused
-        if command not in ["copy", "pockets"]:
+        if command not in ["copy", "pockets", "migrate-pockets"]:
             args.extend(["--pocket", str(self.pocket)])
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
@@ -82,7 +84,8 @@ class CliTestCase(unittest.TestCase):
         exit_code = cli.run(sinks=sinks, configuration=configuration, **params)
 
         # Get first of the args of the call of specified log method
-        response = getattr(self, log_method).call_args[0][0]
+        log_method_mock = getattr(self, log_method)
+        response = log_method_mock.call_args[0][0]
 
         # Verify exit code
         self.assertEqual(
@@ -643,6 +646,218 @@ class AppDirectoryTestCase(unittest.TestCase):
         self.assertTrue(financeager.DATA_DIR.endswith(".local/share/financeager"))
         self.assertTrue(financeager.LOG_DIR.endswith(".cache/financeager/log"))
         self.assertTrue(financeager.CACHE_DIR.endswith(".cache/financeager"))
+
+
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
+class MigratePocketsTestCase(CliTestCase):
+    """Test the migrate-pockets CLI command."""
+
+    CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
+
+    def _create_tinydb_pocket(
+        self, pocket_name, standard_entries=None, recurrent_entries=None
+    ):
+        """Helper to create a TinyDB pocket with test data."""
+        from tinydb import TinyDB
+
+        tinydb_path = os.path.join(TEST_DATA_DIR, f"{pocket_name}.json")
+        db = TinyDB(tinydb_path)
+
+        standard_entries = standard_entries or []
+        recurrent_entries = recurrent_entries or []
+
+        standard_ids = []
+        for entry in standard_entries:
+            standard_ids.append(db.table(DEFAULT_TABLE).insert(entry))
+
+        recurrent_ids = []
+        for entry in recurrent_entries:
+            recurrent_ids.append(db.table(RECURRENT_TABLE).insert(entry))
+
+        db.close()
+        return standard_ids, recurrent_ids
+
+    def _verify_sqlite_pocket(
+        self, pocket_name, expected_standard_count, expected_recurrent_count
+    ):
+        """Helper to verify SQLite pocket was created correctly."""
+        sqlite_path = os.path.join(TEST_DATA_DIR, f"{pocket_name}.sqlite")
+        self.assertTrue(os.path.exists(sqlite_path))
+
+        conn = sqlite3.connect(sqlite_path)
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT COUNT(*) FROM {DEFAULT_TABLE}")
+        standard_count = cursor.fetchone()[0]
+        self.assertEqual(standard_count, expected_standard_count)
+
+        cursor.execute(f"SELECT COUNT(*) FROM {RECURRENT_TABLE}")
+        recurrent_count = cursor.fetchone()[0]
+        self.assertEqual(recurrent_count, expected_recurrent_count)
+
+        conn.close()
+        return sqlite_path
+
+    def test_migrate_single_pocket(self):
+        """Test migrating a single pocket successfully."""
+        # Create a test pocket with some data
+        standard_entries = [
+            {
+                "name": "groceries",
+                "date": "2024-01-15",
+                "category": "food",
+                "value": -50.0,
+            },
+            {
+                "name": "salary",
+                "date": "2024-01-31",
+                "category": "income",
+                "value": 3000.0,
+            },
+        ]
+        recurrent_entries = [
+            {
+                "name": "rent",
+                "start": "2024-01-01",
+                "end": None,
+                "frequency": "monthly",
+                "category": "housing",
+                "value": -1200.0,
+            },
+        ]
+
+        self._create_tinydb_pocket("testpocket", standard_entries, recurrent_entries)
+
+        response = self.cli_run("migrate-pockets testpocket")
+
+        self.assertIn("testpocket", response)
+        self.assertIn("3 entries", response)
+        self.assertIn("2 standard", response)
+        self.assertIn("1 recurrent", response)
+
+        # Verify SQLite database was created
+        self._verify_sqlite_pocket("testpocket", 2, 1)
+
+    def test_migrate_multiple_pockets(self):
+        """Test migrating multiple pockets."""
+        # Create two test pockets
+        self._create_tinydb_pocket(
+            "pocket1",
+            [{"name": "item1", "date": "2024-01-01", "category": None, "value": 10.0}],
+            [],
+        )
+        self._create_tinydb_pocket(
+            "pocket2",
+            [],
+            [
+                {
+                    "name": "recurring",
+                    "start": "2024-01-01",
+                    "end": None,
+                    "frequency": "weekly",
+                    "category": None,
+                    "value": 5.0,
+                }
+            ],
+        )
+
+        response = self.cli_run("migrate-pockets pocket1 pocket2")
+
+        self.assertIn("Migrated pocket 'pocket", response)
+        self.assertEqual(self.info.call_count, 2)
+
+        # Verify both SQLite databases were created
+        self._verify_sqlite_pocket("pocket1", 1, 0)
+        self._verify_sqlite_pocket("pocket2", 0, 1)
+
+    def test_migrate_nonexistent_pocket(self):
+        """Test migrating a pocket that doesn't exist."""
+        response = self.cli_run("migrate-pockets nonexistent", log_method="error")
+        self.assertIn("not found", response.lower())
+
+    def test_migrate_invalid_json(self):
+        """Test migrating a pocket with invalid JSON."""
+        # Create a file with invalid JSON
+        invalid_json_path = os.path.join(TEST_DATA_DIR, "invalid.json")
+        with open(invalid_json_path, "w") as f:
+            f.write("{invalid json content")
+
+        response = self.cli_run("migrate-pockets invalid", log_method="error")
+        self.assertIn("invalid", response.lower())
+
+    @mock.patch("tinydb.TinyDB.table")
+    def test_general_exception(self, mocked_table):
+        self._create_tinydb_pocket("empty2", [], [])
+        mocked_table.side_effect = RuntimeError("database error")
+        response = self.cli_run("migrate-pockets empty2", log_method="error")
+        self.assertIn("database error", response)
+
+    def test_migrate_preserves_eid(self):
+        """Test that document IDs from TinyDB are preserved as eid in SQLite."""
+        # Create a test pocket with specific entries
+        standard_entries = [
+            {
+                "name": "entry1",
+                "date": "2024-01-01",
+                "category": "cat1",
+                "value": 100.0,
+            },
+            {
+                "name": "entry2",
+                "date": "2024-01-02",
+                "category": "cat2",
+                "value": 200.0,
+            },
+        ]
+
+        standard_ids, _ = self._create_tinydb_pocket("eid_test", standard_entries, [])
+
+        response = self.cli_run("migrate-pockets eid_test")
+        self.assertIn("2 entries", response)
+
+        # Verify IDs are preserved
+        sqlite_path = os.path.join(TEST_DATA_DIR, "eid_test.sqlite")
+        conn = sqlite3.connect(sqlite_path)
+        cursor = conn.cursor()
+
+        cursor.execute(f"SELECT eid, name FROM {DEFAULT_TABLE} ORDER BY eid")
+        rows = cursor.fetchall()
+
+        self.assertEqual(len(rows), len(standard_ids))
+        for i, (eid, name) in enumerate(rows):
+            self.assertEqual(eid, standard_ids[i])
+            self.assertEqual(name, standard_entries[i]["name"])
+
+        conn.close()
+
+    def test_migrate_empty_pocket(self):
+        """Test migrating a pocket with no entries."""
+        # Create an empty pocket
+        self._create_tinydb_pocket("empty", [], [])
+
+        response = self.cli_run("migrate-pockets empty")
+        self.assertIn("0 entries", response)
+
+        # Verify SQLite database was created
+        self._verify_sqlite_pocket("empty", 0, 0)
+
+    def test_migrate_sqlite_file_exists(self):
+        """Test migrating when SQLite file already exists."""
+        # Create a test pocket
+        self._create_tinydb_pocket(
+            "existing",
+            [{"name": "item", "date": "2024-01-01", "category": None, "value": 10.0}],
+            [],
+        )
+
+        # Create a SQLite file with the same name
+        sqlite_path = os.path.join(TEST_DATA_DIR, "existing.sqlite")
+        with open(sqlite_path, "w") as f:
+            f.write("dummy content")
+
+        response = self.cli_run("migrate-pockets existing", log_method="error")
+        self.assertIn("already exists", response.lower())
 
 
 if __name__ == "__main__":
