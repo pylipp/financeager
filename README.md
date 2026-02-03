@@ -175,7 +175,7 @@ By default, financeager uses a `tinydb` database. If you want to use an `sqlite`
     [SERVICE]
     database_type = sqlite
 
-**NOTE**: the `sqlite` back-end will become the default in v2.0.
+**NOTE**: the `sqlite` back-end will become the default in v2.0. See below on how to migrate existing `tinydb` databases.
 
 You can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry). The defaults are:
 
@@ -188,17 +188,13 @@ The CLI `fina` tries to read the configuration from `~/.config/financeager/confi
 
 If you have existing TinyDB databases (`.json` files) and want to migrate to SQLite format (`.sqlite` files), use the `migrate-pockets` command:
 
-    > fina migrate-pockets 2023 2024
+    > fina migrate-pockets main work
 
 This will:
-- Read the TinyDB files (`2023.json`, `2024.json`) from your data directory
-- Create new SQLite files (`2023.sqlite`, `2024.sqlite`) in the same directory
+- Read the TinyDB files (`main.json`, `work.json`) from your data directory
+- Create new SQLite files (`main.sqlite`, `work.sqlite`) in the same directory
 - Migrate all entries from both the standard and recurrent tables
 - Preserve the original entry IDs
-
-You can migrate multiple pockets at once by providing multiple names:
-
-    > fina migrate-pockets main personal work
 
 **Note**: The migration does **not** delete the original `.json` files. After verifying that the migration was successful (by running `fina list --pocket <name>` with the `database_type = sqlite` configuration), you can manually delete the old `.json` files if desired.
 
