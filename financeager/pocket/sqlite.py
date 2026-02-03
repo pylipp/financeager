@@ -52,8 +52,7 @@ class SqliteInterface(DatabaseInterface):
         """Create tables if they don't exist."""
         cursor = self._conn.cursor()
 
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS standard (
                 eid INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -61,11 +60,9 @@ class SqliteInterface(DatabaseInterface):
                 category TEXT,
                 value REAL NOT NULL
             )
-        """
-        )
+        """)
 
-        cursor.execute(
-            """
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS recurrent (
                 eid INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -75,8 +72,7 @@ class SqliteInterface(DatabaseInterface):
                 category TEXT,
                 value REAL NOT NULL
             )
-        """
-        )
+        """)
 
         self._conn.commit()
 
