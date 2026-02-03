@@ -147,7 +147,8 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
             f"You're using the `{database_type}` database type. "
             "In financeager v2.0 (to be released in Q3 2026), the `sqlite` type will "
             "become the default. Convert your databases now with the `migrate-pockets` "
-            "command, and set `database_type = sqlite` in your configuration file."
+            "command, and set `database_type = sqlite` in your configuration file "
+            f"{configuration.filepath}."
         )
 
     try:
