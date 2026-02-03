@@ -838,26 +838,6 @@ class MigratePocketsTestCase(CliTestCase):
         # Verify SQLite database was created
         self._verify_sqlite_pocket("empty", 0, 0)
 
-    def test_migrate_no_pocket_names(self):
-        """Test calling migrate-pockets with no pocket names."""
-        # Run migration without any pocket names
-        # Manually construct args to simulate empty list
-        args = {
-            "command": "migrate-pockets",
-            "pocket_names": [],
-            "config_filepath": TEST_CONFIG_FILEPATH,
-            "verbose": False,
-        }
-        configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-        sinks = clients.Client.Sinks(self.info, self.error)
-        exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
-
-        # Verify failure
-        self.assertEqual(exit_code, cli.FAILURE)
-        self.error.assert_called_once()
-        error_msg = str(self.error.call_args[0][0])
-        self.assertIn("No pocket names specified", error_msg)
-
     def test_migrate_sqlite_file_exists(self):
         """Test migrating when SQLite file already exists."""
         # Create a test pocket

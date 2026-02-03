@@ -79,10 +79,6 @@ def _migrate_pockets(pocket_names, sinks):
     :param sinks: Client.Sinks object for output
     :return: SUCCESS if all migrations succeed, FAILURE otherwise
     """
-    if not pocket_names:
-        sinks.error("No pocket names specified.")
-        return FAILURE
-
     for pocket_name in set(pocket_names):
         try:
             result = migrate_pocket(pocket_name, financeager.DATA_DIR)
