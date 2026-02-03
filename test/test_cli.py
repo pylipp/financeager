@@ -1,5 +1,6 @@
 import os
 import shlex
+import sqlite3
 import tempfile
 import unittest
 from collections import defaultdict
@@ -681,8 +682,6 @@ class MigratePocketsTestCase(CliTestCase):
         self, pocket_name, expected_standard_count, expected_recurrent_count
     ):
         """Helper to verify SQLite pocket was created correctly."""
-        import sqlite3
-
         sqlite_path = os.path.join(TEST_DATA_DIR, f"{pocket_name}.sqlite")
         self.assertTrue(os.path.exists(sqlite_path))
 
@@ -787,6 +786,13 @@ class MigratePocketsTestCase(CliTestCase):
         response = self.cli_run("migrate-pockets invalid", log_method="error")
         self.assertIn("invalid", response.lower())
 
+    @mock.patch("tinydb.TinyDB.table")
+    def test_general_exception(self, mocked_table):
+        self._create_tinydb_pocket("empty2", [], [])
+        mocked_table.side_effect = RuntimeError("database error")
+        response = self.cli_run("migrate-pockets empty2", log_method="error")
+        self.assertIn("database error", response)
+
     def test_migrate_preserves_eid(self):
         """Test that document IDs from TinyDB are preserved as eid in SQLite."""
         # Create a test pocket with specific entries
@@ -811,8 +817,6 @@ class MigratePocketsTestCase(CliTestCase):
         self.assertIn("2 entries", response)
 
         # Verify IDs are preserved
-        import sqlite3
-
         sqlite_path = os.path.join(TEST_DATA_DIR, "eid_test.sqlite")
         conn = sqlite3.connect(sqlite_path)
         cursor = conn.cursor()

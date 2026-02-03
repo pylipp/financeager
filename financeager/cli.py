@@ -89,7 +89,7 @@ def _migrate_pockets(pocket_names, sinks):
                 f"{result['recurrent_count']} recurrent)"
             )
             sinks.info(message)
-        except (FileNotFoundError, FileExistsError) as e:
+        except (FileNotFoundError, FileExistsError, ValueError) as e:
             sinks.error(str(e))
             return FAILURE
         except Exception as e:
