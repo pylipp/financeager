@@ -140,6 +140,16 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
     if command == "migrate-pockets":
         return _migrate_pockets(params.get("pocket_names", []), sinks)
 
+    # Show warning if not using sqlite database type
+    database_type = configuration.get_option("SERVICE", "database_type")
+    if database_type != "sqlite":
+        logger.warning(
+            f"You're using the `{database_type}` database type. "
+            "In financeager v2.0 (to be released in Q3 2026), the `sqlite` type will "
+            "become the default. Convert your databases now with the `migrate-pockets` "
+            "command, and set `database_type = sqlite` in your configuration file."
+        )
+
     try:
         _preprocess(params)
     except exceptions.PreprocessingError as e:

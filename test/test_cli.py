@@ -131,6 +131,7 @@ class CliTestCase(unittest.TestCase):
 # category cache reading and writing
 @mock.patch("financeager.DATA_DIR", None)
 @mock.patch("financeager.CACHE_DIR", None)
+@mock.patch("financeager.cli.logger.warning", lambda _: None)
 class CliLocalServerNoneConfigTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
 
@@ -169,6 +170,7 @@ class CliLocalServerNoneConfigTestCase(CliTestCase):
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 @mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.cli.logger.warning", lambda _: None)
 class CliLocalServerTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = """\
 [SERVICE]
@@ -434,6 +436,7 @@ Category : No-Category""",
 
 @mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
 @mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.cli.logger.warning", lambda _: None)
 class CategoryCacheTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
 
@@ -635,7 +638,10 @@ class PluginCliOptionsTestCase(unittest.TestCase):
         self.assertEqual(args["sound"], "tweet")
 
         configuration = config.Configuration()
-        configuration._parser["SERVICE"] = {"name": "test-plugin"}
+        configuration._parser["SERVICE"] = {
+            "name": "test-plugin",
+            "database_type": "sqlite",
+        }
         exit_code = cli.run(**args, configuration=configuration, plugins=[test_plugin])
         self.assertEqual(exit_code, cli.SUCCESS)
 
@@ -858,6 +864,18 @@ class MigratePocketsTestCase(CliTestCase):
 
         response = self.cli_run("migrate-pockets existing", log_method="error")
         self.assertIn("already exists", response.lower())
+
+    @mock.patch("financeager.cli.logger.warning")
+    def test_tinydb_warning(self, mocked_warning):
+        self.cli_run("add something 10")
+
+        mocked_warning.assert_called_once()
+        warning_message = mocked_warning.call_args[0][0]
+        self.assertIn("tinydb", warning_message)
+        self.assertIn("v2.0", warning_message)
+        self.assertIn("Q3 2026", warning_message)
+        self.assertIn("migrate-pockets", warning_message)
+        self.assertIn("database_type = sqlite", warning_message)
 
 
 if __name__ == "__main__":
