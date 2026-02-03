@@ -1,6 +1,5 @@
 import os
 import shlex
-import shutil
 import tempfile
 import unittest
 from collections import defaultdict
@@ -71,7 +70,7 @@ class CliTestCase(unittest.TestCase):
         command = args[0]
 
         # Exclude option from subcommand parsers that would be confused
-        if command not in ["copy", "pockets"]:
+        if command not in ["copy", "pockets", "migrate-pockets"]:
             args.extend(["--pocket", str(self.pocket)])
 
         args.extend(["--config-filepath", TEST_CONFIG_FILEPATH])
@@ -84,7 +83,8 @@ class CliTestCase(unittest.TestCase):
         exit_code = cli.run(sinks=sinks, configuration=configuration, **params)
 
         # Get first of the args of the call of specified log method
-        response = getattr(self, log_method).call_args[0][0]
+        log_method_mock = getattr(self, log_method)
+        response = log_method_mock.call_args[0][0]
 
         # Verify exit code
         self.assertEqual(
@@ -647,20 +647,12 @@ class AppDirectoryTestCase(unittest.TestCase):
         self.assertTrue(financeager.CACHE_DIR.endswith(".cache/financeager"))
 
 
+@mock.patch("financeager.DATA_DIR", TEST_DATA_DIR)
+@mock.patch("financeager.CACHE_DIR", TEST_DATA_DIR)
 class MigratePocketsTestCase(CliTestCase):
     """Test the migrate-pockets CLI command."""
 
     CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
-
-    def setUp(self):
-        super().setUp()
-        # Create a fresh temporary directory for each test
-        self.test_dir = tempfile.mkdtemp(prefix="financeager-migrate-test-")
-
-    def tearDown(self):
-        # Clean up test directory
-        if os.path.exists(self.test_dir):
-            shutil.rmtree(self.test_dir)
 
     def _create_tinydb_pocket(
         self, pocket_name, standard_entries=None, recurrent_entries=None
@@ -668,7 +660,7 @@ class MigratePocketsTestCase(CliTestCase):
         """Helper to create a TinyDB pocket with test data."""
         from tinydb import TinyDB
 
-        tinydb_path = os.path.join(self.test_dir, f"{pocket_name}.json")
+        tinydb_path = os.path.join(TEST_DATA_DIR, f"{pocket_name}.json")
         db = TinyDB(tinydb_path)
 
         standard_entries = standard_entries or []
@@ -691,7 +683,7 @@ class MigratePocketsTestCase(CliTestCase):
         """Helper to verify SQLite pocket was created correctly."""
         import sqlite3
 
-        sqlite_path = os.path.join(self.test_dir, f"{pocket_name}.sqlite")
+        sqlite_path = os.path.join(TEST_DATA_DIR, f"{pocket_name}.sqlite")
         self.assertTrue(os.path.exists(sqlite_path))
 
         conn = sqlite3.connect(sqlite_path)
@@ -738,21 +730,12 @@ class MigratePocketsTestCase(CliTestCase):
 
         self._create_tinydb_pocket("testpocket", standard_entries, recurrent_entries)
 
-        # Run migration
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            args = cli._parse_command(["migrate-pockets", "testpocket"])
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
+        response = self.cli_run("migrate-pockets testpocket")
 
-        # Verify success
-        self.assertEqual(exit_code, cli.SUCCESS)
-        self.info.assert_called_once()
-        call_args = self.info.call_args[0][0]
-        self.assertIn("testpocket", call_args)
-        self.assertIn("3 entries", call_args)
-        self.assertIn("2 standard", call_args)
-        self.assertIn("1 recurrent", call_args)
+        self.assertIn("testpocket", response)
+        self.assertIn("3 entries", response)
+        self.assertIn("2 standard", response)
+        self.assertIn("1 recurrent", response)
 
         # Verify SQLite database was created
         self._verify_sqlite_pocket("testpocket", 2, 1)
@@ -780,15 +763,9 @@ class MigratePocketsTestCase(CliTestCase):
             ],
         )
 
-        # Run migration
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            args = cli._parse_command(["migrate-pockets", "pocket1", "pocket2"])
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
+        response = self.cli_run("migrate-pockets pocket1 pocket2")
 
-        # Verify success
-        self.assertEqual(exit_code, cli.SUCCESS)
+        self.assertIn("Migrated pocket 'pocket", response)
         self.assertEqual(self.info.call_count, 2)
 
         # Verify both SQLite databases were created
@@ -797,38 +774,18 @@ class MigratePocketsTestCase(CliTestCase):
 
     def test_migrate_nonexistent_pocket(self):
         """Test migrating a pocket that doesn't exist."""
-        # Run migration for nonexistent pocket
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            args = cli._parse_command(["migrate-pockets", "nonexistent"])
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
-
-        # Verify failure
-        self.assertEqual(exit_code, cli.FAILURE)
-        self.error.assert_called_once()
-        error_msg = str(self.error.call_args[0][0])
-        self.assertIn("not found", error_msg.lower())
+        response = self.cli_run("migrate-pockets nonexistent", log_method="error")
+        self.assertIn("not found", response.lower())
 
     def test_migrate_invalid_json(self):
         """Test migrating a pocket with invalid JSON."""
         # Create a file with invalid JSON
-        invalid_json_path = os.path.join(self.test_dir, "invalid.json")
+        invalid_json_path = os.path.join(TEST_DATA_DIR, "invalid.json")
         with open(invalid_json_path, "w") as f:
             f.write("{invalid json content")
 
-        # Run migration
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            args = cli._parse_command(["migrate-pockets", "invalid"])
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
-
-        # Verify failure
-        self.assertEqual(exit_code, cli.FAILURE)
-        self.error.assert_called_once()
-        error_msg = str(self.error.call_args[0][0])
-        self.assertIn("invalid", error_msg.lower())
+        response = self.cli_run("migrate-pockets invalid", log_method="error")
+        self.assertIn("invalid", response.lower())
 
     def test_migrate_preserves_eid(self):
         """Test that document IDs from TinyDB are preserved as eid in SQLite."""
@@ -850,15 +807,13 @@ class MigratePocketsTestCase(CliTestCase):
 
         standard_ids, _ = self._create_tinydb_pocket("eid_test", standard_entries, [])
 
-        # Run migration
-        from financeager.pocket import migrate as pocket_migrate
-
-        pocket_migrate.migrate_pocket("eid_test", self.test_dir)
+        response = self.cli_run("migrate-pockets eid_test")
+        self.assertIn("2 entries", response)
 
         # Verify IDs are preserved
         import sqlite3
 
-        sqlite_path = os.path.join(self.test_dir, "eid_test.sqlite")
+        sqlite_path = os.path.join(TEST_DATA_DIR, "eid_test.sqlite")
         conn = sqlite3.connect(sqlite_path)
         cursor = conn.cursor()
 
@@ -877,18 +832,8 @@ class MigratePocketsTestCase(CliTestCase):
         # Create an empty pocket
         self._create_tinydb_pocket("empty", [], [])
 
-        # Run migration
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            args = cli._parse_command(["migrate-pockets", "empty"])
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
-
-        # Verify success
-        self.assertEqual(exit_code, cli.SUCCESS)
-        self.info.assert_called_once()
-        call_args = self.info.call_args[0][0]
-        self.assertIn("0 entries", call_args)
+        response = self.cli_run("migrate-pockets empty")
+        self.assertIn("0 entries", response)
 
         # Verify SQLite database was created
         self._verify_sqlite_pocket("empty", 0, 0)
@@ -896,17 +841,16 @@ class MigratePocketsTestCase(CliTestCase):
     def test_migrate_no_pocket_names(self):
         """Test calling migrate-pockets with no pocket names."""
         # Run migration without any pocket names
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            # Manually construct args to simulate empty list
-            args = {
-                "command": "migrate-pockets",
-                "pocket_names": [],
-                "config_filepath": TEST_CONFIG_FILEPATH,
-                "verbose": False,
-            }
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
+        # Manually construct args to simulate empty list
+        args = {
+            "command": "migrate-pockets",
+            "pocket_names": [],
+            "config_filepath": TEST_CONFIG_FILEPATH,
+            "verbose": False,
+        }
+        configuration = config.Configuration(TEST_CONFIG_FILEPATH)
+        sinks = clients.Client.Sinks(self.info, self.error)
+        exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
 
         # Verify failure
         self.assertEqual(exit_code, cli.FAILURE)
@@ -924,22 +868,12 @@ class MigratePocketsTestCase(CliTestCase):
         )
 
         # Create a SQLite file with the same name
-        sqlite_path = os.path.join(self.test_dir, "existing.sqlite")
+        sqlite_path = os.path.join(TEST_DATA_DIR, "existing.sqlite")
         with open(sqlite_path, "w") as f:
             f.write("dummy content")
 
-        # Run migration
-        with mock.patch("financeager.DATA_DIR", self.test_dir):
-            args = cli._parse_command(["migrate-pockets", "existing"])
-            configuration = config.Configuration(TEST_CONFIG_FILEPATH)
-            sinks = clients.Client.Sinks(self.info, self.error)
-            exit_code = cli.run(sinks=sinks, configuration=configuration, **args)
-
-        # Verify failure
-        self.assertEqual(exit_code, cli.FAILURE)
-        self.error.assert_called_once()
-        error_msg = str(self.error.call_args[0][0])
-        self.assertIn("already exists", error_msg.lower())
+        response = self.cli_run("migrate-pockets existing", log_method="error")
+        self.assertIn("already exists", response.lower())
 
 
 if __name__ == "__main__":
