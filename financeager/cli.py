@@ -29,8 +29,8 @@ from . import (
     make_log_stream_handler_verbose,
     setup_log_file_handler,
 )
-from .pocket import migrate as pocket_migrate
 from .pocket.base import FREQUENCY_CHOICES
+from .pocket.migrate import migrate_pocket
 from .server import pocket_names
 
 logger = init_logger(__name__)
@@ -83,9 +83,9 @@ def _migrate_pockets(pocket_names, sinks):
         sinks.error("No pocket names specified.")
         return FAILURE
 
-    for pocket_name in pocket_names:
+    for pocket_name in set(pocket_names):
         try:
-            result = pocket_migrate.migrate_pocket(pocket_name, financeager.DATA_DIR)
+            result = migrate_pocket(pocket_name, financeager.DATA_DIR)
             message = (
                 f"Migrated pocket '{result['pocket_name']}': "
                 f"{result['total_count']} entries "
@@ -93,10 +93,7 @@ def _migrate_pockets(pocket_names, sinks):
                 f"{result['recurrent_count']} recurrent)"
             )
             sinks.info(message)
-        except FileNotFoundError as e:
-            sinks.error(str(e))
-            return FAILURE
-        except FileExistsError as e:
+        except (FileNotFoundError, FileExistsError) as e:
             sinks.error(str(e))
             return FAILURE
         except Exception as e:

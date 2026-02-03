@@ -34,19 +34,15 @@ def migrate_pocket(pocket_name, data_dir):
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON in {tinydb_path}: {e.msg}")
 
-    # Load TinyDB
-    tinydb = TinyDB(tinydb_path)
-
     # Check if SQLite file already exists
     sqlite_path = os.path.join(data_dir, f"{pocket_name}.sqlite")
     if os.path.exists(sqlite_path):
-        tinydb.close()
         raise FileExistsError(
             f"SQLite file already exists: {sqlite_path}. "
             "Please remove or rename it before migrating."
         )
 
-    # Open SqlitePocket
+    tinydb = TinyDB(tinydb_path)
     sqlite_pocket = SqlitePocket(name=pocket_name, data_dir=data_dir)
 
     # Get the database connection for direct migration
@@ -98,10 +94,7 @@ def migrate_pocket(pocket_name, data_dir):
         )
     recurrent_count = len(recurrent_entries)
 
-    # Commit changes
     conn.commit()
-
-    # Close databases
     tinydb.close()
     sqlite_pocket.close()
 
