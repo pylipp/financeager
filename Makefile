@@ -5,7 +5,7 @@ all:
 
 install:
 	python -m pip install -U -e .[develop]
-	pre-commit install
+	prek install --overwrite
 	gitlint install-hook
 
 test:
@@ -21,12 +21,9 @@ coverage:
 	coverage html
 
 lint:
-	pre-commit run --all-files flake8
+	prek run --all-files flake8
 
 format:
-	pre-commit run --all-files black
-	pre-commit run --all-files isort
-	pre-commit run --all-files end-of-file-fixer
-	pre-commit run --all-files trailing-whitespace
+	prek run --all-files black isort end-of-file-fixer trailing-whitespace
 
 style-check: format lint
