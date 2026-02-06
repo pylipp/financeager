@@ -4,7 +4,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 
 from financeager import plugin
 
-from . import init_logger
+from . import CONFIG_FILEPATH, init_logger
 from .entries import CategoryEntry
 from .exceptions import InvalidConfigError
 from .pocket import POCKET_CLASSES
@@ -54,6 +54,10 @@ class Configuration:
     def _init_option_types(self):
         for p in self._plugins:
             p.config.init_option_types(self._option_types)
+
+    @property
+    def filepath(self):
+        return self._filepath or CONFIG_FILEPATH
 
     def _load_custom_config(self):
         """Update config values according to customization in config file."""
