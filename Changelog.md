@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.6.1] - 2026-02-06
+### Added
+- CLI-completion of available pockets for `migrate-pockets` command.
+
 ## [v1.6.0] - 2026-02-06
 ### Added
 - Enable support for different database types. If you initialize `Server` or a subclass in your code, you should pass the `database_type` parameter of the configuration. (#267)
