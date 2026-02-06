@@ -10,11 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v1.6.0] - 2026-
+## [v1.6.0] - 2026-02-06
 ### Added
 - Enable support for different database types. If you initialize `Server` or a subclass in your code, you should pass the `database_type` parameter of the configuration. (#267)
 - Introduce Sqlite-based database back-end. Set `database_type = sqlite` in the `SERVICE` section of your configuration file to use it. The Sqlite back-end will become the default in v2.0 (to be released in Q3 2026). A warning is displayed to encourage users to migrate their databases and adjust the configuration file. (#271, #276)
 - Add `migrate-pockets` command to enable conversion of existing `tinydb` databases into Sqlite. (#273)
+### Changed
 - Update dependencies `rich` and `marshmallow`. (#275)
 
 ## [v1.5.1] - 2026-01-10
