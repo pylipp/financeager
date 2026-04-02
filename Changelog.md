@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v1.6.2] - 2026-04-02
+### Changed
+- Update dependencies `platformdirs`, `rich` and `marshmallow`. (#278, #280)
+
 ## [v1.6.1] - 2026-02-06
 ### Added
 - CLI-completion of available pockets for `migrate-pockets` command.
