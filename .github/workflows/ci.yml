@@ -40,7 +40,7 @@ jobs:
           pip install -U -e .[develop]
           pip install -U coveralls
       - name: Run style-checks
-        uses: j178/prek-action@v1
+        uses: j178/prek-action@v2
       - name: Run test suite
         run: |
           coverage erase
