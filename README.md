@@ -364,3 +364,5 @@ Client-server applications
 
 Local GUI applications
 - [kmymoney](https://kmymoney.org/)
+
+You can always discover more repositories via [GitHub's topics](https://github.com/topics/budget-tracker).
