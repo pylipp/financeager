@@ -11,6 +11,9 @@ __version__ = version(__name__)
 # Global constants
 #
 
+# Default storage type
+POCKET_DEFAULT_TYPE = "sqlite"
+
 # default name of database
 DEFAULT_POCKET_NAME = "main"
 

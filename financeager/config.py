@@ -4,7 +4,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 
 from financeager import plugin
 
-from . import CONFIG_FILEPATH, init_logger
+from . import CONFIG_FILEPATH, POCKET_DEFAULT_TYPE, init_logger
 from .entries import CategoryEntry
 from .exceptions import InvalidConfigError
 from .pocket import POCKET_CLASSES
@@ -42,7 +42,7 @@ class Configuration:
     def _init_defaults(self):
         self._parser["SERVICE"] = {
             "name": "local",
-            "database_type": "tinydb",
+            "database_type": POCKET_DEFAULT_TYPE,
         }
         self._parser["FRONTEND"] = {
             "default_category": CategoryEntry.DEFAULT_NAME,

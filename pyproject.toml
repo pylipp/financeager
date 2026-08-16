@@ -23,7 +23,6 @@ dependencies = [
   "marshmallow==4.3.0",
   "python-dateutil==2.9.0.post0",
   "rich==15.0.0",
-  "tinydb==4.8.2",
 ]
 dynamic = [
   "version",
@@ -56,6 +55,9 @@ develop = [
 ]
 packaging = [
   "build",
+]
+tinydb = [
+  "tinydb==4.8.2",
 ]
 
 [project.urls]

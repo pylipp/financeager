@@ -135,14 +135,6 @@ class CliTestCase(unittest.TestCase):
 class CliLocalServerNoneConfigTestCase(CliTestCase):
     CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
 
-    @mock.patch("tinydb.storages.MemoryStorage.write")
-    def test_add_entry(self, mocked_write):
-        entry_id = str(self.cli_run("add more 1337"))
-        # Verify that data is written to memory
-        data = mocked_write.call_args[0][0]["standard"][entry_id]
-        self.assertEqual(data["name"], "more")
-        self.assertEqual(data["value"], 1337.0)
-
     @mock.patch("builtins.print")
     @mock.patch("financeager.cli.logger.info")
     def test_pockets(self, mocked_info, mocked_print):
@@ -659,7 +651,9 @@ class AppDirectoryTestCase(unittest.TestCase):
 class MigratePocketsTestCase(CliTestCase):
     """Test the migrate-pockets CLI command."""
 
-    CONFIG_FILE_CONTENT = ""  # service 'local' is the default anyway
+    CONFIG_FILE_CONTENT = """\
+[SERVICE]
+database_type = tinydb"""
 
     def _create_tinydb_pocket(
         self, pocket_name, standard_entries=None, recurrent_entries=None
@@ -876,6 +870,23 @@ class MigratePocketsTestCase(CliTestCase):
         self.assertIn("Q3 2026", warning_message)
         self.assertIn("migrate-pockets", warning_message)
         self.assertIn("database_type = sqlite", warning_message)
+
+
+@mock.patch("financeager.DATA_DIR", None)
+@mock.patch("financeager.CACHE_DIR", None)
+@mock.patch("financeager.cli.logger.warning", lambda _: None)
+class TinyDbCliTestCase(CliTestCase):
+    CONFIG_FILE_CONTENT = """\
+[SERVICE]
+database_type = tinydb"""
+
+    @mock.patch("tinydb.storages.MemoryStorage.write")
+    def test_add_entry_in_memory(self, mocked_write):
+        entry_id = str(self.cli_run("add more 1337"))
+        # Verify that data is written to memory
+        data = mocked_write.call_args[0][0]["standard"][entry_id]
+        self.assertEqual(data["name"], "more")
+        self.assertEqual(data["value"], 1337.0)
 
 
 if __name__ == "__main__":

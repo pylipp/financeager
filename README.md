@@ -170,12 +170,14 @@ You can find a log of interactions at `~/.local/share/financeager/log` (on both 
 
 ### More on configuration
 
-By default, financeager uses a `tinydb` database. If you want to use an `sqlite` database, specify it in the configuration file:
+By default, financeager uses a `sqlite` database. If you want to use an `tinydb` database, specify it in the configuration file:
 
     [SERVICE]
-    database_type = sqlite
+    database_type = tinydb
 
-**NOTE**: the `sqlite` back-end will become the default in v2.0. See below on how to migrate existing `tinydb` databases.
+This requires installing the resp. dependency via `pip install financeager[tinydb]`.
+
+**NOTE**: the `sqlite` back-end has become the default in v2.0. See below on how to migrate existing `tinydb` databases.
 
 You can also configure frontend options: the name of the default category (assigned when omitting the category option when e.g. adding an entry). The defaults are:
 

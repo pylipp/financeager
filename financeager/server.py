@@ -3,19 +3,19 @@
 import glob
 import os.path
 
-from . import DEFAULT_POCKET_NAME, exceptions, init_logger, pocket
+from . import DEFAULT_POCKET_NAME, POCKET_DEFAULT_TYPE, exceptions, init_logger, pocket
 
 logger = init_logger(__name__)
 
 
 class Server:
-    """Server class holding the ``TinyDbPocket`` databases.
+    """Server class holding the ``Pocket`` databases.
 
-    All database handling is taken care of in the underlying `TinyDbPocket`.
-    Kwargs (f.i. storage) are passed to the TinyDbPocket member.
+    All database handling is taken care of in the underlying `Pocket` and all kwargs
+    (f.i. storage) are passed there.
     """
 
-    def __init__(self, *, database_type="tinydb", **kwargs):
+    def __init__(self, *, database_type=POCKET_DEFAULT_TYPE, **kwargs):
         self._pockets = {}
         self._pocket_kwargs = kwargs
         self._database_type = database_type

@@ -89,7 +89,7 @@ def _migrate_pockets(pocket_names, sinks):
                 f"{result['recurrent_count']} recurrent)"
             )
             sinks.info(message)
-        except (FileNotFoundError, FileExistsError, ValueError) as e:
+        except (FileNotFoundError, FileExistsError, ValueError, ImportError) as e:
             sinks.error(str(e))
             return FAILURE
         except Exception as e:
@@ -145,7 +145,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
     if database_type != "sqlite":
         logger.warning(
             f"You're using the `{database_type}` database type. "
-            "In financeager v2.0 (to be released in Q3 2026), the `sqlite` type will "
+            "In financeager v2.0 (released in Q3 2026), the `sqlite` type has "
             "become the default. Convert your databases now with the `migrate-pockets` "
             "command, and set `database_type = sqlite` in your configuration file "
             f"{configuration.filepath}."
@@ -530,7 +530,9 @@ is assumed""",
         metavar="POCKET",
         help="name(s) of pocket(s) to migrate (without .json extension)",
     ).completer = argcomplete.ChoicesCompleter(
-        pocket_names(financeager.DATA_DIR, database_type="tinydb")
+        pocket_names(
+            financeager.DATA_DIR, database_type=financeager.POCKET_DEFAULT_TYPE
+        )
     )
 
     # Extend with plugin parsers
