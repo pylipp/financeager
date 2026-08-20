@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip
-          pip install -U -e .[develop]
+          pip install -U -e .[develop,tinydb]
           pip install -U coveralls
       - name: Run style-checks
         uses: j178/prek-action@v2
