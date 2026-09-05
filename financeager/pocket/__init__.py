@@ -5,5 +5,5 @@ try:
     from .tinydb import TinyDbPocket
 
     POCKET_CLASSES["tinydb"] = TinyDbPocket
-except ImportError:
+except ModuleNotFoundError:
     pass

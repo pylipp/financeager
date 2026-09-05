@@ -127,7 +127,10 @@ class Configuration:
         if database_type not in valid_database_types:
             message = f"Unknown database type: {database_type}"
             if database_type == "tinydb":  # pragma: no cover
-                message += "\nYou need to install the `tinydb` dependency."
+                message += (
+                    "\nThe `tinydb` backend is an optional dependency. Install it via "
+                    "`pip install financeager[tinydb]`."
+                )
             raise InvalidConfigError(message)
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:

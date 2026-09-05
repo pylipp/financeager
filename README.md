@@ -170,7 +170,7 @@ You can find a log of interactions at `~/.local/share/financeager/log` (on both 
 
 ### More on configuration
 
-By default, financeager uses a `sqlite` database. If you want to use an `tinydb` database, specify it in the configuration file:
+By default, financeager uses a `sqlite` database. If you want to use a `tinydb` database, specify it in the configuration file:
 
     [SERVICE]
     database_type = tinydb

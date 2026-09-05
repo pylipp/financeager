@@ -530,9 +530,7 @@ is assumed""",
         metavar="POCKET",
         help="name(s) of pocket(s) to migrate (without .json extension)",
     ).completer = argcomplete.ChoicesCompleter(
-        pocket_names(
-            financeager.DATA_DIR, database_type=financeager.POCKET_DEFAULT_TYPE
-        )
+        pocket_names(financeager.DATA_DIR, database_type="tinydb")
     )
 
     # Extend with plugin parsers
