@@ -18,9 +18,9 @@ keywords = [
 license = {text = "GPLv3"}
 authors = [{ name = "Philipp Metzner", email = "beth.aleph@yahoo.de" }]
 dependencies = [
-  "platformdirs==4.10.0",
-  "argcomplete==3.6.3",
-  "marshmallow==4.3.0",
+  "platformdirs==4.11.5",
+  "argcomplete==3.7.2",
+  "marshmallow==4.3.1",
   "python-dateutil==2.9.0.post0",
   "rich==15.0.0",
 ]
@@ -46,18 +46,18 @@ classifiers = [
 [project.optional-dependencies]
 develop = [
   "black==26.5.1",
-  "coverage==7.14.1",
+  "coverage==7.16.0",
   'flake8==7.3.0',
   "flake8-pyproject==1.2.4",
   "gitlint-core==0.19.1",
-  'isort==8.0.1',
-  'prek==0.4.3',
+  'isort==9.0.1',
+  'prek==0.5.0',
 ]
 packaging = [
   "build",
 ]
 tinydb = [
-  "tinydb==4.8.2",
+  "tinydb==4.9.0",
 ]
 
 [project.urls]
