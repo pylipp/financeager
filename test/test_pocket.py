@@ -3,9 +3,11 @@ import datetime as dt
 import json
 import os.path
 import shutil
+import sys
 import tempfile
 import unittest
 from collections import Counter
+from unittest import mock
 
 from marshmallow import ValidationError
 
@@ -701,6 +703,18 @@ class SqlitePocketRecurrentEntryNowTestCase(TinyDbPocketRecurrentEntryNowTestCas
 class SqlitePocketRecurrentEntryTestCase(TinyDbPocketRecurrentEntryTestCase):
     def setUp(self):
         self.pocket = SqlitePocket(name=1901)
+
+
+class MissingTinyDbPackage(unittest.TestCase):
+    @mock.patch.dict(sys.modules, {"tinydb": None})
+    def test_pocket_classes(self):
+        sys.modules.pop("financeager.pocket.tinydb")
+        sys.modules.pop("financeager.pocket")
+        import financeager.pocket
+
+        self.assertDictEqual(
+            financeager.pocket.POCKET_CLASSES, {"sqlite": SqlitePocket}
+        )
 
 
 if __name__ == "__main__":

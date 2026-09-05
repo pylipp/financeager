@@ -4,7 +4,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 
 from financeager import plugin
 
-from . import CONFIG_FILEPATH, init_logger
+from . import CONFIG_FILEPATH, POCKET_DEFAULT_TYPE, init_logger
 from .entries import CategoryEntry
 from .exceptions import InvalidConfigError
 from .pocket import POCKET_CLASSES
@@ -42,7 +42,7 @@ class Configuration:
     def _init_defaults(self):
         self._parser["SERVICE"] = {
             "name": "local",
-            "database_type": "tinydb",
+            "database_type": POCKET_DEFAULT_TYPE,
         }
         self._parser["FRONTEND"] = {
             "default_category": CategoryEntry.DEFAULT_NAME,
@@ -125,7 +125,13 @@ class Configuration:
         valid_database_types = list(POCKET_CLASSES.keys())
         database_type = self.get_option("SERVICE", "database_type")
         if database_type not in valid_database_types:
-            raise InvalidConfigError(f"Unknown database type: {database_type}")
+            message = f"Unknown database type: {database_type}"
+            if database_type == "tinydb":  # pragma: no cover
+                message += (
+                    "\nThe `tinydb` backend is an optional dependency. Install it via "
+                    "`pip install financeager[tinydb]`."
+                )
+            raise InvalidConfigError(message)
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")

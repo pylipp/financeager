@@ -3,8 +3,6 @@
 import json
 import os.path
 
-from tinydb import TinyDB
-
 from .. import DEFAULT_TABLE, RECURRENT_TABLE
 from .sqlite import SqlitePocket
 
@@ -19,6 +17,9 @@ def migrate_pocket(pocket_name, data_dir):
     :raises: ValueError if TinyDB file contains invalid JSON
     :raises: Exception for other errors during migration
     """
+    # Defer import to enable error handling in caller
+    from tinydb import TinyDB
+
     # Validate that TinyDB file exists
     tinydb_path = os.path.join(data_dir, f"{pocket_name}.json")
     if not os.path.exists(tinydb_path):

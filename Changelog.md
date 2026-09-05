@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
+## [v2.0.0] - 2026-09-
+### Breaking changes
+- The `sqlite` database type is now the default. Use the `migrate-pockets` command to migrate existing `tinydb` databases (see also v1.6.0 release notes).
+
 ## [v1.6.3] - 2026-06-04
 ### Changed
 - Update dependencies `platformdirs`, `rich` and `marshmallow`. (#283, #284, #287)

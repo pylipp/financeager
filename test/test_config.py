@@ -16,7 +16,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertEqual(config.get_option("SERVICE", "name"), "local")
         self.assertDictEqual(
             config.get_section("SERVICE"),
-            {"name": "local", "database_type": "tinydb"},
+            {"name": "local", "database_type": "sqlite"},
         )
 
     def test_invalid_config(self):
