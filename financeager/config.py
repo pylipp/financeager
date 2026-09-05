@@ -125,7 +125,10 @@ class Configuration:
         valid_database_types = list(POCKET_CLASSES.keys())
         database_type = self.get_option("SERVICE", "database_type")
         if database_type not in valid_database_types:
-            raise InvalidConfigError(f"Unknown database type: {database_type}")
+            message = f"Unknown database type: {database_type}"
+            if database_type == "tinydb":  # pragma: no cover
+                message += "\nYou need to install the `tinydb` dependency."
+            raise InvalidConfigError(message)
 
         if len(self.get_option("FRONTEND", "default_category")) < 1:
             raise InvalidConfigError("Default category name too short!")
