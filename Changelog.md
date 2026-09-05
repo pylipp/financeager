@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The `sqlite` database type is now the default. Use the `migrate-pockets` command to migrate existing `tinydb` databases (see also v1.6.0 release notes). (#294)
 ### Changed
 - Update dependencies `argcomplete`, `platformdirs`, `tinydb` and `marshmallow`. (#290, #291, #297)
+### Removed
+- Support for Python 3.10 is removed. (#298)
 
 ## [v1.6.3] - 2026-06-04
 ### Changed
