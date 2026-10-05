@@ -153,7 +153,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
         )
 
     try:
-        _preprocess(params)
+        _preprocess(params, command=command)
     except exceptions.PreprocessingError as e:
         sinks.error(e)
         return FAILURE
@@ -184,7 +184,7 @@ def run(command, configuration, plugins=None, verbose=False, sinks=None, **param
     return exit_code
 
 
-def _preprocess(data):
+def _preprocess(data, command=None):
     """Preprocess data to be passed to Client (e.g. convert date format, parse
     'filters' and 'month' options passed with list command).
 
@@ -260,9 +260,20 @@ def _preprocess(data):
         data["filters"]["date"] = f"{date.strftime('%Y-%m')}-"
 
     if any([data.get(f) for f in ["frequency", "start", "end"]]):
+        if (
+            command == "add"
+            and (data.get("start") is not None or data.get("end") is not None)
+            and data.get("frequency") is None
+        ):
+            raise exceptions.PreprocessingError("No frequency given.")
         # Assume that entry should be added to recurrent table
         data["table_name"] = RECURRENT_TABLE
+
     if any(n in parsed_items for n in ["start", "end", "frequency"]):
+        if "date" in parsed_items:
+            raise exceptions.PreprocessingError(
+                "Must not specify date and one of start/end/frequency as filters."
+            )
         # Assume that only recurrent table shall be displayed
         data["recurrent_only"] = True
 

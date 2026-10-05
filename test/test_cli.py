@@ -213,6 +213,13 @@ default_category = no-category"""
         response = self.cli_run("get {} -r", format_args=entry_id)
         self.assertIn("2020-01-01", response)
 
+    def test_add_recurrent_entry_without_frequency(self):
+        response = self.cli_run("add payment -10 -s 01-01", log_method="error")
+        self.assertEqual(response, "No frequency given.")
+
+        response = self.cli_run("add payment -10 -e 01-01", log_method="error")
+        self.assertEqual(response, "No frequency given.")
+
     def test_get_nonexisting_entry(self):
         response = self.cli_run("get 0", log_method="error")
         self.assertEqual(response, "Invalid request: Entry not found.")
@@ -233,6 +240,14 @@ default_category = no-category"""
         entry_id = self.cli_run("add stuff 100 --verbose")
         response = self.cli_run("get {}", format_args=entry_id)
         self.assertIn("stuff", response.lower())
+
+    def test_list_with_date_and_recurrent_filters(self):
+        for f in ["frequency=weekly", "start=2026", "end="]:
+            response = self.cli_run(f"list -f date=01 -f {f}", log_method="error")
+            self.assertEqual(
+                response,
+                "Must not specify date and one of start/end/frequency as filters.",
+            )
 
     def test_list_month(self):
         month_nr = 1
