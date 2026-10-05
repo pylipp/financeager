@@ -15,6 +15,7 @@ from rich.console import Console
 import financeager
 
 from . import (
+    DEFAULT_POCKET_NAME,
     DEFAULT_TABLE,
     POCKET_DATE_FORMAT,
     RECURRENT_TABLE,
@@ -339,20 +340,25 @@ def _parse_command(args=None, plugins=None):
     add_parser = subparsers.add_parser("add", help="add an entry to the database")
 
     add_parser.add_argument("name", help="entry name")
-    add_parser.add_argument("value", type=float, help="entry value")
+    add_parser.add_argument(
+        "value",
+        type=float,
+        help="entry value. Put positive/negative number for earnings/expenses",
+    )
     add_parser.add_argument(
         "-c", "--category", default=None, help="entry category"
     ).completer = argcomplete.ChoicesCompleter(categories)
-    add_parser.add_argument("-d", "--date", default=None, help="entry date")
+    add_parser.add_argument(
+        "-d", "--date", default=None, help="entry date. Default: today"
+    )
 
     add_parser.add_argument(
         "-t",
         "--table-name",
         default=None,
         choices=[DEFAULT_TABLE, RECURRENT_TABLE],
-        help="""table to add the entry to. With 'recurrent', specify at
-least a frequency, start date and end date are optional. Default:
-'standard'""",
+        help=f"""table to add the entry to. With '{RECURRENT_TABLE}', specify at
+least a frequency, start date and end date are optional. Default: {DEFAULT_TABLE}""",
     )
     add_parser.add_argument(
         "-f",
@@ -362,10 +368,13 @@ least a frequency, start date and end date are optional. Default:
 is assumed""",
     )
     add_parser.add_argument(
-        "-s", "--start", default=None, help="start date of recurrent entry"
+        "-s",
+        "--start",
+        default=None,
+        help="start date of recurrent entry. Default: today",
     )
     add_parser.add_argument(
-        "-e", "--end", default=None, help="end date of recurrent entry"
+        "-e", "--end", default=None, help="end date of recurrent entry. Default: never"
     )
 
     get_parser = subparsers.add_parser(
@@ -377,7 +386,7 @@ is assumed""",
         "--table-name",
         default=None,
         choices=[DEFAULT_TABLE, RECURRENT_TABLE],
-        help="Table to get the entry from. Default: 'standard'.",
+        help=f"Table to get the entry from. Default: {DEFAULT_TABLE}.",
     )
 
     remove_parser = subparsers.add_parser(
@@ -389,7 +398,7 @@ is assumed""",
         "--table-name",
         default=None,
         choices=[DEFAULT_TABLE, RECURRENT_TABLE],
-        help="Table to remove the entry from. Default: 'standard'.",
+        help=f"Table to remove the entry from. Default: {DEFAULT_TABLE}.",
     )
 
     update_parser = subparsers.add_parser(
@@ -399,14 +408,16 @@ is assumed""",
     update_parser.add_argument(
         "-t",
         "--table-name",
-        help="Table containing the entry. Default: 'standard'",
+        help=f"Table containing the entry. Default: {DEFAULT_TABLE}",
         choices=[DEFAULT_TABLE, RECURRENT_TABLE],
     )
     update_parser.add_argument("-n", "--name", help="new name")
     update_parser.add_argument("-v", "--value", type=float, help="new value")
-    update_parser.add_argument("-c", "--category", help="new category").completer = (
-        argcomplete.ChoicesCompleter(categories)
-    )
+    update_parser.add_argument(
+        "-c",
+        "--category",
+        help=f"new category. Use '{UNSET_INDICATOR}' to set to default category",
+    ).completer = argcomplete.ChoicesCompleter(categories)
     update_parser.add_argument(
         "-d", "--date", help="new date (for standard entries only)"
     )
@@ -420,7 +431,10 @@ is assumed""",
         "-s", "--start", help="new start date (for recurrent entries only)"
     )
     update_parser.add_argument(
-        "-e", "--end", help="new end date (for recurrent entries only)"
+        "-e",
+        "--end",
+        help="new end date (for recurrent entries only). "
+        f"Use '{UNSET_INDICATOR}' to unset",
     )
 
     copy_parser = subparsers.add_parser(
@@ -432,21 +446,21 @@ is assumed""",
         "--source",
         default=None,
         dest="source_pocket",
-        help="pocket to copy the entry from (default: main pocket)",
+        help="pocket to copy the entry from. Default: main",
     )
     copy_parser.add_argument(
         "-d",
         "--destination",
         default=None,
         dest="destination_pocket",
-        help="pocket to copy the entry to (default: source pocket)",
+        help="pocket to copy the entry to. Default: source pocket",
     )
     copy_parser.add_argument(
         "-t",
         "--table-name",
         default=None,
         choices=[DEFAULT_TABLE, RECURRENT_TABLE],
-        help="Table to copy the entry from/to. Default: 'standard'.",
+        help=f"Table to copy the entry from/to. Default: {DEFAULT_TABLE}.",
     )
 
     list_parser = subparsers.add_parser(
@@ -459,8 +473,10 @@ is assumed""",
         action="append",
         dest="filters",
         metavar="FILTER",
-        help="filter for name, "
-        "date and/or category substring, e.g. name=beer category=groceries. "
+        help="filter for name, value, category (standard and recurrent entries), "
+        "date (standard), frequency, start, and/or end (recurrent). "
+        "E.g. '-f name=beer -f category=groceries'. Partial matching applies to all "
+        "fields except for value, e.g. '-f date=2026-' lists all entries from 2026. "
         "Can be specified multiple times (then filters add up)",
     )
     list_parser.add_argument(
@@ -563,7 +579,10 @@ is assumed""",
             list_parser,
         ]:
             subparser.add_argument(
-                "-p", "--pocket", help="name of pocket to modify or query"
+                "-p",
+                "--pocket",
+                help="name of pocket to modify or query. "
+                f"Default: {DEFAULT_POCKET_NAME}",
             ).completer = argcomplete.ChoicesCompleter(
                 pocket_names(financeager.DATA_DIR)
             )

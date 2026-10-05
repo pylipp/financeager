@@ -146,7 +146,7 @@ In order to only list category entries incl. their respective percentage of earn
 
     > fina list --category-percentage
 
-In order to only list recurrent entries run (you can apply additional filtering (use `-f end=` to list entries with indefinite end) and sorting)
+In order to only list recurrent entries run (you can apply additional filtering by start/end/frequency (use `-f end=` to list entries with indefinite end) and sorting)
 
     > fina list --recurrent-only
 
