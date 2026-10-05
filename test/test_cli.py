@@ -882,7 +882,7 @@ database_type = tinydb"""
         warning_message = mocked_warning.call_args[0][0]
         self.assertIn("tinydb", warning_message)
         self.assertIn("v2.0", warning_message)
-        self.assertIn("Q3 2026", warning_message)
+        self.assertIn("Q4 2026", warning_message)
         self.assertIn("migrate-pockets", warning_message)
         self.assertIn("database_type = sqlite", warning_message)
 
