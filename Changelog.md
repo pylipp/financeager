@@ -10,9 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Deprecated
 
-## [v2.0.0] - 2026-09-
+## [v2.0.0] - 2026-10-12
 ### Breaking changes
 - The `sqlite` database type is now the default. Use the `migrate-pockets` command to migrate existing `tinydb` databases (see also v1.6.0 release notes). (#294)
+### Added
+- Support Python 3.15.
 ### Changed
 - Update dependencies `argcomplete`, `platformdirs`, `tinydb` and `marshmallow`. (#290, #291, #297, #300)
 - Improve CLI help and validation for various commands.
