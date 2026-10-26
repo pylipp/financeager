@@ -53,7 +53,6 @@ develop = [
   "coverage==7.16.2",
   'flake8==7.4.1',
   "flake8-pyproject==1.2.4",
-  "gitlint-core==0.19.1",
   'isort==9.0.2',
   'prek==0.5.4',
 ]

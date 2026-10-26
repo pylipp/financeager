@@ -4,9 +4,9 @@ all:
 	@echo "Available targets: install, test, release, coverage, lint, format, style-check"
 
 install:
-	python -m pip install -U -e .[develop,tinydb]
+	pip install -U pip
+	pip install -U -e .[develop,tinydb]
 	prek install --overwrite
-	gitlint install-hook
 
 test:
 	python -m unittest
