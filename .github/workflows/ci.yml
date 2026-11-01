@@ -43,7 +43,7 @@ jobs:
           pip install -U -e .[develop,tinydb]
           pip install -U coveralls
       - name: Run style-checks
-        uses: j178/prek-action@v3.0.0
+        uses: j178/prek-action@v3.1.0
       - name: Run test suite
         run: |
           coverage erase
