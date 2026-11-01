@@ -50,11 +50,11 @@ classifiers = [
 [project.optional-dependencies]
 develop = [
   "black==26.10.1",
-  "coverage==7.16.2",
-  'flake8==7.4.1',
+  "coverage==7.17.0",
+  'flake8==7.5.0',
   "flake8-pyproject==1.2.4",
   'isort==9.0.2',
-  'prek==0.5.4',
+  'prek==0.5.7',
 ]
 packaging = [
   "build",
