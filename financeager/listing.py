@@ -69,7 +69,7 @@ class Listing:
 
         :return: CategoryEntry
         """
-        category_name = category_name.lower()
+        category_name = (category_name or CategoryEntry.DEFAULT_NAME).lower()
 
         for category_entry in self.categories:
             if category_entry.name == category_name:
