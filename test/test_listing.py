@@ -105,6 +105,17 @@ class ListingFromElementsTestCase(unittest.TestCase):
         self.assertListEqual(listing_entry_names, parsed_listing_entry_names)
 
 
+class FromElementsWithoutCategoryNorDefaultTestCase(unittest.TestCase):
+    def test_missing_category_falls_back_to_default(self):
+        listing = Listing.from_elements(
+            [dict(name="Aldi", value=66.6, date="2009-11-08", eid=0)],
+            default_category=None,
+        )
+        self.assertEqual(
+            [CategoryEntry.DEFAULT_NAME], list(listing.category_entry_names)
+        )
+
+
 class PrettifyListingsTestCase(unittest.TestCase):
     def test_prettify_no_elements(self):
         elements = {DEFAULT_TABLE: {}, RECURRENT_TABLE: {}}
